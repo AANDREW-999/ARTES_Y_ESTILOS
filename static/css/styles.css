@@ -1,0 +1,229 @@
+:root {
+  /* Paleta */
+  --vino-oscuro: #59282C;
+  --rosa-intenso: #BF5486;
+  --rosa-suave: #D9A7C2;
+  --verde-claro: #D6D97E;
+  --beige-claro: #F2E7DC;
+
+  /* Tipografía */
+  --ff-display: 'Playfair Display', serif;
+  --ff-body: 'Nunito Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  /* Sombra y radios */
+  --shadow-soft: 0 10px 25px rgba(0,0,0,.08);
+  --radius-lg: 16px;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(180deg, var(--beige-claro) 0%, #fff 40%, var(--beige-claro) 100%);
+  color: var(--vino-oscuro);
+  font-family: var(--ff-body);
+  line-height: 1.6;
+}
+
+/* Navbar floral */
+.floral-navbar {
+  background: var(--rosa-suave);
+  backdrop-filter: saturate(110%) blur(4px);
+}
+.floral-navbar .navbar-brand span {
+  font-family: var(--ff-display);
+  letter-spacing: .2px;
+}
+.floral-navbar .navbar-brand,
+.floral-navbar .nav-link {
+  color: #3b2b33;
+}
+.floral-navbar .nav-link:hover,
+.floral-navbar .nav-link.active {
+  color: var(--rosa-intenso);
+  text-decoration: none;
+}
+.brand-logo {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Branding tamaños mejorados */
+.brand-logo-lg { height: 56px; }
+.brand-logo-xl { height: 64px; }
+
+/* Branding tamaños ampliados (solicitud del usuario) */
+.brand-logo-xxl { height: 84px; }
+.footer-logo-xxl { height: 68px; }
+
+/* Ajuste del spacing para navbar con logo grande */
+.floral-navbar .navbar-brand { padding-top: .25rem; padding-bottom: .25rem; }
+
+/* Contenido principal */
+main {
+  padding-block: 2rem;
+}
+.section-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 2rem;
+}
+
+/* Footer floral */
+.floral-footer {
+  background: var(--rosa-suave);
+}
+.footer-logo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+}
+.footer-favicon { height: 28px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.15)); }
+
+/* Footer decorativo gradiente sutil */
+.footer-gradient { background: linear-gradient(180deg, var(--rosa-suave) 0%, #f7eef5 60%); }
+
+.footer-link {
+  color: #3b2b33;
+  transition: color .2s ease;
+}
+.footer-link:hover {
+  color: var(--rosa-intenso);
+  text-decoration: none;
+}
+.social-link {
+  color: #3b2b33;
+  font-size: 1.25rem;
+  transition: color .2s ease, transform .2s ease;
+}
+.social-link:hover {
+  color: var(--rosa-intenso);
+}
+.social-link.social-hover { color: var(--rosa-intenso); transform: translateY(-2px) scale(1.06); }
+
+/* Enlaces rápidos más ricos visualmente */
+.quick-links .footer-link { position: relative; display: inline-flex; align-items: center; gap: .5rem; padding: .2rem 0; }
+.quick-links .footer-link::after { content: ""; position: absolute; left: 0; bottom: -2px; height: 2px; width: 0; background: linear-gradient(90deg, var(--rosa-intenso), var(--rosa-suave)); transition: width .25s ease; border-radius: 999px; }
+.quick-links .footer-link:hover::after { width: 100%; }
+
+/* Botones sociales tipo pill con hover llamativo */
+.btn-social { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.08); transition: transform .2s ease, box-shadow .25s ease, background-color .2s ease; }
+.btn-social:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,0,0,.12); }
+.btn-social.instagram { color: var(--rosa-intenso); }
+.btn-social.facebook { color: #1877F2; }
+.btn-social.whatsapp { color: #25D366; }
+
+/* Tipografía de titulares */
+h1, h2, h3 {
+  font-family: var(--ff-display);
+  color: var(--vino-oscuro);
+}
+h1 span.acento, h2 span.acento, h3 span.acento {
+  color: var(--rosa-intenso);
+}
+
+/* Enlaces acento */
+.a-floral, .link-floral {
+  color: var(--rosa-intenso);
+  text-decoration: none;
+}
+.a-floral:hover, .link-floral:hover {
+  color: #a94372;
+  text-decoration: underline;
+}
+
+/* Badges y chips */
+.badge-floral {
+  background: var(--rosa-suave);
+  color: var(--vino-oscuro);
+  border-radius: 999px;
+  padding: .35rem .65rem;
+  font-weight: 600;
+  border: 1px solid var(--rosa-intenso);
+}
+
+/* Utilidades */
+hr {
+  border-color: rgba(0,0,0,0.15);
+}
+
+/* Botones personalizados acordes a paleta */
+.btn-rosa {
+  background: var(--rosa-intenso);
+  border: none;
+  color: #fff;
+}
+.btn-rosa:hover { background: #a94372; }
+
+.btn-vino {
+  background: var(--vino-oscuro);
+  border: none;
+  color: #fff;
+}
+.btn-vino:hover { background: #421c20; }
+
+/* Tarjetas destacadas */
+.card-floral {
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+.card-floral .card-header {
+  background: var(--beige-claro);
+  border: none;
+  font-family: var(--ff-display);
+}
+
+/* Navbar sticky scrolled */
+#mainNavbar.navbar-scrolled { box-shadow: 0 8px 22px rgba(0,0,0,.12); backdrop-filter: saturate(120%) blur(6px); }
+.nav-divider { height: 4px; background: linear-gradient(90deg, var(--rosa-suave), var(--rosa-intenso)); opacity: .35; }
+
+/* Footer branding estilos */
+.footer-brand-title { font-family: var(--ff-display); font-weight: 800; font-size: 2.25rem; color: var(--vino-oscuro); }
+@media (min-width: 992px) { .footer-brand-title { font-size: 2.75rem; } }
+.footer-brand-sub { font-weight: 700; color: var(--rosa-intenso); font-size: 1rem; margin-left: .35rem; }
+.footer-favicon-large { height: 72px; width: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,.15)); }
+
+/* Subrayado animado en enlaces del menú */
+.floral-navbar .nav-link { position: relative; }
+.floral-navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: .2rem;
+  width: 0; height: 2px;
+  background: linear-gradient(90deg, var(--rosa-intenso), var(--rosa-suave));
+  transition: width .25s ease;
+}
+.floral-navbar .nav-link:hover::after,
+.floral-navbar .nav-link.active::after { width: 100%; }
+
+/* Animaciones de aparición (reveal) */
+.reveal { opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .5s ease; }
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+.reveal-left { opacity: 0; transform: translateX(-16px); transition: opacity .55s ease, transform .55s ease; }
+.reveal-left.in-view { opacity: 1; transform: translateX(0); }
+.reveal-right { opacity: 0; transform: translateX(16px); transition: opacity .55s ease, transform .55s ease; }
+.reveal-right.in-view { opacity: 1; transform: translateX(0); }
+
+/* Rosa grande bajo redes: más presencia y hover decorativo */
+.footer-favicon-large { height: 96px; width: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,.15)); transition: transform .25s ease; }
+.footer-favicon-large:hover { transform: rotate(-6deg) scale(1.04); }
+
+/* Acento en tarjetas con borde degradado sutil */
+.card-floral { border: 1px solid rgba(89,40,44,.08); }
+.card-floral:hover { border-color: transparent; box-shadow: 0 14px 30px rgba(0,0,0,.12); }
+.card-floral:hover { background-image: linear-gradient(#fff,#fff), linear-gradient(90deg, var(--rosa-suave), var(--rosa-intenso)); background-origin: border-box; background-clip: content-box, border-box; }
+
+/* Botón especial de Iniciar Sesión (navbar) */
+.nav-login-btn { background: #a94372; color: #fff !important; border-radius: 999px; padding: .4rem .9rem; box-shadow: 0 8px 18px rgba(169,67,114,.25); display: inline-flex; align-items: center; gap: .4rem; }
+.nav-login-btn:hover { background: #8f3a62; box-shadow: 0 12px 26px rgba(169,67,114,.35); transform: translateY(-1px); }
+.nav-login-btn:active { transform: translateY(0); }
+
+/* Ajustes responsivos */
+@media (max-width: 991.98px) {
+  .navbar .nav-link { padding: .5rem .25rem; }
+  .brand-logo { height: 36px; }
+}

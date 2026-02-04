@@ -1,0 +1,115 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}Productos · Artes & Estilos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/styles.css' %}?v=20260203">
+{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    <div class="row mb-3">
+      <div class="col reveal">
+        <h1 class="fw-bold mb-2">Catálogo</h1>
+        <p class="text-muted">Elige el arreglo perfecto para tu ocasión especial.</p>
+      </div>
+    </div>
+
+    <!-- Nuestros trabajos (catálogo) SIN bucle -->
+    <div class="row g-4">
+      <div class="col-12"><h2 class="fw-bold mb-2">Nuestros trabajos</h2></div>
+
+      <!-- Cards con data-src para lightbox -->
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosas.png' %}" data-src="{% static 'core/img/ArregloRosas.png' %}" class="card-img-top js-lightbox" alt="Arreglo de Rosas" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Arreglo de Rosas</h5>
+            <p class="card-text">Diseño cuidadoso, flores frescas y detalles que enamoran.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosasClaras.png' %}" data-src="{% static 'core/img/ArregloRosasClaras.png' %}" class="card-img-top js-lightbox" alt="Rosas Claras" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Rosas Claras</h5>
+            <p class="card-text">Suavidad y elegancia en tonos pastel.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloFloresAmarillas.png' %}" data-src="{% static 'core/img/ArregloFloresAmarillas.png' %}" class="card-img-top js-lightbox" alt="Flores Amarillas" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Flores Amarillas</h5>
+            <p class="card-text">Alegría y calidez para iluminar momentos.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosasGlobo.png' %}" data-src="{% static 'core/img/ArregloRosasGlobo.png' %}" class="card-img-top js-lightbox" alt="Rosas con Globo" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Rosas con Globo</h5>
+            <p class="card-text">Celebración con un toque especial.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosasChocolate.png' %}" data-src="{% static 'core/img/ArregloRosasChocolate.png' %}" class="card-img-top js-lightbox" alt="Rosas y Chocolate" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Rosas y Chocolate</h5>
+            <p class="card-text">Dulzura y romanticismo en un detalle único.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloGirasolesFlores.png' %}" data-src="{% static 'core/img/ArregloGirasolesFlores.png' %}" class="card-img-top js-lightbox" alt="Girasoles y Flores" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Girasoles y Flores</h5>
+            <p class="card-text">Energía y belleza natural que inspira.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloPeluches.png' %}" data-src="{% static 'core/img/ArregloPeluches.png' %}" class="card-img-top js-lightbox" alt="Arreglo con Peluche" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Arreglo con Peluche</h5>
+            <p class="card-text">Ternura y encanto para ocasiones especiales.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lightbox overlay -->
+    <div class="lightbox-overlay" id="lightboxOverlay" aria-hidden="true">
+      <div class="lightbox-content position-relative">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">✕</button>
+        <img id="lightboxImage" src="#" alt="Vista ampliada">
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}

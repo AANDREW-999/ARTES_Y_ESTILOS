@@ -1,0 +1,149 @@
+<!-- usuarios/templates/usuarios/panel_admin/lista_usuarios.html -->
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Lista de usuarios{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-6 fw-bold">
+                <i class="bi bi-people"></i> {{ titulo }}
+            </h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{% url 'usuarios:crear_usuario' %}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Nuevo Usuario
+            </a>
+            <a href="{% url 'core:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filtros y Búsqueda -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="buscar" class="form-control" 
+                               placeholder="Buscar por documento, nombre, email..." 
+                               value="{{ busqueda }}">
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <select name="activo" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="true" {% if filtro_activo == 'true' %}selected{% endif %}>Activos</option>
+                        <option value="false" {% if filtro_activo == 'false' %}selected{% endif %}>Inactivos</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <select name="staff" class="form-select">
+                        <option value="">Todos los tipos</option>
+                        <option value="true" {% if filtro_staff == 'true' %}selected{% endif %}>Administradores</option>
+                        <option value="false" {% if filtro_staff == 'false' %}selected{% endif %}>Usuarios normales</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tabla de Usuarios -->
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Documento</th>
+                            <th>Nombre Completo</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Fecha Registro</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td><strong>{{ usuario.perfil.documento }}</strong></td>
+                            <td>
+                                {% if usuario.perfil.foto_perfil %}
+                                    <img src="{{ usuario.perfil.foto_perfil.url }}" 
+                                         alt="{{ usuario.get_full_name }}" 
+                                         class="rounded-circle me-2" 
+                                         width="35" height="35">
+                                {% else %}
+                                    <i class="bi bi-person-circle fs-4 me-2"></i>
+                                {% endif %}
+                                {{ usuario.get_full_name }}
+                            </td>
+                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.perfil.telefono|default:"N/A" }}</td>
+                            <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if usuario.is_active %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Activo
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i> Inactivo
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                            <!-- Botón Ver Detalles -->
+                            <a href="/" 
+                               class="btn btn-sm btn-outline-info" 
+                               title="Ver detalles"
+                               data-bs-toggle="tooltip">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            
+                            <!-- Botón Editar -->
+                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}" 
+                               class="btn btn-sm btn-outline-primary" 
+                               title="Editar instructor"
+                               data-bs-toggle="tooltip">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            
+                            <!-- Botón Eliminar -->
+                            <a href="{% url 'usuarios:eliminar_usuario' usuario.id %}" 
+                               class="btn btn-sm btn-outline-danger" 
+                               title="Eliminar instructor"
+                               data-bs-toggle="tooltip">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                No se encontraron usuarios
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

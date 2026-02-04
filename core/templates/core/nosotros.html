@@ -1,0 +1,65 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}Nosotros · Arte & Estilos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/styles.css' %}?v=20260203">
+{% endblock %}
+
+{% block content %}
+<div class="container reveal">
+  <!-- Encabezado descriptivo -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-12">
+      <h1 class="fw-bold title-floral">Sobre <span class="acento">Nosotros</span>
+        <img src="{% static 'img/FaviconA&E.png' %}" alt="pétalo" class="title-petal" aria-hidden="true">
+      </h1>
+      <p class="text-muted mb-0">En <strong>Floristería Arte & Estilos</strong> tenemos <strong>25 años de experiencia</strong> creando arreglos florales para toda ocasión. Es nuestro <strong>emblema</strong>: trabajar con amor por lo que hacemos, la <strong>dedicación</strong> en cada detalle y el <strong>buen gusto</strong> en cada diseño. Aquí encontrarás <strong>flores</strong>, <strong>chocolates</strong> y detalles especiales que acompañan tus momentos importantes. Estamos ubicados en <strong>Cra 10 # 9 - 47, Sogamoso</strong>, transformando sentimientos en diseños que <strong>enamoran</strong>.</p>
+    </div>
+  </div>
+
+  <!-- Misión y Visión sin imágenes internas -->
+  <div class="row g-4">
+    <div class="col-lg-6 reveal-left">
+      <div class="ribbon-card h-100">
+        <div class="ribbon r-vision">
+          <h3 class="ribbon-title">Visión</h3>
+        </div>
+        <div class="ribbon-body">
+          <p>
+            Ser una floristería reconocida por la calidad de su trabajo, el buen gusto en cada diseño y la confianza construida con nuestros clientes,
+            creciendo como una empresa sólida y familiar, y convirtiéndonos en una opción preferida para celebrar y expresar emociones a través de las flores.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 reveal-right">
+      <div class="ribbon-card h-100">
+        <div class="ribbon r-mision">
+          <h3 class="ribbon-title">Misión</h3>
+        </div>
+        <div class="ribbon-body">
+          <p>
+            En Floristería Arte & Estilos creamos arreglos florales que comunican sentimientos y acompañan momentos importantes. Trabajamos con flores frescas,
+            diseño cuidadoso y dedicación en cada detalle, brindando una atención cercana y responsable, comprometida con la calidad y la satisfacción de nuestros clientes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapa de Google -->
+  <div class="row mt-5">
+    <div class="col-12 reveal">
+      <h2 class="fw-bold mb-3">Encuéntranos</h2>
+      <div class="section-card p-0 overflow-hidden">
+        <iframe title="Mapa Floristería" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" width="100%" height="360" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}

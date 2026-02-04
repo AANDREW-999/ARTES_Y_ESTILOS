@@ -1,0 +1,141 @@
+body {
+    background: linear-gradient(135deg, var(--rosa-suave) 0%, var(--beige-claro) 100%);
+    min-height: auto;
+    display: block;
+    overflow-x: hidden;
+}
+
+.login-page {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.login-page .row {
+    display: flex;
+    justify-content: center;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.login-page .row > [class*='col-'] {
+    flex: 0 1 600px;
+    max-width: 600px;
+}
+
+@media (max-width: 620px) {
+    .login-page .row > [class*='col-'] {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+}
+
+.login-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 0 16px;
+}
+
+.login-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    padding: 28px 24px;
+    position: relative;
+    animation: fadeSlide .45s ease both;
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-header i {
+    font-size: 48px;
+    color: var(--rosa-intenso);
+    margin-bottom: 12px;
+}
+
+.login-header h2 {
+    color: var(--vino-oscuro);
+    font-weight: 700;
+}
+
+.form-floating {
+    margin-bottom: 16px;
+}
+
+.form-floating .form-control {
+    border-radius: 10px;
+}
+
+.form-floating .form-control:focus {
+    border-color: var(--rosa-intenso);
+    box-shadow: 0 0 0 .2rem rgba(191,84,134,.25);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--vino-oscuro);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: var(--rosa-intenso);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 10px;
+    transition: transform .2s ease, box-shadow .25s ease, background-color .2s ease;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(191,84,134,.35);
+    background: #a94372;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 14px;
+}
+
+.login-title {
+    color: var(--rosa-intenso);
+}
+
+/* Responsivo: en pantallas muy pequeñas, ajustar paddings */
+@media (max-width: 575.98px) {
+  .login-card { padding: 22px 16px; }
+}
+
+/* Mejorar contraste en labels de form-floating para pantallas medianas */
+.form-floating label { color: #6b5560; }
+
+/* Ajustes finos para 14" (aprox 1366px de ancho): asegurar centrado visual */
+@media (min-width: 1200px) and (max-width: 1500px) {
+  .login-container { max-width: 560px; }
+}
+
+/* Gutter neutralization para que no se desplace al borde derecho */
+.login-page .container { padding-left: 12px; padding-right: 12px; }

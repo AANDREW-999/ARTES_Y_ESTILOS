@@ -1,0 +1,63 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}Contáctanos · Artes & Estilos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/styles.css' %}?v=20260203">
+{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-6 reveal-left">
+        <h1 class="fw-bold mb-2">Contáctanos</h1>
+        <p class="text-muted mb-3">Estamos aquí para ayudarte a expresar emociones con flores frescas y diseños únicos.</p>
+        <div class="card card-floral border-0">
+          <div class="card-body">
+            <form>
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="c_nombre">Nombre</label>
+                <input type="text" class="form-control" id="c_nombre" placeholder="Tu nombre" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="c_email">Email</label>
+                <input type="email" class="form-control" id="c_email" placeholder="tucorreo@ejemplo.com" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="c_mensaje">Mensaje</label>
+                <textarea class="form-control" id="c_mensaje" rows="4" placeholder="Cuéntanos qué necesitas" required></textarea>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-rosa">Enviar</button>
+                <a class="btn btn-vino" href="https://wa.me/573001234567" target="_blank" rel="noopener">
+                  <i class="bi bi-whatsapp"></i> WhatsApp
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal-right">
+        <div class="section-card">
+          <h5 class="fw-bold mb-3">Información</h5>
+          <ul class="list-unstyled d-grid gap-2">
+            <li><i class="bi bi-geo-alt-fill" style="color: var(--rosa-intenso);"></i> Cra 10 # 9 - 47, Sogamoso</li>
+            <li><i class="bi bi-telephone-fill" style="color: var(--rosa-intenso);"></i> +57 300 123 4567</li>
+            <li><i class="bi bi-envelope-fill" style="color: var(--rosa-intenso);"></i> contacto@arteyestilos.com</li>
+          </ul>
+          <hr>
+          <h6 class="fw-bold">También en redes</h6>
+          <p class="mb-3">Instagram, Facebook y WhatsApp, ¡te esperamos!</p>
+          <div class="ratio ratio-16x9">
+            <iframe title="Ubicación" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}

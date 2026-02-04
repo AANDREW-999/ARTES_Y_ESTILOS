@@ -1,0 +1,258 @@
+.hero-section {
+    background: radial-gradient(1200px 400px at 10% 0%, rgba(217,167,194,.45) 0%, rgba(217,167,194,0) 55%),
+                linear-gradient(135deg, #FDF9F6 0%, var(--beige-claro) 100%);
+    color: var(--vino-oscuro);
+    padding: 32px 0 24px 0;
+    margin-top: -2rem;
+    margin-bottom: -5rem; /* Ajuste fino del espacio inferior en portada */
+}
+
+.feature-card {
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    border-color: rgba(191, 84, 134, 0.35); /* acento rosa intenso */
+}
+
+.feature-card:hover i {
+    filter: drop-shadow(0 3px 6px rgba(191,84,134,.35));
+}
+
+:root {
+    /* colores secundarios para este módulo si se necesitasen */
+}
+
+body {
+    /* fondo general lo define el global styles.css */
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+.navbar-brand {
+    font-weight: 700;
+}
+
+footer a {
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+footer a:hover {
+    color: var(--rosa-intenso) !important;
+}
+
+/* Modal con paleta floral */
+.modal-content {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.modal-header.bg-gradient {
+    background: var(--rosa-suave);
+    padding: 16px 24px;
+}
+
+.modal-body {
+    background-color: #fff;
+}
+
+.form-floating>.form-control {
+    border-radius: 10px;
+}
+
+.form-floating>.form-control:focus {
+    border-color: var(--rosa-intenso);
+    box-shadow: 0 0 0 0.2rem rgba(191, 84, 134, 0.25);
+}
+
+.btn-primary {
+    background: var(--rosa-intenso);
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: .2px;
+}
+
+.btn-primary:hover {
+    background: var(--rosa-intenso);
+    box-shadow: 0 8px 18px rgba(191, 84, 134, 0.35);
+}
+
+/* Animación modal */
+.modal.fade .modal-dialog {
+    transform: scale(.98);
+    opacity: 0;
+    transition: all .22s;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Alertas dentro del modal */
+#modalMessages .alert {
+    border-radius: 10px;
+    margin-bottom: 12px;
+    animation: slideDown .25s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Campos con error */
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Ribbons Misión/Visión (nosotros) usando paleta definida */
+.ribbon-card { border: none; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); overflow: hidden; background: #fff; }
+.ribbon { position: relative; padding: 1rem 1.25rem; font-family: var(--ff-display); }
+.ribbon.r-vision { background: var(--rosa-intenso); color: #fff; }
+.ribbon.r-mision { background: var(--verde-claro); color: #2f3a2f; }
+.ribbon:after { content: ""; position: absolute; right: -40px; top: 0; width: 0; height: 0; border-top: 28px solid transparent; border-bottom: 28px solid transparent; }
+.ribbon.r-vision:after { border-left: 40px solid #a94372; }
+.ribbon.r-mision:after { border-left: 40px solid #b8bb62; }
+.ribbon-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
+.ribbon-body { padding: 1.25rem; color: var(--vino-oscuro); }
+.floral-pin { position: absolute; left: -10px; top: -12px; width: 42px; height: 42px; object-fit: contain; opacity: .95; }
+
+/* Normalización de tamaños de imágenes mejorada */
+.carousel-inner { border-radius: 1rem; overflow: hidden; }
+.carousel-item img, .figure-img {
+  width: 100%;
+  height: 440px; /* altura cómoda para desktop */
+  max-height: 60vh; /* evitar desbordes en pantallas más bajas */
+  object-fit: cover;
+  object-position: center center; /* centra el recorte */
+}
+@media (max-width: 1199.98px) { /* laptops y tablets landscape */
+  .carousel-item img, .figure-img { height: 380px; max-height: 55vh; }
+}
+@media (max-width: 991.98px) { /* tablets */
+  .carousel-item img, .figure-img { height: 300px; max-height: 50vh; }
+}
+@media (max-width: 575.98px) { /* móviles */
+  .carousel-item img, .figure-img { height: 220px; max-height: 45vh; }
+}
+
+/* Carrusel adaptable al tamaño de imagen */
+#carouselAye .carousel-inner { border-radius: 1rem; overflow: hidden; }
+#carouselAye .carousel-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--beige-claro);
+  min-height: 300px; /* asegura un alto base sin salto visual */
+}
+#carouselAye .carousel-item img {
+  width: auto;          /* mantener proporción natural */
+  height: auto;         /* mantener proporción natural */
+  max-width: 100%;      /* no desbordar ancho del contenedor */
+  max-height: 60vh;     /* límite vertical en pantallas comunes */
+  object-fit: contain;  /* evitar recortes, mostrar imagen completa */
+}
+@media (max-width: 991.98px) {
+  #carouselAye .carousel-item { min-height: 240px; }
+  #carouselAye .carousel-item img { max-height: 50vh; }
+}
+@media (max-width: 575.98px) {
+  #carouselAye .carousel-item { min-height: 200px; }
+  #carouselAye .carousel-item img { max-height: 45vh; }
+}
+
+/* Transición profesional: fade + pan/zoom */
+#carouselAye.carousel-fade .carousel-item { transition: opacity .6s ease; }
+#carouselAye .carousel-item img { transition: transform .8s ease, opacity .8s ease; }
+#carouselAye .carousel-item.next-reveal img,
+#carouselAye .carousel-item.prev-reveal img {
+  opacity: 0.85;
+  transform: scale(1.02) translateX(12px); /* pequeño pan/zoom de entrada */
+}
+#carouselAye .carousel-item.active img {
+  opacity: 1;
+  transform: scale(1) translateX(0);
+}
+/* al mantener presionado, aceleramos el paso pero mantenemos suavidad */
+#carouselAye.hold-advance .carousel-item img { transition-duration: .5s; }
+
+/* Tarjetas lado derecho con paleta floral y hover profesional */
+.card-floral {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(89, 40, 44, 0.08); /* vino oscuro muy suave */
+  box-shadow: var(--shadow-soft);
+}
+.card-floral .card-title { color: var(--vino-oscuro); font-weight: 700; }
+.card-floral .card-text { color: #5a444c; }
+
+/* Lightbox simple para catálogo */
+.lightbox-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; z-index: 1050; }
+.lightbox-overlay.show { display: flex; animation: fadeIn .2s ease; }
+.lightbox-content { display: flex; align-items: center; justify-content: center; background: #fff; }
+.lightbox-content img { width: auto; height: auto; max-width: 90vw; max-height: 85vh; object-fit: contain; }
+.lightbox-close { position: absolute; top: 12px; right: 16px; background: var(--rosa-intenso); color: #fff; border: none; border-radius: 999px; padding: .35rem .6rem; cursor: pointer; box-shadow: 0 6px 16px rgba(191,84,134,.35); }
+@keyframes fadeIn { from{ opacity:0 } to { opacity:1 } }
+
+/* Hover profesional para tarjetas ribbon */
+.ribbon-card { transition: transform .25s ease, box-shadow .25s ease; }
+.ribbon-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,.12); }
+/* Letras de Visión en beige claro para mejor contraste */
+.ribbon.r-vision .ribbon-title, .ribbon.r-vision, .ribbon.r-vision .ribbon-body { color: var(--beige-claro); }
+
+/* Título floral con subrayado animado */
+.title-floral { position: relative; display: inline-flex; align-items: center; gap: .5rem; }
+.title-floral::after {
+  content: ""; position: absolute; left: 0; bottom: -6px; height: 3px; width: 0;
+  background: linear-gradient(90deg, var(--rosa-intenso), var(--rosa-suave));
+  border-radius: 999px; transition: width .35s ease;
+}
+.title-floral:hover::after { width: 100%; }
+.title-petal { width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); }
+
+/* Ajuste fino del espacio inferior en portada */
+.hero-section .container { padding-bottom: 0; }
+.hero-section .row:last-child { margin-bottom: 0; }
+/* evita recorte en móviles pero elimina banda blanca */
+@media (max-width: 575.98px) { .hero-section { margin-bottom: -1.5rem; } }
+
+/* Botones de la portada: centrados y ligeramente superpuestos al carrusel */
+.hero-section .mt-3.d-flex.gap-2 {
+  justify-content: center;
+  position: relative;
+  margin-top: -28px; /* sube los botones para que queden en la mitad inferior del carrusel */
+  z-index: 2;
+}
+@media (max-width: 575.98px) {
+  .hero-section .mt-3.d-flex.gap-2 { margin-top: -18px; }
+}
+
+/* Animación profesional en todos los botones */
+.btn {
+  transition: transform .2s ease, box-shadow .25s ease, background-color .2s ease, color .2s ease;
+  will-change: transform, box-shadow;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn:focus-visible { outline: 2px solid rgba(191,84,134,.45); outline-offset: 2px; }
+
+/* Glow y pulido según paleta */
+.btn-rosa:hover { box-shadow: 0 10px 22px rgba(191,84,134,.35); }
+.btn-vino:hover { box-shadow: 0 10px 22px rgba(89,40,44,.28); }
+
+/* Variante sutil de gradiente al hover para aumentar riqueza visual */
+.btn-rosa { background: linear-gradient(180deg, var(--rosa-intenso) 0%, #a94372 100%); }
+.btn-rosa:hover { background: linear-gradient(180deg, #c46298 0%, var(--rosa-intenso) 100%); }
+.btn-vino { background: linear-gradient(180deg, var(--vino-oscuro) 0%, #421c20 100%); }
+.btn-vino:hover { background: linear-gradient(180deg, #6d2f35 0%, var(--vino-oscuro) 100%); }

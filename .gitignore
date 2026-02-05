@@ -10,6 +10,7 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media
+data/
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
@@ -168,7 +169,25 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# PyCharm
+# =========================
+# Archivos JSON
+# =========================
+*.json
+
+# =========================
+# Configuración de IDEs
+# =========================
+
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+
+# Archivos de proyecto de JetBrains
+*.iml
+
+# PyCharm q
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear

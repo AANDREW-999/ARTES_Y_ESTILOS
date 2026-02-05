@@ -1,0 +1,361 @@
+
+:root {
+    --floral-brown: #BF5486;
+    --floral-pink:  #83232b;
+    --floral-mauve: #eb6152;
+    --floral-yellow: #f312e8;
+    --floral-cream: #d15d9b;
+}
+
+
+.minegate-acc-trigger.floral-theme {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    width: 70px !important;
+    height: 70px !important;
+    background: linear-gradient(135deg, var(--floral-pink) 0%, var(--floral-mauve) 100%) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 999999 !important;
+    box-shadow: 0 8px 25px rgba(191, 84, 148, 0.4) !important;
+    transition: all 0.4s ease !important;
+    border: 3px solid var(--floral-cream) !important;
+}
+
+.minegate-acc-trigger.floral-theme:hover {
+    transform: scale(1.1) rotate(5deg) !important;
+    box-shadow: 0 12px 35px rgba(191, 84, 148, 0.6) !important;
+}
+
+.minegate-acc-trigger.floral-theme i {
+    font-size: 2rem !important;
+    color: white !important;
+    z-index: 2 !important;
+}
+
+.flower-decoration {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 60%);
+}
+
+
+.acc-widget-panel.floral-panel {
+    position: fixed !important;
+    right: 120px !important;
+    bottom: 30px !important;
+    width: 400px !important;
+    background: linear-gradient(180deg, var(--floral-cream) 0%, #ffffff 100%) !important;
+    border-radius: 30px !important;
+    padding: 30px !important;
+    z-index: 999998 !important;
+    box-shadow: 0 15px 50px rgba(89, 40, 44, 0.2) !important;
+    border: 3px solid var(--floral-mauve) !important;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--floral-mauve);
+}
+
+.panel-icon {
+    font-size: 1.5rem;
+    color: var(--floral-pink);
+}
+
+.panel-title {
+    margin: 0;
+    font-family: 'Georgia', serif;
+    color: var(--floral-brown);
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+}
+
+.acc-btn-group.floral-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+.acc-opt.floral-btn {
+    border: none;
+    border-radius: 20px;
+    padding: 20px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.acc-opt.floral-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+}
+
+.acc-opt.floral-btn:hover::before {
+    transform: translateX(100%);
+}
+
+.btn-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.btn-content i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.btn-content span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.floral-btn.color-1 {
+    background: linear-gradient(135deg, var(--floral-brown) 0%, #ca5555 100%);
+    color: white;
+}
+
+.floral-btn.color-2 {
+    background: linear-gradient(135deg, var(--floral-pink) 0%, #d56ea8 100%);
+    color: white;
+}
+
+.floral-btn.color-3 {
+    background: linear-gradient(135deg, var(--floral-mauve) 0%, #e5bdd6 100%);
+    color: var(--floral-brown);
+}
+
+.floral-btn.color-4 {
+    background: linear-gradient(135deg, var(--floral-yellow) 0%, #e0e48e 100%);
+    color: var(--floral-brown);
+}
+
+.floral-btn.color-5 {
+    background: linear-gradient(135deg, var(--floral-cream) 0%, #fff5eb 100%);
+    color: var(--floral-brown);
+    border: 2px solid var(--floral-mauve);
+}
+
+.floral-btn.reset-btn {
+    background: linear-gradient(135deg, #8d3982 0%, #cc7be0 100%);
+    color: white;
+    grid-column: 1 / -1;
+}
+
+.floral-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.floral-btn:active {
+    transform: translateY(0);
+}
+
+.panel-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--floral-mauve);
+}
+
+.panel-footer i {
+    font-size: 1.5rem;
+    color: var(--floral-pink);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+#reading-guide {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--floral-pink), var(--floral-yellow), var(--floral-pink));
+    box-shadow: 0 0 10px rgba(99, 129, 71, 0.5);
+    z-index: 999997;
+    display: none;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .acc-widget-panel.floral-panel {
+        right: 20px !important;
+        left: 20px !important;
+        bottom: 120px !important;
+        width: auto !important;
+        max-width: 90vw !important;
+    }
+
+    .minegate-acc-trigger.floral-theme {
+        width: 60px !important;
+        height: 60px !important;
+        bottom: 20px !important;
+        right: 20px !important;
+    }
+
+    .minegate-acc-trigger.floral-theme i {
+        font-size: 1.5rem !important;
+    }
+
+    .acc-btn-group.floral-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .panel-title {
+        font-size: 1.2rem;
+    }
+
+    .btn-content span {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .acc-widget-panel.floral-panel {
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .panel-header {
+        gap: 10px;
+    }
+
+    .panel-icon {
+        font-size: 1.2rem;
+    }
+
+    .btn-content i {
+        font-size: 1.3rem;
+    }
+}
+
+
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.acc-widget-panel.floral-panel {
+    animation: floatIn 0.4s ease-out;
+}
+
+.floral-btn.active {
+    box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.floral-btn.active::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: white;
+    color: var(--floral-pink);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+
+body.high-contrast-mode {
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+body.high-contrast-mode *:not(.acc-opt):not(.acc-opt *):not(.minegate-acc-trigger):not(.minegate-acc-trigger *) {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+body.big-cursor,
+body.big-cursor * {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="white" stroke="black" stroke-width="2" d="M2 2 L2 28 L12 20 L18 30 L22 28 L16 18 L28 18 Z"/></svg>'), auto !important;
+}
+
+body.extra-spacing * {
+    letter-spacing: 2px !important;
+    word-spacing: 4px !important;
+    line-height: 1.8 !important;
+}
+
+body.underline-links a {
+    text-decoration: underline !important;
+    text-decoration-thickness: 2px !important;
+}
+
+/* Filtro para daltonismo - Blanco y negro para prueba */
+/* REEMPLAZA ESTO: */
+body.color-blind-mode {
+    filter: grayscale(100%) !important;
+}
+
+/* POR ESTO (para prueba): */
+body.color-blind-mode {
+    filter: grayscale(100%) contrast(1.5) !important;
+    background-color: #f0f0f0 !important;
+}
+
+/* Aplicar filtro invertido a elementos específicos para mejor contraste */
+body.color-blind-mode img {
+    filter: grayscale(100%) contrast(1.2) !important;
+}
+
+body.color-blind-mode button,
+body.color-blind-mode a {
+    filter: grayscale(100%) contrast(1.15) !important;
+}
+
+/* Excluir el panel de accesibilidad para que siempre sea legible */
+body.color-blind-mode #accPanel {
+    filter: none !important;
+}
+
+body.color-blind-mode .minegate-acc-trigger {
+    filter: none !important;
+}

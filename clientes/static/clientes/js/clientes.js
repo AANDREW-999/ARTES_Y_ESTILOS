@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (err) {
             console.warn('city json: fallo al usar FULL_CITY_RAW', err);
         }
-        // Mantener fallback mínimo si todo falla
+        // Mantener fallback mínimo si falla
         CITY_MAP = CITY_MAP || FALLBACK_CITY_MAP;
     }
 

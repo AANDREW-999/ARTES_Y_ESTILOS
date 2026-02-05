@@ -28,7 +28,7 @@ class DBSafeMixin:
             messages.error(request, 'La tabla de clientes no existe. Ejecuta: python manage.py makemigrations clientes && python manage.py migrate')
             return redirect(reverse_lazy('clientes:lista_clientes'))
 
-        # Si no existe método dispatch en la clase base, informar y redirigir de forma segura
+        # Si no existe dispatch en la clase base, informar y redirigir de forma segura
         messages.error(request, 'La vista no está disponible en este contexto.')
         return redirect(reverse_lazy('clientes:lista_clientes'))
 

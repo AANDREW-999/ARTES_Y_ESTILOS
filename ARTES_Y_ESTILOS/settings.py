@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'usuarios',
     'core',
     'clientes',
-    'bootstrap5'
+    'bootstrap5',
+    'accesibilidad',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,4 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+

@@ -1,5 +1,28 @@
+/* Fondo slideshow a pantalla completa */
+#bg-slideshow {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* detrás del contenido */
+  overflow: hidden;
+}
+#bg-slideshow .slide {
+  position: absolute;
+  inset: 0;
+  background-image: var(--img);
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.85) saturate(1.1);
+  opacity: 0;
+  transform: scale(1.04); /* ligero zoom para elegancia */
+  transition: opacity 5000ms ease, transform 5000ms ease;
+}
+#bg-slideshow .slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
 body {
-    background: linear-gradient(135deg, var(--rosa-suave) 0%, var(--beige-claro) 100%);
+    background: transparent; /* el fondo lo pone el slideshow */
     min-height: auto;
     display: block;
     overflow-x: hidden;
@@ -46,6 +69,15 @@ body {
     padding: 28px 24px;
     position: relative;
     animation: fadeSlide .45s ease both;
+}
+
+.login-card.glassy {
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.6);
 }
 
 @keyframes fadeSlide {
@@ -108,12 +140,7 @@ body {
     border-radius: 10px;
     transition: transform .2s ease, box-shadow .25s ease, background-color .2s ease;
 }
-
-.btn-login:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(191,84,134,.35);
-    background: #a94372;
-}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(191,84,134,.35); background: #a94372; }
 
 .register-link {
     text-align: center;

@@ -1,0 +1,112 @@
+{% extends 'master.html' %}
+{% load static %}
+{% block title %}Registro de Usuario · Arte & Estilos{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/registro.css' %}">
+{% endblock %}
+{% block content %}
+<!-- Fondo animado de 4 imágenes (usar rutas en static/usuarios/recuperar_password/img) -->
+<div id="bg-slideshow" aria-hidden="true">
+  <div class="slide" style="--i:0; --img: url('{% static 'recuperar_password/img/1_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:1; --img: url('{% static 'recuperar_password/img/2_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:2; --img: url('{% static 'recuperar_password/img/3_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:3; --img: url('{% static 'recuperar_password/img/4_FondoRegistro.png' %}');"></div>
+</div>
+
+<section class="login-page py-5">
+  <div class="container login-container">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-6">
+        <div class="login-card glassy">
+          <div class="login-header text-center">
+            <i class="bi bi-person-plus" style="font-size:44px;color:var(--rosa-intenso);"></i>
+            <h2 class="login-title">Crear tu cuenta</h2>
+            <p class="text-muted">Regístrate para disfrutar de nuestros servicios.</p>
+          </div>
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ form.documento }}
+                  <label for="id_documento">Documento</label>
+                  {% if form.documento.errors %}<div class="text-danger small">{{ form.documento.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ form.email }}
+                  <label for="id_email">Correo electrónico</label>
+                  {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ form.first_name }}
+                  <label for="id_first_name">Nombre</label>
+                  {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ form.last_name }}
+                  <label for="id_last_name">Apellido</label>
+                  {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating position-relative">
+                  {{ form.password1 }}
+                  <label for="id_password1">Password</label>
+                  <button type="button" class="toggle-password btn btn-sm" data-target="id_password1" aria-label="Mostrar/Ocultar" title="Mostrar/Ocultar"><i class="bi bi-eye"></i></button>
+                  {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating position-relative">
+                  {{ form.password2 }}
+                  <label for="id_password2">Confirmar password</label>
+                  <button type="button" class="toggle-password btn btn-sm" data-target="id_password2" aria-label="Mostrar/Ocultar" title="Mostrar/Ocultar"><i class="bi bi-eye"></i></button>
+                  {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ form.telefono }}
+                  <label for="id_telefono">Teléfono (opcional)</label>
+                  {% if form.telefono.errors %}<div class="text-danger small">{{ form.telefono.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid mt-3">
+              <button type="submit" class="btn-login btn-registrarme"><i class="bi bi-person-check"></i> Registrarme</button>
+            </div>
+          </form>
+
+          <p class="register-link mt-3 text-center">
+            ¿Ya tienes cuenta? <a class="link-floral" href="{% url 'usuarios:login' %}"><i class="bi bi-box-arrow-in-right"></i> Inicia sesión</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'usuarios/js/registro.js' %}"></script>
+{% endblock %}

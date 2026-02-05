@@ -11,6 +11,12 @@ urlpatterns = [
     path('registro/', views.registro_view, name='registro'),
     path('logout/', views.logout_view, name='logout'),
 
+    # Recuperación de password (paths en español)
+    path('recuperar-password/', views.RecuperarPasswordView.as_view(), name='password_reset'),
+    path('recuperar-password/enviado/', views.RecuperarPasswordHechoView.as_view(), name='password_reset_done'),
+    path('restablecer-password/<uidb64>/<token>/', views.RestablecerPasswordConfirmarView.as_view(), name='password_reset_confirm'),
+    path('restablecer-password/completado/', views.RestablecerPasswordCompletoView.as_view(), name='password_reset_complete'),
+
     # Perfil de usuario
     path('perfil/', views.perfil_view, name='perfil'),
 

@@ -24,7 +24,7 @@
   });
 })();
 
-// Slideshow de fondo: cambio cada 5 segundos (5000 ms)
+// Slideshow de fondo: cambio cada 10 segundos (10000 ms)
 (function(){
   const container = document.getElementById('bg-slideshow');
   if (!container) return;
@@ -40,5 +40,5 @@
   setInterval(() => {
     idx = (idx + 1) % slides.length;
     activate(idx);
-  }, 15000); // 10 segundos
+  }, 10000); // 10 segundos
 })();

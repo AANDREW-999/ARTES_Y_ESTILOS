@@ -61,7 +61,9 @@
 
             <button type="submit" class="btn-login">Ingresar</button>
           </form>
-
+          <p class="register-link">
+            ¿Olvidaste tu contraseña? <a class="link-floral" href="{% url 'usuarios:password_reset' %}">Recupérala aquí</a>
+          </p>
           <p class="register-link">
             ¿No tienes cuenta? <a class="link-floral" href="{% url 'usuarios:registro' %}">Regístrate</a>
           </p>

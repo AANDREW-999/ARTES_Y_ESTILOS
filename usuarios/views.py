@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
+from django.urls import reverse_lazy
+from django.contrib.auth import views as auth_views
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 
 
@@ -104,6 +106,28 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'Has cerrado sesión exitosamente.')
     return redirect('core:index')
+
+
+# ==================== RECUPERACIÓN DE PASSWORD (CBVs) ====================
+
+class RecuperarPasswordView(auth_views.PasswordResetView):
+    template_name = 'recuperar_password/solicitar_password.html'
+    email_template_name = 'recuperar_password/email_recuperar_password.txt'
+    subject_template_name = 'recuperar_password/asunto_recuperar_password.txt'
+    success_url = reverse_lazy('usuarios:password_reset_done')
+
+
+class RecuperarPasswordHechoView(auth_views.PasswordResetDoneView):
+    template_name = 'recuperar_password/solicitud_enviada.html'
+
+
+class RestablecerPasswordConfirmarView(auth_views.PasswordResetConfirmView):
+    template_name = 'recuperar_password/confirmar_password.html'
+    success_url = reverse_lazy('usuarios:password_reset_complete')
+
+
+class RestablecerPasswordCompletoView(auth_views.PasswordResetCompleteView):
+    template_name = 'recuperar_password/password_actualizada.html'
 
 
 # ==================== PANEL DE ADMINISTRACIÓN ====================

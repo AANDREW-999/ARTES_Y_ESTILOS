@@ -4,7 +4,8 @@ let filterStates = {
     'underline-links': false,
     'big-cursor': false,
     'extra-spacing': false,
-    'high-contrast-mode': false
+    'high-contrast-mode': false,
+    'color-blind-mode': false  // ← AGREGADO
 };
 let isReading = false;
 let guideEnabled = false;
@@ -37,10 +38,10 @@ function loadSettings() {
 
 // Crear el elemento de la guía visualmente
 function initializeReadingGuide() {
-    if (!document.getElementById('reading-guide')) {
+    guideElement = document.getElementById('reading-guide');
+    if (!guideElement) {
         guideElement = document.createElement('div');
         guideElement.id = 'reading-guide';
-        // Estilos ultra-fuertes para evitar que se pierda o bloquee clics
         guideElement.style.cssText = `
             display: none;
             position: fixed;
@@ -56,24 +57,12 @@ function initializeReadingGuide() {
             border-bottom: 2px solid #ffd600;
         `;
         document.body.appendChild(guideElement);
-    } else {
-        guideElement = document.getElementById('reading-guide');
-    }
-}
-
-function initializeReadingGuide() {
-    guideElement = document.getElementById('reading-guide');
-    if (!guideElement) {
-        guideElement = document.createElement('div');
-        guideElement.id = 'reading-guide';
-        document.body.appendChild(guideElement);
     }
 }
 
 function setupEventListeners() {
     window.addEventListener('mousemove', (e) => {
         if (guideEnabled && guideElement) {
-            // Pasamos las coordenadas del mouse directamente al CSS
             guideElement.style.setProperty('--mouse-x', e.clientX + 'px');
             guideElement.style.setProperty('--mouse-y', e.clientY + 'px');
             
@@ -122,6 +111,13 @@ function toggleFeature(className) {
     applyAccessibilityChanges();
 }
 
+function handleColorBlind() {
+    console.log('handleColorBlind() called');
+    toggleFeature('color-blind-mode');  // ← USA EL NOMBRE CORRECTO
+    console.log('color-blind-mode state:', filterStates['color-blind-mode']);
+    console.log('body classes:', document.body.className);
+}
+
 function toggleReadingGuide() {
     guideEnabled = !guideEnabled;
     if (guideElement) {
@@ -139,6 +135,34 @@ function applyAccessibilityChanges() {
     body.classList.toggle('big-cursor', filterStates['big-cursor']);
     body.classList.toggle('extra-spacing', filterStates['extra-spacing']);
     body.classList.toggle('high-contrast-mode', filterStates['high-contrast-mode']);
+    body.classList.toggle('color-blind-mode', filterStates['color-blind-mode']); // ← IMPORTANTE
+
+    // Actualizar visualmente los botones del panel (el check de ✓)
+    document.querySelectorAll('.floral-btn').forEach(btn => {
+        const onclick = btn.getAttribute('onclick');
+        
+        // Para botones que usan toggleFeature
+        const featureMatch = onclick?.match(/toggleFeature\('([^']+)'\)/);
+        if (featureMatch && filterStates[featureMatch[1]]) {
+            btn.classList.add('active');
+        } else if (featureMatch) {
+            btn.classList.remove('active');
+        }
+        
+        // Para el botón de daltonismo que usa handleColorBlind
+        if (onclick?.includes('handleColorBlind') && filterStates['color-blind-mode']) {
+            btn.classList.add('active');
+        } else if (onclick?.includes('handleColorBlind')) {
+            btn.classList.remove('active');
+        }
+        
+        // Para el botón de contraste
+        if (onclick?.includes('handleContrast') && filterStates['high-contrast-mode']) {
+            btn.classList.add('active');
+        } else if (onclick?.includes('handleContrast')) {
+            btn.classList.remove('active');
+        }
+    });
 }
 
 function handleTextToSpeech() {
@@ -165,7 +189,8 @@ function resetAll() {
         'underline-links': false,
         'big-cursor': false,
         'extra-spacing': false,
-        'high-contrast-mode': false
+        'high-contrast-mode': false,
+        'color-blind-mode': false  // ← INCLUIDO EN RESET
     };
     
     // Limpiar storage

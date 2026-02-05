@@ -8,11 +8,19 @@
 {% endblock %}
 
 {% block content %}
+<!-- Fondo animado de 4 imágenes (usar rutas en static/usuarios/img) -->
+<div id="bg-slideshow" aria-hidden="true">
+  <div class="slide" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoLogin.png' %}');"></div>
+  <div class="slide" style="--i:1; --img: url('{% static 'usuarios/img/2_FondoLogin.png' %}');"></div>
+  <div class="slide" style="--i:2; --img: url('{% static 'usuarios/img/3_FondoLogin.png' %}');"></div>
+  <div class="slide" style="--i:3; --img: url('{% static 'usuarios/img/4_FondoLogin.png' %}');"></div>
+</div>
+
 <section class="login-page py-5">
   <div class="container login-container">
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-5">
-        <div class="login-card">
+        <div class="login-card glassy">
           <div class="login-header">
             <i class="bi bi-box-arrow-in-right"></i>
             <h2 class="login-title">Iniciar Sesión</h2>

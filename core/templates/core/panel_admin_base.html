@@ -111,9 +111,9 @@
                 </li>
                 
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{% url 'compras:lista_compras' %}" class="nav-link {% if request.resolver_match.url_name == 'lista_compras' %}active{% endif %}">
                         <i class="bi bi-cart4"></i>
-                        <span>compra</span>
+                        <span>Compras</span>
                     </a>
                 </li>
                 

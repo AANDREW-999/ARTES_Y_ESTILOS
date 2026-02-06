@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'core',
     'bootstrap5',
     'accesibilidad',
+    'compras',
 ]
 
 MIDDLEWARE = [

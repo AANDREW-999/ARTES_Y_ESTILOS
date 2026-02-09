@@ -1,10 +1,10 @@
 
 :root {
     --floral-brown: #BF5486;
-    --floral-pink:  #59282C;
-    --floral-mauve: #e74c3c;
-    --floral-yellow: #f39c12;
-    --floral-cream: #D9A7C2;
+    --floral-pink:  #83232b;
+    --floral-mauve: #eb6152;
+    --floral-yellow: #f312e8;
+    --floral-cream: #d15d9b;
 }
 
 
@@ -136,7 +136,7 @@
 }
 
 .floral-btn.color-1 {
-    background: linear-gradient(135deg, var(--floral-brown) 0%, #6d3338 100%);
+    background: linear-gradient(135deg, var(--floral-brown) 0%, #ca5555 100%);
     color: white;
 }
 
@@ -162,7 +162,7 @@
 }
 
 .floral-btn.reset-btn {
-    background: linear-gradient(135deg, #6deb6d 0%, #57df62 100%);
+    background: linear-gradient(135deg, #8d3982 0%, #cc7be0 100%);
     color: white;
     grid-column: 1 / -1;
 }
@@ -327,4 +327,35 @@ body.extra-spacing * {
 body.underline-links a {
     text-decoration: underline !important;
     text-decoration-thickness: 2px !important;
+}
+
+/* Filtro para daltonismo - Blanco y negro para prueba */
+/* REEMPLAZA ESTO: */
+body.color-blind-mode {
+    filter: grayscale(100%) !important;
+}
+
+/* POR ESTO (para prueba): */
+body.color-blind-mode {
+    filter: grayscale(100%) contrast(1.5) !important;
+    background-color: #f0f0f0 !important;
+}
+
+/* Aplicar filtro invertido a elementos específicos para mejor contraste */
+body.color-blind-mode img {
+    filter: grayscale(100%) contrast(1.2) !important;
+}
+
+body.color-blind-mode button,
+body.color-blind-mode a {
+    filter: grayscale(100%) contrast(1.15) !important;
+}
+
+/* Excluir el panel de accesibilidad para que siempre sea legible */
+body.color-blind-mode #accPanel {
+    filter: none !important;
+}
+
+body.color-blind-mode .minegate-acc-trigger {
+    filter: none !important;
 }

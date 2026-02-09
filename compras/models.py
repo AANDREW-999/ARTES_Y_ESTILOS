@@ -30,9 +30,8 @@ class Compra(models.Model):
     
     # Relaciones (Foreign Keys)
     # Asumiendo que tienes un modelo llamado Producto y uno de Proveedor
-    producto = models.ForeignKey('Producto', on_delete=models.PROTECT, verbose_name="Producto")
-    # En la imagen aparece compra_id, si es una relación recursiva o a una cabecera:
-    # cabecera_compra = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+
+
     
     # Información de la transacción
     descripcion = models.CharField(max_length=45, verbose_name="Descripción")
@@ -47,7 +46,6 @@ class Compra(models.Model):
     proveedor_id = models.CharField(max_length=45, verbose_name="ID Proveedor") # Podría ser ForeignKey a un modelo Proveedor
     departamento = models.CharField(max_length=45, verbose_name="Departamento")
     ciudad = models.CharField(max_length=45, verbose_name="Ciudad")
-    proceso = models.CharField(max_length=45, verbose_name="Proceso")
 
     class Meta:
         verbose_name = "Compra"

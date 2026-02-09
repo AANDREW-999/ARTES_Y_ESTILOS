@@ -9,12 +9,12 @@ from django.urls import reverse_lazy
 from .models import Compra
 
 def compras_list(request):
-    lista_de_compras = Compra.objects.all()
-    template = loader.get_template('all_compra.html')  
+    lista_compras = Compra.objects.all()
+    template = loader.get_template('lista_compra.html')  
     
     context = {
-        'compras': lista_de_compras,
-        'total_compras': lista_de_compras.count()  
+        'compras': lista_compras,
+        'total_compras': lista_compras.count()  
     }
     return HttpResponse(template.render(context, request))
 

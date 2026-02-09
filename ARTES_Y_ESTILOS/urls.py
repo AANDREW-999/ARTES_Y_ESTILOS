@@ -24,7 +24,7 @@ urlpatterns = [
     # Rutas de las apps
     path('', include('core.urls')),
     path('', include('usuarios.urls')),
-    path('clientes/', include('clientes.url')),
+    path('clientes/', include('clientes.urls')),
 ]
 
 # Servir archivos estáticos y de medios en desarrollo

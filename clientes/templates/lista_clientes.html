@@ -47,7 +47,7 @@
                             <td>{{ cliente.nombre }} {{ cliente.apellido }}</td>
                             <td>{{ cliente.telefono|default:'-' }}</td>
                             <td>{{ cliente.correo_electronico|default:'-' }}</td>
-                            <td>{% if cliente.ciudad_nombre %}{{ cliente.ciudad_nombre }}{% elif cliente.ciudad_id %}{{ cliente.ciudad_id }}{% else %}-{% endif %}</td>
+                            <td>{{ cliente.ciudad|default:'-' }}</td>
                             <td>{{ cliente.departamento|default:'-' }}</td>
                             <td class="text-end">
                                 <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="Ver">

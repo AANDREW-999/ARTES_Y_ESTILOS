@@ -16,13 +16,6 @@
         <form method="post" novalidate autocomplete="off">
             {% csrf_token %}
 
-            {# Input oculto con la ciudad inicial (usado por el JS) #}
-            {% if object %}
-                <input type="hidden" id="initial_ciudad_id" value="{{ object.ciudad_id }}">
-            {% else %}
-                <input type="hidden" id="initial_ciudad_id" value="">
-            {% endif %}
-
             <div class="row g-3">
                 <div class="col-md-3">
                     <label class="form-label">Tipo de documento</label>
@@ -54,14 +47,9 @@
                     {{ form.correo_electronico }}
                 </div>
 
-                <!-- Departamento: input visible con datalist + contenedor de sugerencias; select real oculto se mantiene -->
                 <div class="col-md-4">
                     <label class="form-label">Departamento</label>
-                    <div style="position:relative">
-                        <input type="text" id="departamento_input" name="departamento_visible" spellcheck="false" class="form-control" placeholder="Escribe y selecciona departamento" autocomplete="off" autocorrect="off" autocapitalize="off">
-                        <div id="dept_suggestions" class="list-group" style="position:absolute; top:100%; left:0; right:0; z-index:1200; display:none; max-height:220px; overflow:auto; box-shadow: 0 6px 12px rgba(0,0,0,0.12); border-radius:6px; background:#fff;"></div>
-                    </div>
-                    <div style="display:none">{{ form.departamento }}</div>
+                    {{ form.departamento }}
                 </div>
 
                 <div class="col-12">
@@ -69,15 +57,9 @@
                     {{ form.direccion }}
                 </div>
 
-                <!-- Ciudad: input visible con datalist + sugerencias; select real oculto se mantiene -->
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">Ciudad</label>
-                    <div style="position:relative">
-                        <input type="text" id="ciudad_input" list="ciudades_datalist" class="form-control" placeholder="Escribe y selecciona ciudad">
-                        <datalist id="ciudades_datalist"></datalist>
-                        <div id="city_suggestions" class="list-group" style="position:absolute; top:100%; left:0; right:0; z-index:1200; display:none; max-height:220px; overflow:auto; box-shadow: 0 6px 12px rgba(0,0,0,0.12); border-radius:6px; background:#fff;"></div>
-                    </div>
-                    <div style="display:none">{{ form.ciudad_id }}</div>
+                    {{ form.ciudad }}
                 </div>
 
                 <div class="col-12 mt-3 text-end">
@@ -89,8 +71,4 @@
         </form>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'clientes/js/clientes.js' %}"></script>
 {% endblock %}

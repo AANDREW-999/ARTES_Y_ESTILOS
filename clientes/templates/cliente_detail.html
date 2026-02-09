@@ -1,4 +1,4 @@
-{% extends 'core/panel_admin_base.html' %}
+               {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block page_title %}Detalle Cliente{% endblock %}
@@ -37,8 +37,8 @@
             <dt class="col-sm-3">Dirección</dt>
             <dd class="col-sm-9">{{ cliente.direccion|default:'-' }}</dd>
 
-            <dt class="col-sm-3">Ciudad (ID)</dt>
-            <dd class="col-sm-9">{% if cliente.ciudad_nombre %}{{ cliente.ciudad_nombre }}{% elif cliente.ciudad_id %}{{ cliente.ciudad_id }}{% else %}-{% endif %}</dd>
+            <dt class="col-sm-3">Ciudad</dt>
+            <dd class="col-sm-9">{{ cliente.ciudad|default:'-' }}</dd>
 
             <dt class="col-sm-3">Departamento</dt>
             <dd class="col-sm-9">{{ cliente.departamento|default:'-' }}</dd>

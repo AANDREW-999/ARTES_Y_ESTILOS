@@ -17,16 +17,22 @@ def registro(request):
         if form.is_valid():
             usuario = form.save(commit=False)
             cleaned = form.cleaned_data
-            if not usuario.first_name and cleaned['nombre']:
+            if not usuario.first_name and cleaned.get('nombre'):
                 usuario.first_name = cleaned['nombre']
-            if not usuario.last_name and cleaned['apellido']:
+            if not usuario.last_name and cleaned.get('apellido'):
                 usuario.last_name = cleaned['apellido']
+            # Dar acceso al panel base
             usuario.is_staff = True
+            usuario.is_active = True
             usuario.save()
             messages.success(request, 'Registro exitoso. Ya puedes iniciar sesión.')
             return redirect('usuarios:login')
         else:
+            # Mostrar errores detallados
             messages.error(request, 'Hay errores en el formulario, por favor corrige los campos marcados.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = RegistroForm()
     return render(request, 'usuarios/registro.html', {'form': form})
@@ -41,7 +47,12 @@ def login_view(request):
             messages.success(request, 'Has iniciado sesión correctamente.')
             return redirect('core:dashboard')
         else:
-            messages.error(request, 'Credenciales inválidas, intenta nuevamente.')
+            # Mostrar errores precisos de autenticación
+            if form.non_field_errors():
+                for err in form.non_field_errors():
+                    messages.error(request, err)
+            else:
+                messages.error(request, 'Credenciales inválidas, intenta nuevamente.')
     else:
         form = LoginForm()
     return render(request, 'usuarios/login.html', {'form': form})
@@ -86,11 +97,15 @@ def crear_usuario_view(request):
         if form.is_valid():
             usuario = form.save(commit=False)
             usuario.is_staff = True
+            usuario.is_active = True
             usuario.save()
             messages.success(request, 'Usuario creado correctamente.')
             return redirect('usuarios:lista_usuarios')
         else:
             messages.error(request, 'Hay errores en el formulario, corrígelos.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = RegistroForm()
     return render(request, 'usuarios/crear_usuario.html', {'form': form})
@@ -106,6 +121,9 @@ def editar_usuario_view(request, user_id):
             return redirect('usuarios:lista_usuarios')
         else:
             messages.error(request, 'Hay errores en el formulario, corrígelos.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = RegistroForm(instance=usuario)
     return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})

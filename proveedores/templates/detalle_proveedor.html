@@ -1,0 +1,57 @@
+{% extends 'core/panel_admin_base.html' %}
+
+{% block title %}Detalle del Proveedor{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+<h2 class="fw-bold mb-4">
+    <i class="bi bi-eye"></i> Detalle del Proveedor
+</h2>
+
+<div class="card shadow col-md-8">
+    <div class="card-body">
+
+        <dl class="row">
+            <dt class="col-sm-4">Tipo Documento</dt>
+            <dd class="col-sm-8">{{ proveedor.tipo_documento }}</dd>
+
+            <dt class="col-sm-4">Nombre</dt>
+            <dd class="col-sm-8">{{ proveedor.nombre_proveedor }}</dd>
+
+            <dt class="col-sm-4">Dirección</dt>
+            <dd class="col-sm-8">{{ proveedor.direccion }}</dd>
+
+            <dt class="col-sm-4">Teléfono</dt>
+            <dd class="col-sm-8">{{ proveedor.telefono }}</dd>
+
+            <dt class="col-sm-4">Correo</dt>
+            <dd class="col-sm-8">{{ proveedor.correo_electronico }}</dd>
+
+            <dt class="col-sm-4">Ciudad</dt>
+            <dd class="col-sm-8">{{ proveedor.ciudad }}</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">
+                {% if proveedor.activo %}
+                    <span class="badge bg-success">Activo</span>
+                {% else %}
+                    <span class="badge bg-danger">Inactivo</span>
+                {% endif %}
+            </dd>
+        </dl>
+
+        <div class="mt-4">
+            <a href="{% url 'proveedores:editar' proveedor.id %}" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <a href="{% url 'proveedores:listar' %}" class="btn btn-secondary">
+                Volver
+            </a>
+        </div>
+
+    </div>
+</div>
+
+</div>
+{% endblock %}

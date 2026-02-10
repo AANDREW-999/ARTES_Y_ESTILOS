@@ -1,0 +1,36 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Editar Proveedor{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+<h2 class="fw-bold mb-4">
+    <i class="bi bi-pencil-square"></i> Editar Proveedor
+</h2>
+
+<div class="card shadow col-md-8">
+    <div class="card-body">
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="mt-4">
+                <button class="btn btn-primary">
+                    <i class="bi bi-save"></i> Guardar Cambios
+                </button>
+                <a href="{% url 'proveedores:listar' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+</div>
+{% endblock %}

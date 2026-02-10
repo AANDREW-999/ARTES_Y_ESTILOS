@@ -1,5 +1,3 @@
-# usuarios/urls.py
-
 from django.urls import path
 from . import views
 
@@ -8,7 +6,7 @@ app_name = 'usuarios'
 urlpatterns = [
     # Autenticación
     path('login/', views.login_view, name='login'),
-    path('registro/', views.registro_view, name='registro'),
+    path('registro/', views.registro, name='registro'),
     path('logout/', views.logout_view, name='logout'),
 
     # Recuperación de password (paths en español)
@@ -18,9 +16,9 @@ urlpatterns = [
     path('restablecer-password/completado/', views.RestablecerPasswordCompletoView.as_view(), name='password_reset_complete'),
 
     # Perfil de usuario
-    path('perfil/', views.perfil_view, name='perfil'),
+    path('perfil/', views.perfil, name='perfil'),
 
-    # Panel de administración
+    # Panel de administración (placeholders si aún no están implementadas)
     path('usuarios/', views.lista_usuarios_view, name='lista_usuarios'),
     path('usuarios/crear/', views.crear_usuario_view, name='crear_usuario'),
     path('usuarios/<int:user_id>/editar/', views.editar_usuario_view, name='editar_usuario'),

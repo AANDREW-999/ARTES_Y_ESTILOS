@@ -33,18 +33,25 @@
             {% endfor %}
           {% endif %}
 
-          <form method="post" novalidate>
+          <form method="post" action="{% url 'usuarios:registro' %}" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-            {{ form.username }} {# Campo oculto para username mapeado al documento #}
 
             <div class="row g-3">
               <div class="col-md-6">
                 <div class="form-floating">
+                  {{ form.username }}
+                  <label for="id_username">Usuario</label>
+                  {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating">
                   {{ form.documento }}
-                  <label for="id_documento">Documento</label>
+                  <label for="id_documento">Documento (10 dígitos)</label>
                   {% if form.documento.errors %}<div class="text-danger small">{{ form.documento.errors|first }}</div>{% endif %}
                 </div>
               </div>
+
               <div class="col-md-6">
                 <div class="form-floating">
                   {{ form.email }}
@@ -71,7 +78,7 @@
               <div class="col-md-6">
                 <div class="form-floating position-relative">
                   {{ form.password1 }}
-                  <label for="id_password1">Password</label>
+                  <label for="id_password1">Contraseña</label>
                   <button type="button" class="toggle-password btn btn-sm" data-target="id_password1" aria-label="Mostrar/Ocultar" title="Mostrar/Ocultar"><i class="bi bi-eye"></i></button>
                   {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors|first }}</div>{% endif %}
                 </div>
@@ -79,7 +86,7 @@
               <div class="col-md-6">
                 <div class="form-floating position-relative">
                   {{ form.password2 }}
-                  <label for="id_password2">Confirmar password</label>
+                  <label for="id_password2">Confirmar contraseña</label>
                   <button type="button" class="toggle-password btn btn-sm" data-target="id_password2" aria-label="Mostrar/Ocultar" title="Mostrar/Ocultar"><i class="bi bi-eye"></i></button>
                   {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors|first }}</div>{% endif %}
                 </div>
@@ -90,6 +97,30 @@
                   {{ form.telefono }}
                   <label for="id_telefono">Teléfono (opcional)</label>
                   {% if form.telefono.errors %}<div class="text-danger small">{{ form.telefono.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-floating">
+                  {{ form.direccion }}
+                  <label for="id_direccion">Dirección</label>
+                  {% if form.direccion.errors %}<div class="text-danger small">{{ form.direccion.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ form.fecha_nacimiento }}
+                  <label for="id_fecha_nacimiento">Fecha de nacimiento</label>
+                  {% if form.fecha_nacimiento.errors %}<div class="text-danger small">{{ form.fecha_nacimiento.errors|first }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="id_foto_perfil" class="form-label">Foto de perfil</label>
+                  {{ form.foto_perfil }}
+                  {% if form.foto_perfil.errors %}<div class="text-danger small">{{ form.foto_perfil.errors|first }}</div>{% endif %}
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 {% extends 'core/panel_admin_base.html' %}
+{% load static %}
 
 {% block title %}Listado de Proveedores{% endblock %}
 
@@ -34,6 +35,7 @@
             <thead>
                 <tr>
                     <th>Tipo Doc</th>
+                    <th>Numero</th>
                     <th>Nombre</th>
                     <th>Ciudad</th>
                     <th>Teléfono</th>
@@ -46,6 +48,7 @@
                 {% for proveedor in proveedores %}
                 <tr>
                     <td>{{ proveedor.tipo_documento }}</td>
+                    <td>{{ proveedor.numero_documento }}</td>
                     <td>{{ proveedor.nombre_proveedor }}</td>
                     <td>{{ proveedor.ciudad }}</td>
                     <td>{{ proveedor.telefono }}</td>

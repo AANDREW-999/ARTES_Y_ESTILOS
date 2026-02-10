@@ -19,7 +19,7 @@ def listar_proveedores(request):
     context = {
         'proveedores': proveedores
     }
-    return render(request, 'proveedores/listar_proveedores.html', context)
+    return render(request, 'proveedores/listar_proveedor.html', context)
 
 @login_required
 def agregar_proveedor(request):

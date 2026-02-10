@@ -134,20 +134,13 @@
       </a>
     </li>
 
-    <!-- Proveedores (deshabilitado hasta implementar) -->
     <li class="nav-item">
-      <a class="nav-link py-1 disabled text-muted pe-none"
-         href="#"
-         tabindex="-1"
-         aria-disabled="true"
-         title="Próximamente">
+      <a class="nav-link py-1 ¨{% if request.resolver_match.url_name == 'listar' %}fw-bold text-primary{% endif %}"
+         href="{% url 'proveedores:listar' %}"
         <i class="bi bi-truck me-1"></i> Proveedores
-        <span class="badge bg-secondary ms-1" style="font-size: 0.65rem;">Pronto</span>
       </a>
     </li>
 
-  </ul>
-</div>
                 
                 <!-- Configuración -->
                 <li class="nav-header">

@@ -7,6 +7,7 @@ class ProveedorForm(forms.ModelForm):
         model = Proveedor
         fields = [
             'tipo_documento',
+            'numero_documento',
             'nombre_proveedor',
             'direccion',
             'telefono',
@@ -16,6 +17,7 @@ class ProveedorForm(forms.ModelForm):
         ]
         widgets = {
             'tipo_documento': forms.Select(attrs={'class': 'form-select'}),
+            'numero_documento': forms.TextInput(attrs={'class': 'form-control'}),
             'nombre_proveedor': forms.TextInput(attrs={'class': 'form-control'}),
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),

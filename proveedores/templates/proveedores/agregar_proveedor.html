@@ -1,4 +1,5 @@
 {% extends 'core/panel_admin_base.html' %}
+{% load static %}
 
 {% block title %}Agregar Proveedor{% endblock %}
 
@@ -23,6 +24,10 @@
                 <div class="col-md-6">
                     {{ form.nombre_proveedor.label_tag }}
                     {{ form.nombre_proveedor }}
+                </div>
+                <div class="col-md-6 mt-2">
+                    {{ form.numero_documento.label_tag }}
+                    {{ form.numero_documento }}
                 </div>
             </div>
 

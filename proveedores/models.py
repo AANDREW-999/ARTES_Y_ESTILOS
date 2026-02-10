@@ -8,6 +8,7 @@ class Proveedor(models.Model):
     ]
 
     tipo_documento = models.CharField(max_length=5, choices=TIPO_DOCUMENTO)
+    numero_documento = models.CharField(max_length=50, unique=True)
     nombre_proveedor = models.CharField(max_length=150)
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=20)

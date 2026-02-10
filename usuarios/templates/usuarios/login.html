@@ -4,7 +4,7 @@
 {% block title %}Iniciar Sesión · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -65,15 +65,18 @@
             ¿Olvidaste tu contraseña? <a class="link-floral" href="{% url 'usuarios:password_reset' %}">Recupérala aquí</a>
           </p>
           <p class="register-link">
-            ¿No tienes cuenta? <a class="link-floral" href="{% url 'usuarios:registro' %}">Regístrate</a>
+            ¿No tienes cuenta?
+            <a class="link-floral" href="{% url 'usuarios:registro' %}">Regístrate</a>
           </p>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'usuarios/js/login.js' %}"></script>
+<script src="{% static 'usuarios/js/registro.js' %}"></script>
 {% endblock %}

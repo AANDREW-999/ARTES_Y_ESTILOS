@@ -2,15 +2,15 @@
 {% load static %}
 {% block title %}Registro de Usuario · Arte & Estilos{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/registro.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
 {% endblock %}
 {% block content %}
-<!-- Fondo animado de 4 imágenes (usar rutas en static/usuarios/recuperar_password/img) -->
+<!-- Fondo animado de 4 imágenes (usar rutas en static/usuarios/img) -->
 <div id="bg-slideshow" aria-hidden="true">
-  <div class="slide" style="--i:0; --img: url('{% static 'recuperar_password/img/1_FondoRegistro.png' %}');"></div>
-  <div class="slide" style="--i:1; --img: url('{% static 'recuperar_password/img/2_FondoRegistro.png' %}');"></div>
-  <div class="slide" style="--i:2; --img: url('{% static 'recuperar_password/img/3_FondoRegistro.png' %}');"></div>
-  <div class="slide" style="--i:3; --img: url('{% static 'recuperar_password/img/4_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:1; --img: url('{% static 'usuarios/img/2_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:2; --img: url('{% static 'usuarios/img/3_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:3; --img: url('{% static 'usuarios/img/4_FondoRegistro.png' %}');"></div>
 </div>
 
 <section class="login-page py-5">
@@ -35,6 +35,7 @@
 
           <form method="post" novalidate>
             {% csrf_token %}
+            {{ form.username }} {# Campo oculto para username mapeado al documento #}
 
             <div class="row g-3">
               <div class="col-md-6">
@@ -96,6 +97,7 @@
             <div class="d-grid mt-3">
               <button type="submit" class="btn-login btn-registrarme"><i class="bi bi-person-check"></i> Registrarme</button>
             </div>
+            <div class="mt-3" id="form-alerts"></div>
           </form>
 
           <p class="register-link mt-3 text-center">

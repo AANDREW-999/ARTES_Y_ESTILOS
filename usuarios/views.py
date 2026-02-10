@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
+from django.db import transaction
 from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
 
 
@@ -79,14 +80,36 @@ def registro_view(request):
         form = RegistroForm(request.POST)
 
         if form.is_valid():
-            user = form.save()
-            messages.success(
-                request,
-                f'Cuenta creada exitosamente para {user.get_full_name()}. '
-                'Ya puedes iniciar sesión.'
-            )
-            return redirect('usuarios:login')
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    # asegurar usuario activo
+                    if not user.is_active:
+                        user.is_active = True
+                        user.save(update_fields=['is_active'])
+                messages.success(
+                    request,
+                    f'Cuenta creada exitosamente para {user.get_full_name()}. Ya puedes iniciar sesión.'
+                )
+                # Respuesta AJAX
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    from django.http import JsonResponse
+                    return JsonResponse({
+                        'ok': True,
+                        'message': 'Usuario registrado correctamente. Redirigiendo al inicio de sesión…',
+                        'redirect_to': reverse_lazy('usuarios:login')
+                    })
+                return redirect('usuarios:login')
+            except Exception as e:
+                messages.error(request, 'Ocurrió un error al registrar el usuario. Inténtalo de nuevo.')
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    from django.http import JsonResponse
+                    return JsonResponse({'ok': False, 'detail': 'Error interno al registrar.'}, status=500)
         else:
+            # Respuesta AJAX con errores
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse(form.errors, status=400)
             messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = RegistroForm()

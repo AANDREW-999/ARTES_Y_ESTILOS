@@ -1,3 +1,5 @@
+{% load accesibilidad_tags %}
+{% accesibilidad_widget %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -100,13 +102,52 @@
                         <span>Ventas</span>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-graph-up"></i>
-                        <span>Reportes</span>
+                    <a href="{% url 'clientes:lista_clientes' %}" class="nav-link {% if request.resolver_match.app_name == 'clientes' and request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span>Clientes</span>
                     </a>
                 </li>
+                
+                <a class="nav-link d-flex justify-content-between align-items-center {% if request.resolver_match.app_name == 'compras' %}active{% endif %}"
+   data-bs-toggle="collapse"
+   href="#submenuCompras"
+   role="button"
+   aria-expanded="{% if request.resolver_match.app_name == 'compras' %}true{% else %}false{% endif %}"
+   aria-controls="submenuCompras">
+  <span>
+    <i class="bi bi-bag-check me-2"></i> Compras
+  </span>
+  <i class="bi bi-chevron-down small"></i>
+</a>
+
+<div class="collapse {% if request.resolver_match.app_name == 'compras' %}show{% endif %}"
+     id="submenuCompras">
+  <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
+
+    <!-- Lista de Compras -->
+    <li class="nav-item">
+      <a class="nav-link py-1 {% if request.resolver_match.url_name == 'lista_compras' %}fw-bold text-primary{% endif %}"
+         href="{% url 'compras:lista_compras' %}">
+        <i class="bi bi-list-ul me-1"></i> Lista de Compras
+      </a>
+    </li>
+
+    <!-- Proveedores (deshabilitado hasta implementar) -->
+    <li class="nav-item">
+      <a class="nav-link py-1 disabled text-muted pe-none"
+         href="#"
+         tabindex="-1"
+         aria-disabled="true"
+         title="Próximamente">
+        <i class="bi bi-truck me-1"></i> Proveedores
+        <span class="badge bg-secondary ms-1" style="font-size: 0.65rem;">Pronto</span>
+      </a>
+    </li>
+
+  </ul>
+</div>
                 
                 <!-- Configuración -->
                 <li class="nav-header">
@@ -152,47 +193,11 @@
                 <!-- Notificaciones -->
                 <div class="dropdown">
                     <button class="btn btn-icon" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell"></i>
+                        <i class="bi bi-alarm"></i>
                         <span class="badge-dot"></span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
-                        <div class="dropdown-header">
-                            <h6>Notificaciones</h6>
-                            <span class="badge bg-primary">3 nuevas</span>
-                        </div>
-                        <div class="dropdown-body">
-                            <a href="#" class="notification-item">
-                                <div class="notification-icon bg-primary">
-                                    <i class="bi bi-person-plus"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <p class="notification-title">Nuevo usuario registrado</p>
-                                    <span class="notification-time">Hace 5 minutos</span>
-                                </div>
-                            </a>
-                            <a href="#" class="notification-item">
-                                <div class="notification-icon bg-success">
-                                    <i class="bi bi-check-circle"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <p class="notification-title">Tarea completada</p>
-                                    <span class="notification-time">Hace 1 hora</span>
-                                </div>
-                            </a>
-                            <a href="#" class="notification-item">
-                                <div class="notification-icon bg-warning">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <p class="notification-title">Actualización disponible</p>
-                                    <span class="notification-time">Hace 3 horas</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="dropdown-footer">
-                            <a href="#">Ver todas las notificaciones</a>
-                        </div>
-                    </div>
+                        
+                    
                 </div>
                 
                 <!-- Usuario -->
@@ -262,11 +267,6 @@
         <footer class="dashboard-footer">
             <div class="footer-content">
                 <p class="mb-0">&copy; {% now "Y" %} Mi Proyecto SENA. Todos los derechos reservados.</p>
-                <div class="footer-links">
-                    <a href="#">Ayuda</a>
-                    <a href="#">Soporte</a>
-                    <a href="#">Términos</a>
-                </div>
             </div>
         </footer>
     </div>

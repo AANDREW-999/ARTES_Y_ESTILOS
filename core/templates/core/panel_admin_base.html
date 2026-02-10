@@ -104,8 +104,8 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-cart3"></i>
+                    <a href="{% url 'clientes:lista_clientes' %}" class="nav-link {% if request.resolver_match.app_name == 'clientes' and request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                        <i class="bi bi-people"></i>
                         <span>Clientes</span>
                     </a>
                 </li>

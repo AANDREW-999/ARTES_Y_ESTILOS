@@ -21,10 +21,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Rutas de las apps
     path('', include('core.urls')),
     path('', include('usuarios.urls')),
-    path('compras/', include('compras.urls')),   
+    path('compras/', include('compras.urls')),  
+    path('clientes/', include('clientes.urls')), # <--- Asegúrate de que esto esté así
 ]
 
 # Servir archivos estáticos y de medios en desarrollo

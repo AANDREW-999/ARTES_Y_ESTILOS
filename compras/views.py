@@ -7,6 +7,7 @@ from django.views import generic
 from django.contrib import messages
 from django.urls import reverse_lazy
 from .models import Compra
+from proveedores.models import Proveedor  # Importar el modelo Proveedor
 
 def compras_list(request):
     lista_compras = Compra.objects.all()
@@ -34,6 +35,12 @@ class CompraCreateView(generic.CreateView):
     template_name = 'crear_compra.html'
     success_url = reverse_lazy('compras:compras_list')
     
+    def get_context_data(self, **kwargs):
+        """Agregar proveedores al contexto"""
+        context = super().get_context_data(**kwargs)
+        context['proveedores'] = Proveedor.objects.filter(activo=True).order_by('nombre_proveedor')
+        return context
+    
     def form_valid(self, form):
         messages.success(
             self.request,
@@ -53,6 +60,12 @@ class CompraUpdateView(generic.UpdateView):
     template_name = 'editar_compra.html'
     success_url = reverse_lazy('compras:compras_list')
     pk_url_kwarg = 'compra_id'
+    
+    def get_context_data(self, **kwargs):
+        """Agregar proveedores al contexto para edición"""
+        context = super().get_context_data(**kwargs)
+        context['proveedores'] = Proveedor.objects.filter(activo=True).order_by('nombre')
+        return context
     
     def form_valid(self, form):
         messages.success(

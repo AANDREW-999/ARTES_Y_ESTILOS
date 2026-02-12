@@ -7,6 +7,7 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, 
 from django.contrib.auth import get_user_model
 
 from .forms import RegistroForm, LoginForm
+from .utils import build_form_messages, build_login_message
 
 User = get_user_model()
 
@@ -25,14 +26,12 @@ def registro(request):
             usuario.is_staff = True
             usuario.is_active = True
             usuario.save()
-            messages.success(request, 'Registro exitoso. Ya puedes iniciar sesión.')
+            messages.success(request, 'Registro exitoso. Ya puedes iniciar sesión.', extra_tags='level-success field-general')
             return redirect('usuarios:login')
         else:
-            # Mostrar errores detallados
-            messages.error(request, 'Hay errores en el formulario, por favor corrige los campos marcados.')
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
+            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
+            for item in build_form_messages(form):
+                messages.error(request, item['text'], extra_tags=item['tags'])
     else:
         form = RegistroForm()
     return render(request, 'usuarios/registro.html', {'form': form})
@@ -44,15 +43,12 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            messages.success(request, 'Has iniciado sesión correctamente.')
+            messages.success(request, 'Has iniciado sesión correctamente.', extra_tags='level-success field-general')
             return redirect('core:dashboard')
         else:
-            # Mostrar errores precisos de autenticación
-            if form.non_field_errors():
-                for err in form.non_field_errors():
-                    messages.error(request, err)
-            else:
-                messages.error(request, 'Credenciales inválidas, intenta nuevamente.')
+            usuario_o_documento = request.POST.get('username')
+            msg = build_login_message(form, usuario_o_documento=usuario_o_documento)
+            messages.error(request, msg['text'], extra_tags=msg['tags'])
     else:
         form = LoginForm()
     return render(request, 'usuarios/login.html', {'form': form})
@@ -99,13 +95,12 @@ def crear_usuario_view(request):
             usuario.is_staff = True
             usuario.is_active = True
             usuario.save()
-            messages.success(request, 'Usuario creado correctamente.')
+            messages.success(request, 'Usuario creado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Hay errores en el formulario, corrígelos.')
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
+            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
+            for item in build_form_messages(form):
+                messages.error(request, item['text'], extra_tags=item['tags'])
     else:
         form = RegistroForm()
     return render(request, 'usuarios/crear_usuario.html', {'form': form})
@@ -117,13 +112,12 @@ def editar_usuario_view(request, user_id):
         form = RegistroForm(request.POST, request.FILES, instance=usuario)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Usuario actualizado correctamente.')
+            messages.success(request, 'Usuario actualizado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Hay errores en el formulario, corrígelos.')
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
+            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
+            for item in build_form_messages(form):
+                messages.error(request, item['text'], extra_tags=item['tags'])
     else:
         form = RegistroForm(instance=usuario)
     return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})
@@ -133,6 +127,6 @@ def eliminar_usuario_view(request, user_id):
     usuario = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
         usuario.delete()
-        messages.info(request, 'Usuario eliminado.')
+        messages.info(request, 'Usuario eliminado.', extra_tags='level-warning field-general')
         return redirect('usuarios:lista_usuarios')
     return render(request, 'usuarios/eliminar_usuario.html', {'usuario': usuario})

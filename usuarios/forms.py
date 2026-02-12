@@ -2,7 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
-from .models import Usuario
+
+UserModel = get_user_model()
 
 class RegistroForm(UserCreationForm):
     documento = forms.CharField(
@@ -22,7 +23,7 @@ class RegistroForm(UserCreationForm):
     foto_perfil = forms.ImageField(required=False)
 
     class Meta:
-        model = Usuario
+        model = UserModel
         fields = (
             'username', 'documento', 'first_name', 'last_name', 'email',
             'nombre', 'apellido', 'telefono', 'direccion', 'fecha_nacimiento', 'foto_perfil',
@@ -38,15 +39,43 @@ class RegistroForm(UserCreationForm):
         doc = self.cleaned_data['documento']
         if not doc.isdigit() or len(doc) != 10:
             raise forms.ValidationError('El documento debe tener exactamente 10 dígitos.')
-        if Usuario.objects.filter(documento=doc).exists():
+        existentes = UserModel.objects.filter(documento=doc)
+        if self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+        if existentes.exists():
             raise forms.ValidationError('Ya existe un usuario con este documento.')
         return doc
 
     def clean_email(self):
         email = self.cleaned_data['email']
-        if Usuario.objects.filter(email=email).exists():
+        existentes = UserModel.objects.filter(email=email)
+        if self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+        if existentes.exists():
             raise forms.ValidationError('Ya existe un usuario con este correo.')
         return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        cleaned = self.cleaned_data
+        user.documento = cleaned.get('documento')
+        user.email = cleaned.get('email')
+        user.nombre = cleaned.get('nombre')
+        user.apellido = cleaned.get('apellido')
+        user.telefono = cleaned.get('telefono')
+        user.direccion = cleaned.get('direccion')
+        user.fecha_nacimiento = cleaned.get('fecha_nacimiento')
+        foto = cleaned.get('foto_perfil')
+        if foto is not None:
+            user.foto_perfil = foto
+        if not user.first_name and cleaned.get('nombre'):
+            user.first_name = cleaned.get('nombre')
+        if not user.last_name and cleaned.get('apellido'):
+            user.last_name = cleaned.get('apellido')
+        if commit:
+            user.save()
+            self.save_m2m()
+        return user
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario o documento'}))

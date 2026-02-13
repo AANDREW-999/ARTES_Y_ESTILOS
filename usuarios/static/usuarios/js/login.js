@@ -19,8 +19,25 @@
       el.classList.add('form-control');
     }
     // Placeholders para mejor UX
-    if (el === inputUsername && !el.placeholder) el.placeholder = 'Ingrese su documento';
-    if (el === inputPassword && !el.placeholder) el.placeholder = 'Ingrese su contraseña';
+    if (el === inputUsername && !el.placeholder) el.placeholder = 'Usuario o documento';
+    if (el === inputPassword && !el.placeholder) el.placeholder = 'Ingrese su contrasena';
+  });
+})();
+
+// UX de alerts: scroll al primero y auto-ocultar
+(function(){
+  const alerts = Array.from(document.querySelectorAll('.alert'));
+  if (!alerts.length) return;
+  const first = alerts[0];
+  first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  alerts.forEach(alert => {
+    const tags = alert.getAttribute('data-message-tags') || '';
+    const isError = tags.includes('level-error');
+    const timeout = isError ? 7000 : 4000;
+    setTimeout(() => {
+      alert.classList.remove('show');
+      alert.remove();
+    }, timeout);
   });
 })();
 

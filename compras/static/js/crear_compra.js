@@ -142,13 +142,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Limpiar antes de enviar
-    document.getElementById('formCompra')?.addEventListener('submit', function () {
-        document.querySelectorAll('.precio-input').forEach(input => {
-            input.value = parsearNumero(input.value);
+    document.getElementById('formCompra')?.addEventListener('submit', function (e) {
+        console.log('📤 Enviando formulario de compra...');
+        
+        // Limpiar precios
+        document.querySelectorAll('.precio-input').forEach((input, idx) => {
+            const valorOriginal = input.value;
+            if (input.value) {
+                input.value = parsearNumero(input.value);
+            }
+            console.log(`   Precio[${idx}]: ${valorOriginal} → ${input.value}`);
         });
-        if (descuentoInput) {
+        
+        // Limpiar descuento
+        if (descuentoInput && descuentoInput.value) {
+            const descuentoOriginal = descuentoInput.value;
             descuentoInput.value = parsearNumero(descuentoInput.value);
+            console.log(`   Descuento: ${descuentoOriginal} → ${descuentoInput.value}`);
         }
+        
+        console.log('✅ Limpieza completada, enviando...');
     });
 
     // Toggle sidebar - CORRECCIÓN AQUÍ

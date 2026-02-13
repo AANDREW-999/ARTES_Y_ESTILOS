@@ -313,9 +313,10 @@ body.high-contrast-mode *:not(.acc-opt):not(.acc-opt *):not(.minegate-acc-trigge
     border-color: #fff !important;
 }
 
+/* Cursor flor con tallo */
 body.big-cursor,
 body.big-cursor * {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="white" stroke="black" stroke-width="2" d="M2 2 L2 28 L12 20 L18 30 L22 28 L16 18 L28 18 Z"/></svg>'), auto !important;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='50' viewBox='0 0 40 50'%3E%3C!-- Tallo --%3E%3Cpath d='M20 20 Q18 35 20 45' stroke='%2334C759' stroke-width='3' fill='none'/%3E%3C!-- Hoja --%3E%3Cellipse cx='15' cy='30' rx='4' ry='6' fill='%2334C759' transform='rotate(-30 15 30)'/%3E%3C!-- Pétalos superiores --%3E%3Cellipse cx='20' cy='8' rx='5' ry='8' fill='%23FF69B4'/%3E%3Cellipse cx='12' cy='12' rx='8' ry='5' fill='%23FF1493'/%3E%3Cellipse cx='28' cy='12' rx='8' ry='5' fill='%23FF1493'/%3E%3Cellipse cx='15' cy='18' rx='6' ry='7' fill='%23FF69B4' transform='rotate(-45 15 18)'/%3E%3Cellipse cx='25' cy='18' rx='6' ry='7' fill='%23FF69B4' transform='rotate(45 25 18)'/%3E%3C!-- Centro --%3E%3Ccircle cx='20' cy='15' r='5' fill='%23FFD700'/%3E%3C/svg%3E") 20 45, auto !important;
 }
 
 body.extra-spacing * {

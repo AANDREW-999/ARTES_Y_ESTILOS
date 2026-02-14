@@ -9,7 +9,14 @@ class RegistroForm(UserCreationForm):
     documento = forms.CharField(
         max_length=10,
         help_text='Debe tener exactamente 10 dígitos',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Documento (10 dígitos)'}),
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Documento (10 dígitos)',
+            'autofocus': 'autofocus',
+            'pattern': '[0-9]{10}',
+            'inputmode': 'numeric',
+            'title': 'Solo se permiten números (10 dígitos)'
+        }),
     )
     email = forms.EmailField(
         required=True,
@@ -22,6 +29,25 @@ class RegistroForm(UserCreationForm):
     fecha_nacimiento = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
     foto_perfil = forms.ImageField(required=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Personalizar widgets de contraseña para que tengan la clase form-control
+        self.fields['password1'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Contraseña',
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Confirmar contraseña',
+        })
+
+        # Personalizar mensajes de ayuda
+        self.fields['password1'].help_text = 'La contraseña debe tener al menos 8 caracteres.'
+
+        # Personalizar labels
+        self.fields['password1'].label = 'Contraseña'
+        self.fields['password2'].label = 'Confirmar contraseña'
+
     class Meta:
         model = UserModel
         fields = (
@@ -31,8 +57,18 @@ class RegistroForm(UserCreationForm):
         )
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellido'}),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre',
+                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'title': 'Solo se permiten letras'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Apellido',
+                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+                'title': 'Solo se permiten letras'
+            }),
         }
 
     def clean_documento(self):
@@ -46,6 +82,27 @@ class RegistroForm(UserCreationForm):
             raise forms.ValidationError('Ya existe un usuario con este documento.')
         return doc
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+
+        # Validar longitud mínima
+        if len(username) < 4:
+            raise forms.ValidationError('El nombre de usuario debe tener al menos 4 caracteres.')
+
+        # Permitir solo letras, números, guiones y guiones bajos
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+            raise forms.ValidationError('El nombre de usuario solo puede contener letras, números, guiones (-) y guiones bajos (_).')
+
+        # Verificar si ya existe en la base de datos
+        existentes = UserModel.objects.filter(username=username)
+        if self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+        if existentes.exists():
+            raise forms.ValidationError('Este nombre de usuario ya está en uso. Por favor, elige otro.')
+
+        return username
+
     def clean_email(self):
         email = self.cleaned_data['email']
         existentes = UserModel.objects.filter(email=email)
@@ -56,25 +113,34 @@ class RegistroForm(UserCreationForm):
         return email
 
     def save(self, commit=True):
+        # super().save(commit=False) de UserCreationForm ya maneja:
+        # - Crear el usuario
+        # - Hashear la contraseña con set_password()
+        # - Asignar username
         user = super().save(commit=False)
-        cleaned = self.cleaned_data
-        user.documento = cleaned.get('documento')
-        user.email = cleaned.get('email')
-        user.nombre = cleaned.get('nombre')
-        user.apellido = cleaned.get('apellido')
-        user.telefono = cleaned.get('telefono')
-        user.direccion = cleaned.get('direccion')
-        user.fecha_nacimiento = cleaned.get('fecha_nacimiento')
-        foto = cleaned.get('foto_perfil')
-        if foto is not None:
+
+        # Asignar campos del formulario al modelo
+        user.documento = self.cleaned_data.get('documento')
+        user.email = self.cleaned_data.get('email')
+        user.first_name = self.cleaned_data.get('first_name', '')
+        user.last_name = self.cleaned_data.get('last_name', '')
+
+        # Campos adicionales opcionales
+        user.nombre = self.cleaned_data.get('nombre', '')
+        user.apellido = self.cleaned_data.get('apellido', '')
+        user.telefono = self.cleaned_data.get('telefono', '')
+        user.direccion = self.cleaned_data.get('direccion', '')
+        user.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+
+        # Foto de perfil
+        foto = self.cleaned_data.get('foto_perfil')
+        if foto:
             user.foto_perfil = foto
-        if not user.first_name and cleaned.get('nombre'):
-            user.first_name = cleaned.get('nombre')
-        if not user.last_name and cleaned.get('apellido'):
-            user.last_name = cleaned.get('apellido')
+
+        # Solo guardar si commit=True
         if commit:
             user.save()
-            self.save_m2m()
+
         return user
 
 class LoginForm(AuthenticationForm):

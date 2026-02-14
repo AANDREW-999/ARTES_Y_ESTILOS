@@ -16,16 +16,14 @@ def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
+            # El método save() del formulario ya maneja todo
             usuario = form.save(commit=False)
-            cleaned = form.cleaned_data
-            if not usuario.first_name and cleaned.get('nombre'):
-                usuario.first_name = cleaned['nombre']
-            if not usuario.last_name and cleaned.get('apellido'):
-                usuario.last_name = cleaned['apellido']
-            # Dar acceso al panel base
+            # Configurar permisos de acceso
             usuario.is_staff = True
             usuario.is_active = True
+            # Guardar el usuario
             usuario.save()
+
             messages.success(request, 'Registro exitoso. Ya puedes iniciar sesión.', extra_tags='level-success field-general')
             return redirect('usuarios:login')
         else:

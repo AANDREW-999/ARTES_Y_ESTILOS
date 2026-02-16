@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
@@ -21,6 +21,7 @@ def dashboard_view(request):
     """
     Vista principal del panel de administración
     """
+    User = get_user_model()
     # Estadísticas generales
     total_usuarios = User.objects.count()
     usuarios_activos = User.objects.filter(is_active=True).count()
@@ -31,7 +32,7 @@ def dashboard_view(request):
     ).count()
 
     # Últimos usuarios registrados
-    ultimos_usuarios = User.objects.select_related('perfil').order_by('-date_joined')[:5]
+    ultimos_usuarios = User.objects.order_by('-date_joined')[:5]
 
     context = {
         'titulo': 'Panel de Administración',

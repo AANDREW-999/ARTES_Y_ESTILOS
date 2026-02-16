@@ -1,168 +1,108 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth.models import User
-from .models import PerfilUsuario
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
 
-class LoginForm(AuthenticationForm):
-    """
-    Formulario personalizado para inicio de sesión
-    Usamos el campo username para almacenar el documento
-    """
-    username = forms.CharField(
-        label='Documento',
-        max_length=20,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ingrese su documento',
-            'autofocus': True
-        })
-    )
-    
-    password = forms.CharField(
-        label='Contraseña',
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ingrese su contraseña'
-        })
-    )
-    
-    remember_me = forms.BooleanField(
-        required=False,
-        initial=True,
-        widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
-        }),
-        label='Recordarme'
-    )
-
+UserModel = get_user_model()
 
 class RegistroForm(UserCreationForm):
-    """
-    Formulario para registro de nuevos usuarios
-    Extiende UserCreationForm de Django
-    """
     documento = forms.CharField(
-        max_length=20,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Número de documento'
-        })
+        max_length=10,
+        help_text='Debe tener exactamente 10 dígitos',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Documento (10 dígitos)'}),
     )
-    
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'correo@ejemplo.com'
-        })
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Correo electrónico'}),
     )
-    
-    first_name = forms.CharField(
-        max_length=150,
-        required=True,
-        label='Nombre',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Nombre'
-        })
-    )
-    
-    last_name = forms.CharField(
-        max_length=150,
-        required=True,
-        label='Apellido',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Apellido'
-        })
-    )
-    
-    telefono = forms.CharField(
-        max_length=15,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Teléfono (opcional)'
-        })
-    )
-    
+    nombre = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    apellido = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    telefono = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    direccion = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    fecha_nacimiento = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
+    foto_perfil = forms.ImageField(required=False)
+
     class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        model = UserModel
+        fields = (
+            'username', 'documento', 'first_name', 'last_name', 'email',
+            'nombre', 'apellido', 'telefono', 'direccion', 'fecha_nacimiento', 'foto_perfil',
+            'password1', 'password2'
+        )
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control d-none'}),  # Oculto, usamos documento
-            'password1': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}),
-            'password2': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmar contraseña'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellido'}),
         }
-    
+
     def clean_documento(self):
-        """Valida que el documento no exista en la base de datos"""
-        documento = self.cleaned_data.get('documento')
-        if PerfilUsuario.objects.filter(documento=documento).exists():
-            raise forms.ValidationError('Este documento ya está registrado.')
-        return documento
-    
+        doc = self.cleaned_data['documento']
+        if not doc.isdigit() or len(doc) != 10:
+            raise forms.ValidationError('El documento debe tener exactamente 10 dígitos.')
+        existentes = UserModel.objects.filter(documento=doc)
+        if self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+        if existentes.exists():
+            raise forms.ValidationError('Ya existe un usuario con este documento.')
+        return doc
+
     def clean_email(self):
-        """Valida que el email no exista en la base de datos"""
-        email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('Este correo electrónico ya está registrado.')
+        email = self.cleaned_data['email']
+        existentes = UserModel.objects.filter(email=email)
+        if self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+        if existentes.exists():
+            raise forms.ValidationError('Ya existe un usuario con este correo.')
         return email
-    
+
     def save(self, commit=True):
-        """
-        Guarda el usuario y crea su perfil con el documento
-        """
         user = super().save(commit=False)
-        user.username = self.cleaned_data['documento']  # Usamos documento como username
-        user.email = self.cleaned_data['email']
-        
+        cleaned = self.cleaned_data
+        user.documento = cleaned.get('documento')
+        user.email = cleaned.get('email')
+        user.nombre = cleaned.get('nombre')
+        user.apellido = cleaned.get('apellido')
+        user.telefono = cleaned.get('telefono')
+        user.direccion = cleaned.get('direccion')
+        user.fecha_nacimiento = cleaned.get('fecha_nacimiento')
+        foto = cleaned.get('foto_perfil')
+        if foto is not None:
+            user.foto_perfil = foto
+        if not user.first_name and cleaned.get('nombre'):
+            user.first_name = cleaned.get('nombre')
+        if not user.last_name and cleaned.get('apellido'):
+            user.last_name = cleaned.get('apellido')
         if commit:
             user.save()
-            # El perfil se crea automáticamente por la señal
-            perfil = user.perfil
-            perfil.documento = self.cleaned_data['documento']
-            perfil.telefono = self.cleaned_data.get('telefono', '')
-            perfil.save()
-        
+            self.save_m2m()
         return user
 
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario o documento'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}))
 
-class EditarUsuarioForm(forms.ModelForm):
-    """
-    Formulario para editar información del usuario
-    """
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'is_active', 'is_staff']
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
-        labels = {
-            'first_name': 'Nombre',
-            'last_name': 'Apellido',
-            'email': 'Correo Electrónico',
-            'is_active': 'Usuario Activo',
-            'is_staff': 'Acceso al Panel Admin',
-        }
+    def clean(self):
+        cleaned = super().clean()
+        usuario_o_documento = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+        User = get_user_model()
 
+        if usuario_o_documento and password:
+            # Si parece documento (10 dígitos), intentamos autenticar usando el username del usuario con ese documento
+            if usuario_o_documento.isdigit() and len(usuario_o_documento) == 10:
+                try:
+                    u = User.objects.get(documento=usuario_o_documento)
+                    user = authenticate(self.request, username=u.username, password=password)
+                except User.DoesNotExist:
+                    user = None
+            else:
+                user = authenticate(self.request, username=usuario_o_documento, password=password)
 
-class EditarPerfilForm(forms.ModelForm):
-    """
-    Formulario para editar el perfil del usuario
-    """
-    class Meta:
-        model = PerfilUsuario
-        fields = ['documento', 'telefono', 'direccion', 'foto_perfil', 'fecha_nacimiento']
-        widgets = {
-            'documento': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
-            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
-            'foto_perfil': forms.FileInput(attrs={'class': 'form-control'}),
-            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        }
+            if user is None:
+                raise forms.ValidationError('Credenciales inválidas, verifica tu usuario/documento y contraseña.')
+            self.confirm_login_allowed(user)
+            self._user = user
+        return cleaned
+
+    def get_user(self):
+        return getattr(self, '_user', None)

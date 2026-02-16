@@ -14,7 +14,7 @@
   filter: brightness(0.85) saturate(1.1);
   opacity: 0;
   transform: scale(1.04); /* ligero zoom para elegancia */
-  transition: opacity 5000ms ease, transform 5000ms ease;
+  transition: opacity 10000ms ease, transform 10000ms ease;
 }
 #bg-slideshow .slide.active {
   opacity: 1;
@@ -166,3 +166,5 @@ body {
 
 /* Gutter neutralization para que no se desplace al borde derecho */
 .login-page .container { padding-left: 12px; padding-right: 12px; }
+
+.login-card .alert { margin-bottom: 12px; }

@@ -26,10 +26,12 @@ handler404 = 'core.views.error_404'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Rutas de las apps
     path('', include('core.urls')),
     path('', include('usuarios.urls')),
-    path('clientes/', include('clientes.urls')),
+    path('proveedores/', include('proveedores.urls')),
+    path('compras/', include('compras.urls')),  
+    path('clientes/', include('clientes.urls')), # <--- Asegúrate de que esto esté así
+
 ]
 
 # Servir archivos estáticos y de medios en desarrollo

@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
             
-            // Guardar estado en localStorage
             const isCollapsed = sidebar.classList.contains('collapsed');
             localStorage.setItem('sidebarCollapsed', isCollapsed);
         });
@@ -21,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mainContent.classList.add('expanded');
     }
     
-    // ==================== SIDEBAR RESPONSIVE ====================
+    // Sidebar responsive
     function handleResponsiveSidebar() {
         if (window.innerWidth <= 991) {
             sidebar.classList.remove('collapsed');
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebar.classList.toggle('active');
             });
             
-            // Cerrar sidebar al hacer clic fuera
             document.addEventListener('click', function(e) {
                 if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                     sidebar.classList.remove('active');
@@ -43,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     handleResponsiveSidebar();
     window.addEventListener('resize', handleResponsiveSidebar);
     
-    // ==================== AUTO-CERRAR ALERTAS ====================
+    // Auto-cerrar alertas
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -52,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
     
-    // ==================== MARCAR LINK ACTIVO EN SIDEBAR ====================
+    // Marcar link activo en sidebar
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     
@@ -61,24 +59,70 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
-    
-    // ==================== BÚSQUEDA EN TIEMPO REAL ====================
+
+    // Submenús desplegables (Compras, etc.)
+    const submenuToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
+
+    submenuToggles.forEach(toggle => {
+        const targetId = toggle.getAttribute('href') || toggle.dataset.bsTarget;
+        if (!targetId) return;
+
+        const submenu = document.querySelector(targetId);
+        if (!submenu) return;
+
+        const storageKey = 'submenu_' + targetId.replace('#', '');
+
+        // Detectar si algún hijo está activo
+        const childLinks = submenu.querySelectorAll('.nav-link');
+        let hasActiveChild = false;
+
+        childLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && currentPath.startsWith(href) && href !== '/') {
+                link.classList.add('active');
+                hasActiveChild = true;
+            }
+        });
+
+        // Abrir el submenú si tiene hijo activo O si estaba abierto antes
+        const wasOpen = localStorage.getItem(storageKey) === 'true';
+
+        if (hasActiveChild || wasOpen) {
+            submenu.classList.add('show');
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.classList.add('active');
+        }
+
+        // Guardar estado al abrir/cerrar manualmente
+        submenu.addEventListener('show.bs.collapse', function() {
+            localStorage.setItem(storageKey, 'true');
+            toggle.classList.add('active');
+        });
+
+        submenu.addEventListener('hide.bs.collapse', function() {
+            if (!hasActiveChild) {
+                localStorage.setItem(storageKey, 'false');
+            }
+            toggle.classList.remove('active');
+        });
+    });
+
+    // Búsqueda en tiempo real
     const searchInput = document.querySelector('.search-box input');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
             console.log('Buscando:', searchTerm);
-            // Aquí puedes implementar la lógica de búsqueda
         });
     }
     
-    // ==================== TOOLTIPS DE BOOTSTRAP ====================
+    // Tooltips de Bootstrap
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // ==================== CONFIRMACIÓN DE ELIMINACIÓN ====================
+    // Confirmación de eliminación
     const deleteButtons = document.querySelectorAll('[data-confirm-delete]');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -88,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ==================== FUNCIÓN PARA CARGAR GRÁFICOS ====================
+    // Función para cargar gráficos
     window.initDashboardChart = function(canvasId, data, options) {
         const ctx = document.getElementById(canvasId);
         if (ctx) {
@@ -103,9 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard inicializado correctamente');
 });
 
-// ==================== FUNCIONES GLOBALES ====================
-
-// Función para mostrar notificaciones
+// Funciones globales
 function showNotification(message, type = 'info') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
@@ -126,11 +168,9 @@ function showNotification(message, type = 'info') {
     }
 }
 
-// Función para confirmar acciones
 function confirmAction(message) {
     return confirm(message || '¿Estás seguro de realizar esta acción?');
 }
 
-// Exportar funciones para uso global
 window.showNotification = showNotification;
 window.confirmAction = confirmAction;

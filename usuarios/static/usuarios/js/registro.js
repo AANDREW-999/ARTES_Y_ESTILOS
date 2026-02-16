@@ -534,8 +534,9 @@
 
         let hasErrors = false;
         let firstInvalidField = null;
+        const errors = [];
 
-        // Validar solo que los campos obligatorios NO estén vacíos
+        // Validar TODOS los campos obligatorios (no solo que estén llenos, sino con formato correcto)
         this.fieldsToValidate.forEach(id => {
           const input = document.getElementById(id);
           if (input) {
@@ -545,8 +546,26 @@
             if (isEmpty) {
               hasErrors = true;
               input.classList.add('is-invalid');
+              input.classList.remove('is-valid');
+              errors.push(`${input.name || id}: Campo vacío`);
+              console.log(`❌ ${id}: Vacío`);
+
               if (!firstInvalidField) {
                 firstInvalidField = input;
+              }
+            } else {
+              // Validar formato usando los validadores
+              const isValid = this.validateField(input);
+              if (!isValid) {
+                hasErrors = true;
+                errors.push(`${input.name || id}: Formato inválido`);
+                console.log(`❌ ${id}: Formato inválido - "${input.value}"`);
+
+                if (!firstInvalidField) {
+                  firstInvalidField = input;
+                }
+              } else {
+                console.log(`✅ ${id}: Válido - "${input.value}"`);
               }
             }
           }
@@ -554,9 +573,10 @@
 
         if (hasErrors) {
           e.preventDefault();
-          console.log('❌ Formulario tiene campos vacíos - NO se enviará');
+          console.log('❌ FORMULARIO CON ERRORES - NO SE ENVIARÁ');
+          console.log('Errores encontrados:', errors);
 
-          this.showToast('error', 'Por favor, completa todos los campos obligatorios.');
+          this.showToast('error', 'Por favor, corrige los campos marcados en rojo antes de continuar.');
 
           // Scroll al primer campo inválido
           if (firstInvalidField) {
@@ -571,8 +591,14 @@
             }, 300);
           }
         } else {
-          console.log('✅ Todos los campos obligatorios están llenos, enviando al servidor...');
-          console.log('📤 Django validará los datos en el servidor');
+          console.log('✅ FORMULARIO VÁLIDO - ENVIANDO AL SERVIDOR...');
+          console.log('📤 Datos a enviar:');
+          this.fieldsToValidate.forEach(id => {
+            const input = document.getElementById(id);
+            if (input && input.type !== 'password') {
+              console.log(`  • ${id}: "${input.value}"`);
+            }
+          });
         }
       });
 

@@ -28,6 +28,9 @@ ERROR_CODE_MESSAGES = {
     'required': '{label} es obligatorio.',
     'invalid': '{label} no es valido.',
     'password_mismatch': 'Las contrasenas no coinciden.',
+    'password_too_short': 'La contrasena debe tener al menos 8 caracteres.',
+    'password_too_common': 'Esta contrasena es muy comun.',
+    'password_entirely_numeric': 'La contrasena no puede ser solo numeros.',
 }
 
 

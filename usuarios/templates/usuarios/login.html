@@ -4,7 +4,7 @@
 {% block title %}Iniciar Sesión · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,7 @@
 
           {% if messages %}
             {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" data-message-tags="{{ message.tags }}">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
@@ -37,13 +37,10 @@
 
           <form method="post" novalidate>
             {% csrf_token %}
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-            {% endif %}
 
             <div class="form-floating mb-3">
               {{ form.username }}
-              <label for="id_username">Documento</label>
+              <label for="id_username">Usuario o documento</label>
             </div>
 
             <div class="form-floating mb-3 position-relative">
@@ -54,24 +51,24 @@
               </button>
             </div>
 
-            <div class="form-check mb-3">
-              {{ form.remember_me }}
-              <label class="form-check-label" for="id_remember_me">Recordarme</label>
-            </div>
-
             <button type="submit" class="btn-login">Ingresar</button>
           </form>
-
           <p class="register-link">
-            ¿No tienes cuenta? <a class="link-floral" href="{% url 'usuarios:registro' %}">Regístrate</a>
+            ¿Olvidaste tu contraseña? <a class="link-floral" href="{% url 'usuarios:password_reset' %}">Recupérala aquí</a>
+          </p>
+          <p class="register-link">
+            ¿No tienes cuenta?
+            <a class="link-floral" href="{% url 'usuarios:registro' %}">Regístrate</a>
           </p>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'usuarios/js/login.js' %}"></script>
+<script src="{% static 'usuarios/js/registro.js' %}"></script>
 {% endblock %}

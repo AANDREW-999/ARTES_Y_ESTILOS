@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -39,9 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'usuarios',
     'core',
+    'proveedores',
     'clientes',
     'bootstrap5',
     'accesibilidad',
+    'compras',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 ROOT_URLCONF = 'ARTES_Y_ESTILOS.urls'
 
@@ -128,22 +131,14 @@ SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
 SESSION_SAVE_EVERY_REQUEST = True  # Actualiza la sesión en cada request
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # La sesión persiste al cerrar navegador
 
-# Configuración de seguridad de contraseñas (única definición)
+# Configuración de seguridad de contraseñas
+# Validadores que coinciden con los requisitos del frontend JavaScript
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'OPTIONS': {
-            'min_length': 8,  # Mínimo 8 caracteres
+            'min_length': 8,
         }
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 

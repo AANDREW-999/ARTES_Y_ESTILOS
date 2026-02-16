@@ -5,13 +5,12 @@ let filterStates = {
     'big-cursor': false,
     'extra-spacing': false,
     'high-contrast-mode': false,
-    'color-blind-mode': false  // ← AGREGADO
+    'color-blind-mode': false  
 };
 let isReading = false;
 let guideEnabled = false;
 let guideElement = null;
 
-// --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     initializeReadingGuide();
@@ -19,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 });
 
-// Cargar configuración de localStorage
+
 function loadSettings() {
     const savedFont = localStorage.getItem('mg-font');
     if (savedFont) fontSizeFactor = parseInt(savedFont);

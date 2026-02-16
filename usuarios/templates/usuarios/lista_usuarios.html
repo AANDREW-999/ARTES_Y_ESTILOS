@@ -69,8 +69,12 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Documento</th>
-                            <th>Nombre Completo</th>
-                            <th>Email</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Correo</th>
+                            <th>Dirección</th>
+                            <th>Foto</th>
+                            <th>Fecha Nacimiento</th>
                             <th>Teléfono</th>
                             <th>Fecha Registro</th>
                             <th>Estado</th>
@@ -81,18 +85,21 @@
                         {% for usuario in usuarios %}
                         <tr>
                             <td><strong>{{ usuario.perfil.documento }}</strong></td>
+                            <td>{{ usuario.first_name }}</td>
+                            <td>{{ usuario.last_name }}</td>
+                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.perfil.direccion|default:"N/A" }}</td>
                             <td>
                                 {% if usuario.perfil.foto_perfil %}
                                     <img src="{{ usuario.perfil.foto_perfil.url }}" 
                                          alt="{{ usuario.get_full_name }}" 
-                                         class="rounded-circle me-2" 
-                                         width="35" height="35">
+                                         class="rounded-circle"
+                                         width="40" height="40">
                                 {% else %}
-                                    <i class="bi bi-person-circle fs-4 me-2"></i>
+                                    <i class="bi bi-person-circle fs-4"></i>
                                 {% endif %}
-                                {{ usuario.get_full_name }}
                             </td>
-                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.perfil.fecha_nacimiento|date:"d/m/Y" }}</td>
                             <td>{{ usuario.perfil.telefono|default:"N/A" }}</td>
                             <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
                             <td>
@@ -107,34 +114,34 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                            <!-- Botón Ver Detalles -->
-                            <a href="/" 
-                               class="btn btn-sm btn-outline-info" 
-                               title="Ver detalles"
-                               data-bs-toggle="tooltip">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-                            
-                            <!-- Botón Editar -->
-                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}" 
-                               class="btn btn-sm btn-outline-primary" 
-                               title="Editar instructor"
-                               data-bs-toggle="tooltip">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            
-                            <!-- Botón Eliminar -->
-                            <a href="{% url 'usuarios:eliminar_usuario' usuario.id %}" 
-                               class="btn btn-sm btn-outline-danger" 
-                               title="Eliminar instructor"
-                               data-bs-toggle="tooltip">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
+                                <!-- Botón Ver Detalles -->
+                                <a href="/"
+                                   class="btn btn-sm btn-outline-info"
+                                   title="Ver detalles"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+
+                                <!-- Botón Editar -->
+                                <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Editar instructor"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <!-- Botón Eliminar -->
+                                <a href="{% url 'usuarios:eliminar_usuario' usuario.id %}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   title="Eliminar instructor"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-5">
+                            <td colspan="11" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                 No se encontraron usuarios
                             </td>

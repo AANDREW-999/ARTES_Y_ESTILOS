@@ -19,6 +19,7 @@ def compras_list(request):
     }
     return HttpResponse(template.render(context, request))
 
+
 def compra_detail(request, id):  
     una_compra = get_object_or_404(Compra, id=id)
     template = loader.get_template('compra_detail.html')

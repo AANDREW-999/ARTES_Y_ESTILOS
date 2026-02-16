@@ -109,10 +109,6 @@
                                         </a>
                                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#eliminar{{ compra.id }}" title="Eliminar">
                                             <i class="fas fa-trash"></i>
-                                        </button>
-                                        <a href="{% url 'compras:eliminar_compra' compra.id %}" class="btn btn-sm btn-warning" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
                                     </td>
                                 </tr>
                                 {% empty %}

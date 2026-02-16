@@ -12,17 +12,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Utilidades de formato
     function limpiarNumero(valor) {
-        return valor.replace(/[^\d.]/g, '');
+        if (!valor) return '';
+        return String(valor).replace(/[^\d.]/g, '');
     }
 
     function formatearMiles(valor) {
+        if (!valor) return '';
         const partes = String(valor).split('.');
         const entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         return partes.length > 1 ? `${entero},${partes[1]}` : entero;
     }
 
     function parsearNumero(valor) {
-        return parseFloat(valor.replace(/\./g, '').replace(',', '.')) || 0;
+        if (!valor) return 0;
+        return parseFloat(String(valor).replace(/\./g, '').replace(',', '.')) || 0;
     }
 
     // Bloquear flechas en inputs numéricos
@@ -93,6 +96,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const btnEliminar = item.querySelector('.btn-eliminar-producto');
 
         if (precioInput) {
+            // Guardar el tipo original
+            precioInput.setAttribute('data-original-type', precioInput.type);
             precioInput.type = 'text';
             precioInput.inputMode = 'decimal';
             aplicarFormatoMiles(precioInput);
@@ -109,24 +114,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (items.length > 1) {
                     item.remove();
                     calcularTotales();
+                } else {
+                    alert('Debe tener al menos un producto en la compra');
                 }
             });
         }
     }
 
     // Agregar producto
-    document.getElementById('btnAgregarProducto')?.addEventListener('click', function () {
-        const container = document.getElementById('productos-container');
-        const primerItem = container.querySelector('.producto-item');
-        const nuevoItem = primerItem.cloneNode(true);
+    const btnAgregar = document.getElementById('btnAgregarProducto');
+    if (btnAgregar) {
+        btnAgregar.addEventListener('click', function () {
+            const container = document.getElementById('productos-container');
+            const primerItem = container.querySelector('.producto-item');
+            const nuevoItem = primerItem.cloneNode(true);
 
-        nuevoItem.querySelectorAll('input').forEach(input => {
-            input.value = input.type === 'number' ? (input.name.includes('cantidad') ? '1' : '') : '';
+            // Limpiar todos los inputs
+            nuevoItem.querySelectorAll('input').forEach(input => {
+                if (input.classList.contains('cantidad-input')) {
+                    input.value = '1';
+                } else {
+                    input.value = '';
+                }
+                // Restablecer tipo de input si es precio
+                if (input.classList.contains('precio-input')) {
+                    input.type = 'number';
+                }
+            });
+
+            container.appendChild(nuevoItem);
+            configurarProductoItem(nuevoItem);
         });
-
-        container.appendChild(nuevoItem);
-        configurarProductoItem(nuevoItem);
-    });
+    }
 
     // Descuento
     const descuentoInput = document.getElementById('descuento');
@@ -136,40 +155,67 @@ document.addEventListener('DOMContentLoaded', function () {
         aplicarFormatoMiles(descuentoInput);
     }
 
-    // Inicializar productos
+    // Inicializar productos existentes
     document.querySelectorAll('.producto-item').forEach(item => {
         configurarProductoItem(item);
     });
 
     // Limpiar antes de enviar
-    document.getElementById('formCompra')?.addEventListener('submit', function (e) {
-        console.log('📤 Enviando formulario de compra...');
-        
-        // Limpiar precios
-        document.querySelectorAll('.precio-input').forEach((input, idx) => {
-            const valorOriginal = input.value;
-            if (input.value) {
-                input.value = parsearNumero(input.value);
+    const formCompra = document.getElementById('formCompra');
+    if (formCompra) {
+        formCompra.addEventListener('submit', function (e) {
+            console.log('📤 Enviando formulario de compra...');
+            
+            // Validar que haya al menos un producto con precio y cantidad
+            let productosValidos = 0;
+            
+            // Restaurar inputs a tipo number y limpiar valores
+            document.querySelectorAll('.precio-input').forEach((input, idx) => {
+                const valorOriginal = input.value;
+                const valorLimpio = parsearNumero(input.value);
+                
+                // Restaurar a tipo number
+                input.type = 'number';
+                input.value = valorLimpio > 0 ? valorLimpio : '';
+                
+                console.log(`   Precio[${idx}]: "${valorOriginal}" → ${input.value}`);
+                
+                if (valorLimpio > 0) {
+                    productosValidos++;
+                }
+            });
+            
+            // Limpiar descuento
+            if (descuentoInput && descuentoInput.value) {
+                const descuentoOriginal = descuentoInput.value;
+                const descuentoLimpio = parsearNumero(descuentoInput.value);
+                descuentoInput.type = 'number';
+                descuentoInput.value = descuentoLimpio;
+                console.log(`   Descuento: "${descuentoOriginal}" → ${descuentoInput.value}`);
             }
-            console.log(`   Precio[${idx}]: ${valorOriginal} → ${input.value}`);
+            
+            // Validar cantidades
+            document.querySelectorAll('.cantidad-input').forEach((input, idx) => {
+                const cantidad = parseInt(input.value) || 0;
+                console.log(`   Cantidad[${idx}]: ${cantidad}`);
+            });
+            
+            if (productosValidos === 0) {
+                e.preventDefault();
+                alert('Debe agregar al menos un producto con precio válido');
+                return false;
+            }
+            
+            console.log(` Validación OK - ${productosValidos} producto(s) válido(s)`);
         });
-        
-        // Limpiar descuento
-        if (descuentoInput && descuentoInput.value) {
-            const descuentoOriginal = descuentoInput.value;
-            descuentoInput.value = parsearNumero(descuentoInput.value);
-            console.log(`   Descuento: ${descuentoOriginal} → ${descuentoInput.value}`);
-        }
-        
-        console.log('✅ Limpieza completada, enviando...');
-    });
+    }
 
-    // Toggle sidebar - CORRECCIÓN AQUÍ
+    // Toggle sidebar
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
 
-    if (sidebarToggle) {
+    if (sidebarToggle && sidebar && mainContent) {
         sidebarToggle.addEventListener('click', function() {
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');

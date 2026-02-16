@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
 
+from django.shortcuts import render
+
 # Create your views here.
 
 def index(request):
@@ -55,3 +57,16 @@ def productos(request):
 
 def contactanos(request):
     return render(request, 'core/contactanos.html')
+
+
+from django.shortcuts import render
+
+def error_404(request, exception):
+    if request.path.startswith("/admin"):
+        return render(request, "core/404_admin.html", status=404)
+    return render(request, "core/404_index.html", status=404)
+
+
+
+
+

@@ -40,7 +40,6 @@ def accesibilidad_widget():
                     <div class="btn-content"><i class="fas fa-link"></i><span>Enlaces</span></div>
                 </button>
                 
-
                 <!-- Botón de Daltonismo con menú -->
                 <div class="color-blind-btn-wrapper">
                     <button class="acc-opt floral-btn color-5 color-blind-btn" onclick="toggleColorBlindMenu(event)">

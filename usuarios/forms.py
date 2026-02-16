@@ -6,8 +6,10 @@ from django.contrib.auth import get_user_model
 UserModel = get_user_model()
 
 class RegistroForm(UserCreationForm):
+    # Campos del modelo Usuario (autenticación)
     documento = forms.CharField(
         max_length=10,
+        required=True,
         help_text='Debe tener exactamente 10 dígitos',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -18,20 +20,79 @@ class RegistroForm(UserCreationForm):
             'title': 'Solo se permiten números (10 dígitos)'
         }),
     )
+
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Correo electrónico'}),
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Correo electrónico'
+        }),
     )
-    nombre = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    apellido = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    telefono = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    direccion = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    fecha_nacimiento = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
-    foto_perfil = forms.ImageField(required=False)
+
+    first_name = forms.CharField(
+        required=True,
+        label='Nombre',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nombre',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras'
+        }),
+    )
+
+    last_name = forms.CharField(
+        required=True,
+        label='Apellido',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Apellido',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras'
+        }),
+    )
+
+    # Campos del modelo Perfil (información adicional - OPCIONALES)
+    telefono = forms.CharField(
+        required=False,
+        label='Teléfono',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Teléfono (opcional)'
+        })
+    )
+
+    direccion = forms.CharField(
+        required=False,
+        label='Dirección',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Dirección (opcional)'
+        })
+    )
+
+    fecha_nacimiento = forms.DateField(
+        required=False,
+        label='Fecha de nacimiento',
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',
+            'placeholder': 'Fecha de nacimiento (opcional)'
+        })
+    )
+
+    foto_perfil = forms.ImageField(
+        required=False,
+        label='Foto de perfil',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Personalizar widgets de contraseña para que tengan la clase form-control
+
+        # Personalizar widgets de contraseña
         self.fields['password1'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Contraseña',
@@ -41,35 +102,26 @@ class RegistroForm(UserCreationForm):
             'placeholder': 'Confirmar contraseña',
         })
 
+        # Personalizar widget de username
+        self.fields['username'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Nombre de usuario'
+        })
+
         # Personalizar mensajes de ayuda
         self.fields['password1'].help_text = 'La contraseña debe tener al menos 8 caracteres.'
 
         # Personalizar labels
         self.fields['password1'].label = 'Contraseña'
         self.fields['password2'].label = 'Confirmar contraseña'
+        self.fields['username'].label = 'Usuario'
 
     class Meta:
         model = UserModel
         fields = (
             'username', 'documento', 'first_name', 'last_name', 'email',
-            'nombre', 'apellido', 'telefono', 'direccion', 'fecha_nacimiento', 'foto_perfil',
             'password1', 'password2'
         )
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
-            'first_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Nombre',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
-                'title': 'Solo se permiten letras'
-            }),
-            'last_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Apellido',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
-                'title': 'Solo se permiten letras'
-            }),
-        }
 
     def clean_documento(self):
         doc = self.cleaned_data['documento']
@@ -113,33 +165,34 @@ class RegistroForm(UserCreationForm):
         return email
 
     def save(self, commit=True):
-        # super().save(commit=False) de UserCreationForm ya maneja:
-        # - Crear el usuario
-        # - Hashear la contraseña con set_password()
-        # - Asignar username
+        """
+        Guarda el usuario y su perfil.
+        El perfil se crea automáticamente mediante señales.
+        """
+        # Guardar el usuario (UserCreationForm ya hashea la contraseña)
         user = super().save(commit=False)
 
-        # Asignar campos del formulario al modelo
+        # Asignar campos del formulario al usuario
         user.documento = self.cleaned_data.get('documento')
         user.email = self.cleaned_data.get('email')
         user.first_name = self.cleaned_data.get('first_name', '')
         user.last_name = self.cleaned_data.get('last_name', '')
 
-        # Campos adicionales opcionales
-        user.nombre = self.cleaned_data.get('nombre', '')
-        user.apellido = self.cleaned_data.get('apellido', '')
-        user.telefono = self.cleaned_data.get('telefono', '')
-        user.direccion = self.cleaned_data.get('direccion', '')
-        user.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
-
-        # Foto de perfil
-        foto = self.cleaned_data.get('foto_perfil')
-        if foto:
-            user.foto_perfil = foto
-
-        # Solo guardar si commit=True
         if commit:
             user.save()
+
+            # Actualizar el perfil (se crea automáticamente por la señal)
+            perfil = user.perfil
+            perfil.telefono = self.cleaned_data.get('telefono', '')
+            perfil.direccion = self.cleaned_data.get('direccion', '')
+            perfil.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+
+            # Foto de perfil
+            foto = self.cleaned_data.get('foto_perfil')
+            if foto:
+                perfil.foto_perfil = foto
+
+            perfil.save()
 
         return user
 

@@ -16,22 +16,61 @@ def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
-            # El método save() del formulario ya maneja todo
-            usuario = form.save(commit=False)
-            # Configurar permisos de acceso
-            usuario.is_staff = True
-            usuario.is_active = True
-            # Guardar el usuario
-            usuario.save()
+            try:
+                # El método save() del formulario ya maneja todo
+                usuario = form.save(commit=False)
+                # Configurar permisos de acceso
+                usuario.is_staff = True
+                usuario.is_active = True
+                # Guardar el usuario
+                usuario.save()
 
-            messages.success(request, 'Registro exitoso. Ya puedes iniciar sesión.', extra_tags='level-success field-general')
-            return redirect('usuarios:login')
+                messages.success(
+                    request,
+                    f'¡Cuenta creada exitosamente! Bienvenid@ {usuario.first_name}.',
+                    extra_tags='level-success field-general'
+                )
+                return redirect('usuarios:login')
+
+            except Exception as e:
+                messages.error(
+                    request,
+                    f'Error al crear la cuenta: {str(e)}',
+                    extra_tags='level-error field-general'
+                )
         else:
-            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
+            # Mensajes de error personalizados según el campo
+            if 'documento' in form.errors:
+                messages.error(
+                    request,
+                    '⚠️ El documento ya está registrado. Si olvidaste tu contraseña, usa la opción de recuperación.',
+                    extra_tags='level-error field-documento'
+                )
+            elif 'email' in form.errors:
+                messages.error(
+                    request,
+                    '⚠️ El correo electrónico ya está registrado. Intenta con otro email.',
+                    extra_tags='level-error field-email'
+                )
+            elif 'username' in form.errors:
+                messages.error(
+                    request,
+                    '⚠️ El nombre de usuario ya está en uso. Elige otro nombre de usuario.',
+                    extra_tags='level-error field-username'
+                )
+            else:
+                messages.error(
+                    request,
+                    'Revisa los campos marcados en rojo y corrige los errores.',
+                    extra_tags='level-error field-general'
+                )
+
+            # Agregar todos los errores del formulario
             for item in build_form_messages(form):
                 messages.error(request, item['text'], extra_tags=item['tags'])
     else:
         form = RegistroForm()
+
     return render(request, 'usuarios/registro.html', {'form': form})
 
 # Login

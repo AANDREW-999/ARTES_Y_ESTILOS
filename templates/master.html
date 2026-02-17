@@ -74,6 +74,46 @@
     <div class="nav-divider"></div>
   </header>
 
+  <!-- Contenedor de Toasts para notificaciones globales -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999;" aria-live="polite" aria-atomic="true" id="globalToastContainer">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="toast align-items-center border-0 shadow-lg
+                    {% if message.tags %}
+                      {% if 'success' in message.tags %}text-bg-success
+                      {% elif 'error' in message.tags or 'danger' in message.tags %}text-bg-danger
+                      {% elif 'warning' in message.tags %}
+                      {% else %}text-bg-info
+                      {% endif %}
+                    {% else %}text-bg-info{% endif %}"
+             role="alert" aria-live="assertive" aria-atomic="true"
+             data-bs-autohide="true"
+             {% if 'warning' in message.tags %}
+               data-bs-delay="8000"
+               style="background-color: #ffc107; color: #000;"
+             {% elif 'error' in message.tags or 'danger' in message.tags %}
+               data-bs-delay="10000"
+             {% else %}
+               data-bs-delay="7000"
+             {% endif %}>
+          <div class="d-flex">
+            <div class="toast-body d-flex align-items-center {% if 'warning' in message.tags %}fw-semibold{% endif %}">
+              <i class="bi
+                        {% if 'success' in message.tags %}bi-check-circle-fill
+                        {% elif 'error' in message.tags or 'danger' in message.tags %}bi-exclamation-triangle-fill
+                        {% elif 'warning' in message.tags %}bi-exclamation-circle-fill
+                        {% else %}bi-info-circle-fill
+                        {% endif %} me-2 fs-5"></i>
+              <span>{{ message }}</span>
+            </div>
+            <button type="button" class="btn-close {% if 'warning' not in message.tags %}btn-close-white{% endif %} me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Cerrar"></button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
   <main>
     {% block content %}{% endblock %}
   </main>
@@ -120,5 +160,17 @@
 
   {% block extra_js %}{% endblock %}
   <script src="{% static 'core/js/main.js' %}"></script>
+
+  <!-- Script para inicializar toasts automáticamente -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Inicializar y mostrar todos los toasts de Django messages
+      const toastElList = document.querySelectorAll('#globalToastContainer .toast');
+      toastElList.forEach(function(toastEl) {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      });
+    });
+  </script>
 </body>
 </html>

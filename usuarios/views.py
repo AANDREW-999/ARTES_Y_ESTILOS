@@ -7,7 +7,7 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, 
 from django.contrib.auth import get_user_model
 
 from .forms import RegistroForm, LoginForm
-from .utils import build_form_messages, build_login_message
+from .utils import build_login_message
 
 User = get_user_model()
 
@@ -71,7 +71,7 @@ def registro(request):
 
                 messages.success(
                     request,
-                    f'¡Cuenta creada exitosamente! Bienvenid@ {usuario.first_name}.',
+                    f'¡Cuenta creada exitosamente! Bienvenid@ {usuario.first_name} {usuario.last_name}.',
                     extra_tags='level-success field-general'
                 )
                 return redirect('usuarios:login')
@@ -96,34 +96,45 @@ def registro(request):
             print("="*70 + "\n")
 
             # Mensajes de error personalizados según el campo
+            error_mostrado = False
+
             if 'documento' in form.errors:
+                documento_value = request.POST.get('documento', '')
                 messages.error(
                     request,
-                    '⚠️ El documento ya está registrado. Si olvidaste tu contraseña, usa la opción de recuperación.',
+                    f'El documento {documento_value} ya está registrado. Si olvidaste tu contraseña, usa la opción de recuperación.',
                     extra_tags='level-error field-documento'
                 )
-            elif 'email' in form.errors:
+                error_mostrado = True
+
+            if 'email' in form.errors:
+                email_value = request.POST.get('email', '')
                 messages.error(
                     request,
-                    '⚠️ El correo electrónico ya está registrado. Intenta con otro email.',
+                    f'El correo electrónico {email_value} ya está registrado. Intenta con otro email.',
                     extra_tags='level-error field-email'
                 )
-            elif 'username' in form.errors:
+                error_mostrado = True
+
+            if 'username' in form.errors:
+                username_value = request.POST.get('username', '')
                 messages.error(
                     request,
-                    '⚠️ El nombre de usuario ya está en uso. Elige otro nombre de usuario.',
+                    f'El nombre de usuario "{username_value}" ya está en uso. Elige otro nombre de usuario.',
                     extra_tags='level-error field-username'
                 )
-            else:
-                messages.error(
+                error_mostrado = True
+
+            # Si no hay errores específicos de campos únicos, mostrar mensaje general
+            if not error_mostrado:
+                messages.warning(
                     request,
                     'Revisa los campos marcados en rojo y corrige los errores.',
-                    extra_tags='level-error field-general'
+                    extra_tags='level-warning field-general'
                 )
 
-            # Agregar todos los errores del formulario
-            for item in build_form_messages(form):
-                messages.error(request, item['text'], extra_tags=item['tags'])
+            # NO agregar mensajes adicionales del formulario para evitar duplicados
+            # Los mensajes específicos ya se mostraron arriba
     else:
         form = RegistroForm()
 
@@ -136,7 +147,11 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            messages.success(request, 'Has iniciado sesión correctamente.', extra_tags='level-success field-general')
+            messages.success(
+                request,
+                f'¡Bienvenid@ de nuevo, {user.first_name}! Has iniciado sesión correctamente.',
+                extra_tags='level-success field-general'
+            )
             return redirect('core:dashboard')
         else:
             usuario_o_documento = request.POST.get('username')
@@ -153,7 +168,7 @@ def perfil(request):
 # Logout
 def logout_view(request):
     auth_logout(request)
-    messages.info(request, 'Sesión cerrada.')
+    messages.success(request, 'Sesión cerrada correctamente. ¡Hasta pronto!', extra_tags='level-success field-general')
     return redirect('core:index')
 
 # Recuperación de contraseña
@@ -191,9 +206,7 @@ def crear_usuario_view(request):
             messages.success(request, 'Usuario creado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
-            for item in build_form_messages(form):
-                messages.error(request, item['text'], extra_tags=item['tags'])
+            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
     else:
         form = RegistroForm()
     return render(request, 'usuarios/crear_usuario.html', {'form': form})
@@ -208,9 +221,7 @@ def editar_usuario_view(request, user_id):
             messages.success(request, 'Usuario actualizado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
-            for item in build_form_messages(form):
-                messages.error(request, item['text'], extra_tags=item['tags'])
+            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
     else:
         form = RegistroForm(instance=usuario)
     return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})

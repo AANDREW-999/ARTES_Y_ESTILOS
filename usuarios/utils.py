@@ -65,27 +65,46 @@ def build_form_messages(form):
 
 
 def build_login_message(form, usuario_o_documento=None):
+    """
+    Construye mensajes de error personalizados para el formulario de login
+    """
     errors = form.errors.as_data()
     non_field = errors.get('__all__') or []
+
+    # Verificar si la cuenta está inactiva
     for err in non_field:
         if getattr(err, 'code', None) == 'inactive':
             return {
-                'text': 'Tu cuenta esta inactiva, contacta al administrador.',
+                'text': 'Tu cuenta está inactiva. Por favor, contacta al administrador.',
                 'tags': 'level-error field-general'
             }
+
+    # Verificar si el usuario/documento existe para dar feedback específico
     if usuario_o_documento:
         User = get_user_model()
+        exists = False
+
         if usuario_o_documento.isdigit() and len(usuario_o_documento) == 10:
+            # Es un documento
             exists = User.objects.filter(documento=usuario_o_documento).exists()
         else:
+            # Es un username
             exists = User.objects.filter(username=usuario_o_documento).exists()
+
         if exists:
             return {
-                'text': 'Contrasena incorrecta.',
+                'text': 'Contraseña incorrecta. Verifica e intenta nuevamente.',
                 'tags': 'level-error field-password'
             }
+        else:
+            return {
+                'text': f'El usuario o documento "{usuario_o_documento}" no está registrado.',
+                'tags': 'level-error field-username'
+            }
+
+    # Mensaje genérico si no se puede determinar el problema
     return {
-        'text': 'Usuario o documento incorrecto.',
-        'tags': 'level-error field-username'
+        'text': 'Usuario o contraseña incorrectos. Por favor, verifica tus datos.',
+        'tags': 'level-error field-general'
     }
 

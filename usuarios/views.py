@@ -7,67 +7,134 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, 
 from django.contrib.auth import get_user_model
 
 from .forms import RegistroForm, LoginForm
-from .utils import build_form_messages, build_login_message
+from .utils import build_login_message
 
 User = get_user_model()
 
 # Registro
 def registro(request):
     if request.method == 'POST':
+        print("\n" + "="*70)
+        print("🔍 DEBUG: REGISTRO DE USUARIO")
+        print("="*70)
+        print(f"📥 POST data: {dict(request.POST)}")
+        print(f"📷 FILES data: {dict(request.FILES)}")
+
         form = RegistroForm(request.POST, request.FILES)
+
+        print(f"\n✅ Formulario creado")
+        print(f"🔎 ¿Es válido? {form.is_valid()}")
+
         if form.is_valid():
+            print("\n✅ FORMULARIO VÁLIDO")
+            print(f"📋 Datos limpios: {form.cleaned_data}")
+
             try:
-                # El método save() del formulario ya maneja todo
+                # IMPORTANTE: Primero guardamos con commit=False para modificar atributos
                 usuario = form.save(commit=False)
+                print(f"\n👤 Usuario creado (sin guardar): {usuario.username}")
+
                 # Configurar permisos de acceso
                 usuario.is_staff = True
                 usuario.is_active = True
-                # Guardar el usuario
+
+                # Guardar el usuario (esto dispara la señal que crea el Perfil)
                 usuario.save()
+                print(f"✅ Usuario guardado en BD: ID={usuario.id}")
+
+                # Ahora actualizamos el perfil con los datos del formulario
+                perfil = usuario.perfil
+                print(f"✅ Perfil obtenido: ID={perfil.id}")
+
+                perfil.telefono = form.cleaned_data.get('telefono', '')
+                perfil.direccion = form.cleaned_data.get('direccion', '')
+                perfil.fecha_nacimiento = form.cleaned_data.get('fecha_nacimiento')
+                perfil.biografia = form.cleaned_data.get('biografia', '')
+
+                print(f"📝 Datos del perfil a guardar:")
+                print(f"  • Teléfono: {perfil.telefono}")
+                print(f"  • Dirección: {perfil.direccion}")
+                print(f"  • Fecha nac: {perfil.fecha_nacimiento}")
+                print(f"  • Biografía: {perfil.biografia[:50] if perfil.biografia else '(vacío)'}")
+
+                # Manejar la foto de perfil si existe
+                foto = form.cleaned_data.get('foto_perfil')
+                if foto:
+                    perfil.foto_perfil = foto
+                    print(f"  • Foto: {foto.name}")
+                else:
+                    print(f"  • Foto: (sin foto)")
+
+                perfil.save()
+                print(f"✅ Perfil guardado en BD")
+                print("="*70 + "\n")
 
                 messages.success(
                     request,
-                    f'¡Cuenta creada exitosamente! Bienvenid@ {usuario.first_name}.',
+                    f'¡Cuenta creada exitosamente! Bienvenid@ {usuario.first_name} {usuario.last_name}.',
                     extra_tags='level-success field-general'
                 )
                 return redirect('usuarios:login')
 
             except Exception as e:
+                print(f"\n❌ ERROR AL CREAR USUARIO: {str(e)}")
+                print(f"Tipo de error: {type(e).__name__}")
+                import traceback
+                traceback.print_exc()
+                print("="*70 + "\n")
+
                 messages.error(
                     request,
                     f'Error al crear la cuenta: {str(e)}',
                     extra_tags='level-error field-general'
                 )
         else:
+            print("\n❌ FORMULARIO INVÁLIDO")
+            print(f"🔴 Errores del formulario:")
+            for field, errors in form.errors.items():
+                print(f"  • {field}: {errors}")
+            print("="*70 + "\n")
+
             # Mensajes de error personalizados según el campo
+            error_mostrado = False
+
             if 'documento' in form.errors:
+                documento_value = request.POST.get('documento', '')
                 messages.error(
                     request,
-                    '⚠️ El documento ya está registrado. Si olvidaste tu contraseña, usa la opción de recuperación.',
+                    f'El documento {documento_value} ya está registrado. Si olvidaste tu contraseña, usa la opción de recuperación.',
                     extra_tags='level-error field-documento'
                 )
-            elif 'email' in form.errors:
+                error_mostrado = True
+
+            if 'email' in form.errors:
+                email_value = request.POST.get('email', '')
                 messages.error(
                     request,
-                    '⚠️ El correo electrónico ya está registrado. Intenta con otro email.',
+                    f'El correo electrónico {email_value} ya está registrado. Intenta con otro email.',
                     extra_tags='level-error field-email'
                 )
-            elif 'username' in form.errors:
+                error_mostrado = True
+
+            if 'username' in form.errors:
+                username_value = request.POST.get('username', '')
                 messages.error(
                     request,
-                    '⚠️ El nombre de usuario ya está en uso. Elige otro nombre de usuario.',
+                    f'El nombre de usuario "{username_value}" ya está en uso. Elige otro nombre de usuario.',
                     extra_tags='level-error field-username'
                 )
-            else:
-                messages.error(
+                error_mostrado = True
+
+            # Si no hay errores específicos de campos únicos, mostrar mensaje general
+            if not error_mostrado:
+                messages.warning(
                     request,
                     'Revisa los campos marcados en rojo y corrige los errores.',
-                    extra_tags='level-error field-general'
+                    extra_tags='level-warning field-general'
                 )
 
-            # Agregar todos los errores del formulario
-            for item in build_form_messages(form):
-                messages.error(request, item['text'], extra_tags=item['tags'])
+            # NO agregar mensajes adicionales del formulario para evitar duplicados
+            # Los mensajes específicos ya se mostraron arriba
     else:
         form = RegistroForm()
 
@@ -80,7 +147,11 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            messages.success(request, 'Has iniciado sesión correctamente.', extra_tags='level-success field-general')
+            messages.success(
+                request,
+                f'¡Bienvenid@ de nuevo, {user.first_name}! Has iniciado sesión correctamente.',
+                extra_tags='level-success field-general'
+            )
             return redirect('core:dashboard')
         else:
             usuario_o_documento = request.POST.get('username')
@@ -97,7 +168,7 @@ def perfil(request):
 # Logout
 def logout_view(request):
     auth_logout(request)
-    messages.info(request, 'Sesión cerrada.')
+    messages.success(request, 'Sesión cerrada correctamente. ¡Hasta pronto!', extra_tags='level-success field-general')
     return redirect('core:index')
 
 # Recuperación de contraseña
@@ -135,9 +206,7 @@ def crear_usuario_view(request):
             messages.success(request, 'Usuario creado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
-            for item in build_form_messages(form):
-                messages.error(request, item['text'], extra_tags=item['tags'])
+            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
     else:
         form = RegistroForm()
     return render(request, 'usuarios/crear_usuario.html', {'form': form})
@@ -152,9 +221,7 @@ def editar_usuario_view(request, user_id):
             messages.success(request, 'Usuario actualizado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-error field-general')
-            for item in build_form_messages(form):
-                messages.error(request, item['text'], extra_tags=item['tags'])
+            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
     else:
         form = RegistroForm(instance=usuario)
     return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
+from catalogo.models import Producto
 
 # Create your views here.
 
@@ -54,3 +54,8 @@ def productos(request):
 
 def contactanos(request):
     return render(request, 'core/contactanos.html')
+
+def productos(request):
+    # Traemos todos los productos guardados
+    productos_db = Producto.objects.all() 
+    return render(request, 'catalogo.html', {'productos': productos_db})

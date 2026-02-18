@@ -1,0 +1,148 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-secondary fw-bold">Gestión de Catálogo</h2>
+
+    <div class="d-flex gap-3">
+        <div class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" id="id_buscador" class="form-control" placeholder="Buscar flores..." />
+        </div>
+        <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAgregar">
+            <i class="bi bi-plus-circle"></i> Nuevo Producto
+        </button>
+    </div>
+</div>
+
+<div class="table-responsive shadow rounded-3">
+    <table class="table table-hover bg-white mb-0 align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Tamaño</th>
+                <th>Precio</th>
+                <th class="text-center">Imagen</th>
+                <th>Descripción</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td><strong>{{ p.nombre }}</strong></td>
+                <td><span class="badge bg-light text-dark border">{{ p.get_categoria_display }}</span></td>
+                <td>{{ p.tamano }}</td>
+                <td>${{ p.precio }}</td>
+                <td class="text-center">
+                    {% if p.imagen %}
+                    <img src="{{ p.imagen.url }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded-circle shadow-sm" />
+                    {% else %}
+                    <i class="bi bi-image text-muted" style="font-size: 1.5rem;"></i>
+                    {% endif %}
+                </td>
+                <td><small class="text-muted">{{ p.descripcion|default:'-'|truncatechars:25 }}</small></td>
+                <td class="text-center">
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'catalogo:editar_producto' p.id %}" class="btn btn-primary btn-sm" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmarEliminacion{{ p.id }}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+
+            <div class="modal fade" id="confirmarEliminacion{{ p.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-danger text-white justify-content-center py-2" style="background-color: #dc3545 !important;">
+                            <h5 class="modal-title fw-bold">Confirmar Eliminación</h5>
+                        </div>
+                        <div class="modal-body text-center p-4">
+                            <p class="mb-2 text-muted">¿Estás seguro que deseas eliminar el producto?</p>
+                            <h4 class="fw-bold mb-1">{{ p.nombre }}</h4>
+                            <p class="text-secondary small mb-3">ID: {{ p.id }}</p>
+
+                            <div class="alert alert-warning border-0 d-flex align-items-center justify-content-center py-2" style="background-color: #fff3cd; color: #856404;">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <span class="small fw-bold">Esta acción no se puede deshacer.</span>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 justify-content-center pb-4">
+                            <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                            <form action="{% url 'catalogo:eliminar_producto' p.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger px-4">Sí, Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No hay productos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Registrar Nuevo Producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'catalogo:agregar_producto' %}" method="POST" enctype="multipart/form-data" class="row g-3">
+                    {% csrf_token %}
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Categoría</label>
+                        <select name="categoria" class="form-select" required>
+                            <option value="" selected disabled>Seleccione...</option>
+                            {% for id, nombre in categorias_list %}
+                            <option value="{{ id }}">{{ nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Nombre</label>
+                        <input type="text" id="inputNombre" name="nombre" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Precio</label>
+                        <input type="text" id="inputPrecio" name="precio" class="form-control" placeholder="0.00" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Tamaño</label>
+                        <select name="tamano" class="form-select" required>
+                            <option value="Pequeño">Pequeño</option>
+                            <option value="Mediano">Mediano</option>
+                            <option value="Grande">Grande</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Imagen</label>
+                        <input type="file" name="imagen" class="form-control" accept="image/*" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="modal-footer px-0 pb-0 border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/archivo.js' %}"></script>
+{% endblock %}

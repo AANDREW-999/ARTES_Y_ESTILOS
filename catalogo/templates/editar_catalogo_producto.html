@@ -1,0 +1,75 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Editando: {{ producto.nombre }}</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data" class="row g-3">
+                {% csrf_token %}
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Categoría</label>
+                    <select name="categoria" class="form-select" required>
+                        {% for id, nombre in categorias_list %}
+                            <option value="{{ id }}" {% if producto.categoria == id %}selected{% endif %}>
+                                {{ nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Nombre del Producto</label>
+                    <input type="text" id="inputNombre" name="nombre" class="form-control" value="{{ producto.nombre }}" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Precio</label>
+                    <input type="text" id="inputPrecio" name="precio" class="form-control" value="{{ producto.precio }}" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Tamaño</label>
+                    <select name="tamano" class="form-select">
+                        <option value="Pequeño" {% if producto.tamano == 'Pequeño' %}selected{% endif %}>Pequeño</option>
+                        <option value="Mediano" {% if producto.tamano == 'Mediano' %}selected{% endif %}>Mediano</option>
+                        <option value="Grande" {% if producto.tamano == 'Grande' %}selected{% endif %}>Grande</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Imagen Actual</label>
+                    <div class="mb-2">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" width="80" class="img-thumbnail shadow-sm">
+                        {% else %}
+                            <div class="text-muted small"><i class="bi bi-image me-1"></i>Sin imagen</div>
+                        {% endif %}
+                    </div>
+                    <input type="file" name="imagen" class="form-control" accept="image/*">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold">Descripción</label>
+                    <textarea name="descripcion" class="form-control" rows="3">{{ producto.descripcion }}</textarea>
+                </div>
+
+                <div class="col-12 mt-4 border-top pt-3">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-lg"></i> Guardar Cambios
+                    </button>
+                    <a href="{% url 'catalogo:gestion_productos' %}" class="btn btn-secondary px-4">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/archivo.js' %}"></script>
+{% endblock %}

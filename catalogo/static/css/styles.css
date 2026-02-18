@@ -1,0 +1,145 @@
+:root {
+    --verde-salvia: #b2c09b; 
+    --rosa-antiguo: #bd8395; 
+    --rosa-hover: #a36e80;   
+    --crema-bg: #f9fbf7;
+}
+
+body {
+    background-color: var(--crema-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.navbar-custom {
+    background-color: var(--verde-salvia) !important;
+    border-bottom: 3px solid var(--rosa-antiguo);
+}
+
+
+.navbar-brand img {
+    height: 65px; /*tamaño del logo*/
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.05); /* Un pequeño efecto al pasar el mouse */
+}
+
+
+.card-header-custom {
+    background-color: var(--rosa-antiguo);
+    color: white;
+    font-weight: bold;
+}
+
+/* Botón Principal "Nuevo Producto" */
+.btn-nuevo {
+    background-color: var(--rosa-antiguo);
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 10px 20px;
+}
+
+.btn-nuevo:hover {
+    background-color: var(--rosa-hover);
+    color: white;
+}
+
+/* Personalización de botones de acción en la tabla */
+.btn-warning-custom {
+    background-color: #e9c46a; /* boton de editar */
+    border: none; color: white;
+}
+
+.btn-danger-custom {
+    background-color: #e76f51; /* boton de eliminar */
+    border: none; color: white;
+}
+
+
+.table-header-custom th {
+    background-color: var(--rosa-antiguo) !important; 
+    color: white; 
+    border-color: #a36e80; 
+}
+
+input.form-control::-webkit-outer-spin-button,
+input.form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+/* Estilos específicos para el enlace de la tarjeta */
+.card-catalogo-link {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+}
+
+/* Contenedor de la tarjeta con efecto de interacción */
+.card-catalogo {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* Efecto al pasar el mouse (Hover) */
+.card-catalogo:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ajuste de la imagen para que siempre se vea bien */
+.card-img-custom {
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.card-catalogo:hover .card-img-custom {
+    transform: scale(1.05); /* Zoom suave a la imagen */
+}
+
+/* La tarjeta con bordes muy redondeados y sin bordes de línea */
+.card-floral {
+    border-radius: 20px !important;
+    overflow: hidden;
+    height: auto; /* Permite que la tarjeta sea más corta o larga según la foto */
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+/* La imagen NO tiene altura fija, se ajusta a lo que subas */
+.card-floral .card-img-top {
+    height: auto !important;
+    width: 100%;
+    display: block;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+/* El botón rosa fucsia del diseño */
+.btn-rosa {
+    background-color: #b35581 !important;
+    color: white !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    transition: all 0.3s ease;
+}
+
+.btn-rosa:hover {
+    background-color: #8e4265 !important;
+    transform: scale(1.05);
+}
+
+/* Título en color café */
+.card-floral .card-title {
+    color: #5d4037;
+    font-weight: 700;
+}
+

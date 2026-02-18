@@ -30,10 +30,8 @@ urlpatterns = [
     path('', include('usuarios.urls')),
     path('proveedores/', include('proveedores.urls')),
     path('compras/', include('compras.urls')),  
-    path('clientes/', include('clientes.urls')), # <--- Asegúrate de que esto esté así
-
+    path('clientes/', include('clientes.urls')), 
 ]
 
-# Servir archivos estáticos y de medios en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

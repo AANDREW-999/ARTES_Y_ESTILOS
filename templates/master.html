@@ -1,6 +1,5 @@
 {% load static %}
 {% load accesibilidad_tags %}
-{% accesibilidad_widget %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -119,6 +118,8 @@
   </footer>
 
   {% block extra_js %}{% endblock %}
+  {% comment %}Widget de accesibilidad cargado al final del body{% endcomment %}
+  {% accesibilidad_widget %}
   <script src="{% static 'core/js/main.js' %}"></script>
 </body>
 </html>

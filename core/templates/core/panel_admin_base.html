@@ -1,5 +1,3 @@
-{% load accesibilidad_tags %}
-{% accesibilidad_widget %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
     
     {% load static %}
+    {% load accesibilidad_tags %}
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
@@ -89,12 +88,40 @@
                 {% endblock %}
                 
                 <!-- Ejemplo de items adicionales -->
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Productos</span>
-                    </a>
-                </li>
+               <li class="nav-item">
+    <a class="nav-link d-flex justify-content-between align-items-center {% if request.resolver_match.app_name == 'productos' %}active{% endif %}"
+       data-bs-toggle="collapse"
+       href="#submenuProductos" 
+       role="button"
+       aria-expanded="false"
+       aria-controls="submenuProductos">
+        <span>
+            <i class="bi bi-bag-check me-2"></i> Tipos de productos
+        </span>
+        <i class="bi bi-chevron-down small"></i>
+    </a>
+
+    <div class="collapse {% if request.resolver_match.app_name == 'productos' %}show{% endif %}"
+         id="submenuProductos">
+        <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
+            <li class="nav-item">
+                <a class="nav-link py-1" href="#">
+                    <i class="bi bi-list-ul me-1"></i> Flor
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1" href="#">
+                    <i class="bi bi-truck me-1"></i> Producto
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1" href="#">
+                    <i class="bi bi-truck me-1"></i> Categoría
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
                 
                 <li class="nav-item">
                     <a href="#" class="nav-link">
@@ -110,40 +137,37 @@
                     </a>
                 </li>
                 
-                <li class="nav-item">
-                    <a class="nav-link d-flex justify-content-between align-items-center {% if request.resolver_match.app_name == 'compras' %}active{% endif %}"
-                       data-bs-toggle="collapse"
-                       href="#submenuCompras"
-                       role="button"
-                       aria-expanded="{% if request.resolver_match.app_name == 'compras' %}true{% else %}false{% endif %}"
-                       aria-controls="submenuCompras">
-                        <span>
-                            <i class="bi bi-bag-check me-2"></i> Compras
-                        </span>
-                        <i class="bi bi-chevron-down small"></i>
-                    </a>
+               <li class="nav-item">
+    <a class="nav-link d-flex justify-content-between align-items-center {% if request.resolver_match.app_name == 'compras' %}active{% endif %}"
+       data-bs-toggle="collapse"
+       href="#submenuCompras"
+       role="button"
+       aria-expanded="{% if request.resolver_match.app_name == 'compras' %}true{% else %}false{% endif %}"
+       aria-controls="submenuCompras">
+        <span>
+            <i class="bi bi-bag-check me-2"></i> Compras
+        </span>
+        <i class="bi bi-chevron-down small"></i>
+    </a>
 
-                    <div class="collapse {% if request.resolver_match.app_name == 'compras' %}show{% endif %}"
-                         id="submenuCompras">
-                        <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
-
-                            <!-- Lista de Compras -->
-                            <li class="nav-item">
-                                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'lista_compra' %}fw-bold text-primary{% endif %}"
-                                   href="{% url 'compras:lista_compra' %}">
-                                    <i class="bi bi-list-ul me-1"></i> Lista de Compras
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'listar' %}fw-bold text-primary{% endif %}"
-                                   href="{% url 'proveedores:listar' %}">
-                                    <i class="bi bi-truck me-1"></i> Proveedores
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+    <div class="collapse {% if request.resolver_match.app_name == 'compras' %}show{% endif %}"
+         id="submenuCompras">
+        <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
+            <li class="nav-item">
+                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'lista_compra' %}fw-bold text-primary{% endif %}"
+                   href="{% url 'compras:lista_compra' %}">
+                    <i class="bi bi-list-ul me-1"></i> Lista de Compras
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'listar' %}fw-bold text-primary{% endif %}"
+                   href="{% url 'proveedores:listar' %}">
+                    <i class="bi bi-truck me-1"></i> Proveedores
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
 
                 <!-- Configuración -->
                 <li class="nav-header">
@@ -276,5 +300,7 @@
     
     <!-- JavaScript adicional de cada página -->
     {% block extra_js %}{% endblock %}
+    {% comment %}Widget de accesibilidad (se carga al final del body) - requiere accesibilidad_tags{% endcomment %}
+    {% accesibilidad_widget %}
 </body>
 </html>

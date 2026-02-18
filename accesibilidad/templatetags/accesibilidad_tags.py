@@ -1,13 +1,17 @@
 from django import template
 from django.utils.safestring import mark_safe
+from django.templatetags.static import static
 
 register = template.Library()
 
 @register.simple_tag
 def accesibilidad_widget():
-    return mark_safe('''
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="/static/accessibility/css/accesibility.css">
+    fa_css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+    css_url = static('accessibility/css/accesibility.css')
+    js_url = static('accessibility/js/accessibility.js')
+    return mark_safe(f'''
+        <link rel="stylesheet" href="{fa_css}">
+        <link rel="stylesheet" href="{css_url}">
         
         <!-- Botón de accesibilidad -->
         <div class="minegate-acc-trigger floral-theme" onclick="toggleAccPanel()" title="Opciones de Accesibilidad">
@@ -78,5 +82,5 @@ def accesibilidad_widget():
 
         <div id="reading-guide"></div>
 
-        <script src="/static/accessibility/js/accessibility.js"></script>
+        <script src="{js_url}"></script>
     ''')

@@ -1,0 +1,116 @@
+{% extends 'master.html' %}
+{% load static %}
+{% block title %}Correo Enviado · Arte & Estilos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- ========================================================================== -->
+<!-- FONDO ANIMADO DE 4 IMÁGENES (SLIDESHOW) -->
+<!-- ========================================================================== -->
+<div id="bg-slideshow" aria-hidden="true">
+  <div class="slide" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:1; --img: url('{% static 'usuarios/img/2_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:2; --img: url('{% static 'usuarios/img/3_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:3; --img: url('{% static 'usuarios/img/4_FondoRegistro.png' %}');"></div>
+</div>
+
+<!-- ========================================================================== -->
+<!-- SECCIÓN DE CONFIRMACIÓN DE ENVÍO -->
+<!-- ========================================================================== -->
+<section class="login-page py-5" role="main">
+  <div class="container login-container">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-6 col-xl-5">
+        <div class="login-card glassy text-center">
+
+          <!-- ================================================================ -->
+          <!-- ÍCONO Y CABECERA -->
+          <!-- ================================================================ -->
+          <div class="mb-4">
+            <div class="position-relative d-inline-block mb-3">
+              <i class="bi bi-envelope-check-fill d-block" style="font-size:64px;color:var(--rosa-intenso);" aria-hidden="true"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" style="font-size: 1.5rem;">
+                <i class="bi bi-check2"></i>
+              </span>
+            </div>
+            <h1 class="login-title h2 mb-2">¡Correo Enviado!</h1>
+            <p class="text-muted">Revisa tu bandeja de entrada</p>
+          </div>
+
+          <!-- ================================================================ -->
+          <!-- MENSAJE INFORMATIVO -->
+          <!-- ================================================================ -->
+          <div class="alert alert-success d-flex align-items-start text-start mb-4" role="alert">
+            <i class="bi bi-info-circle-fill me-2 mt-1 fs-5" aria-hidden="true"></i>
+            <div>
+              <strong>¿Qué hacer ahora?</strong>
+              <ul class="mb-0 mt-2 small ps-3">
+                <li>Revisa tu <strong>bandeja de entrada</strong></li>
+                <li>Si no lo ves, revisa la carpeta de <strong>spam o correo no deseado</strong></li>
+                <li>Haz clic en el enlace que te enviamos</li>
+                <li>El enlace expirará en <strong>24 horas</strong></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- ================================================================ -->
+          <!-- MENSAJE DE SEGURIDAD -->
+          <!-- ================================================================ -->
+          <div class="alert alert-warning d-flex align-items-start text-start mb-4" role="alert">
+            <i class="bi bi-shield-check me-2 mt-1 fs-5" aria-hidden="true"></i>
+            <div>
+              <strong>Nota de seguridad</strong>
+              <p class="mb-0 mt-1 small">
+                Si el correo ingresado existe en nuestro sistema, recibirás el enlace de recuperación.
+                Si no solicitaste este cambio, puedes ignorar este mensaje de forma segura.
+              </p>
+            </div>
+          </div>
+
+          <!-- ================================================================ -->
+          <!-- BOTONES DE ACCIÓN -->
+          <!-- ================================================================ -->
+          <div class="d-grid gap-2 mb-3">
+            <a href="{% url 'usuarios:login' %}" class="btn btn-login btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
+              <span>Ir al inicio de sesión</span>
+            </a>
+          </div>
+
+          <!-- ================================================================ -->
+          <!-- PIE CON ENLACES ADICIONALES -->
+          <!-- ================================================================ -->
+          <div class="text-center mt-4 pt-3 border-top">
+            <p class="register-link mb-2">
+              <a class="link-floral fw-semibold" href="{% url 'usuarios:password_reset' %}">
+                <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>
+                ¿No recibiste el correo? Intentar de nuevo
+              </a>
+            </p>
+            <p class="register-link mb-0">
+              ¿Necesitas ayuda?
+              <a class="link-floral fw-semibold" href="{% url 'core:index' %}">
+                <i class="bi bi-question-circle me-1" aria-hidden="true"></i>
+                Contacta a soporte
+              </a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Auto-redirigir al login después de 30 segundos (opcional)
+  // setTimeout(() => {
+  //   window.location.href = "{% url 'usuarios:login' %}";
+  // }, 30000);
+</script>
+{% endblock %}

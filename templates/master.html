@@ -1,4 +1,5 @@
 {% load static %}
+{% load accesibilidad_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,8 +7,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#D9A7C2">
-  <!-- Favicon del logo -->
-  <link rel="icon" type="image/png" href="{% static 'img/FaviconA&E.png' %}">
+  <!-- Favicon del logo - múltiples formatos para compatibilidad -->
+  <link rel="icon" href="{% static 'img/FaviconAE.png' %}?v=20260218" type="image/png">
+  <link rel="shortcut icon" href="{% static 'img/FaviconAE.png' %}?v=20260218" type="image/png">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/FaviconAE.png' %}?v=20260218">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/FaviconAE.png' %}?v=20260218">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/FaviconAE.png' %}?v=20260218">
   {% load bootstrap5 %}
   {% bootstrap_css %}
   {% bootstrap_javascript %}
@@ -25,7 +30,7 @@
     <nav class="navbar navbar-expand-lg navbar-light floral-navbar shadow-sm py-2 sticky-top" id="mainNavbar">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-3 brand-animated" href="{% url 'core:index' %}" aria-label="Ir al inicio">
-          <img src="{% static 'img/LogoA&E.png' %}" alt="Artes y Estilos" class="brand-logo brand-logo-xxl">
+          <img src="{% static 'img/LogoAE.png' %}" alt="Artes y Estilos" class="brand-logo brand-logo-xxl">
           <span class="fw-bold">GESTIÓN FLORAL</span>
         </a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Abrir menú">
@@ -72,6 +77,46 @@
     <div class="nav-divider"></div>
   </header>
 
+  <!-- Contenedor de Toasts para notificaciones globales -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999;" aria-live="polite" aria-atomic="true" id="globalToastContainer">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="toast align-items-center border-0 shadow-lg
+                    {% if message.tags %}
+                      {% if 'success' in message.tags %}text-bg-success
+                      {% elif 'error' in message.tags or 'danger' in message.tags %}text-bg-danger
+                      {% elif 'warning' in message.tags %}
+                      {% else %}text-bg-info
+                      {% endif %}
+                    {% else %}text-bg-info{% endif %}"
+             role="alert" aria-live="assertive" aria-atomic="true"
+             data-bs-autohide="true"
+             {% if 'warning' in message.tags %}
+               data-bs-delay="8000"
+               style="background-color: #ffc107; color: #000;"
+             {% elif 'error' in message.tags or 'danger' in message.tags %}
+               data-bs-delay="10000"
+             {% else %}
+               data-bs-delay="7000"
+             {% endif %}>
+          <div class="d-flex">
+            <div class="toast-body d-flex align-items-center {% if 'warning' in message.tags %}fw-semibold{% endif %}">
+              <i class="bi
+                        {% if 'success' in message.tags %}bi-check-circle-fill
+                        {% elif 'error' in message.tags or 'danger' in message.tags %}bi-exclamation-triangle-fill
+                        {% elif 'warning' in message.tags %}bi-exclamation-circle-fill
+                        {% else %}bi-info-circle-fill
+                        {% endif %} me-2 fs-5"></i>
+              <span>{{ message }}</span>
+            </div>
+            <button type="button" class="btn-close {% if 'warning' not in message.tags %}btn-close-white{% endif %} me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Cerrar"></button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
   <main>
     {% block content %}{% endblock %}
   </main>
@@ -103,7 +148,7 @@
             <a href="https://api.whatsapp.com/send?phone=%2B573217195520" target="_blank" rel="noopener" class="social-link btn-social whatsapp" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
           </div>
           <div class="footer-favicon-large-wrap mt-3 text-center">
-            <img src="{% static 'img/FaviconA&E.png' %}" alt="Rosa grande" class="footer-favicon-large">
+            <img src="{% static 'img/FaviconAE.png' %}" alt="Rosa grande" class="footer-favicon-large">
           </div>
         </div>
       </div>
@@ -117,6 +162,20 @@
   </footer>
 
   {% block extra_js %}{% endblock %}
+  {% comment %}Widget de accesibilidad cargado al final del body{% endcomment %}
+  {% accesibilidad_widget %}
   <script src="{% static 'core/js/main.js' %}"></script>
+
+  <!-- Script para inicializar toasts automáticamente -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Inicializar y mostrar todos los toasts de Django messages
+      const toastElList = document.querySelectorAll('#globalToastContainer .toast');
+      toastElList.forEach(function(toastEl) {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      });
+    });
+  </script>
 </body>
 </html>

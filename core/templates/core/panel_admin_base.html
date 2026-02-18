@@ -4,14 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Panel Administrativo{% endblock %} - Mi Proyecto SENA</title>
-        
+
+    <!-- Favicon -->
+    {% load static %}
+    <link rel="icon" href="{% static 'img/FaviconAE.png' %}?v=20260218" type="image/png">
+    <link rel="shortcut icon" href="{% static 'img/FaviconAE.png' %}?v=20260218" type="image/png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/FaviconAE.png' %}?v=20260218">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/FaviconAE.png' %}?v=20260218">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/FaviconAE.png' %}?v=20260218">
+
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <!-- Chart.js para gráficos -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
     
+
     {% load static %}
+    {% load accesibilidad_tags %}
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
@@ -87,12 +97,49 @@
                 {% endblock %}
                 
                 <!-- Ejemplo de items adicionales -->
+<<<<<<< HEAD
                 <li class="nav-item">
                     <a href="{% url 'catalogo:gestion_productos' %}" class="nav-link">
                         <i class="bi bi-box-seam"></i>
                         <span>Productos</span>
                     </a>
                 </li>
+=======
+               <li class="nav-item">
+    <a class="nav-link d-flex justify-content-between align-items-center {% if request.resolver_match.app_name == 'productos' %}active{% endif %}"
+       data-bs-toggle="collapse"
+       href="#submenuProductos" 
+       role="button"
+       aria-expanded="false"
+       aria-controls="submenuProductos">
+        <span>
+            <i class="bi bi-bag-check me-2"></i> Tipos de productos
+        </span>
+        <i class="bi bi-chevron-down small"></i>
+    </a>
+
+    <div class="collapse {% if request.resolver_match.app_name == 'productos' %}show{% endif %}"
+         id="submenuProductos">
+        <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
+            <li class="nav-item">
+                <a class="nav-link py-1" href="#">
+                    <i class="bi bi-list-ul me-1"></i> Flor
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1" href="#">
+                    <i class="bi bi-truck me-1"></i> Producto
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1" href="#">
+                    <i class="bi bi-truck me-1"></i> Categoría
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
+>>>>>>> cc9f27019d7c2dfe101cbaa4439b25e83fc38cc6
                 
                 <li class="nav-item">
                     <a href="#" class="nav-link">
@@ -100,14 +147,46 @@
                         <span>Ventas</span>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-graph-up"></i>
-                        <span>Reportes</span>
+                    <a href="{% url 'clientes:lista_clientes' %}" class="nav-link {% if request.resolver_match.app_name == 'clientes' and request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span>Clientes</span>
                     </a>
                 </li>
                 
+               <li class="nav-item">
+    <a class="nav-link d-flex justify-content-between align-items-center {% if request.resolver_match.app_name == 'compras' %}active{% endif %}"
+       data-bs-toggle="collapse"
+       href="#submenuCompras"
+       role="button"
+       aria-expanded="{% if request.resolver_match.app_name == 'compras' %}true{% else %}false{% endif %}"
+       aria-controls="submenuCompras">
+        <span>
+            <i class="bi bi-bag-check me-2"></i> Compras
+        </span>
+        <i class="bi bi-chevron-down small"></i>
+    </a>
+
+    <div class="collapse {% if request.resolver_match.app_name == 'compras' %}show{% endif %}"
+         id="submenuCompras">
+        <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
+            <li class="nav-item">
+                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'lista_compra' %}fw-bold text-primary{% endif %}"
+                   href="{% url 'compras:lista_compra' %}">
+                    <i class="bi bi-list-ul me-1"></i> Lista de Compras
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'listar' %}fw-bold text-primary{% endif %}"
+                   href="{% url 'proveedores:listar' %}">
+                    <i class="bi bi-truck me-1"></i> Proveedores
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
+
                 <!-- Configuración -->
                 <li class="nav-header">
                     <span>CONFIGURACIÓN</span>
@@ -133,6 +212,49 @@
     <!-- Main Content -->
     <div class="main-content" id="main-content">
         
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999 !important;" aria-live="polite" aria-atomic="true">
+            <!-- Toast de Éxito (Verde) - 9 segundos -->
+            <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="9000">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                        <span id="successToastMessage">¡Operación exitosa!</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+                </div>
+            </div>
+
+            <!-- Toast de Error (Rojo) - 12 segundos -->
+            <div id="errorToast" class="toast align-items-center text-bg-danger border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="12000">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center">
+                        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                        <span id="errorToastMessage">Ocurrió un error.</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+                </div>
+            </div>
+
+            <!-- Toast de Advertencia (Amarillo) - 10 segundos -->
+            <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="true" data-bs-delay="10000" style="background-color: #ffc107; color: #000;">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center fw-semibold">
+                        <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+                        <span id="warningToastMessage">Advertencia del sistema.</span>
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div id="django-messages" style="display:none;">
+            {% for message in messages %}
+            <div data-message-level="{{ message.tags }}" data-message-text="{{ message }}"></div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Top Bar -->
         <div class="topbar">
             <div class="topbar-left">
@@ -152,47 +274,9 @@
                 <!-- Notificaciones -->
                 <div class="dropdown">
                     <button class="btn btn-icon" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell"></i>
+                        <i class="bi bi-alarm"></i>
                         <span class="badge-dot"></span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
-                        <div class="dropdown-header">
-                            <h6>Notificaciones</h6>
-                            <span class="badge bg-primary">3 nuevas</span>
-                        </div>
-                        <div class="dropdown-body">
-                            <a href="#" class="notification-item">
-                                <div class="notification-icon bg-primary">
-                                    <i class="bi bi-person-plus"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <p class="notification-title">Nuevo usuario registrado</p>
-                                    <span class="notification-time">Hace 5 minutos</span>
-                                </div>
-                            </a>
-                            <a href="#" class="notification-item">
-                                <div class="notification-icon bg-success">
-                                    <i class="bi bi-check-circle"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <p class="notification-title">Tarea completada</p>
-                                    <span class="notification-time">Hace 1 hora</span>
-                                </div>
-                            </a>
-                            <a href="#" class="notification-item">
-                                <div class="notification-icon bg-warning">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <p class="notification-title">Actualización disponible</p>
-                                    <span class="notification-time">Hace 3 horas</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="dropdown-footer">
-                            <a href="#">Ver todas las notificaciones</a>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Usuario -->
@@ -226,20 +310,7 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Mensajes de Django -->
-        {% if messages %}
-            <div class="messages-container">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        
+
         <!-- Breadcrumb (opcional) -->
         {% block breadcrumb %}
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
@@ -262,11 +333,6 @@
         <footer class="dashboard-footer">
             <div class="footer-content">
                 <p class="mb-0">&copy; {% now "Y" %} Mi Proyecto SENA. Todos los derechos reservados.</p>
-                <div class="footer-links">
-                    <a href="#">Ayuda</a>
-                    <a href="#">Soporte</a>
-                    <a href="#">Términos</a>
-                </div>
             </div>
         </footer>
     </div>
@@ -280,7 +346,10 @@
     <!-- JavaScript del dashboard -->
     <script src="{% static 'js/dashboard.js' %}"></script>
     
+    <!-- Sistema de Toasts para Notificaciones -->
     <!-- JavaScript adicional de cada página -->
     {% block extra_js %}{% endblock %}
+    {% comment %}Widget de accesibilidad (se carga al final del body) - requiere accesibilidad_tags{% endcomment %}
+    {% accesibilidad_widget %}
 </body>
 </html>

@@ -1,0 +1,95 @@
+<!-- File: `core/templates/core/404_admin.html` -->
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}404 — Admin · Arte & Estilos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/styles.css' %}?v=20260210">
+<style>
+:root{--accent:#2b6b46;--bg1:#fbfbfb;--bg2:#eef8f2;--muted:#6b6b6b}
+html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+body{background:linear-gradient(180deg,var(--bg1),var(--bg2))}
+.scene{width:900px;max-width:96%;height:70vh;min-height:480px;border-radius:12px;padding:28px;margin:40px auto;position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.35));box-shadow:0 8px 26px rgba(20,30,20,0.06)}
+h1{margin:0;font-size:clamp(56px,10vw,130px);font-weight:800;color:var(--accent);text-shadow:0 4px 14px rgba(43,107,70,0.1);z-index:4}
+.sub{margin-top:10px;color:var(--muted);z-index:4}
+.ground{position:absolute;left:0;right:0;bottom:0;height:20%;background:linear-gradient(180deg,#e8f7eb,#ddf1e2);z-index:2}
+.flora{position:absolute;left:0;right:0;bottom:6%;height:62%;z-index:3;pointer-events:none}
+.home{margin-top:16px;z-index:4;color:var(--accent);text-decoration:none;font-weight:600;padding:8px 12px;border-radius:10px;border:1px solid rgba(43,107,70,0.06);display:inline-block}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scene">
+  <h1>404</h1>
+  <div class="sub">Página administrativa no encontrada</div>
+  <a class="home" href="/admin/">← Regresar al panel</a>
+
+  <div class="flora" id="flora-admin" aria-hidden="true"></div>
+  <div class="ground" aria-hidden="true"></div>
+
+  <template id="tpl-flower-admin">
+    <svg width="60" height="84" viewBox="0 0 72 96" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(36,48)">
+        <ellipse cx="0" cy="28" rx="3" ry="28" fill="#79b483" opacity="0.95"/>
+        <g transform="translate(0,-6)">
+          <circle cx="0" cy="-8" r="9" fill="#ffd6e0"/>
+          <path d="M0 -8 C -12 -32, 12 -32, 0 -8 Z" fill="#ffb4c6"/>
+          <circle cx="0" cy="-8" r="4" fill="#ffd06b"/>
+        </g>
+      </g>
+    </svg>
+  </template>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  const flora = document.getElementById('flora-admin');
+  if(!flora) return;
+
+  const tpl = document.getElementById('tpl-flower-admin').content;
+  const COUNT = 7;
+
+  const random = (min,max) => Math.random()*(max-min)+min;
+
+  for(let i=0;i<COUNT;i++){
+
+    const frag = tpl.cloneNode(true);
+    const svg = frag.querySelector('svg');
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.position='absolute';
+    wrapper.style.bottom='0';
+
+    const left = (i/(COUNT-1))*100 + random(-8,8);
+    const scale = random(0.7,1.15);
+
+    wrapper.style.left = left + '%';
+    wrapper.style.width = (60*scale)+'px';
+    wrapper.style.height = (84*scale)+'px';
+
+    const duration = Math.round(random(4600,7600));
+    const delay = Math.round(random(120,1400));
+
+    wrapper.style.animation = `rise ${duration}ms ${delay}ms cubic-bezier(.2,.9,.25,1) forwards`;
+    wrapper.style.setProperty('--rise', Math.round(random(30,52))+'vh');
+
+    wrapper.appendChild(svg);
+    flora.appendChild(wrapper);
+  }
+
+});
+</script>
+
+<style>
+@keyframes rise {
+  0% { transform: translateY(0) scale(0.9); opacity: 0.6; }
+  30% { opacity: 1; }
+  100% { transform: translateY(calc(var(--rise) * -1)) scale(1.1); opacity: 0; }
+}
+</style>
+{% endblock %}

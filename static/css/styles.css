@@ -222,8 +222,69 @@ hr {
 .nav-login-btn:hover { background: #8f3a62; box-shadow: 0 12px 26px rgba(169,67,114,.35); transform: translateY(-1px); }
 .nav-login-btn:active { transform: translateY(0); }
 
+/* ========================================================================== */
+/* TOASTS DE NOTIFICACIONES */
+/* ========================================================================== */
+.toast-container {
+  z-index: 99999 !important;
+}
+
+.toast {
+  min-width: 320px;
+  max-width: 420px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  animation: slideInRight 0.4s ease-out;
+}
+
+.toast-body {
+  padding: 1rem 0.75rem;
+}
+
+.toast.text-bg-success {
+  background-color: #198754 !important;
+  color: #fff !important;
+}
+
+.toast.text-bg-danger {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+}
+
+/* Toast amarillo con texto negro */
+.toast[style*="background-color: #ffc107"] {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.toast[style*="background-color: #ffc107"] .btn-close {
+  filter: none;
+  opacity: 0.8;
+}
+
+.toast[style*="background-color: #ffc107"] .btn-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Ajustes responsivos */
 @media (max-width: 991.98px) {
   .navbar .nav-link { padding: .5rem .25rem; }
   .brand-logo { height: 36px; }
+
+  /* Toasts en móvil */
+  .toast {
+    min-width: 280px;
+    max-width: calc(100vw - 2rem);
+  }
 }

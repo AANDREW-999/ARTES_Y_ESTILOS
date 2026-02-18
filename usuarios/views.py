@@ -1,274 +1,236 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
 from django.contrib import messages
-from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
-from django.db.models import Q
-from .forms import LoginForm, RegistroForm, EditarUsuarioForm, EditarPerfilForm
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.contrib.auth import get_user_model
 
+from .forms import RegistroForm, LoginForm
+from .utils import build_login_message
 
-# ==================== VISTAS DE AUTENTICACIÓN ====================
+User = get_user_model()
 
-@csrf_protect
-@never_cache
+# Registro
+def registro(request):
+    if request.method == 'POST':
+        print("\n" + "="*70)
+        print("🔍 DEBUG: REGISTRO DE USUARIO")
+        print("="*70)
+        print(f"📥 POST data: {dict(request.POST)}")
+        print(f"📷 FILES data: {dict(request.FILES)}")
+
+        form = RegistroForm(request.POST, request.FILES)
+
+        print(f"\n✅ Formulario creado")
+        print(f"🔎 ¿Es válido? {form.is_valid()}")
+
+        if form.is_valid():
+            print("\n✅ FORMULARIO VÁLIDO")
+            print(f"📋 Datos limpios: {form.cleaned_data}")
+
+            try:
+                # IMPORTANTE: Primero guardamos con commit=False para modificar atributos
+                usuario = form.save(commit=False)
+                print(f"\n👤 Usuario creado (sin guardar): {usuario.username}")
+
+                # Configurar permisos de acceso
+                usuario.is_staff = True
+                usuario.is_active = True
+
+                # Guardar el usuario (esto dispara la señal que crea el Perfil)
+                usuario.save()
+                print(f"✅ Usuario guardado en BD: ID={usuario.id}")
+
+                # Ahora actualizamos el perfil con los datos del formulario
+                perfil = usuario.perfil
+                print(f"✅ Perfil obtenido: ID={perfil.id}")
+
+                perfil.telefono = form.cleaned_data.get('telefono', '')
+                perfil.direccion = form.cleaned_data.get('direccion', '')
+                perfil.fecha_nacimiento = form.cleaned_data.get('fecha_nacimiento')
+                perfil.biografia = form.cleaned_data.get('biografia', '')
+
+                print(f"📝 Datos del perfil a guardar:")
+                print(f"  • Teléfono: {perfil.telefono}")
+                print(f"  • Dirección: {perfil.direccion}")
+                print(f"  • Fecha nac: {perfil.fecha_nacimiento}")
+                print(f"  • Biografía: {perfil.biografia[:50] if perfil.biografia else '(vacío)'}")
+
+                # Manejar la foto de perfil si existe
+                foto = form.cleaned_data.get('foto_perfil')
+                if foto:
+                    perfil.foto_perfil = foto
+                    print(f"  • Foto: {foto.name}")
+                else:
+                    print(f"  • Foto: (sin foto)")
+
+                perfil.save()
+                print(f"✅ Perfil guardado en BD")
+                print("="*70 + "\n")
+
+                messages.success(
+                    request,
+                    f'¡Cuenta creada exitosamente! Bienvenid@ {usuario.first_name} {usuario.last_name}.',
+                    extra_tags='level-success field-general'
+                )
+                return redirect('usuarios:login')
+
+            except Exception as e:
+                print(f"\n❌ ERROR AL CREAR USUARIO: {str(e)}")
+                print(f"Tipo de error: {type(e).__name__}")
+                import traceback
+                traceback.print_exc()
+                print("="*70 + "\n")
+
+                messages.error(
+                    request,
+                    f'Error al crear la cuenta: {str(e)}',
+                    extra_tags='level-error field-general'
+                )
+        else:
+            print("\n❌ FORMULARIO INVÁLIDO")
+            print(f"🔴 Errores del formulario:")
+            for field, errors in form.errors.items():
+                print(f"  • {field}: {errors}")
+            print("="*70 + "\n")
+
+            # Mensajes de error personalizados según el campo
+            error_mostrado = False
+
+            if 'documento' in form.errors:
+                documento_value = request.POST.get('documento', '')
+                messages.error(
+                    request,
+                    f'El documento {documento_value} ya está registrado. Si olvidaste tu contraseña, usa la opción de recuperación.',
+                    extra_tags='level-error field-documento'
+                )
+                error_mostrado = True
+
+            if 'email' in form.errors:
+                email_value = request.POST.get('email', '')
+                messages.error(
+                    request,
+                    f'El correo electrónico {email_value} ya está registrado. Intenta con otro email.',
+                    extra_tags='level-error field-email'
+                )
+                error_mostrado = True
+
+            if 'username' in form.errors:
+                username_value = request.POST.get('username', '')
+                messages.error(
+                    request,
+                    f'El nombre de usuario "{username_value}" ya está en uso. Elige otro nombre de usuario.',
+                    extra_tags='level-error field-username'
+                )
+                error_mostrado = True
+
+            # Si no hay errores específicos de campos únicos, mostrar mensaje general
+            if not error_mostrado:
+                messages.warning(
+                    request,
+                    'Revisa los campos marcados en rojo y corrige los errores.',
+                    extra_tags='level-warning field-general'
+                )
+
+            # NO agregar mensajes adicionales del formulario para evitar duplicados
+            # Los mensajes específicos ya se mostraron arriba
+    else:
+        form = RegistroForm()
+
+    return render(request, 'usuarios/registro.html', {'form': form})
+
+# Login
 def login_view(request):
-    """
-    Vista para el inicio de sesión de usuarios
-    """
-    if request.user.is_authenticated:
-        return redirect('core:dashboard')
-
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
-
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            remember_me = form.cleaned_data.get('remember_me')
-
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-
-                    if not remember_me:
-                        request.session.set_expiry(0)
-
-                    messages.success(request, f'¡Bienvenido {user.get_full_name() or user.username}!')
-
-                    next_url = request.GET.get('next')
-                    if next_url:
-                        return redirect(next_url)
-                    elif user.is_staff:
-                        return redirect('core:dashboard')
-                    else:
-                        return redirect('core:index')
-                else:
-                    messages.error(request, 'Esta cuenta ha sido desactivada.')
-            else:
-                messages.error(request, 'Documento o contraseña incorrectos.')
-        else:
-            messages.error(request, 'Por favor completa todos los campos correctamente.')
-
-        # IMPORTANTE: Si llegamos aquí, hay errores
-        # Verificar si la petición vino del modal (tiene la URL de index)
-        referer = request.META.get('HTTP_REFERER', '')
-        if 'auth/login' not in referer:  # Viene del modal en index
-            return redirect('core:index')
-
-    # GET request - mostrar formulario normal
-    form = LoginForm()
-    context = {'form': form, 'titulo': 'Iniciar Sesión'}
-    return render(request, 'usuarios/login.html', context)
-
-
-@csrf_protect
-def registro_view(request):
-    """
-    Vista para el registro de nuevos usuarios
-    """
-    if request.user.is_authenticated:
-        return redirect('core:dashboard')
-
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
-
-        if form.is_valid():
-            user = form.save()
+            user = form.get_user()
+            auth_login(request, user)
             messages.success(
                 request,
-                f'Cuenta creada exitosamente para {user.get_full_name()}. '
-                'Ya puedes iniciar sesión.'
+                f'¡Bienvenid@ de nuevo, {user.first_name}! Has iniciado sesión correctamente.',
+                extra_tags='level-success field-general'
             )
-            return redirect('usuarios:login')
+            return redirect('core:dashboard')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            usuario_o_documento = request.POST.get('username')
+            msg = build_login_message(form, usuario_o_documento=usuario_o_documento)
+            messages.error(request, msg['text'], extra_tags=msg['tags'])
     else:
-        form = RegistroForm()
-
-    context = {
-        'form': form,
-        'titulo': 'Registro de Usuario'
-    }
-    return render(request, 'usuarios/registro.html', context)
-
+        form = LoginForm()
+    return render(request, 'usuarios/login.html', {'form': form})
 
 @login_required
+def perfil(request):
+    return render(request, 'usuarios/perfil.html')
+
+# Logout
 def logout_view(request):
-    """
-    Vista para cerrar sesión
-    """
-    logout(request)
-    messages.info(request, 'Has cerrado sesión exitosamente.')
+    auth_logout(request)
+    messages.success(request, 'Sesión cerrada correctamente. ¡Hasta pronto!', extra_tags='level-success field-general')
     return redirect('core:index')
 
+# Recuperación de contraseña
+class RecuperarPasswordView(PasswordResetView):
+    template_name = 'recuperar_password/solicitar_password.html'
+    email_template_name = 'recuperar_password/email_recuperar_password.txt'
+    subject_template_name = 'recuperar_password/asunto_recuperar_password.txt'
+    success_url = reverse_lazy('usuarios:password_reset_done')
 
-# ==================== PANEL DE ADMINISTRACIÓN ====================
+class RecuperarPasswordHechoView(PasswordResetDoneView):
+    template_name = 'recuperar_password/solicitud_enviada.html'
 
-def es_staff(user):
-    """Función auxiliar para verificar si el usuario es staff"""
-    return user.is_staff
+class RestablecerPasswordConfirmarView(PasswordResetConfirmView):
+    template_name = 'recuperar_password/confirmar_password.html'
+    success_url = reverse_lazy('usuarios:password_reset_complete')
 
+class RestablecerPasswordCompletoView(PasswordResetCompleteView):
+    template_name = 'recuperar_password/password_actualizada.html'
 
+# Panel de administración de usuarios (placeholders)
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def lista_usuarios_view(request):
-    """
-    Vista para listar todos los usuarios
-    """
-    # Obtener parámetros de búsqueda y filtrado
-    busqueda = request.GET.get('buscar', '')
-    filtro_activo = request.GET.get('activo', '')
-    filtro_staff = request.GET.get('staff', '')
-
-    # Query base
-    usuarios = User.objects.select_related('perfil').all()
-
-    # Aplicar filtros
-    if busqueda:
-        usuarios = usuarios.filter(
-            Q(username__icontains=busqueda) |
-            Q(first_name__icontains=busqueda) |
-            Q(last_name__icontains=busqueda) |
-            Q(email__icontains=busqueda) |
-            Q(perfil__documento__icontains=busqueda)
-        )
-
-    if filtro_activo:
-        usuarios = usuarios.filter(is_active=filtro_activo == 'true')
-
-    if filtro_staff:
-        usuarios = usuarios.filter(is_staff=filtro_staff == 'true')
-
-    # Ordenar
-    usuarios = usuarios.order_by('-date_joined')
-
-    context = {
-        'titulo': 'Gestión de Usuarios',
-        'usuarios': usuarios,
-        'busqueda': busqueda,
-        'filtro_activo': filtro_activo,
-        'filtro_staff': filtro_staff,
-    }
-    return render(request, 'usuarios/lista_usuarios.html', context)
-
+    usuarios = User.objects.all().order_by('documento')
+    return render(request, 'usuarios/lista_usuarios.html', {'usuarios': usuarios})
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def crear_usuario_view(request):
-    """
-    Vista para crear un nuevo usuario desde el panel admin
-    """
     if request.method == 'POST':
-        form = RegistroForm(request.POST)
-
+        form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
-            messages.success(request, f'Usuario {user.get_full_name()} creado exitosamente.')
+            usuario = form.save(commit=False)
+            usuario.is_staff = True
+            usuario.is_active = True
+            usuario.save()
+            messages.success(request, 'Usuario creado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
     else:
         form = RegistroForm()
-
-    context = {
-        'titulo': 'Crear Nuevo Usuario',
-        'form': form,
-        'accion': 'Crear'
-    }
-    return render(request, 'usuarios/crear_usuario.html', context)
-
+    return render(request, 'usuarios/crear_usuario.html', {'form': form})
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def editar_usuario_view(request, user_id):
-    """
-    Vista para editar un usuario existente
-    """
     usuario = get_object_or_404(User, id=user_id)
-
     if request.method == 'POST':
-        form_usuario = EditarUsuarioForm(request.POST, instance=usuario)
-        form_perfil = EditarPerfilForm(request.POST, request.FILES, instance=usuario.perfil)
-
-        if form_usuario.is_valid() and form_perfil.is_valid():
-            form_usuario.save()
-            form_perfil.save()
-            messages.success(request, f'Usuario {usuario.get_full_name()} actualizado exitosamente.')
+        form = RegistroForm(request.POST, request.FILES, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuario actualizado correctamente.', extra_tags='level-success field-general')
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
     else:
-        form_usuario = EditarUsuarioForm(instance=usuario)
-        form_perfil = EditarPerfilForm(instance=usuario.perfil)
-
-    context = {
-        'titulo': f'Editar Usuario: {usuario.get_full_name()}',
-        'form_usuario': form_usuario,
-        'form_perfil': form_perfil,
-        'usuario': usuario,
-        'accion': 'Actualizar'
-    }
-    return render(request, 'usuarios/editar_usuario.html', context)
-
+        form = RegistroForm(instance=usuario)
+    return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})
 
 @login_required
-@user_passes_test(es_staff, login_url='usuarios:login')
 def eliminar_usuario_view(request, user_id):
-    """
-    Vista para eliminar (desactivar) un usuario
-    """
     usuario = get_object_or_404(User, id=user_id)
-
-    # No permitir eliminar al superusuario
-    if usuario.is_superuser:
-        messages.error(request, 'No se puede eliminar un superusuario.')
-        return redirect('usuarios:lista_usuarios')
-
-    # No permitir que se elimine a sí mismo
-    if usuario == request.user:
-        messages.error(request, 'No puedes eliminarte a ti mismo.')
-        return redirect('usuarios:lista_usuarios')
-
     if request.method == 'POST':
-        usuario.is_active = False
-        usuario.save()
-        messages.success(request, f'Usuario {usuario.get_full_name()} desactivado exitosamente.')
+        usuario.delete()
+        messages.info(request, 'Usuario eliminado.', extra_tags='level-warning field-general')
         return redirect('usuarios:lista_usuarios')
-
-    context = {
-        'titulo': 'Eliminar Usuario',
-        'usuario': usuario
-    }
-    return render(request, 'usuarios/eliminar_usuario.html', context)
-
-
-@login_required
-def perfil_view(request):
-    """
-    Vista para que el usuario vea/edite su propio perfil
-    """
-    usuario = request.user
-
-    if request.method == 'POST':
-        form_usuario = EditarUsuarioForm(request.POST, instance=usuario)
-        form_perfil = EditarPerfilForm(request.POST, request.FILES, instance=usuario.perfil)
-
-        if form_usuario.is_valid() and form_perfil.is_valid():
-            form_usuario.save()
-            form_perfil.save()
-            messages.success(request, 'Perfil actualizado exitosamente.')
-            return redirect('usuarios:perfil')
-    else:
-        form_usuario = EditarUsuarioForm(instance=usuario)
-        form_perfil = EditarPerfilForm(instance=usuario.perfil)
-
-    context = {
-        'titulo': 'Mi Perfil',
-        'form_usuario': form_usuario,
-        'form_perfil': form_perfil,
-    }
-    return render(request, 'usuarios/perfil.html', context)
+    return render(request, 'usuarios/eliminar_usuario.html', {'usuario': usuario})

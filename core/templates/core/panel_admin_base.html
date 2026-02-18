@@ -237,7 +237,7 @@
                 </div>
             </div>
         </div>
-        
+
         {% if messages %}
         <div id="django-messages" style="display:none;">
             {% for message in messages %}
@@ -343,5 +343,4 @@
     {% comment %}Widget de accesibilidad (se carga al final del body) - requiere accesibilidad_tags{% endcomment %}
     {% accesibilidad_widget %}
 </body>
- {% block extra_js %}{% endblock %}
 </html>

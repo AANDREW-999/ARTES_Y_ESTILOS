@@ -1,0 +1,805 @@
+/* Fondo slideshow a pantalla completa */
+#bg-slideshow {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* detrás del contenido */
+  overflow: hidden;
+}
+#bg-slideshow .slide {
+  position: absolute;
+  inset: 0;
+  background-image: var(--img);
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.85) saturate(1.1);
+  opacity: 0;
+  transform: scale(1.04); /* ligero zoom para elegancia */
+  transition: opacity 10000ms ease, transform 10000ms ease;
+}
+#bg-slideshow .slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+body {
+    background: transparent; /* el fondo lo pone el slideshow */
+    min-height: auto;
+    display: block;
+    overflow-x: hidden;
+}
+
+.login-page {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.login-page .row {
+    display: flex;
+    justify-content: center;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.login-page .row > [class*='col-'] {
+    flex: 0 1 600px;
+    max-width: 600px;
+}
+
+@media (max-width: 620px) {
+    .login-page .row > [class*='col-'] {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+}
+
+.login-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 0 16px;
+}
+
+.login-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    padding: 28px 24px;
+    position: relative;
+    animation: fadeSlide .45s ease both;
+}
+
+.login-card.glassy {
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-header i {
+    font-size: 48px;
+    color: var(--rosa-intenso);
+    margin-bottom: 12px;
+}
+
+.login-header h2 {
+    color: var(--vino-oscuro);
+    font-weight: 700;
+}
+
+.form-floating {
+    margin-bottom: 16px;
+}
+
+.form-floating .form-control {
+    border-radius: 10px;
+}
+
+.form-floating .form-control:focus {
+    border-color: var(--rosa-intenso);
+    box-shadow: 0 0 0 .2rem rgba(191,84,134,.25);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: var(--rosa-intenso);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 10px;
+    transition: transform .2s ease, box-shadow .25s ease, background-color .2s ease;
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(191,84,134,.35); background: #a94372; }
+.btn-login i { margin-right: 6px; }
+
+/* Espaciados más cómodos en móvil */
+@media (max-width: 575.98px) {
+  .login-card { padding: 20px 14px; }
+  .section-title { margin-top: 6px; }
+}
+
+/* Títulos de sección para el registro */
+.section-title {
+  font-weight: 700;
+  color: var(--vino-oscuro);
+  margin: 8px 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Barra de fortaleza de contraseña */
+.password-meter {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.password-strength-bar {
+  height: 100%;
+  width: 0;
+  transition: width .25s ease;
+}
+
+.login-card .alert { margin-bottom: 12px; }
+
+/* Ajustes finos para 14" (aprox 1366px de ancho): asegurar centrado visual */
+@media (min-width: 1200px) and (max-width: 1500px) {
+  .login-container { max-width: 560px; }
+}
+
+/* Gutter neutralization para que no se desplace al borde derecho */
+.login-page .container { padding-left: 12px; padding-right: 12px; }
+
+.invalid-feedback {
+  margin-top: 6px;
+}
+
+.field-feedback {
+  margin-top: 6px;
+  font-size: 0.86rem;
+  min-height: 1rem;
+}
+
+.field-feedback.is-valid-text {
+  color: #1f7a1f;
+}
+
+.field-feedback.is-invalid-text {
+  color: #b42318;
+}
+
+.field-example {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.alert-semaforo {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 600;
+  border-left: 6px solid transparent;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+.alert-semaforo--success {
+  background: linear-gradient(90deg, rgba(31,122,31,0.12), rgba(31,122,31,0.03));
+  color: #1f7a1f;
+  border-left-color: #1f7a1f;
+}
+
+.alert-semaforo--warning {
+  background: linear-gradient(90deg, rgba(210,140,0,0.14), rgba(210,140,0,0.03));
+  color: #9a6b00;
+  border-left-color: #d28c00;
+}
+
+.alert-semaforo--error {
+  background: linear-gradient(90deg, rgba(180,35,24,0.12), rgba(180,35,24,0.03));
+  color: #b42318;
+  border-left-color: #b42318;
+}
+
+/* Nuevos estilos para checklist de contraseña, progress bar y toasts */
+.password-requirements {
+  background: rgba(248, 249, 250, 0.8);
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.password-requirements ul li {
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+  transition: color 0.2s ease;
+}
+
+.password-requirements ul li i {
+  margin-right: 8px;
+  transition: all 0.2s ease;
+}
+
+.password-requirements ul li.text-success {
+  font-weight: 600;
+}
+
+/* Toasts personalizados (ya usa clases de Bootstrap) */
+.toast-container .toast {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Ajuste para el progreso de contraseña */
+.progress {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.progress-bar {
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* ============================================ */
+/* ESTILOS DE VALIDACIÓN PROFESIONALES */
+/* ============================================ */
+
+/* Animación de shake para campos inválidos */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Campos válidos con borde verde y sombra suave */
+.form-control.is-valid {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+  padding-right: calc(1.5em + 0.75rem);
+}
+
+/* Campos inválidos con borde rojo y sombra suave */
+.form-control.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+  padding-right: calc(1.5em + 0.75rem);
+}
+
+/* ============================================ */
+/* CAMPOS DE CONTRASEÑA CON TOGGLE OJITO */
+/* ============================================ */
+
+/* El contenedor de los campos de contraseña debe mantener altura fija para el input */
+.position-relative {
+  position: relative;
+  display: block;
+}
+
+/* Los form-floating dentro de position-relative mantienen altura consistente */
+.position-relative.form-floating {
+  min-height: 58px; /* Altura estándar del form-floating de Bootstrap */
+}
+
+/* Todos los campos de contraseña siempre tienen espacio para el ojito */
+.position-relative .form-control[type="password"],
+.position-relative .form-control[type="text"][id*="password"] {
+  padding-right: 3.2rem !important;
+}
+
+/* Cuando tienen validación (válida o inválida), el icono de check/x se mueve a la izquierda del ojito */
+.position-relative .form-control[type="password"].is-valid,
+.position-relative .form-control[type="password"].is-invalid,
+.position-relative .form-control[type="text"][id*="password"].is-valid,
+.position-relative .form-control[type="text"][id*="password"].is-invalid {
+  padding-right: 3.2rem !important;
+  background-position: right 2.5rem center !important;
+}
+
+/* Feedback mensajes con estilos mejorados */
+.valid-feedback {
+  display: none;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.invalid-feedback {
+  display: none;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.form-control.is-valid ~ .valid-feedback {
+  display: block;
+}
+
+.form-control.is-invalid ~ .invalid-feedback {
+  display: block;
+}
+
+/* Animación para el focus de los campos */
+.form-control:focus {
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Efecto hover suave en los campos */
+.form-control:hover:not(:focus) {
+  border-color: rgba(0, 123, 255, 0.4);
+  transition: border-color 0.2s ease;
+}
+
+/* ============================================ */
+/* BOTÓN TOGGLE CONTRASEÑA (OJITO) */
+/* ============================================ */
+.toggle-password {
+  position: absolute;
+  right: 6px;
+  top: 13px;
+  background: transparent;
+  border: none;
+  color: var(--vino-oscuro, #6c757d);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  line-height: 1;
+}
+
+.toggle-password:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--rosa-intenso, #bf5486);
+}
+
+.toggle-password:active {
+  background-color: rgba(0, 0, 0, 0.12);
+  transform: scale(0.95);
+}
+
+.toggle-password:focus {
+  outline: 2px solid var(--rosa-intenso, #bf5486);
+  outline-offset: 2px;
+}
+
+.toggle-password i {
+  font-size: 1.05rem;
+  pointer-events: none;
+  transition: none;
+  line-height: 1;
+}
+
+/* Checklist de requisitos de contraseña mejorado */
+.password-requirements {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.95), rgba(255, 255, 255, 0.95));
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 8px;
+}
+
+.password-requirements ul {
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.password-requirements ul li {
+  font-size: 0.90rem;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  padding: 4px 0;
+}
+
+.password-requirements ul li:last-child {
+  margin-bottom: 0;
+}
+
+.password-requirements ul li i {
+  margin-right: 10px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.password-requirements ul li.text-success {
+  font-weight: 600;
+  color: #28a745 !important;
+}
+
+.password-requirements ul li.text-muted {
+  color: #6c757d !important;
+}
+
+/* Barra de progreso de contraseña con gradientes */
+.progress {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
+}
+
+.progress-bar.bg-danger {
+  background: linear-gradient(90deg, #dc3545, #ff4757) !important;
+}
+
+.progress-bar.bg-warning {
+  background: linear-gradient(90deg, #ffc107, #ffa502) !important;
+}
+
+.progress-bar.bg-info {
+  background: linear-gradient(90deg, #17a2b8, #00b894) !important;
+}
+
+.progress-bar.bg-primary {
+  background: linear-gradient(90deg, #007bff, #0984e3) !important;
+}
+
+.progress-bar.bg-success {
+  background: linear-gradient(90deg, #28a745, #00b894) !important;
+}
+
+/* Toasts con sombras profesionales */
+.toast-container .toast {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.toast.text-bg-success {
+  background-color: #28a745 !important;
+}
+
+.toast.text-bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.toast.text-bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.toast .toast-body {
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 12px 16px;
+}
+
+.toast .toast-body i {
+  font-size: 1.1rem;
+}
+
+/* Animaciones de entrada para los toasts */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast.show {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Botón de registro/login con efectos mejorados */
+.btn-registrarme,
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--rosa-intenso, #bf5486), #a94372);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(191, 84, 134, 0.3);
+  cursor: pointer;
+}
+
+.btn-registrarme:hover,
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(191, 84, 134, 0.4);
+  background: linear-gradient(135deg, #a94372, #8f3860);
+}
+
+.btn-registrarme:active,
+.btn-login:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(191, 84, 134, 0.3);
+}
+
+.btn-registrarme i,
+.btn-login i {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+/* Link de registro/login mejorado */
+.register-link,
+.login-link {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+
+.link-floral {
+  color: var(--rosa-intenso, #bf5486);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.link-floral:hover {
+  color: #a94372;
+  text-decoration: underline;
+}
+
+/* Mejoras para dispositivos móviles */
+@media (max-width: 575.98px) {
+  .form-control {
+    font-size: 16px; /* Evitar zoom en iOS */
+  }
+
+  .password-requirements ul li {
+    font-size: 0.85rem;
+  }
+
+  .toast {
+    max-width: 90vw;
+  }
+}
+
+/* Animación de carga suave para elementos del formulario */
+.form-floating,
+.password-requirements,
+.progress {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sección colapsable con animación suave */
+.collapse {
+  transition: height 0.35s ease;
+}
+
+/* Estilo para el botón de colapsar campos opcionales */
+.btn-outline-secondary {
+  border-color: rgba(108, 117, 125, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: rgba(108, 117, 125, 0.1);
+  border-color: rgba(108, 117, 125, 0.5);
+}
+
+/* Animación del icono de chevron en botón colapsable */
+.btn[data-bs-toggle="collapse"] .bi-chevron-down {
+  transition: transform 0.3s ease;
+}
+
+.btn[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
+  transform: rotate(180deg);
+}
+
+/* Card de campos opcionales */
+.card-body.bg-light {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.95), rgba(255, 255, 255, 0.95)) !important;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Mejora de textos de ayuda */
+.form-text {
+  font-size: 0.825rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.form-text i {
+  opacity: 0.7;
+}
+
+/* Labels mejorados */
+.form-floating > label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.form-floating > label i {
+  opacity: 0.7;
+}
+
+/* Mejora del input file para foto de perfil */
+input[type="file"].form-control {
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+input[type="file"].form-control:hover {
+  border-color: var(--rosa-intenso, #bf5486);
+}
+
+/* Asterisco obligatorio */
+.text-danger {
+  color: #dc3545 !important;
+}
+
+/* Border-top del footer */
+.border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Texto del indicador de fortaleza de contraseña */
+#password-strength-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+/* Mejora de separación entre secciones */
+.section-title {
+  font-weight: 700;
+  color: var(--vino-oscuro, #6c2c3e);
+  margin: 8px 0 10px;
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(191, 84, 134, 0.2);
+}
+
+.section-title i {
+  color: var(--rosa-intenso, #bf5486);
+}
+
+/* Botón de envío mejorado */
+#btnSubmit {
+  position: relative;
+  overflow: hidden;
+}
+
+#btnSubmit::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+#btnSubmit:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+#btnSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Mejora de accesibilidad - focus visible */
+.form-control:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--rosa-intenso, #bf5486);
+  outline-offset: 2px;
+}
+
+/* Animación de entrada para el formulario */
+@keyframes formFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#registroForm {
+  animation: formFadeIn 0.5s ease-out;
+}
+
+/* Mejora del header */
+.login-header {
+  animation: fadeSlide 0.6s ease both;
+  animation-delay: 0.1s;
+}
+
+/* Responsive mejoras adicionales */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1rem;
+  }
+
+  .login-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .password-requirements {
+    padding: 10px 12px;
+  }
+
+  .password-requirements ul li {
+    font-size: 0.8rem;
+  }
+}
+
+/* Print styles - ocultar elementos innecesarios al imprimir */
+@media print {
+  .toast-container,
+  #bg-slideshow,
+  .toggle-password {
+    display: none !important;
+  }
+}
+

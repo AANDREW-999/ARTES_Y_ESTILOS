@@ -1,0 +1,329 @@
+.container-compra {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.compra-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.compra-titulo {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 30px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.compra-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.compra-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #34495e;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-control {
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-control::placeholder {
+    color: #95a5a6;
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group .form-control {
+    padding-right: 40px;
+}
+
+.input-suffix {
+    position: absolute;
+    right: 15px;
+    color: #7f8c8d;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.productos-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #ecf0f1;
+}
+
+.section-subtitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+#productos-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.producto-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.producto-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.producto-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.producto-grid .form-group {
+    margin-bottom: 0;
+}
+
+.form-control-sm {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+/* Botón Eliminar Producto */
+.btn-eliminar-producto {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-eliminar-producto:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+/* Botón Agregar */
+.btn-agregar {
+    background: transparent;
+    color: #3498db;
+    border: 2px dashed #3498db;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-agregar:hover {
+    background: #e8f4f8;
+    border-color: #2980b9;
+    color: #2980b9;
+}
+
+.totales-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.total-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.total-label {
+    color: #7f8c8d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.total-value {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.total-final {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 2px solid #d1d5db;
+}
+
+.total-final .total-label {
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.total-final .total-value {
+    color: #27ae60;
+    font-size: 20px;
+}
+
+.acciones-section {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-secondary {
+    background: #ecf0f1;
+    color: #2c3e50;
+    border: 1px solid #bdc3c7;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #d5dbdb;
+    border-color: #95a5a6;
+}
+
+.acciones-principales {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-cancelar {
+    background: transparent;
+    color: #95a5a6;
+    border: 2px solid #95a5a6;
+    padding: 12px 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-cancelar:hover {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-guardar {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+}
+
+.btn-guardar:hover {
+    background: #229954;
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.4);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .compra-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .producto-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .acciones-section {
+        flex-direction: column;
+    }
+
+    .acciones-principales {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .btn-cancelar,
+    .btn-guardar,
+    .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.align-self-end {
+    align-self: flex-end;
+}

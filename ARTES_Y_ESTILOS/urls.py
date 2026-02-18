@@ -18,14 +18,22 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic.base import RedirectView
+
+handler404 = 'core.views.error_404'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Rutas de las apps
     path('', include('core.urls')),
     path('', include('usuarios.urls')),
+    path('proveedores/', include('proveedores.urls')),
+    path('compras/', include('compras.urls')),  
+    path('clientes/', include('clientes.urls')),
+    # Ruta específica para el favicon
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'img/FaviconAE.png', permanent=True)),
 ]
 
 # Servir archivos estáticos y de medios en desarrollo
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

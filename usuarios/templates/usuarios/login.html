@@ -1,14 +1,15 @@
 {% extends 'master.html' %}
 {% load static %}
-
 {% block title %}Iniciar Sesión · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
-<!-- Fondo animado de 4 imágenes (usar rutas en static/usuarios/img) -->
+<!-- ========================================================================== -->
+<!-- FONDO ANIMADO DE 4 IMÁGENES (SLIDESHOW) -->
+<!-- ========================================================================== -->
 <div id="bg-slideshow" aria-hidden="true">
   <div class="slide" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoLogin.png' %}');"></div>
   <div class="slide" style="--i:1; --img: url('{% static 'usuarios/img/2_FondoLogin.png' %}');"></div>
@@ -16,55 +17,139 @@
   <div class="slide" style="--i:3; --img: url('{% static 'usuarios/img/4_FondoLogin.png' %}');"></div>
 </div>
 
-<section class="login-page py-5">
+<!-- ========================================================================== -->
+<!-- CONTENEDOR DE TOASTS BOOTSTRAP 5 (NOTIFICACIONES) -->
+<!-- ========================================================================== -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999 !important;" aria-live="polite" aria-atomic="true">
+  <!-- Toast de Éxito (Verde) - 9 segundos -->
+  <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="9000">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <span id="successToastMessage">¡Inicio de sesión exitoso!</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+    </div>
+  </div>
+
+  <!-- Toast de Error (Rojo) - 12 segundos -->
+  <div id="errorToast" class="toast align-items-center text-bg-danger border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="12000">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center">
+        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+        <span id="errorToastMessage">Usuario o contraseña incorrectos.</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+    </div>
+  </div>
+
+  <!-- Toast de Advertencia (Amarillo) - 10 segundos -->
+  <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="true" data-bs-delay="10000" style="background-color: #ffc107; color: #000;">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center fw-semibold">
+        <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+        <span id="warningToastMessage">Completa todos los campos.</span>
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+    </div>
+  </div>
+</div>
+  <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="true" data-bs-delay="8000" style="background-color: #ffc107; color: #000;">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center fw-semibold">
+        <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+        <span id="warningToastMessage">Completa todos los campos.</span>
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================== -->
+<!-- MENSAJES DE DJANGO (SE CONVIERTEN A TOASTS VÍA JS) -->
+<!-- ========================================================================== -->
+{% if messages %}
+<div id="django-messages" style="display:none;">
+  {% for message in messages %}
+  <div data-message-level="{{ message.tags }}" data-message-text="{{ message }}"></div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ========================================================================== -->
+<!-- SECCIÓN PRINCIPAL DE LOGIN -->
+<!-- ========================================================================== -->
+<section class="login-page py-5" role="main">
   <div class="container login-container">
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-5">
         <div class="login-card glassy">
-          <div class="login-header">
-            <i class="bi bi-box-arrow-in-right"></i>
-            <h2 class="login-title">Iniciar Sesión</h2>
-          </div>
 
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
+          <!-- ================================================================ -->
+          <!-- CABECERA DEL FORMULARIO -->
+          <!-- ================================================================ -->
+          <header class="login-header text-center mb-4">
+            <i class="bi bi-box-arrow-in-right d-block mb-3" style="font-size:48px;color:var(--rosa-intenso);" aria-hidden="true"></i>
+            <h1 class="login-title h2 mb-2">Iniciar Sesión</h1>
+            <p class="text-muted mb-0">Accede al Panel Administrativo</p>
+          </header>
 
-          <form method="post" novalidate>
+          <!-- ================================================================ -->
+          <!-- FORMULARIO DE LOGIN -->
+          <!-- ================================================================ -->
+          <form method="post" action="{% url 'usuarios:login' %}" novalidate id="loginForm">
             {% csrf_token %}
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-            {% endif %}
 
+            <!-- Usuario o Documento -->
             <div class="form-floating mb-3">
               {{ form.username }}
-              <label for="id_username">Documento</label>
+              <label for="id_username">
+                <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                Usuario o Documento
+              </label>
+              <div class="invalid-feedback">Este campo es obligatorio</div>
             </div>
 
+            <!-- Contraseña -->
             <div class="form-floating mb-3 position-relative">
               {{ form.password }}
-              <label for="id_password">Contraseña</label>
-              <button type="button" class="toggle-password btn btn-sm" aria-label="Mostrar/Ocultar" title="Mostrar/Ocultar">
+              <label for="id_password">
+                <i class="bi bi-key-fill me-1" aria-hidden="true"></i>
+                Contraseña
+              </label>
+              <button type="button" class="toggle-password btn btn-sm" data-target="id_password" aria-label="Mostrar/Ocultar contraseña" title="Mostrar/Ocultar">
                 <i class="bi bi-eye"></i>
               </button>
+              <div class="invalid-feedback">Este campo es obligatorio</div>
             </div>
 
-            <div class="form-check mb-3">
-              {{ form.remember_me }}
-              <label class="form-check-label" for="id_remember_me">Recordarme</label>
-            </div>
-
-            <button type="submit" class="btn-login">Ingresar</button>
+            <!-- Botón de envío -->
+            <button type="submit" class="btn-login w-100 py-3 mb-3">
+              <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
+              Ingresar
+            </button>
           </form>
 
-          <p class="register-link">
-            ¿No tienes cuenta? <a class="link-floral" href="{% url 'usuarios:registro' %}">Regístrate</a>
-          </p>
+          <!-- ================================================================ -->
+          <!-- ENLACES ADICIONALES -->
+          <!-- ================================================================ -->
+          <div class="text-center">
+            <p class="register-link mb-2">
+              <a class="link-floral fw-semibold" href="{% url 'usuarios:password_reset' %}">
+                <i class="bi bi-key me-1" aria-hidden="true"></i>
+                ¿Olvidaste tu contraseña?
+              </a>
+            </p>
+            <hr class="my-3 opacity-50">
+            <p class="register-link mb-0">
+              ¿No tienes cuenta?
+              <a class="link-floral fw-semibold" href="{% url 'usuarios:registro' %}">
+                <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
+                Regístrate aquí
+              </a>
+            </p>
+          </div>
+
         </div>
       </div>
     </div>

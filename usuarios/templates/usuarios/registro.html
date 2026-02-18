@@ -1,0 +1,460 @@
+{% extends 'master.html' %}
+{% load static %}
+{% block title %}Registro de Usuario · Arte & Estilos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- ========================================================================== -->
+<!-- FONDO ANIMADO DE 4 IMÁGENES (SLIDESHOW) -->
+<!-- ========================================================================== -->
+<div id="bg-slideshow" aria-hidden="true">
+  <div class="slide" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:1; --img: url('{% static 'usuarios/img/2_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:2; --img: url('{% static 'usuarios/img/3_FondoRegistro.png' %}');"></div>
+  <div class="slide" style="--i:3; --img: url('{% static 'usuarios/img/4_FondoRegistro.png' %}');"></div>
+</div>
+
+<!-- ========================================================================== -->
+<!-- CONTENEDOR DE TOASTS BOOTSTRAP 5 (NOTIFICACIONES) -->
+<!-- ========================================================================== -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999 !important;" aria-live="polite" aria-atomic="true">
+  <!-- Toast de Éxito (Verde) - 9 segundos -->
+  <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="9000">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <span id="successToastMessage">¡Cuenta creada con éxito!</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+    </div>
+  </div>
+
+  <!-- Toast de Error (Rojo) - 12 segundos -->
+  <div id="errorToast" class="toast align-items-center text-bg-danger border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="12000">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center">
+        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+        <span id="errorToastMessage">Revisa los campos marcados en rojo.</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+    </div>
+  </div>
+
+  <!-- Toast de Advertencia (Amarillo) - 10 segundos -->
+  <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="true" data-bs-delay="10000" style="background-color: #ffc107; color: #000;">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center fw-semibold">
+        <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+        <span id="warningToastMessage">Completa todos los campos obligatorios.</span>
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================== -->
+<!-- MENSAJES DE DJANGO (SE CONVIERTEN A TOASTS VÍA JS) -->
+<!-- ========================================================================== -->
+{% if messages %}
+<div id="django-messages" style="display:none;">
+  {% for message in messages %}
+  <div data-message-level="{{ message.tags }}" data-message-text="{{ message }}"></div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ========================================================================== -->
+<!-- SECCIÓN PRINCIPAL DE REGISTRO -->
+<!-- ========================================================================== -->
+<section class="login-page py-5" role="main">
+  <div class="container login-container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-7 col-xl-6">
+        <div class="login-card glassy">
+
+          <!-- ================================================================ -->
+          <!-- CABECERA DEL FORMULARIO -->
+          <!-- ================================================================ -->
+          <header class="login-header text-center mb-4">
+            <i class="bi bi-person-plus-fill d-block mb-3" style="font-size:48px;color:var(--rosa-intenso);" aria-hidden="true"></i>
+            <h1 class="login-title h2 mb-2">Crear tu cuenta</h1>
+            <p class="text-muted mb-0">Regístrate para acceder al Panel Administrativo</p>
+          </header>
+
+          <!-- ================================================================ -->
+          <!-- FORMULARIO DE REGISTRO -->
+          <!-- ================================================================ -->
+          <form method="post" action="{% url 'usuarios:registro' %}" enctype="multipart/form-data" novalidate class="needs-validation" id="registroForm">
+            {% csrf_token %}
+
+            <!-- ============================================================ -->
+            <!-- SECCIÓN 1: INFORMACIÓN PERSONAL -->
+            <!-- ============================================================ -->
+            <div class="mb-4">
+              <h5 class="section-title d-flex align-items-center mb-3">
+                <i class="bi bi-card-text me-2" aria-hidden="true"></i>
+                <span>Información Personal</span>
+              </h5>
+
+              <div class="row g-3">
+                <!-- Documento -->
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    {{ form.documento }}
+                    <label for="id_documento">
+                      <i class="bi bi-person-vcard me-1" aria-hidden="true"></i>
+                      Documento <span class="text-danger">*</span>
+                    </label>
+                    <div class="invalid-feedback">
+                      <i class="bi bi-exclamation-circle me-1"></i>
+                      El documento debe tener exactamente 10 dígitos
+                    </div>
+                    <div class="valid-feedback">
+                      <i class="bi bi-check-circle me-1"></i>
+                      Documento válido
+                    </div>
+                  </div>
+                  <small class="form-text text-muted ms-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    10 dígitos numéricos
+                  </small>
+                </div>
+
+                <!-- Correo electrónico -->
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    {{ form.email }}
+                    <label for="id_email">
+                      <i class="bi bi-envelope me-1" aria-hidden="true"></i>
+                      Correo electrónico <span class="text-danger">*</span>
+                    </label>
+                    <div class="invalid-feedback">
+                      <i class="bi bi-exclamation-circle me-1"></i>
+                      Ingresa un correo válido
+                    </div>
+                    <div class="valid-feedback">
+                      <i class="bi bi-check-circle me-1"></i>
+                      Correo válido
+                    </div>
+                  </div>
+                  <small class="form-text text-muted ms-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    ejemplo@correo.com
+                  </small>
+                </div>
+
+                <!-- Nombre -->
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    {{ form.first_name }}
+                    <label for="id_first_name">
+                      <i class="bi bi-person me-1" aria-hidden="true"></i>
+                      Nombre <span class="text-danger">*</span>
+                    </label>
+                    <div class="invalid-feedback">
+                      <i class="bi bi-exclamation-circle me-1"></i>
+                      El nombre es obligatorio
+                    </div>
+                    <div class="valid-feedback">
+                      <i class="bi bi-check-circle me-1"></i>
+                      Nombre válido
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Apellido -->
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    {{ form.last_name }}
+                    <label for="id_last_name">
+                      <i class="bi bi-person me-1" aria-hidden="true"></i>
+                      Apellido <span class="text-danger">*</span>
+                    </label>
+                    <div class="invalid-feedback">
+                      <i class="bi bi-exclamation-circle me-1"></i>
+                      El apellido es obligatorio
+                    </div>
+                    <div class="valid-feedback">
+                      <i class="bi bi-check-circle me-1"></i>
+                      Apellido válido
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECCIÓN 2: DATOS DE ACCESO -->
+            <!-- ============================================================ -->
+            <div class="mb-4">
+              <h5 class="section-title d-flex align-items-center mb-3">
+                <i class="bi bi-shield-lock-fill me-2" aria-hidden="true"></i>
+                <span>Datos de Acceso</span>
+              </h5>
+
+              <div class="row g-3">
+                <!-- Usuario -->
+                <div class="col-12">
+                  <div class="form-floating">
+                    {{ form.username }}
+                    <label for="id_username">
+                      <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                      Nombre de usuario <span class="text-danger">*</span>
+                    </label>
+                    <div class="invalid-feedback">
+                      <i class="bi bi-exclamation-circle me-1"></i>
+                      El usuario debe tener al menos 4 caracteres
+                    </div>
+                    <div class="valid-feedback">
+                      <i class="bi bi-check-circle me-1"></i>
+                      Usuario válido
+                    </div>
+                  </div>
+                  <small class="form-text text-muted ms-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Mínimo 4 caracteres: letras, números, guiones (-) y guiones bajos (_)
+                  </small>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="col-md-6">
+                  <div class="form-floating position-relative">
+                    {{ form.password1 }}
+                    <label for="id_password1">
+                      <i class="bi bi-key me-1" aria-hidden="true"></i>
+                      Contraseña <span class="text-danger">*</span>
+                    </label>
+                    <button type="button" class="toggle-password btn btn-sm" data-target="id_password1" aria-label="Mostrar u ocultar contraseña" title="Mostrar/Ocultar">
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                    <div class="invalid-feedback">
+                      <i class="bi bi-exclamation-circle me-1"></i>
+                      La contraseña no cumple los requisitos
+                    </div>
+                    <div class="valid-feedback">
+                      <i class="bi bi-check-circle me-1"></i>
+                      Contraseña segura
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Confirmar Contraseña -->
+                <div class="col-md-6">
+                  <div class="form-floating position-relative">
+                    {{ form.password2 }}
+                    <label for="id_password2">
+                      <i class="bi bi-key-fill me-1" aria-hidden="true"></i>
+                      Confirmar contraseña <span class="text-danger">*</span>
+                    </label>
+                    <button type="button" class="toggle-password btn btn-sm" data-target="id_password2" aria-label="Mostrar u ocultar confirmación de contraseña" title="Mostrar/Ocultar">
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                    <div class="invalid-feedback">
+                      <i class="bi bi-exclamation-circle me-1"></i>
+                      Las contraseñas no coinciden
+                    </div>
+                    <div class="valid-feedback">
+                      <i class="bi bi-check-circle me-1"></i>
+                      Las contraseñas coinciden
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Checklist y Barra de Fortaleza de Contraseña -->
+                <div class="col-12">
+                  <div class="password-requirements" role="status" aria-live="polite">
+                    <small class="text-muted d-block mb-2 fw-semibold">
+                      <i class="bi bi-shield-check me-1"></i>
+                      Tu contraseña debe cumplir con:
+                    </small>
+                    <ul class="list-unstyled mb-2" id="password-checklist">
+                      <li id="req-length" class="text-muted">
+                        <i class="bi bi-circle" aria-hidden="true"></i>
+                        <span>Mínimo 8 caracteres</span>
+                      </li>
+                      <li id="req-lowercase" class="text-muted">
+                        <i class="bi bi-circle" aria-hidden="true"></i>
+                        <span>Al menos una letra minúscula (a-z)</span>
+                      </li>
+                      <li id="req-uppercase" class="text-muted">
+                        <i class="bi bi-circle" aria-hidden="true"></i>
+                        <span>Al menos una letra mayúscula (A-Z)</span>
+                      </li>
+                      <li id="req-number" class="text-muted">
+                        <i class="bi bi-circle" aria-hidden="true"></i>
+                        <span>Al menos un número (0-9)</span>
+                      </li>
+                      <li id="req-special" class="text-muted">
+                        <i class="bi bi-circle" aria-hidden="true"></i>
+                        <span>Al menos un carácter especial (!@#$%^&*.-_() etc.)</span>
+                      </li>
+                    </ul>
+
+                    <!-- Barra de Progreso de Fortaleza -->
+                    <div class="progress mt-2" style="height: 10px;" role="progressbar" aria-label="Fortaleza de contraseña">
+                      <div id="password-progress" class="progress-bar bg-secondary" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <span class="visually-hidden">0% completado</span>
+                      </div>
+                    </div>
+                    <small class="text-muted d-block mt-1 text-center" id="password-strength-text">
+                      Sin contraseña
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECCIÓN 3: CAMPOS OPCIONALES (COLAPSABLE) -->
+            <!-- ============================================================ -->
+            <div class="mb-4">
+              <div class="d-grid">
+                <button class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#opcionalesCollapse"
+                        aria-expanded="false"
+                        aria-controls="opcionalesCollapse">
+                  <i class="bi bi-sliders me-2" aria-hidden="true"></i>
+                  <span>Información adicional (opcional)</span>
+                  <i class="bi bi-chevron-down ms-auto" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <div class="collapse mt-3" id="opcionalesCollapse">
+                <div class="card card-body border-0 bg-light">
+                  <div class="row g-3">
+                    <!-- Teléfono -->
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        {{ form.telefono }}
+                        <label for="id_telefono">
+                          <i class="bi bi-telephone me-1" aria-hidden="true"></i>
+                          Teléfono
+                        </label>
+                        <div class="invalid-feedback">
+                          <i class="bi bi-exclamation-circle me-1"></i>
+                          Ingresa un teléfono válido
+                        </div>
+                        <div class="valid-feedback">
+                          <i class="bi bi-check-circle me-1"></i>
+                          Teléfono válido
+                        </div>
+                      </div>
+                      <small class="form-text text-muted ms-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Formato: 10 dígitos
+                      </small>
+                    </div>
+
+                    <!-- Fecha de Nacimiento -->
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        {{ form.fecha_nacimiento }}
+                        <label for="id_fecha_nacimiento">
+                          <i class="bi bi-calendar-event me-1" aria-hidden="true"></i>
+                          Fecha de nacimiento
+                        </label>
+                        <div class="invalid-feedback">
+                          <i class="bi bi-exclamation-circle me-1"></i>
+                          Fecha inválida
+                        </div>
+                        <div class="valid-feedback">
+                          <i class="bi bi-check-circle me-1"></i>
+                          Fecha válida
+                        </div>
+                      </div>
+                      <small class="form-text text-muted ms-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Formato: DD/MM/AAAA
+                      </small>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="col-12">
+                      <div class="form-floating">
+                        {{ form.direccion }}
+                        <label for="id_direccion">
+                          <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>
+                          Dirección completa
+                        </label>
+                        <div class="invalid-feedback">
+                          <i class="bi bi-exclamation-circle me-1"></i>
+                          Ingresa una dirección válida
+                        </div>
+                        <div class="valid-feedback">
+                          <i class="bi bi-check-circle me-1"></i>
+                          Dirección válida
+                        </div>
+                      </div>
+                      <small class="form-text text-muted ms-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Calle, número, ciudad, código postal
+                      </small>
+                    </div>
+
+                    <!-- Foto de Perfil -->
+                    <div class="col-12">
+                      <div class="mb-3">
+                        <label for="id_foto_perfil" class="form-label fw-semibold">
+                          <i class="bi bi-camera me-1" aria-hidden="true"></i>
+                          Foto de perfil
+                        </label>
+                        {{ form.foto_perfil }}
+                        <div class="form-text">
+                          <i class="bi bi-info-circle me-1"></i>
+                          Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB
+                        </div>
+                        <div class="invalid-feedback d-block" style="display:none!important;">
+                          Selecciona una imagen válida
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- BOTÓN DE ENVÍO -->
+            <!-- ============================================================ -->
+            <div class="d-grid gap-2 mb-3">
+              <button type="submit" class="btn btn-login btn-registrarme btn-lg" id="btnSubmit">
+                <i class="bi bi-person-check-fill me-2" aria-hidden="true"></i>
+                <span>Crear cuenta y continuar</span>
+              </button>
+            </div>
+
+            <!-- Indicación de campos obligatorios -->
+            <p class="text-muted text-center small mb-0">
+              <i class="bi bi-asterisk text-danger me-1" aria-hidden="true"></i>
+              Los campos marcados con <span class="text-danger">*</span> son obligatorios
+            </p>
+          </form>
+
+          <!-- ================================================================ -->
+          <!-- PIE CON ENLACE A LOGIN -->
+          <!-- ================================================================ -->
+          <div class="text-center mt-4 pt-3 border-top">
+            <p class="register-link mb-0">
+              ¿Ya tienes una cuenta?
+              <a class="link-floral fw-semibold" href="{% url 'usuarios:login' %}">
+                <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
+                Inicia sesión aquí
+              </a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'usuarios/js/registro.js' %}"></script>
+{% endblock %}

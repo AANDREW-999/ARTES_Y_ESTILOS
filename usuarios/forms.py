@@ -89,6 +89,16 @@ class RegistroForm(UserCreationForm):
         })
     )
 
+    biografia = forms.CharField(
+        required=False,
+        label='Biografía',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Cuéntanos sobre ti (opcional)',
+            'rows': 4
+        })
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -186,6 +196,7 @@ class RegistroForm(UserCreationForm):
             perfil.telefono = self.cleaned_data.get('telefono', '')
             perfil.direccion = self.cleaned_data.get('direccion', '')
             perfil.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+            perfil.biografia = self.cleaned_data.get('biografia', '')
 
             # Foto de perfil
             foto = self.cleaned_data.get('foto_perfil')
@@ -225,3 +236,4 @@ class LoginForm(AuthenticationForm):
 
     def get_user(self):
         return getattr(self, '_user', None)
+

@@ -5,19 +5,21 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 reveal">
+    <!-- Bloque de Título y Subtítulo -->
     <div>
-        <h5 class="mb-0">Lista de Clientes</h5>
+        <h5 class="mb-0 fw-semibold">Lista de Clientes</h5>
         <p class="text-muted small mb-0">Gestiona los clientes de la floristería.</p>
     </div>
 
+    <!-- Bloque de Acciones (Buscador + Botón) - SIEMPRE JUNTOS -->
     <div class="d-flex align-items-center gap-2">
-        <form method="get" class="d-flex" style="gap:.5rem;">
-            <input name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="Buscar por nombre, apellido o documento" aria-label="Buscar">
-            <button type="submit" class="btn btn-outline-secondary btn-sm">
+        <form method="get" class="d-flex" role="search">
+            <input name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="Buscar cliente..." aria-label="Buscar" style="width: 250px;">
+            <button type="submit" class="btn btn-outline-secondary btn-sm ms-1">
                 <i class="bi bi-search"></i>
             </button>
         </form>
-        <a href="{% url 'clientes:crear_cliente' %}" class="btn btn-primary btn-sm ms-2">
+        <a href="{% url 'clientes:crear_cliente' %}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 text-nowrap">
             <i class="bi bi-plus-lg"></i> Nuevo cliente
         </a>
     </div>
@@ -75,29 +77,37 @@
 <!-- Paginación -->
 {% if is_paginated %}
 <nav aria-label="Paginación" class="mt-3 reveal">
-    <ul class="pagination">
+    <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a>
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                    <span aria-hidden="true">«</span>
+                </a>
             </li>
         {% else %}
-            <li class="page-item disabled"><span class="page-link">«</span></li>
+            <li class="page-item disabled">
+                <span class="page-link" aria-label="Anterior">«</span>
+            </li>
         {% endif %}
 
         {% for num in paginator.page_range %}
             {% if page_obj.number == num %}
                 <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                 <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
             {% endif %}
         {% endfor %}
 
         {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a>
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Siguiente">
+                    <span aria-hidden="true">»</span>
+                </a>
             </li>
         {% else %}
-            <li class="page-item disabled"><span class="page-link">»</span></li>
+            <li class="page-item disabled">
+                <span class="page-link" aria-label="Siguiente">»</span>
+            </li>
         {% endif %}
     </ul>
 </nav>

@@ -97,34 +97,71 @@
     // INICIALIZACIÓN DE TOASTS BOOTSTRAP 5
     // ========================================================================
     initializeToasts() {
+      console.log('🎨 Inicializando sistema de toasts...');
+
+      // Verificar que Bootstrap esté disponible
+      if (typeof bootstrap === 'undefined') {
+        console.error('❌ Bootstrap no está cargado. Los toasts no funcionarán.');
+        return;
+      }
+
       const toastConfigs = {
-        success: { delay: 5000 },
-        error: { delay: 8000 },
-        warning: { delay: 6000 }
+        success: { delay: 9000, animation: true },
+        error: { delay: 12000, animation: true },
+        warning: { delay: 10000, animation: true }
       };
+
+      let toastsInicializados = 0;
 
       Object.keys(toastConfigs).forEach(type => {
         const toastEl = document.getElementById(`${type}Toast`);
+
         if (toastEl) {
-          this.toasts[type] = new bootstrap.Toast(toastEl, toastConfigs[type]);
-          console.log(`✅ Toast ${type} inicializado`);
+          try {
+            this.toasts[type] = new bootstrap.Toast(toastEl, toastConfigs[type]);
+            toastsInicializados++;
+            console.log(`✅ Toast ${type} inicializado correctamente`);
+          } catch (error) {
+            console.error(`❌ Error al inicializar toast ${type}:`, error);
+          }
         } else {
-          console.warn(`⚠️ No se encontró el toast: ${type}Toast`);
+          console.warn(`⚠️ No se encontró el elemento HTML: ${type}Toast`);
         }
       });
+
+      console.log(`📊 Total de toasts inicializados: ${toastsInicializados}/3`);
     }
 
     /**
      * Mostrar toast según tipo con animación
      */
     showToast(type, message) {
+      console.log(`🔔 Intentando mostrar toast: tipo="${type}", mensaje="${message}"`);
+
       const messageEl = document.getElementById(`${type}ToastMessage`);
-      if (messageEl && this.toasts[type]) {
-        messageEl.textContent = message;
-        this.toasts[type].show();
-        console.log(`📢 Toast ${type}: ${message}`);
-      } else {
-        console.warn(`⚠️ No se pudo mostrar toast ${type}`);
+      const toastInstance = this.toasts[type];
+
+      if (!messageEl) {
+        console.error(`❌ No se encontró el elemento de mensaje: ${type}ToastMessage`);
+        return;
+      }
+
+      if (!toastInstance) {
+        console.error(`❌ No se encontró la instancia del toast: ${type}`);
+        console.log('Toasts disponibles:', Object.keys(this.toasts));
+        return;
+      }
+
+      // Actualizar el mensaje
+      messageEl.textContent = message;
+      console.log(`✅ Mensaje actualizado en ${type}ToastMessage`);
+
+      // Mostrar el toast
+      try {
+        toastInstance.show();
+        console.log(`📢 Toast ${type} mostrado exitosamente`);
+      } catch (error) {
+        console.error(`❌ Error al mostrar toast: ${error.message}`);
       }
     }
 
@@ -133,23 +170,34 @@
     // ========================================================================
     convertDjangoMessages() {
       const djangoMessages = document.getElementById('django-messages');
-      if (!djangoMessages) return;
+      if (!djangoMessages) {
+        console.log('ℹ️ No hay mensajes de Django para mostrar');
+        return;
+      }
 
       const messages = djangoMessages.querySelectorAll('[data-message-level]');
+      console.log(`📨 Procesando ${messages.length} mensajes de Django`);
+
       messages.forEach(msg => {
         const level = msg.getAttribute('data-message-level');
         const text = msg.getAttribute('data-message-text');
 
-        // SOLO mostrar mensajes de éxito, NO errores de validación al inicio
-        if (level.includes('success')) {
+        console.log(`  📋 Mensaje recibido: level="${level}", text="${text}"`);
+
+        // Mapear niveles de Django a tipos de toast
+        if (level.includes('level-success')) {
           this.showToast('success', text);
+        } else if (level.includes('level-error')) {
+          this.showToast('error', text);
+        } else if (level.includes('level-warning')) {
+          this.showToast('warning', text);
+        } else if (level.includes('success')) {
+          this.showToast('success', text);
+        } else if (level.includes('error') || level.includes('danger')) {
+          this.showToast('error', text);
+        } else if (level.includes('warning') || level.includes('info')) {
+          this.showToast('warning', text);
         }
-        // Ignorar errores y warnings al cargar la página
-        // else if (level.includes('error') || level.includes('danger')) {
-        //   this.showToast('error', text);
-        // } else if (level.includes('warning') || level.includes('info')) {
-        //   this.showToast('warning', text);
-        // }
       });
     }
 
@@ -534,8 +582,9 @@
 
         let hasErrors = false;
         let firstInvalidField = null;
+        const errors = [];
 
-        // Validar solo que los campos obligatorios NO estén vacíos
+        // Validar TODOS los campos obligatorios (no solo que estén llenos, sino con formato correcto)
         this.fieldsToValidate.forEach(id => {
           const input = document.getElementById(id);
           if (input) {
@@ -545,8 +594,26 @@
             if (isEmpty) {
               hasErrors = true;
               input.classList.add('is-invalid');
+              input.classList.remove('is-valid');
+              errors.push(`${input.name || id}: Campo vacío`);
+              console.log(`❌ ${id}: Vacío`);
+
               if (!firstInvalidField) {
                 firstInvalidField = input;
+              }
+            } else {
+              // Validar formato usando los validadores
+              const isValid = this.validateField(input);
+              if (!isValid) {
+                hasErrors = true;
+                errors.push(`${input.name || id}: Formato inválido`);
+                console.log(`❌ ${id}: Formato inválido - "${input.value}"`);
+
+                if (!firstInvalidField) {
+                  firstInvalidField = input;
+                }
+              } else {
+                console.log(`✅ ${id}: Válido - "${input.value}"`);
               }
             }
           }
@@ -554,9 +621,10 @@
 
         if (hasErrors) {
           e.preventDefault();
-          console.log('❌ Formulario tiene campos vacíos - NO se enviará');
+          console.log('❌ FORMULARIO CON ERRORES - NO SE ENVIARÁ');
+          console.log('Errores encontrados:', errors);
 
-          this.showToast('error', 'Por favor, completa todos los campos obligatorios.');
+          this.showToast('warning', 'Por favor, corrige los campos marcados en rojo antes de continuar.');
 
           // Scroll al primer campo inválido
           if (firstInvalidField) {
@@ -571,8 +639,14 @@
             }, 300);
           }
         } else {
-          console.log('✅ Todos los campos obligatorios están llenos, enviando al servidor...');
-          console.log('📤 Django validará los datos en el servidor');
+          console.log('✅ FORMULARIO VÁLIDO - ENVIANDO AL SERVIDOR...');
+          console.log('📤 Datos a enviar:');
+          this.fieldsToValidate.forEach(id => {
+            const input = document.getElementById(id);
+            if (input && input.type !== 'password') {
+              console.log(`  • ${id}: "${input.value}"`);
+            }
+          });
         }
       });
 

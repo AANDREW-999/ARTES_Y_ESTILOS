@@ -171,6 +171,79 @@ function showNotification(message, type = 'info') {
 function confirmAction(message) {
     return confirm(message || '¿Estás seguro de realizar esta acción?');
 }
+        (function() {
+            'use strict';
 
+            // Inicializar toasts
+            const toasts = {
+                success: null,
+                error: null,
+                warning: null
+            };
+
+            const toastConfigs = {
+                success: { delay: 9000, animation: true },
+                error: { delay: 12000, animation: true },
+                warning: { delay: 10000, animation: true }
+            };
+
+            // Crear instancias de toasts
+            Object.keys(toastConfigs).forEach(type => {
+                const toastEl = document.getElementById(`${type}Toast`);
+                if (toastEl) {
+                    try {
+                        toasts[type] = new bootstrap.Toast(toastEl, toastConfigs[type]);
+                        console.log(`✅ Toast ${type} inicializado`);
+                    } catch (error) {
+                        console.error(`❌ Error al inicializar toast ${type}:`, error);
+                    }
+                }
+            });
+
+            // Función para mostrar toast
+            function showToast(type, message) {
+                console.log(`🔔 Mostrando toast: tipo="${type}", mensaje="${message}"`);
+
+                const messageEl = document.getElementById(`${type}ToastMessage`);
+                const toastInstance = toasts[type];
+
+                if (!messageEl || !toastInstance) {
+                    console.error(`❌ No se encontró el toast: ${type}`);
+                    return;
+                }
+
+                messageEl.textContent = message;
+
+                try {
+                    toastInstance.show();
+                    console.log(`📢 Toast ${type} mostrado exitosamente`);
+                } catch (error) {
+                    console.error(`❌ Error al mostrar toast: ${error.message}`);
+                }
+            }
+
+            // Procesar mensajes de Django
+            const djangoMessages = document.getElementById('django-messages');
+            if (djangoMessages) {
+                const messages = djangoMessages.querySelectorAll('[data-message-level]');
+                console.log(`📨 Procesando ${messages.length} mensajes de Django`);
+
+                messages.forEach(msg => {
+                    const level = msg.getAttribute('data-message-level');
+                    const text = msg.getAttribute('data-message-text');
+
+                    console.log(`📋 Mensaje: level="${level}", text="${text}"`);
+
+                    // Mapear niveles de Django a tipos de toast
+                    if (level.includes('level-success') || level.includes('success')) {
+                        showToast('success', text);
+                    } else if (level.includes('level-error') || level.includes('error') || level.includes('danger')) {
+                        showToast('error', text);
+                    } else if (level.includes('level-warning') || level.includes('warning') || level.includes('info')) {
+                        showToast('warning', text);
+                    }
+                });
+            }
+        })();
 window.showNotification = showNotification;
 window.confirmAction = confirmAction;

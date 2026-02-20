@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'catalogo',
     'proveedores',
     'clientes',
-    'bootstrap5',
     'accesibilidad',
     'compras',
 ]

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,21 +150,22 @@ AUTH_PASSWORD_VALIDATORS = [
 # CONFIGURACIÓN DE EMAIL PARA RECUPERACIÓN DE CONTRASEÑA
 # ============================================================================
 
-# MODO DESARROLLO: Emails se muestran en la consola
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Backend de email: console (desarrollo) o smtp (producción)
+EMAIL_BACKEND_TYPE = config('EMAIL_BACKEND', default='console')
 
-# MODO PRODUCCIÓN: Configuración para servidor SMTP real (Gmail, SendGrid, etc.)
-# Descomenta y configura estas variables cuando vayas a producción:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  # O tu servidor SMTP
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'tucorreo@gmail.com'
-# EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'
-# DEFAULT_FROM_EMAIL = 'Arte & Estilos <tucorreo@gmail.com>'
-# SERVER_EMAIL = 'tucorreo@gmail.com'
-
-# Email por defecto para modo desarrollo
-DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
-SERVER_EMAIL = 'noreply@arteyestilos.local'
+if EMAIL_BACKEND_TYPE == 'smtp':
+    # MODO PRODUCCIÓN: Gmail SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+    DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=f'Arte & Estilos <{EMAIL_HOST_USER}>')
+    SERVER_EMAIL = EMAIL_HOST_USER
+else:
+    # MODO DESARROLLO: Emails se muestran en la consola
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
+    SERVER_EMAIL = 'noreply@arteyestilos.local'
 

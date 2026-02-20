@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import get_user_model
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from .forms import RegistroForm, LoginForm
 from .utils import build_login_message
@@ -173,10 +176,76 @@ def logout_view(request):
 
 # Recuperación de contraseña
 class RecuperarPasswordView(PasswordResetView):
+    """
+    Vista personalizada para recuperación de contraseña.
+    Envía correos en formato HTML con diseño floral elegante.
+
+    Características:
+    - Correos HTML con CSS embebido (compatible con clientes de correo)
+    - Fallback a texto plano si el cliente no soporta HTML
+    - Nombre de usuario personalizado en el saludo
+    - Sistema seguro con tokens de Django
+    - Compatible con Gmail SMTP
+    """
     template_name = 'recuperar_password/solicitar_password.html'
     email_template_name = 'recuperar_password/email_recuperar_password.txt'
+    html_email_template_name = 'recuperar_password/email_recuperar_password.html'
     subject_template_name = 'recuperar_password/asunto_recuperar_password.txt'
     success_url = reverse_lazy('usuarios:password_reset_done')
+
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name=None):
+        """
+        Sobrescribe el proceso send_mail para enviar correos HTML.
+
+        Flujo:
+        1. Renderiza el asunto (sin HTML)
+        2. Renderiza versión texto plano (fallback)
+        3. Renderiza versión HTML (principal)
+        4. Envía ambas versiones con EmailMultiAlternatives
+
+        Args:
+            subject_template_name: Template del asunto
+            email_template_name: Template de texto plano
+            context: Contexto con datos del usuario y token
+            from_email: Email remitente
+            to_email: Email destinatario
+            html_email_template_name: Template HTML (opcional)
+        """
+        # Renderizar asunto (strip_tags elimina cualquier HTML accidental)
+        subject = render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())  # Eliminar saltos de línea
+
+        # Renderizar versión texto plano
+        body_text = render_to_string(email_template_name, context)
+
+        # Crear mensaje con texto plano como base
+        email_message = EmailMultiAlternatives(
+            subject=subject,
+            body=body_text,
+            from_email=from_email,
+            to=[to_email]
+        )
+
+        # Si existe template HTML, renderizarlo y adjuntarlo como alternativa
+        if html_email_template_name:
+            body_html = render_to_string(html_email_template_name, context)
+            email_message.attach_alternative(body_html, "text/html")
+
+        # Enviar correo
+        email_message.send(fail_silently=False)
+
+        print("\n" + "="*70)
+        print("📧 CORREO DE RECUPERACIÓN ENVIADO")
+        print("="*70)
+        print(f"📤 Para: {to_email}")
+        print(f"📋 Asunto: {subject}")
+        print(f"👤 Usuario: {context.get('user', 'N/A')}")
+        print(f"🔐 UID: {context.get('uid', 'N/A')}")
+        print(f"🎫 Token: {context.get('token', 'N/A')[:20]}...")
+        print(f"🌐 Dominio: {context.get('domain', 'N/A')}")
+        print(f"📝 Formato: Texto plano + HTML")
+        print("="*70 + "\n")
 
 class RecuperarPasswordHechoView(PasswordResetDoneView):
     template_name = 'recuperar_password/solicitud_enviada.html'

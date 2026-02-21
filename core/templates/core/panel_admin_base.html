@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Panel Administrativo{% endblock %} - Artes Y Estilos</title>
+    <title>{% block title %}Panel Administrativo{% endblock %} - Artes Y Estilosi</title>
 
     <!-- Favicon -->
     {% load static %}
@@ -260,16 +260,16 @@
                 <button class="btn btn-toggle" id="sidebar-toggle">
                     <i class="bi bi-list"></i>
                 </button>
-                <h4 class="page-title mb-0">{% block page_title %}Dashboard{% endblock %}</h4>
+                <h4 class="page-title">{% block page_title %}Dashboard{% endblock %}</h4>
             </div>
-            
+
             <div class="topbar-right">
                 <!-- Barra de búsqueda -->
                 <div class="search-box">
                     <i class="bi bi-search"></i>
                     <input type="text" class="form-control" placeholder="Buscar...">
                 </div>
-                
+
                 <!-- Botón de Modo Oscuro/Claro -->
                 <button class="btn btn-icon" id="theme-toggle" title="Cambiar tema">
                     <i class="bi bi-moon-stars-fill" id="theme-icon"></i>
@@ -315,17 +315,6 @@
             </div>
         </div>
 
-        <!-- Breadcrumb (opcional) -->
-        {% block breadcrumb %}
-        <nav aria-label="breadcrumb" class="breadcrumb-nav">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-                {% block breadcrumb_items %}
-                {% endblock %}
-            </ol>
-        </nav>
-        {% endblock %}
-        
         <!-- Contenido Principal -->
         <div class="content-wrapper">
             {% block content %}

@@ -3,11 +3,36 @@
 
 {% block title %}Mi Perfil{% endblock %}
 
+{% block page_title %}Mi Perfil{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}">
 {% endblock %}
 
 {% block content %}
+<!-- Breadcrumb -->
+<div class="page-breadcrumb">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'core:dashboard' %}">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'usuarios:lista_usuarios' %}">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Mi Perfil
+            </li>
+        </ol>
+    </nav>
+</div>
+
 <!-- Toasts -->
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999;">
     <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert">

@@ -271,7 +271,7 @@
 }
 
 /* ==========================================
-   📊 TOPBAR MODERNA
+   📊 TOPBAR
    ========================================== */
 .main-content {
     margin-left: var(--sidebar-width);
@@ -292,6 +292,7 @@
     position: sticky;
     top: 0;
     z-index: 999;
+    box-shadow: var(--shadow-sm);
 }
 
 .topbar-left {
@@ -309,6 +310,7 @@
     padding: 0.5rem;
     border-radius: 8px;
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .btn-toggle:hover {
@@ -321,6 +323,95 @@
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
+    line-height: 1.2;
+}
+
+
+
+/* ==========================================
+   📍 BREADCRUMB - DEBAJO DEL TOPBAR
+   ======================================== */
+
+.page-breadcrumb {
+    background: rgba(26, 31, 58, 0.3);
+    border-bottom: 1px solid rgba(139, 146, 176, 0.08);
+    padding: 0.875rem 2rem;
+    margin: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+html[data-theme="light"] .page-breadcrumb {
+    background: rgba(248, 249, 250, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    background: transparent;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.breadcrumb-item a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--rosa-intenso);
+    background: rgba(191, 84, 134, 0.1);
+    transform: translateY(-1px);
+}
+
+.breadcrumb-item a i {
+    font-size: 1rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: var(--text-secondary);
+    margin: 0 0.5rem;
+    font-size: 1.25rem;
+    opacity: 0.4;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Modo Claro */
+html[data-theme="light"] .breadcrumb-item a:hover {
+    box-shadow: 0 0 12px rgba(191, 84, 134, 0.2);
+}
+
+html[data-theme="light"] .breadcrumb-item {
+    color: #64748b;
+}
+
+html[data-theme="light"] .breadcrumb-item.active {
+    color: #1e293b;
 }
 
 /* ==========================================
@@ -586,6 +677,31 @@
 
     .topbar {
         padding: 0 1rem;
+    }
+
+    .topbar-left {
+        gap: 0.75rem;
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+    }
+
+    .page-breadcrumb {
+        padding: 0.625rem 1rem;
+    }
+
+    /* Solo iconos en móvil */
+    .breadcrumb-item span {
+        display: none;
+    }
+
+    .breadcrumb-item a {
+        padding: 0.25rem 0.375rem;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        margin: 0 0.25rem;
     }
 
     .content-wrapper {

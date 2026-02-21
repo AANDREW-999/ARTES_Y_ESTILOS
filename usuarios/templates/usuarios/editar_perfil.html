@@ -1,0 +1,252 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Toasts -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999;">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                <span id="successToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0 shadow-lg" role="alert">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center">
+                <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                <span id="errorToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" style="background-color: #ffc107; color: #000;">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center fw-semibold">
+                <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+                <span id="warningToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+<div id="django-messages" style="display:none;">
+    {% for message in messages %}
+    <div data-message-level="{{ message.tags }}" data-message-text="{{ message }}"></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="perfil-container">
+        <!-- Header con preview -->
+        <div class="perfil-header-futurista">
+            <div class="perfil-avatar-container">
+                {% if usuario.perfil.foto_perfil %}
+                    <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="perfil-avatar-large" id="avatarPreview">
+                {% else %}
+                    <div class="perfil-avatar-placeholder" id="avatarPreview">{{ usuario.first_name.0 }}{{ usuario.last_name.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="perfil-info-header">
+                <h1 class="perfil-nombre-futurista">Editando tu Perfil</h1>
+                <p class="perfil-username-futurista">@{{ usuario.username }}</p>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="perfil-main-panel mt-4">
+            <h3 class="section-title-futurista">
+                <i class="bi bi-pencil-square"></i>
+                Actualiza tu Información
+            </h3>
+
+            <form method="post" enctype="multipart/form-data" id="perfilForm">
+                {% csrf_token %}
+
+                <div class="form-futurista">
+                    <!-- Username -->
+                    <div class="form-group-futurista">
+                        <label for="{{ form.username.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-person-circle"></i> {{ form.username.label }}
+                        </label>
+                        <input type="text" name="username" value="{{ form.username.value }}"
+                               class="form-input-futurista" id="id_username"
+                               required minlength="4" maxlength="150">
+                        {% if form.username.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.username.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group-futurista">
+                        <label for="{{ form.email.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-envelope-fill"></i> {{ form.email.label }}
+                        </label>
+                        <input type="email" name="email" value="{{ form.email.value }}"
+                               class="form-input-futurista" id="id_email" required>
+                        {% if form.email.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.email.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group-futurista">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-person-fill"></i> {{ form.first_name.label }}
+                        </label>
+                        <input type="text" name="first_name" value="{{ form.first_name.value }}"
+                               class="form-input-futurista" id="id_first_name" required>
+                        {% if form.first_name.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.first_name.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="form-group-futurista">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-person-fill"></i> {{ form.last_name.label }}
+                        </label>
+                        <input type="text" name="last_name" value="{{ form.last_name.value }}"
+                               class="form-input-futurista" id="id_last_name" required>
+                        {% if form.last_name.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.last_name.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group-futurista">
+                        <label for="{{ form.telefono.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-telephone-fill"></i> {{ form.telefono.label }}
+                        </label>
+                        <input type="tel" name="telefono" value="{{ form.telefono.value|default:'' }}"
+                               class="form-input-futurista" id="id_telefono"
+                               placeholder="+57 300 123 4567">
+                        {% if form.telefono.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.telefono.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Fecha de Nacimiento -->
+                    <div class="form-group-futurista">
+                        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-calendar-event"></i> {{ form.fecha_nacimiento.label }}
+                        </label>
+                        <input type="date" name="fecha_nacimiento"
+                               value="{{ form.fecha_nacimiento.value|date:'Y-m-d'|default:'' }}"
+                               class="form-input-futurista" id="id_fecha_nacimiento">
+                        {% if form.fecha_nacimiento.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.fecha_nacimiento.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="form-group-futurista full-width">
+                        <label for="{{ form.direccion.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-geo-alt-fill"></i> {{ form.direccion.label }}
+                        </label>
+                        <input type="text" name="direccion" value="{{ form.direccion.value|default:'' }}"
+                               class="form-input-futurista" id="id_direccion"
+                               placeholder="Calle 123 #45-67, Ciudad">
+                        {% if form.direccion.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.direccion.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Biografía -->
+                    <div class="form-group-futurista full-width">
+                        <label for="{{ form.biografia.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-file-text-fill"></i> {{ form.biografia.label }}
+                        </label>
+                        <textarea name="biografia" class="form-input-futurista form-textarea-futurista"
+                                  id="id_biografia" placeholder="Cuéntanos sobre ti...">{{ form.biografia.value|default:'' }}</textarea>
+                        {% if form.biografia.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.biografia.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Foto de Perfil -->
+                    <div class="form-group-futurista full-width">
+                        <label for="{{ form.foto_perfil.id_for_label }}" class="form-label-futurista">
+                            <i class="bi bi-camera-fill"></i> {{ form.foto_perfil.label }}
+                        </label>
+                        <input type="file" name="foto_perfil" class="form-input-futurista"
+                               id="id_foto_perfil" accept="image/*">
+                        <small class="text-muted d-block mt-2">
+                            <i class="bi bi-info-circle"></i> Formatos: JPG, PNG, GIF. Máximo 5MB
+                        </small>
+                        {% if form.foto_perfil.errors %}
+                            <div class="form-error-message" style="display: flex;">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span>{{ form.foto_perfil.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="form-actions-futurista">
+                        <a href="{% url 'usuarios:perfil' %}" class="btn-cancel-futurista">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn-save-futurista">
+                            <i class="bi bi-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Panel de seguridad -->
+        <div class="security-panel mt-4">
+            <h5 class="mb-3">
+                <i class="bi bi-shield-lock-fill"></i>
+                Cambiar Contraseña
+            </h5>
+            <p class="mb-3">Para cambiar tu contraseña, utiliza el sistema de recuperación segura.</p>
+            <a href="{% url 'usuarios:password_reset' %}" class="btn btn-warning">
+                <i class="bi bi-key-fill"></i> Ir a Cambio de Contraseña
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'usuarios/js/perfil.js' %}"></script>
+{% endblock %}
+

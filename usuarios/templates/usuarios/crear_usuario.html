@@ -1,0 +1,39 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Crear Usuario{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="perfil-container panel-fade-in">
+    <div class="panel-card">
+        <div class="panel-card-header">
+            <h1 class="panel-card-title">
+                <i class="bi bi-person-plus"></i> Crear Nuevo Usuario
+            </h1>
+            <p class="panel-card-subtitle">
+                Completa el formulario para registrar un nuevo usuario
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="perfil-form-actions">
+                <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Crear Usuario
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

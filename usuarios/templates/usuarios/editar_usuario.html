@@ -1,0 +1,138 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Editar Usuario{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="perfil-container panel-fade-in">
+    <div class="panel-card">
+        <div class="panel-card-header">
+            <h1 class="panel-card-title">
+                <i class="fas fa-user-edit"></i> Editar Usuario
+            </h1>
+            <p class="panel-card-subtitle">
+                Editando: <strong>@{{ usuario.username }}</strong>
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="perfil-form-grid">
+                <!-- Usuario -->
+                <div class="perfil-form-group">
+                    <label for="{{ form.username.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-user"></i> {{ form.username.label }}
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="perfil-form-error">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="perfil-form-group">
+                    <label for="{{ form.email.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-envelope"></i> {{ form.email.label }}
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="perfil-form-error">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Nombre -->
+                <div class="perfil-form-group">
+                    <label for="{{ form.first_name.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-signature"></i> {{ form.first_name.label }}
+                    </label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="perfil-form-error">{{ form.first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Apellido -->
+                <div class="perfil-form-group">
+                    <label for="{{ form.last_name.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-signature"></i> {{ form.last_name.label }}
+                    </label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="perfil-form-error">{{ form.last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Teléfono -->
+                <div class="perfil-form-group">
+                    <label for="{{ form.telefono.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-phone"></i> {{ form.telefono.label }}
+                    </label>
+                    {{ form.telefono }}
+                    {% if form.telefono.errors %}
+                        <div class="perfil-form-error">{{ form.telefono.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Fecha de Nacimiento -->
+                <div class="perfil-form-group">
+                    <label for="{{ form.fecha_nacimiento.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-birthday-cake"></i> {{ form.fecha_nacimiento.label }}
+                    </label>
+                    {{ form.fecha_nacimiento }}
+                    {% if form.fecha_nacimiento.errors %}
+                        <div class="perfil-form-error">{{ form.fecha_nacimiento.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Dirección -->
+                <div class="perfil-form-group full-width">
+                    <label for="{{ form.direccion.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-map-marker-alt"></i> {{ form.direccion.label }}
+                    </label>
+                    {{ form.direccion }}
+                    {% if form.direccion.errors %}
+                        <div class="perfil-form-error">{{ form.direccion.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Biografía -->
+                <div class="perfil-form-group full-width">
+                    <label for="{{ form.biografia.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-pen"></i> {{ form.biografia.label }}
+                    </label>
+                    {{ form.biografia }}
+                    {% if form.biografia.errors %}
+                        <div class="perfil-form-error">{{ form.biografia.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Foto de Perfil -->
+                <div class="perfil-form-group full-width">
+                    <label for="{{ form.foto_perfil.id_for_label }}" class="perfil-form-label">
+                        <i class="fas fa-camera"></i> {{ form.foto_perfil.label }}
+                    </label>
+                    {{ form.foto_perfil }}
+                    {% if form.foto_perfil.errors %}
+                        <div class="perfil-form-error">{{ form.foto_perfil.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="perfil-form-actions">
+                <a href="{% url 'usuarios:lista_usuarios' %}" class="panel-btn panel-btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="panel-btn panel-btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

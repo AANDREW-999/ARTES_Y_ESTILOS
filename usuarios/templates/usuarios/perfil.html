@@ -1,0 +1,138 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Toasts -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999;">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                <span id="successToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0 shadow-lg" role="alert">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center">
+                <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                <span id="errorToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+<div id="django-messages" style="display:none;">
+    {% for message in messages %}
+    <div data-message-level="{{ message.tags }}" data-message-text="{{ message }}"></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid py-4">
+    <div class="perfil-container">
+        <!-- Header Futurista -->
+        <div class="perfil-header-futurista">
+            <div class="perfil-avatar-container">
+                {% if user.perfil.foto_perfil %}
+                    <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="perfil-avatar-large">
+                {% else %}
+                    <div class="perfil-avatar-placeholder">{{ user.first_name.0 }}{{ user.last_name.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="perfil-info-header">
+                <h1 class="perfil-nombre-futurista">{{ user.get_full_name|default:user.username }}</h1>
+                <p class="perfil-username-futurista">@{{ user.username }}</p>
+                <span class="perfil-rol-badge-futurista">
+                    {% if user.is_superuser %}<i class="bi bi-shield-fill-check"></i> SUPERADMINISTRADOR
+                    {% else %}<i class="bi bi-person-badge-fill"></i> ADMINISTRADOR{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="text-center my-4">
+            <a href="{% url 'usuarios:editar_perfil' %}" class="btn-editar-futurista">
+                <i class="bi bi-pencil-square"></i><span>Editar Perfil</span>
+            </a>
+        </div>
+
+        <div class="perfil-content-grid">
+            <div class="perfil-quick-info">
+                <h3 class="section-title-futurista"><i class="bi bi-lightning-fill"></i>Acceso Rápido</h3>
+                <div class="quick-info-item">
+                    <div class="quick-info-label"><i class="bi bi-envelope-fill"></i>Email</div>
+                    <div class="quick-info-value">{{ user.email }}</div>
+                </div>
+                <div class="quick-info-item">
+                    <div class="quick-info-label"><i class="bi bi-card-text"></i>Documento</div>
+                    <div class="quick-info-value">{{ user.documento }}</div>
+                </div>
+                {% if user.perfil.telefono %}
+                <div class="quick-info-item">
+                    <div class="quick-info-label"><i class="bi bi-telephone-fill"></i>Teléfono</div>
+                    <div class="quick-info-value">{{ user.perfil.telefono }}</div>
+                </div>
+                {% endif %}
+                <div class="quick-info-item">
+                    <div class="quick-info-label"><i class="bi bi-calendar-check"></i>Miembro desde</div>
+                    <div class="quick-info-value">{{ user.date_joined|date:"d/m/Y" }}</div>
+                </div>
+            </div>
+
+            <div class="perfil-main-panel">
+                <h3 class="section-title-futurista"><i class="bi bi-person-lines-fill"></i>Información Detallada</h3>
+                <div class="info-cards-grid">
+                    <div class="info-card-futurista">
+                        <div class="info-card-icon"><i class="bi bi-person-fill"></i></div>
+                        <div class="info-card-label">Nombre Completo</div>
+                        <div class="info-card-value">{{ user.first_name }} {{ user.last_name }}</div>
+                    </div>
+                    <div class="info-card-futurista">
+                        <div class="info-card-icon"><i class="bi bi-at"></i></div>
+                        <div class="info-card-label">Usuario</div>
+                        <div class="info-card-value">@{{ user.username }}</div>
+                    </div>
+                    <div class="info-card-futurista">
+                        <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div class="info-card-label">Dirección</div>
+                        <div class="info-card-value">{{ user.perfil.direccion|default:"No especificada" }}</div>
+                    </div>
+                    <div class="info-card-futurista">
+                        <div class="info-card-icon"><i class="bi bi-calendar-event"></i></div>
+                        <div class="info-card-label">Fecha de Nacimiento</div>
+                        <div class="info-card-value">{% if user.perfil.fecha_nacimiento %}{{ user.perfil.fecha_nacimiento|date:"d/m/Y" }}{% else %}No especificada{% endif %}</div>
+                    </div>
+                </div>
+                {% if user.perfil.biografia %}
+                <div class="bio-section-futurista">
+                    <h4><i class="bi bi-file-text-fill"></i>Biografía</h4>
+                    <p class="mb-0">{{ user.perfil.biografia }}</p>
+                </div>
+                {% endif %}
+                <div class="security-panel">
+                    <h5 class="mb-3"><i class="bi bi-shield-lock-fill"></i>Seguridad de la Cuenta</h5>
+                    <p class="mb-3">Mantén tu cuenta segura actualizando tu contraseña regularmente.</p>
+                    <a href="{% url 'usuarios:password_reset' %}" class="btn btn-warning">
+                        <i class="bi bi-key-fill"></i> Cambiar Contraseña
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'usuarios/js/perfil.js' %}"></script>
+{% endblock %}
+

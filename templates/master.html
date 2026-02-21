@@ -44,7 +44,7 @@
             <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'contactanos' %}active{% endif %}" href="{% url 'core:contactanos' %}"><i class="bi bi-envelope-heart"></i> <strong>Contáctanos</strong></a></li>
             {% if user.is_authenticated %}
               {% if user.is_staff %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'core:panel_admin_base' %}"><i class="bi bi-speedometer2"></i> <strong>Panel Admin</strong></a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}"><i class="bi bi-speedometer2"></i> <strong>Panel Admin</strong></a></li>
               {% endif %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -64,10 +64,6 @@
                     </form>
                   </li>
                 </ul>
-              </li>
-            {% else %}
-              <li class="nav-item">
-                <a class="nav-link nav-login-btn" href="{% url 'usuarios:login' %}"><i class="bi bi-box-arrow-in-right"></i> <strong>Iniciar Sesión</strong></a>
               </li>
             {% endif %}
           </ul>

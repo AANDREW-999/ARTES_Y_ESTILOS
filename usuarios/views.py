@@ -9,8 +9,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from .forms import RegistroForm, LoginForm
+from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message
+from .decorators import panel_login_required, superadmin_required
 
 User = get_user_model()
 
@@ -143,12 +144,44 @@ def registro(request):
 
     return render(request, 'usuarios/registro.html', {'form': form})
 
+
+# ========================================
+# 🔐 AUTENTICACIÓN
+# ========================================
+
 # Login
 def login_view(request):
+    """
+    Vista de login para el panel administrativo.
+    Solo permite acceso a usuarios con is_staff=True.
+    """
+    # Si el usuario ya está autenticado, redirigir al dashboard
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('core:dashboard')
+        else:
+            messages.warning(
+                request,
+                'No tienes permisos para acceder al panel administrativo.',
+                extra_tags='level-warning field-general'
+            )
+            auth_logout(request)
+            return redirect('core:index')
+
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+
+            # Verificar que el usuario tenga permisos de staff
+            if not user.is_staff:
+                messages.error(
+                    request,
+                    '⛔ Acceso denegado. No tienes permisos para acceder al panel administrativo.',
+                    extra_tags='level-error field-general'
+                )
+                return render(request, 'usuarios/login.html', {'form': form})
+
             auth_login(request, user)
             messages.success(
                 request,
@@ -164,20 +197,87 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'usuarios/login.html', {'form': form})
 
-@login_required
-def perfil(request):
-    return render(request, 'usuarios/perfil.html')
 
 # Logout
 def logout_view(request):
+    """Cierra la sesión y redirige al inicio"""
     auth_logout(request)
-    messages.success(request, 'Sesión cerrada correctamente. ¡Hasta pronto!', extra_tags='level-success field-general')
+    messages.success(
+        request,
+        'Sesión cerrada correctamente. ¡Hasta pronto!',
+        extra_tags='level-success field-general'
+    )
     return redirect('core:index')
 
-# Recuperación de contraseña
+
+# ========================================
+# 👤 GESTIÓN DE PERFIL PERSONAL
+# ========================================
+
+@panel_login_required
+def perfil_view(request):
+    """
+    Vista para mostrar el perfil del usuario (solo lectura).
+
+    URL: /panel/perfil/ver/
+    """
+    return render(request, 'usuarios/perfil.html')
+
+
+@panel_login_required
+def editar_perfil_view(request):
+    """
+    Vista para que el usuario edite su propio perfil.
+    
+    Características:
+    - Solo el usuario autenticado puede editar su perfil
+    - Usa EditarPerfilForm (sin contraseñas)
+    - Actualiza Usuario y Perfil en una sola operación
+    - Manejo correcto de archivos (foto_perfil)
+    
+    URL: /panel/perfil/
+    """
+    usuario = request.user
+    
+    if request.method == 'POST':
+        form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                '✅ Tu perfil ha sido actualizado correctamente.',
+                extra_tags='level-success field-general'
+            )
+            return redirect('usuarios:editar_perfil')
+        else:
+            messages.warning(
+                request,
+                '⚠️ Revisa los campos resaltados y corrige los errores.',
+                extra_tags='level-warning field-general'
+            )
+    else:
+        form = EditarPerfilForm(instance=usuario)
+    
+    context = {
+        'form': form,
+        'usuario': usuario,
+        'perfil': usuario.perfil,
+    }
+    return render(request, 'usuarios/editar_perfil.html', context)
+
+
+# ========================================
+# 👥 GESTIÓN DE USUARIOS (SOLO SUPERADMINS)
+# ========================================
+
+# ========================================
+# 🔧 RECUPERACIÓN DE CONTRASEÑA
+# ========================================
+
 class RecuperarPasswordView(PasswordResetView):
     """
-    Vista personalizada para recuperación de contraseña.
+    Vista personalizada para recuperación de contraseña del panel.
     Envía correos en formato HTML con diseño floral elegante.
 
     Características:
@@ -257,14 +357,33 @@ class RestablecerPasswordConfirmarView(PasswordResetConfirmView):
 class RestablecerPasswordCompletoView(PasswordResetCompleteView):
     template_name = 'recuperar_password/password_actualizada.html'
 
-# Panel de administración de usuarios (placeholders)
-@login_required
-def lista_usuarios_view(request):
-    usuarios = User.objects.all().order_by('documento')
-    return render(request, 'usuarios/lista_usuarios.html', {'usuarios': usuarios})
+# ========================================
+# 👥 GESTIÓN DE USUARIOS (SOLO SUPERADMINS)
+# ========================================
 
-@login_required
+@superadmin_required
+def lista_usuarios_view(request):
+    """
+    Lista todos los usuarios del sistema.
+    Solo accesible para superadmins.
+    
+    URL: /panel/usuarios/
+    """
+    usuarios = User.objects.all().order_by('-date_joined')
+    context = {
+        'usuarios': usuarios,
+    }
+    return render(request, 'usuarios/lista_usuarios.html', context)
+
+
+@superadmin_required
 def crear_usuario_view(request):
+    """
+    Crea un nuevo usuario en el sistema.
+    Solo accesible para superadmins.
+    
+    URL: /panel/usuarios/crear/
+    """
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
@@ -272,34 +391,112 @@ def crear_usuario_view(request):
             usuario.is_staff = True
             usuario.is_active = True
             usuario.save()
-            messages.success(request, 'Usuario creado correctamente.', extra_tags='level-success field-general')
+            
+            # Actualizar perfil (ya manejado por form.save() pero por claridad)
+            perfil = usuario.perfil
+            perfil.telefono = form.cleaned_data.get('telefono', '')
+            perfil.direccion = form.cleaned_data.get('direccion', '')
+            perfil.fecha_nacimiento = form.cleaned_data.get('fecha_nacimiento')
+            perfil.biografia = form.cleaned_data.get('biografia', '')
+            foto = form.cleaned_data.get('foto_perfil')
+            if foto:
+                perfil.foto_perfil = foto
+            perfil.save()
+            
+            messages.success(
+                request,
+                f'✅ Usuario {usuario.username} creado correctamente.',
+                extra_tags='level-success field-general'
+            )
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
+            messages.warning(
+                request,
+                '⚠️ Revisa los campos resaltados y vuelve a intentarlo.',
+                extra_tags='level-warning field-general'
+            )
     else:
         form = RegistroForm()
-    return render(request, 'usuarios/crear_usuario.html', {'form': form})
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'usuarios/crear_usuario.html', context)
 
-@login_required
+
+@superadmin_required
 def editar_usuario_view(request, user_id):
+    """
+    Edita un usuario existente (por superadmin).
+    Solo accesible para superadmins.
+    
+    URL: /panel/usuarios/<id>/editar/
+    """
     usuario = get_object_or_404(User, id=user_id)
+    
     if request.method == 'POST':
-        form = RegistroForm(request.POST, request.FILES, instance=usuario)
+        # Usar EditarPerfilForm para editar (sin contraseñas)
+        form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Usuario actualizado correctamente.', extra_tags='level-success field-general')
+            messages.success(
+                request,
+                f'✅ Usuario {usuario.username} actualizado correctamente.',
+                extra_tags='level-success field-general'
+            )
             return redirect('usuarios:lista_usuarios')
         else:
-            messages.warning(request, 'Revisa los campos resaltados y vuelve a intentarlo.', extra_tags='level-warning field-general')
+            messages.warning(
+                request,
+                '⚠️ Revisa los campos resaltados y vuelve a intentarlo.',
+                extra_tags='level-warning field-general'
+            )
     else:
-        form = RegistroForm(instance=usuario)
-    return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})
+        form = EditarPerfilForm(instance=usuario)
+    
+    context = {
+        'form': form,
+        'usuario': usuario,
+    }
+    return render(request, 'usuarios/editar_usuario.html', context)
 
-@login_required
-def eliminar_usuario_view(request, user_id):
+
+@superadmin_required
+def desactivar_usuario_view(request, user_id):
+    """
+    Desactiva (oculta) un usuario sin eliminarlo de la base de datos.
+    Solo accesible para superadmins.
+    
+    Arquitectura:
+    - NO elimina el registro de la BD
+    - Marca is_active=False
+    - Previene que el usuario inicie sesión
+    - Mantiene integridad referencial
+    
+    URL: /panel/usuarios/<id>/desactivar/
+    """
     usuario = get_object_or_404(User, id=user_id)
-    if request.method == 'POST':
-        usuario.delete()
-        messages.info(request, 'Usuario eliminado.', extra_tags='level-warning field-general')
+    
+    # Prevenir que un superadmin se desactive a sí mismo
+    if usuario.id == request.user.id:
+        messages.error(
+            request,
+            '⛔ No puedes desactivar tu propia cuenta.',
+            extra_tags='level-error field-general'
+        )
         return redirect('usuarios:lista_usuarios')
-    return render(request, 'usuarios/eliminar_usuario.html', {'usuario': usuario})
+    
+    if request.method == 'POST':
+        usuario.is_active = False
+        usuario.save()
+        messages.info(
+            request,
+            f'ℹ️ Usuario {usuario.username} desactivado correctamente.',
+            extra_tags='level-info field-general'
+        )
+        return redirect('usuarios:lista_usuarios')
+    
+    context = {
+        'usuario': usuario,
+    }
+    return render(request, 'usuarios/desactivar_usuario.html', context)

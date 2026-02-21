@@ -5,6 +5,199 @@ from django.contrib.auth import get_user_model
 
 UserModel = get_user_model()
 
+
+class EditarPerfilForm(forms.ModelForm):
+    """
+    Formulario para editar el perfil del usuario autenticado.
+
+    Características:
+    - Edita campos del modelo Usuario (username, first_name, last_name, email)
+    - Edita campos del modelo Perfil (telefono, direccion, fecha_nacimiento, biografia, foto_perfil)
+    - NO incluye contraseñas (usar sistema de cambio de contraseña de Django)
+    - Validaciones para evitar duplicados de username y email
+    - Manejo correcto de archivos (foto_perfil)
+
+    Arquitectura:
+    - El formulario base es ModelForm sobre Usuario
+    - Los campos de Perfil se agregan como campos extra
+    - El método save() actualiza ambos modelos
+    """
+
+    # Campos del modelo Usuario
+    username = forms.CharField(
+        required=True,
+        label='Nombre de usuario',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nombre de usuario'
+        }),
+    )
+
+    first_name = forms.CharField(
+        required=True,
+        label='Nombre',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nombre',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras'
+        }),
+    )
+
+    last_name = forms.CharField(
+        required=True,
+        label='Apellido',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Apellido',
+            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
+            'title': 'Solo se permiten letras'
+        }),
+    )
+
+    email = forms.EmailField(
+        required=True,
+        label='Correo electrónico',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Correo electrónico'
+        }),
+    )
+
+    # Campos del modelo Perfil
+    telefono = forms.CharField(
+        required=False,
+        label='Teléfono',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Teléfono'
+        })
+    )
+
+    direccion = forms.CharField(
+        required=False,
+        label='Dirección',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Dirección'
+        })
+    )
+
+    fecha_nacimiento = forms.DateField(
+        required=False,
+        label='Fecha de nacimiento',
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',
+            'placeholder': 'Fecha de nacimiento'
+        })
+    )
+
+    biografia = forms.CharField(
+        required=False,
+        label='Biografía',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Cuéntanos sobre ti',
+            'rows': 4
+        })
+    )
+
+    foto_perfil = forms.ImageField(
+        required=False,
+        label='Foto de perfil',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
+
+    class Meta:
+        model = UserModel
+        fields = ('username', 'first_name', 'last_name', 'email')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Si existe la instancia y tiene perfil, pre-cargar datos del perfil
+        if self.instance and hasattr(self.instance, 'perfil'):
+            perfil = self.instance.perfil
+            self.fields['telefono'].initial = perfil.telefono
+            self.fields['direccion'].initial = perfil.direccion
+            self.fields['fecha_nacimiento'].initial = perfil.fecha_nacimiento
+            self.fields['biografia'].initial = perfil.biografia
+            # No pre-cargamos foto_perfil para evitar problemas con FileField
+
+    def clean_username(self):
+        """Validar que el username no esté en uso por otro usuario"""
+        username = self.cleaned_data.get('username', '')
+
+        # Validar longitud mínima
+        if len(username) < 4:
+            raise forms.ValidationError('El nombre de usuario debe tener al menos 4 caracteres.')
+
+        # Validar caracteres permitidos
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+            raise forms.ValidationError('El nombre de usuario solo puede contener letras, números, guiones (-) y guiones bajos (_).')
+
+        # Verificar que no esté en uso (excluyendo el usuario actual)
+        existentes = UserModel.objects.filter(username=username)
+        if self.instance and self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+
+        if existentes.exists():
+            raise forms.ValidationError('Este nombre de usuario ya está en uso. Por favor, elige otro.')
+
+        return username
+
+    def clean_email(self):
+        """Validar que el email no esté en uso por otro usuario"""
+        email = self.cleaned_data.get('email', '')
+
+        # Verificar que no esté en uso (excluyendo el usuario actual)
+        existentes = UserModel.objects.filter(email=email)
+        if self.instance and self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+
+        if existentes.exists():
+            raise forms.ValidationError('Este correo electrónico ya está en uso. Por favor, usa otro.')
+
+        return email
+
+    def save(self, commit=True):
+        """
+        Guarda el usuario y actualiza su perfil.
+
+        Flujo:
+        1. Guarda el modelo Usuario con los campos básicos
+        2. Obtiene el Perfil asociado
+        3. Actualiza los campos del Perfil
+        4. Guarda el Perfil
+        """
+        # Guardar el usuario
+        usuario = super().save(commit=False)
+
+        if commit:
+            usuario.save()
+
+            # Actualizar el perfil
+            perfil = usuario.perfil
+            perfil.telefono = self.cleaned_data.get('telefono', '')
+            perfil.direccion = self.cleaned_data.get('direccion', '')
+            perfil.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+            perfil.biografia = self.cleaned_data.get('biografia', '')
+
+            # Manejo de foto de perfil
+            foto = self.cleaned_data.get('foto_perfil')
+            if foto:
+                perfil.foto_perfil = foto
+
+            perfil.save()
+
+        return usuario
+
+
 class RegistroForm(UserCreationForm):
     # Campos del modelo Usuario (autenticación)
     documento = forms.CharField(

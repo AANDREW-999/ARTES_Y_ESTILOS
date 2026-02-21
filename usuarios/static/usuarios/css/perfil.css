@@ -1,49 +1,17 @@
 /* ========================================
-   🎨 PERFIL MEGA COLORIDO - DISEÑO ESPECTACULAR
+   🎨 PERFIL PROFESIONAL MINIMALISTA
+   Tipo Dashboard Premium - ThemeForest
+   Totalmente Adaptable a Modo Claro/Oscuro
    ======================================== */
-
-:root {
-    --vino-oscuro: #59282C;
-    --rosa-intenso: #BF5486;
-    --rosa-suave: #D9A7C2;
-    --verde-claro: #D6D97E;
-    --beige-claro: #F2E7DC;
-    --tech-blue: #00d4ff;
-    --tech-purple: #b24bf3;
-    --tech-orange: #ff6b35;
-    --tech-cyan: #00f5ff;
-    --tech-lime: #c6ff00;
-
-    /* Gradientes espectaculares */
-    --gradient-1: linear-gradient(135deg, var(--rosa-intenso) 0%, var(--tech-purple) 50%, var(--tech-blue) 100%);
-    --gradient-2: linear-gradient(135deg, var(--verde-claro) 0%, var(--tech-lime) 100%);
-    --gradient-3: linear-gradient(135deg, var(--vino-oscuro) 0%, var(--rosa-intenso) 100%);
-    --gradient-4: linear-gradient(135deg, var(--tech-cyan) 0%, var(--tech-blue) 100%);
-    --gradient-5: linear-gradient(135deg, var(--tech-orange) 0%, var(--rosa-intenso) 100%);
-    --gradient-6: linear-gradient(135deg, var(--beige-claro) 0%, var(--rosa-suave) 50%, var(--rosa-intenso) 100%);
-}
 
 /* ========================================
-   🎬 ANIMACIONES ESPECTACULARES
+   ANIMACIONES ELEGANTES
    ======================================== */
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-15px) rotate(2deg); }
-}
-
-@keyframes glowRainbow {
-    0% { box-shadow: 0 0 20px rgba(191, 84, 134, 0.5), 0 0 40px rgba(191, 84, 134, 0.3); }
-    25% { box-shadow: 0 0 20px rgba(214, 217, 126, 0.5), 0 0 40px rgba(214, 217, 126, 0.3); }
-    50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(0, 212, 255, 0.3); }
-    75% { box-shadow: 0 0 20px rgba(178, 75, 243, 0.5), 0 0 40px rgba(178, 75, 243, 0.3); }
-    100% { box-shadow: 0 0 20px rgba(191, 84, 134, 0.5), 0 0 40px rgba(191, 84, 134, 0.3); }
-}
 
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -51,30 +19,19 @@
     }
 }
 
-@keyframes rotate3D {
-    from { transform: rotateY(0deg); }
-    to { transform: rotateY(360deg); }
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-@keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+@keyframes smoothPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(191, 84, 134, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px 4px rgba(191, 84, 134, 0.3);
+    }
 }
 
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateX(-50px);
+        transform: translateX(-10px);
     }
     to {
         opacity: 1;
@@ -82,888 +39,569 @@
     }
 }
 
-/* Contenedor principal */
-.perfil-container {
-    max-width: 1200px;
-    margin: 0 auto;
+/* ========================================
+   HEADER DEL PERFIL
+   ======================================== */
+
+.profile-header-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    animation: fadeInUp 0.5s ease;
+    transition: all 0.3s ease;
+}
+
+.profile-header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   AVATAR
+   ======================================== */
+
+.profile-avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.profile-avatar,
+.profile-avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.profile-avatar {
+    object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+    background: linear-gradient(135deg, #BF5486, #D9A7C2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 600;
+    color: white;
+}
+
+.profile-avatar-wrapper:hover .profile-avatar,
+.profile-avatar-wrapper:hover .profile-avatar-placeholder {
+    transform: scale(1.05);
+    border-color: #BF5486;
+    box-shadow: 0 0 0 4px rgba(191, 84, 134, 0.15);
+}
+
+.profile-status-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background: #28a745;
+    border-radius: 50%;
+    border: 3px solid var(--bg-card);
+    animation: smoothPulse 2s infinite;
+}
+
+/* ========================================
+   INFO DEL HEADER
+   ======================================== */
+
+.profile-header-info {
+    flex: 1;
+    min-width: 250px;
+}
+
+.profile-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.profile-username {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.profile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.badge-admin {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.badge-staff {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(23, 162, 184, 0.05));
+    color: #17a2b8;
+    border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+.badge-user {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(108, 117, 125, 0.05));
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.badge-active {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.badge-active i {
+    font-size: 0.5rem;
+}
+
+/* ========================================
+   BOTÓN EDITAR PERFIL
+   ======================================== */
+
+.profile-header-actions {
+    margin-left: auto;
+}
+
+.btn-edit-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #BF5486, #D9A7C2);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    box-shadow: 0 4px 12px rgba(191, 84, 134, 0.3);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(191, 84, 134, 0.4);
+    color: white;
+}
+
+.btn-edit-profile i {
+    font-size: 1.125rem;
+}
+
+/* ========================================
+   TABS - NAVEGACIÓN
+   ======================================== */
+
+.profile-tabs-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
     animation: fadeInUp 0.6s ease;
 }
 
-/* ========================================
-   🌈 HEADER MEGA COLORIDO
-   ======================================== */
-.perfil-header-futurista {
-    background: linear-gradient(135deg,
-        var(--vino-oscuro) 0%,
-        var(--rosa-intenso) 25%,
-        var(--tech-purple) 50%,
-        var(--tech-blue) 75%,
-        var(--verde-claro) 100%
-    );
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
-    padding: 4rem 2rem;
-    border-radius: 25px;
-    position: relative;
-    overflow: hidden;
-    box-shadow:
-        0 20px 60px rgba(191, 84, 134, 0.4),
-        0 30px 90px rgba(0, 212, 255, 0.3),
-        inset 0 -5px 20px rgba(255,255,255,0.2);
+.profile-nav-tabs {
+    border-bottom: 2px solid var(--border-color);
+    padding: 0 1.5rem;
+    background: var(--bg-secondary);
 }
 
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.perfil-header-futurista::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background:
-        radial-gradient(circle at 20% 50%, rgba(214, 217, 126, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 80% 50%, rgba(0, 212, 255, 0.2) 0%, transparent 50%);
-    animation: float 8s ease-in-out infinite;
-}
-
-.perfil-header-futurista::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 10px,
-        rgba(255,255,255,0.05) 10px,
-        rgba(255,255,255,0.05) 20px
-    );
-    pointer-events: none;
-}
-
-.perfil-avatar-container {
-    text-align: center;
-    position: relative;
-    z-index: 2;
-    margin-bottom: 2rem;
-}
-
-.perfil-avatar-large {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    border: 6px solid transparent;
-    background:
-        linear-gradient(white, white) padding-box,
-        var(--gradient-1) border-box;
-    object-fit: cover;
-    animation: glowRainbow 4s ease-in-out infinite, pulse 3s ease-in-out infinite;
-    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    position: relative;
-    box-shadow:
-        0 15px 50px rgba(0,0,0,0.3),
-        0 0 0 10px rgba(255,255,255,0.1),
-        0 0 0 20px rgba(255,255,255,0.05);
-}
-
-.perfil-avatar-large:hover {
-    transform: scale(1.15) rotate(5deg);
-    animation: glowRainbow 1s ease-in-out infinite, rotate3D 2s linear infinite;
-}
-
-.perfil-avatar-placeholder {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    border: 6px solid transparent;
-    background:
-        linear-gradient(135deg, var(--rosa-intenso) 0%, var(--tech-purple) 50%, var(--tech-cyan) 100%) padding-box,
-        var(--gradient-4) border-box;
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5rem;
-    font-weight: 900;
-    color: white;
-    text-shadow:
-        0 0 10px rgba(0,212,255,0.8),
-        0 0 20px rgba(178,75,243,0.6),
-        0 0 30px rgba(191,84,134,0.4);
-    animation: glowRainbow 4s ease-in-out infinite, pulse 3s ease-in-out infinite;
-    margin: 0 auto;
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.perfil-avatar-placeholder:hover {
-    transform: scale(1.15) rotate(-5deg);
-    font-size: 6rem;
-}
-
-.avatar-upload-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    cursor: pointer;
-}
-
-.perfil-avatar-container:hover .avatar-upload-overlay {
-    opacity: 1;
-}
-
-.perfil-info-header {
-    text-align: center;
-    color: white;
-    position: relative;
-    z-index: 2;
-}
-
-.perfil-nombre-futurista {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    letter-spacing: 1px;
-}
-
-.perfil-username-futurista {
-    font-size: 1.25rem;
-    opacity: 0.95;
-    margin-bottom: 1rem;
-    font-weight: 500;
-}
-
-.perfil-rol-badge-futurista {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 2rem;
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* ========================================
-   GRID DE INFORMACIÓN FUTURISTA
-   ======================================== */
-.perfil-content-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-/* ========================================
-   🎯 TARJETAS DE ACCESO RÁPIDO - HEXAGONALES
-   ======================================== */
-.perfil-quick-info {
-    background: linear-gradient(135deg, rgba(242, 231, 220, 0.95) 0%, rgba(255,255,255,0.95) 100%);
-    border-radius: 25px;
-    padding: 2rem;
-    box-shadow:
-        0 15px 50px rgba(0,0,0,0.15),
-        inset 0 1px 0 rgba(255,255,255,0.6);
-    height: fit-content;
-    border: 2px solid rgba(191, 84, 134, 0.1);
-}
-
-.quick-info-item {
-    padding: 1.5rem;
-    margin-bottom: 1.25rem;
-    background: white;
-    border-radius: 20px;
-    border: 3px solid transparent;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    cursor: pointer;
-    animation: slideIn 0.6s ease backwards;
-}
-
-.quick-info-item:nth-child(1) { animation-delay: 0.1s; }
-.quick-info-item:nth-child(2) { animation-delay: 0.2s; }
-.quick-info-item:nth-child(3) { animation-delay: 0.3s; }
-.quick-info-item:nth-child(4) { animation-delay: 0.4s; }
-.quick-info-item:nth-child(5) { animation-delay: 0.5s; }
-
-/* Fondos únicos para cada tarjeta */
-.quick-info-item:nth-child(1) {
-    background: linear-gradient(135deg, rgba(191, 84, 134, 0.05) 0%, rgba(217, 167, 194, 0.1) 100%);
-    border-image: var(--gradient-3) 1;
-}
-
-.quick-info-item:nth-child(2) {
-    background: linear-gradient(135deg, rgba(214, 217, 126, 0.05) 0%, rgba(198, 255, 0, 0.1) 100%);
-    border-image: var(--gradient-2) 1;
-}
-
-.quick-info-item:nth-child(3) {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 245, 255, 0.1) 100%);
-    border-image: var(--gradient-4) 1;
-}
-
-.quick-info-item:nth-child(4) {
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(191, 84, 134, 0.1) 100%);
-    border-image: var(--gradient-5) 1;
-}
-
-.quick-info-item:nth-child(5) {
-    background: linear-gradient(135deg, rgba(178, 75, 243, 0.05) 0%, rgba(0, 212, 255, 0.1) 100%);
-    border-image: var(--gradient-1) 1;
-}
-
-/* Efecto hover espectacular */
-.quick-info-item:hover {
-    transform: translateX(10px) scale(1.05) rotate(-2deg);
-    box-shadow:
-        -10px 10px 40px rgba(191, 84, 134, 0.3),
-        -20px 20px 60px rgba(0, 212, 255, 0.2);
-}
-
-.quick-info-item::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(255,255,255,0.3) 50%,
-        transparent 70%
-    );
-    transform: rotate(45deg);
-    transition: all 0.6s;
-}
-
-.quick-info-item:hover::before {
-    animation: shimmer 1.5s infinite;
-}
-
-.quick-info-label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 700;
-    color: var(--vino-oscuro);
-    margin-bottom: 0.75rem;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    z-index: 1;
-}
-
-.quick-info-label i {
-    font-size: 1.5rem;
-    padding: 0.5rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-/* Iconos con gradientes únicos */
-.quick-info-item:nth-child(1) .quick-info-label i {
-    background: var(--gradient-3);
-    color: white;
-}
-
-.quick-info-item:nth-child(2) .quick-info-label i {
-    background: var(--gradient-2);
-    color: var(--vino-oscuro);
-}
-
-.quick-info-item:nth-child(3) .quick-info-label i {
-    background: var(--gradient-4);
-    color: white;
-}
-
-.quick-info-item:nth-child(4) .quick-info-label i {
-    background: var(--gradient-5);
-    color: white;
-}
-
-.quick-info-item:nth-child(5) .quick-info-label i {
-    background: var(--gradient-1);
-    color: white;
-}
-
-.quick-info-item:hover .quick-info-label i {
-    transform: rotate(360deg) scale(1.2);
-}
-
-.quick-info-value {
-    color: #333;
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-left: 3.25rem;
-    position: relative;
-    z-index: 1;
-}
-
-/* Panel principal */
-.perfil-main-panel {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-}
-
-.section-title-futurista {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--vino-oscuro);
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding-bottom: 1rem;
-    border-bottom: 3px solid var(--rosa-intenso);
-}
-
-.section-title-futurista i {
-    font-size: 1.75rem;
-    color: var(--rosa-intenso);
-}
-
-/* ========================================
-   💎 CARDS DE INFORMACIÓN 3D
-   ======================================== */
-.info-card-futurista {
-    background: white;
-    padding: 2rem;
-    border-radius: 20px;
-    border: 3px solid transparent;
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    animation: fadeInUp 0.6s ease backwards;
-}
-
-.info-card-futurista:nth-child(1) {
-    animation-delay: 0.1s;
-    background: linear-gradient(135deg, rgba(191, 84, 134, 0.03) 0%, white 100%);
-}
-.info-card-futurista:nth-child(2) {
-    animation-delay: 0.2s;
-    background: linear-gradient(135deg, rgba(214, 217, 126, 0.03) 0%, white 100%);
-}
-.info-card-futurista:nth-child(3) {
-    animation-delay: 0.3s;
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.03) 0%, white 100%);
-}
-.info-card-futurista:nth-child(4) {
-    animation-delay: 0.4s;
-    background: linear-gradient(135deg, rgba(178, 75, 243, 0.03) 0%, white 100%);
-}
-
-.info-card-futurista::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.info-card-futurista:nth-child(1)::before { background: var(--gradient-3); }
-.info-card-futurista:nth-child(2)::before { background: var(--gradient-2); }
-.info-card-futurista:nth-child(3)::before { background: var(--gradient-4); }
-.info-card-futurista:nth-child(4)::before { background: var(--gradient-1); }
-
-.info-card-futurista:hover {
-    transform: translateY(-15px) rotateX(5deg);
-    box-shadow:
-        0 25px 50px rgba(191, 84, 134, 0.3),
-        0 35px 70px rgba(0, 212, 255, 0.2);
-}
-
-.info-card-futurista:nth-child(1):hover {
-    border-color: var(--rosa-intenso);
-    box-shadow: 0 25px 50px rgba(191, 84, 134, 0.4), 0 0 40px rgba(191, 84, 134, 0.3);
-}
-
-.info-card-futurista:nth-child(2):hover {
-    border-color: var(--verde-claro);
-    box-shadow: 0 25px 50px rgba(214, 217, 126, 0.4), 0 0 40px rgba(214, 217, 126, 0.3);
-}
-
-.info-card-futurista:nth-child(3):hover {
-    border-color: var(--tech-cyan);
-    box-shadow: 0 25px 50px rgba(0, 212, 255, 0.4), 0 0 40px rgba(0, 212, 255, 0.3);
-}
-
-.info-card-futurista:nth-child(4):hover {
-    border-color: var(--tech-purple);
-    box-shadow: 0 25px 50px rgba(178, 75, 243, 0.4), 0 0 40px rgba(178, 75, 243, 0.3);
-}
-
-.info-card-futurista:hover::before {
-    transform: scaleX(1);
-}
-
-.info-card-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: white;
-    margin-bottom: 1.5rem;
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    position: relative;
-    overflow: hidden;
-}
-
-.info-card-futurista:nth-child(1) .info-card-icon {
-    background: var(--gradient-3);
-}
-
-.info-card-futurista:nth-child(2) .info-card-icon {
-    background: var(--gradient-2);
-}
-
-.info-card-futurista:nth-child(3) .info-card-icon {
-    background: var(--gradient-4);
-}
-
-.info-card-futurista:nth-child(4) .info-card-icon {
-    background: var(--gradient-1);
-}
-
-.info-card-icon::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(255,255,255,0.4) 50%,
-        transparent 70%
-    );
-    transform: rotate(45deg);
-}
-
-.info-card-futurista:hover .info-card-icon {
-    transform: rotate(360deg) scale(1.2);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.info-card-futurista:hover .info-card-icon::after {
-    animation: shimmer 1.5s infinite;
-}
-
-.info-card-label {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--vino-oscuro);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 0.75rem;
-}
-
-.info-card-value {
-    font-size: 1.25rem;
-    color: #333;
-    font-weight: 600;
-}
-
-/* Biografía futurista */
-.bio-section-futurista {
-    background: linear-gradient(135deg, rgba(191, 84, 134, 0.05) 0%, rgba(217, 167, 194, 0.05) 100%);
-    padding: 2rem;
-    border-radius: 15px;
-    border-left: 4px solid var(--rosa-intenso);
-    margin-top: 2rem;
-}
-
-.bio-section-futurista h4 {
+.profile-nav-tabs .nav-link {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
-    color: var(--vino-oscuro);
-}
-
-/* Botón editar futurista */
-.btn-editar-futurista {
-    background: var(--tech-gradient);
+    padding: 1.125rem 1.5rem;
+    color: var(--text-secondary);
     border: none;
-    color: white;
-    padding: 1rem 2.5rem;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.125rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    text-decoration: none;
+    background: transparent;
+    font-weight: 600;
+    font-size: 0.9375rem;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(191, 84, 134, 0.3);
     position: relative;
-    overflow: hidden;
 }
 
-.btn-editar-futurista::before {
+.profile-nav-tabs .nav-link i {
+    font-size: 1.125rem;
+}
+
+.profile-nav-tabs .nav-link:hover {
+    color: var(--text-primary);
+    background: rgba(191, 84, 134, 0.05);
+}
+
+.profile-nav-tabs .nav-link.active {
+    color: #BF5486;
+    background: transparent;
+}
+
+.profile-nav-tabs .nav-link.active::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #BF5486, #D9A7C2);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 10px rgba(191, 84, 134, 0.3);
 }
 
-.btn-editar-futurista:hover::before {
-    width: 300px;
-    height: 300px;
-}
-
-.btn-editar-futurista:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(191, 84, 134, 0.5);
-    color: white;
-}
-
-/* Seguridad section */
-.security-panel {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
-    padding: 2rem;
-    border-radius: 15px;
-    border-left: 4px solid #ffc107;
-    margin-top: 2rem;
+.profile-tab-content {
+    padding: 2.5rem;
 }
 
 /* ========================================
-   FORMULARIO DE EDICIÓN FUTURISTA
+   SECCIONES
    ======================================== */
-.form-futurista {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+
+.profile-section {
+    animation: slideIn 0.5s ease;
 }
 
-.form-group-futurista {
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
     position: relative;
 }
 
-.form-group-futurista.full-width {
-    grid-column: 1 / -1;
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, #BF5486, transparent);
 }
 
-.form-label-futurista {
+.section-title i {
+    font-size: 1.375rem;
+    color: #BF5486;
+}
+
+/* ========================================
+   INFO ITEMS
+   ======================================== */
+
+.info-item {
+    padding: 1.25rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.5s ease backwards;
+}
+
+.info-item:nth-child(1) { animation-delay: 0.05s; }
+.info-item:nth-child(2) { animation-delay: 0.1s; }
+.info-item:nth-child(3) { animation-delay: 0.15s; }
+.info-item:nth-child(4) { animation-delay: 0.2s; }
+.info-item:nth-child(5) { animation-delay: 0.25s; }
+.info-item:nth-child(6) { animation-delay: 0.3s; }
+
+.info-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #BF5486;
+}
+
+.info-label {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--vino-oscuro);
-    margin-bottom: 0.75rem;
-    font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 0.625rem;
 }
 
-.form-input-futurista {
-    width: 100%;
-    padding: 1rem 1.25rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
+.info-label i {
     font-size: 1rem;
+    color: #BF5486;
+}
+
+.info-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    word-wrap: break-word;
+}
+
+/* ========================================
+   SEGURIDAD
+   ======================================== */
+
+.security-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
     transition: all 0.3s ease;
-    background: white;
 }
 
-.form-input-futurista:focus {
-    outline: none;
-    border-color: var(--rosa-intenso);
-    box-shadow: 0 0 0 4px rgba(191, 84, 134, 0.1);
-    transform: translateY(-2px);
+.security-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.form-input-futurista.error {
-    border-color: #dc3545;
-    animation: shake 0.5s;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-}
-
-.form-error-message {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
+.security-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
+    color: #ffc107;
+    font-size: 1.75rem;
+    border: 2px solid rgba(255, 193, 7, 0.2);
 }
 
-.form-textarea-futurista {
-    min-height: 150px;
-    resize: vertical;
-    font-family: inherit;
+.security-content {
+    flex: 1;
 }
 
-.form-actions-futurista {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-    grid-column: 1 / -1;
-}
-
-/* Botones de formulario */
-.btn-cancel-futurista {
-    padding: 1rem 2rem;
-    border: 2px solid var(--vino-oscuro);
-    background: white;
-    color: var(--vino-oscuro);
-    border-radius: 12px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.btn-cancel-futurista:hover {
-    background: var(--vino-oscuro);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.btn-save-futurista {
-    padding: 1rem 2.5rem;
-    background: var(--tech-gradient);
-    border: none;
-    color: white;
-    border-radius: 12px;
+.security-title {
+    font-size: 1.125rem;
     font-weight: 700;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 5px 20px rgba(191, 84, 134, 0.3);
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
 
-.btn-save-futurista:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(191, 84, 134, 0.5);
-}
-
-/* ========================================
-   📝 BIOGRAFÍA ESTILO REVISTA
-   ======================================== */
-.bio-section-futurista {
-    background: linear-gradient(135deg,
-        rgba(242, 231, 220, 0.8) 0%,
-        rgba(217, 167, 194, 0.2) 50%,
-        rgba(191, 84, 134, 0.1) 100%
-    );
-    padding: 2.5rem;
-    border-radius: 25px;
-    border: 3px solid transparent;
-    border-image: var(--gradient-6) 1;
-    margin-top: 2rem;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.5s ease;
-    box-shadow: 0 15px 40px rgba(191, 84, 134, 0.2);
-}
-
-.bio-section-futurista::before {
-    content: '📖';
-    position: absolute;
-    top: -20px;
-    right: -20px;
-    font-size: 10rem;
-    opacity: 0.05;
-    transform: rotate(15deg);
-}
-
-.bio-section-futurista:hover {
-    transform: scale(1.02);
-    box-shadow:
-        0 20px 50px rgba(191, 84, 134, 0.3),
-        0 30px 70px rgba(217, 167, 194, 0.2);
-}
-
-.bio-section-futurista h4 {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    color: var(--vino-oscuro);
-    font-weight: 800;
-    font-size: 1.5rem;
-    position: relative;
-}
-
-.bio-section-futurista h4 i {
-    font-size: 2rem;
-    padding: 0.75rem;
-    background: var(--gradient-3);
-    color: white;
-    border-radius: 15px;
-    animation: bounce 2s infinite;
-}
-
-.bio-section-futurista p {
-    line-height: 1.8;
-    font-size: 1.125rem;
-    color: var(--vino-oscuro);
-    padding: 1rem;
-    background: rgba(255,255,255,0.6);
-    border-radius: 15px;
-    border-left: 5px solid var(--rosa-intenso);
-}
-
-/* ========================================
-   🔐 SEGURIDAD MILITAR STYLE
-   ======================================== */
-.security-panel {
-    background: linear-gradient(135deg,
-        rgba(255, 193, 7, 0.15) 0%,
-        rgba(255, 152, 0, 0.15) 50%,
-        rgba(214, 217, 126, 0.15) 100%
-    );
-    padding: 2.5rem;
-    border-radius: 25px;
-    border: 3px dashed #ffc107;
-    margin-top: 2rem;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.5s ease;
-    box-shadow: 0 15px 40px rgba(255, 193, 7, 0.2);
-}
-
-.security-panel::before {
-    content: '🛡️';
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    font-size: 12rem;
-    opacity: 0.05;
-    animation: pulse 3s infinite;
-}
-
-.security-panel:hover {
-    transform: scale(1.02);
-    border-style: solid;
-    box-shadow:
-        0 20px 50px rgba(255, 193, 7, 0.4),
-        0 30px 70px rgba(214, 217, 126, 0.3);
-}
-
-.security-panel h5 {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 800;
-    font-size: 1.5rem;
-    color: #d97706;
-}
-
-.security-panel h5 i {
-    font-size: 2rem;
-    padding: 0.75rem;
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-    color: white;
-    border-radius: 15px;
-    animation: bounce 2s infinite;
-}
-
-.security-panel p {
-    color: #92400e;
-    font-size: 1.125rem;
+.security-description {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
     line-height: 1.6;
 }
 
-.security-panel .btn-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+.security-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.security-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.security-info-item i {
+    font-size: 1.5rem;
+    color: #BF5486;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+}
+
+.security-info-item strong {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.security-info-item p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ========================================
+   BOTÓN WARNING (CAMBIAR CONTRASEÑA)
+   ======================================== */
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
     border: none;
-    padding: 1rem 2.5rem;
-    font-weight: 700;
-    font-size: 1.125rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(255, 193, 7, 0.4);
+    color: white;
+    font-weight: 600;
+    padding: 0.625rem 1.5rem;
+    border-radius: 10px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+    background: linear-gradient(135deg, #ff9800, #f57c00);
     color: white;
 }
 
-.security-panel .btn-warning:hover {
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 15px 40px rgba(255, 193, 7, 0.6);
+.btn-warning i {
+    margin-right: 0.5rem;
+}
+
+/* ========================================
+   MODO CLARO - ADAPTACIONES
+   ======================================== */
+
+html[data-theme="light"] .profile-header-card,
+html[data-theme="light"] .profile-tabs-card {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .profile-nav-tabs {
+    background: #f8f9fa;
+}
+
+html[data-theme="light"] .info-item,
+html[data-theme="light"] .security-card,
+html[data-theme="light"] .security-info-item {
+    background: #f8f9fa;
+}
+
+html[data-theme="light"] .info-item:hover {
+    box-shadow: 0 4px 12px rgba(191, 84, 134, 0.15);
+}
+
+html[data-theme="light"] .btn-edit-profile {
+    box-shadow:
+        0 4px 12px rgba(191, 84, 134, 0.25),
+        0 0 20px rgba(191, 84, 134, 0.1);
+}
+
+html[data-theme="light"] .btn-edit-profile:hover {
+    box-shadow:
+        0 6px 20px rgba(191, 84, 134, 0.35),
+        0 0 30px rgba(191, 84, 134, 0.15);
+}
+
+html[data-theme="light"] .profile-nav-tabs .nav-link.active::after {
+    box-shadow: 0 0 15px rgba(191, 84, 134, 0.4);
 }
 
 /* ========================================
    RESPONSIVE
    ======================================== */
-@media (max-width: 968px) {
-    .perfil-content-grid {
-        grid-template-columns: 1fr;
+
+@media (max-width: 768px) {
+    .profile-header-content {
+        flex-direction: column;
+        text-align: center;
     }
 
-    .info-cards-grid {
-        grid-template-columns: 1fr;
+    .profile-header-actions {
+        margin-left: 0;
+        width: 100%;
     }
 
-    .form-futurista {
-        grid-template-columns: 1fr;
+    .btn-edit-profile {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .profile-badges {
+        justify-content: center;
+    }
+
+    .profile-nav-tabs {
+        padding: 0 0.75rem;
+    }
+
+    .profile-nav-tabs .nav-link {
+        padding: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .profile-nav-tabs .nav-link span {
+        display: none;
+    }
+
+    .profile-tab-content {
+        padding: 1.5rem;
+    }
+
+    .security-card {
+        flex-direction: column;
+        text-align: center;
     }
 }
 
 @media (max-width: 576px) {
-    .perfil-nombre-futurista {
-        font-size: 1.75rem;
+    .profile-header-card,
+    .profile-tabs-card {
+        border-radius: 12px;
+        padding: 1.5rem;
     }
 
-    .perfil-avatar-large,
-    .perfil-avatar-placeholder {
-        width: 150px;
-        height: 150px;
+    .profile-name {
+        font-size: 1.5rem;
     }
 
-    .form-actions-futurista {
-        flex-direction: column;
+    .section-title {
+        font-size: 1.125rem;
     }
 
-    .btn-cancel-futurista,
-    .btn-save-futurista {
-        width: 100%;
+    .profile-tab-content {
+        padding: 1.25rem;
     }
 }
 
+/* ========================================
+   TRANSICIONES SUAVES PARA CAMBIO DE TEMA
+   ======================================== */
+
+.profile-header-card,
+.profile-tabs-card,
+.profile-nav-tabs,
+.info-item,
+.security-card,
+.security-info-item,
+.section-title,
+.info-label,
+.info-value,
+.security-title,
+.security-description {
+    transition: background-color 0.3s ease,
+                border-color 0.3s ease,
+                color 0.3s ease,
+                box-shadow 0.3s ease;
+}
 

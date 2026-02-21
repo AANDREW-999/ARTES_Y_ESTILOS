@@ -38,95 +38,222 @@
 </div>
 {% endif %}
 
-<div class="container-fluid py-4">
-    <div class="perfil-container">
-        <!-- Header Futurista -->
-        <div class="perfil-header-futurista">
-            <div class="perfil-avatar-container">
-                {% if user.perfil.foto_perfil %}
-                    <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="perfil-avatar-large">
-                {% else %}
-                    <div class="perfil-avatar-placeholder">{{ user.first_name.0 }}{{ user.last_name.0 }}</div>
-                {% endif %}
-            </div>
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
 
-            <div class="perfil-info-header">
-                <h1 class="perfil-nombre-futurista">{{ user.get_full_name|default:user.username }}</h1>
-                <p class="perfil-username-futurista">@{{ user.username }}</p>
-                <span class="perfil-rol-badge-futurista">
-                    {% if user.is_superuser %}<i class="bi bi-shield-fill-check"></i> SUPERADMINISTRADOR
-                    {% else %}<i class="bi bi-person-badge-fill"></i> ADMINISTRADOR{% endif %}
-                </span>
-            </div>
-        </div>
-
-        <div class="text-center my-4">
-            <a href="{% url 'usuarios:editar_perfil' %}" class="btn-editar-futurista">
-                <i class="bi bi-pencil-square"></i><span>Editar Perfil</span>
-            </a>
-        </div>
-
-        <div class="perfil-content-grid">
-            <div class="perfil-quick-info">
-                <h3 class="section-title-futurista"><i class="bi bi-lightning-fill"></i>Acceso Rápido</h3>
-                <div class="quick-info-item">
-                    <div class="quick-info-label"><i class="bi bi-envelope-fill"></i>Email</div>
-                    <div class="quick-info-value">{{ user.email }}</div>
-                </div>
-                <div class="quick-info-item">
-                    <div class="quick-info-label"><i class="bi bi-card-text"></i>Documento</div>
-                    <div class="quick-info-value">{{ user.documento }}</div>
-                </div>
-                {% if user.perfil.telefono %}
-                <div class="quick-info-item">
-                    <div class="quick-info-label"><i class="bi bi-telephone-fill"></i>Teléfono</div>
-                    <div class="quick-info-value">{{ user.perfil.telefono }}</div>
-                </div>
-                {% endif %}
-                <div class="quick-info-item">
-                    <div class="quick-info-label"><i class="bi bi-calendar-check"></i>Miembro desde</div>
-                    <div class="quick-info-value">{{ user.date_joined|date:"d/m/Y" }}</div>
-                </div>
-            </div>
-
-            <div class="perfil-main-panel">
-                <h3 class="section-title-futurista"><i class="bi bi-person-lines-fill"></i>Información Detallada</h3>
-                <div class="info-cards-grid">
-                    <div class="info-card-futurista">
-                        <div class="info-card-icon"><i class="bi bi-person-fill"></i></div>
-                        <div class="info-card-label">Nombre Completo</div>
-                        <div class="info-card-value">{{ user.first_name }} {{ user.last_name }}</div>
+            <!-- Header del Perfil -->
+            <div class="profile-header-card">
+                <div class="profile-header-content">
+                    <div class="profile-avatar-wrapper">
+                        {% if user.perfil.foto_perfil %}
+                            <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="profile-avatar">
+                        {% else %}
+                            <div class="profile-avatar-placeholder">
+                                <span>{{ user.first_name.0 }}{{ user.last_name.0 }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="profile-status-indicator"></div>
                     </div>
-                    <div class="info-card-futurista">
-                        <div class="info-card-icon"><i class="bi bi-at"></i></div>
-                        <div class="info-card-label">Usuario</div>
-                        <div class="info-card-value">@{{ user.username }}</div>
+
+                    <div class="profile-header-info">
+                        <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                        <p class="profile-username">@{{ user.username }}</p>
+                        <div class="profile-badges">
+                            {% if user.is_superuser %}
+                                <span class="profile-badge badge-admin">
+                                    <i class="bi bi-shield-fill-check"></i> Superadministrador
+                                </span>
+                            {% elif user.is_staff %}
+                                <span class="profile-badge badge-staff">
+                                    <i class="bi bi-person-badge-fill"></i> Administrador
+                                </span>
+                            {% else %}
+                                <span class="profile-badge badge-user">
+                                    <i class="bi bi-person-fill"></i> Usuario
+                                </span>
+                            {% endif %}
+                            <span class="profile-badge badge-active">
+                                <i class="bi bi-circle-fill"></i> Activo
+                            </span>
+                        </div>
                     </div>
-                    <div class="info-card-futurista">
-                        <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                        <div class="info-card-label">Dirección</div>
-                        <div class="info-card-value">{{ user.perfil.direccion|default:"No especificada" }}</div>
-                    </div>
-                    <div class="info-card-futurista">
-                        <div class="info-card-icon"><i class="bi bi-calendar-event"></i></div>
-                        <div class="info-card-label">Fecha de Nacimiento</div>
-                        <div class="info-card-value">{% if user.perfil.fecha_nacimiento %}{{ user.perfil.fecha_nacimiento|date:"d/m/Y" }}{% else %}No especificada{% endif %}</div>
+
+                    <div class="profile-header-actions">
+                        <a href="{% url 'usuarios:editar_perfil' %}" class="btn-edit-profile">
+                            <i class="bi bi-pencil-square"></i>
+                            <span>Editar Perfil</span>
+                        </a>
                     </div>
                 </div>
-                {% if user.perfil.biografia %}
-                <div class="bio-section-futurista">
-                    <h4><i class="bi bi-file-text-fill"></i>Biografía</h4>
-                    <p class="mb-0">{{ user.perfil.biografia }}</p>
-                </div>
-                {% endif %}
-                <div class="security-panel">
-                    <h5 class="mb-3"><i class="bi bi-shield-lock-fill"></i>Seguridad de la Cuenta</h5>
-                    <p class="mb-3">Mantén tu cuenta segura actualizando tu contraseña regularmente.</p>
-                    <a href="{% url 'usuarios:password_reset' %}" class="btn btn-warning">
-                        <i class="bi bi-key-fill"></i> Cambiar Contraseña
-                    </a>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="profile-tabs-card">
+                <ul class="nav nav-tabs profile-nav-tabs" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <span>Información Personal</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                            <i class="bi bi-shield-lock-fill"></i>
+                            <span>Seguridad</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content profile-tab-content" id="profileTabsContent">
+
+                    <!-- Tab: Información Personal -->
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <div class="profile-section">
+                            <h3 class="section-title">
+                                <i class="bi bi-info-circle-fill"></i>
+                                Datos Generales
+                            </h3>
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-envelope-fill"></i>
+                                            Correo Electrónico
+                                        </label>
+                                        <div class="info-value">{{ user.email }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-card-text"></i>
+                                            Documento
+                                        </label>
+                                        <div class="info-value">{{ user.documento }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-person-fill"></i>
+                                            Nombre Completo
+                                        </label>
+                                        <div class="info-value">{{ user.first_name }} {{ user.last_name }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            Teléfono
+                                        </label>
+                                        <div class="info-value">{{ user.perfil.telefono|default:"No especificado" }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-calendar-event"></i>
+                                            Fecha de Nacimiento
+                                        </label>
+                                        <div class="info-value">
+                                            {% if user.perfil.fecha_nacimiento %}
+                                                {{ user.perfil.fecha_nacimiento|date:"d/m/Y" }}
+                                            {% else %}
+                                                No especificada
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-calendar-check"></i>
+                                            Miembro Desde
+                                        </label>
+                                        <div class="info-value">{{ user.date_joined|date:"d/m/Y" }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                            Dirección
+                                        </label>
+                                        <div class="info-value">{{ user.perfil.direccion|default:"No especificada" }}</div>
+                                    </div>
+                                </div>
+
+                                {% if user.perfil.biografia %}
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-file-text-fill"></i>
+                                            Biografía
+                                        </label>
+                                        <div class="info-value">{{ user.perfil.biografia }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Seguridad -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="profile-section">
+                            <h3 class="section-title">
+                                <i class="bi bi-shield-lock-fill"></i>
+                                Configuración de Seguridad
+                            </h3>
+
+                            <div class="security-card">
+                                <div class="security-icon">
+                                    <i class="bi bi-key-fill"></i>
+                                </div>
+                                <div class="security-content">
+                                    <h4 class="security-title">Contraseña</h4>
+                                    <p class="security-description">
+                                        Mantén tu cuenta segura actualizando tu contraseña regularmente.
+                                        Se recomienda usar una combinación de letras, números y símbolos.
+                                    </p>
+                                    <a href="{% url 'usuarios:password_reset' %}" class="btn btn-warning">
+                                        <i class="bi bi-key-fill"></i>
+                                        Cambiar Contraseña
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="security-info-grid">
+                                <div class="security-info-item">
+                                    <i class="bi bi-clock-history"></i>
+                                    <div>
+                                        <strong>Última Actualización</strong>
+                                        <p>{{ user.date_joined|date:"d/m/Y H:i" }}</p>
+                                    </div>
+                                </div>
+                                <div class="security-info-item">
+                                    <i class="bi bi-shield-check"></i>
+                                    <div>
+                                        <strong>Estado de la Cuenta</strong>
+                                        <p>Verificada y Activa</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+
         </div>
     </div>
 </div>

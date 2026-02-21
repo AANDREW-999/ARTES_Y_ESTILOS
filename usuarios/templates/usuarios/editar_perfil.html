@@ -47,206 +47,346 @@
 </div>
 {% endif %}
 
-<div class="container-fluid py-4">
-    <div class="perfil-container">
-        <!-- Header con preview -->
-        <div class="perfil-header-futurista">
-            <div class="perfil-avatar-container">
-                {% if usuario.perfil.foto_perfil %}
-                    <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="perfil-avatar-large" id="avatarPreview">
-                {% else %}
-                    <div class="perfil-avatar-placeholder" id="avatarPreview">{{ usuario.first_name.0 }}{{ usuario.last_name.0 }}</div>
-                {% endif %}
-            </div>
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
 
-            <div class="perfil-info-header">
-                <h1 class="perfil-nombre-futurista">Editando tu Perfil</h1>
-                <p class="perfil-username-futurista">@{{ usuario.username }}</p>
-            </div>
-        </div>
-
-        <!-- Formulario -->
-        <div class="perfil-main-panel mt-4">
-            <h3 class="section-title-futurista">
-                <i class="bi bi-pencil-square"></i>
-                Actualiza tu Información
-            </h3>
-
-            <form method="post" enctype="multipart/form-data" id="perfilForm">
-                {% csrf_token %}
-
-                <div class="form-futurista">
-                    <!-- Username -->
-                    <div class="form-group-futurista">
-                        <label for="{{ form.username.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-person-circle"></i> {{ form.username.label }}
-                        </label>
-                        <input type="text" name="username" value="{{ form.username.value }}"
-                               class="form-input-futurista" id="id_username"
-                               required minlength="4" maxlength="150">
-                        {% if form.username.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.username.errors.0 }}</span>
+            <!-- Header del Perfil -->
+            <div class="profile-header-card">
+                <div class="profile-header-content">
+                    <div class="profile-avatar-wrapper">
+                        {% if usuario.perfil.foto_perfil %}
+                            <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="profile-avatar" id="avatarPreview">
+                        {% else %}
+                            <div class="profile-avatar-placeholder" id="avatarPreview">
+                                <span>{{ usuario.first_name.0 }}{{ usuario.last_name.0 }}</span>
                             </div>
                         {% endif %}
+                        <div class="profile-status-indicator"></div>
                     </div>
 
-                    <!-- Email -->
-                    <div class="form-group-futurista">
-                        <label for="{{ form.email.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-envelope-fill"></i> {{ form.email.label }}
-                        </label>
-                        <input type="email" name="email" value="{{ form.email.value }}"
-                               class="form-input-futurista" id="id_email" required>
-                        {% if form.email.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.email.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Nombre -->
-                    <div class="form-group-futurista">
-                        <label for="{{ form.first_name.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-person-fill"></i> {{ form.first_name.label }}
-                        </label>
-                        <input type="text" name="first_name" value="{{ form.first_name.value }}"
-                               class="form-input-futurista" id="id_first_name" required>
-                        {% if form.first_name.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.first_name.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Apellido -->
-                    <div class="form-group-futurista">
-                        <label for="{{ form.last_name.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-person-fill"></i> {{ form.last_name.label }}
-                        </label>
-                        <input type="text" name="last_name" value="{{ form.last_name.value }}"
-                               class="form-input-futurista" id="id_last_name" required>
-                        {% if form.last_name.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.last_name.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Teléfono -->
-                    <div class="form-group-futurista">
-                        <label for="{{ form.telefono.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-telephone-fill"></i> {{ form.telefono.label }}
-                        </label>
-                        <input type="tel" name="telefono" value="{{ form.telefono.value|default:'' }}"
-                               class="form-input-futurista" id="id_telefono"
-                               placeholder="+57 300 123 4567">
-                        {% if form.telefono.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.telefono.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Fecha de Nacimiento -->
-                    <div class="form-group-futurista">
-                        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-calendar-event"></i> {{ form.fecha_nacimiento.label }}
-                        </label>
-                        <input type="date" name="fecha_nacimiento"
-                               value="{{ form.fecha_nacimiento.value|date:'Y-m-d'|default:'' }}"
-                               class="form-input-futurista" id="id_fecha_nacimiento">
-                        {% if form.fecha_nacimiento.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.fecha_nacimiento.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Dirección -->
-                    <div class="form-group-futurista full-width">
-                        <label for="{{ form.direccion.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-geo-alt-fill"></i> {{ form.direccion.label }}
-                        </label>
-                        <input type="text" name="direccion" value="{{ form.direccion.value|default:'' }}"
-                               class="form-input-futurista" id="id_direccion"
-                               placeholder="Calle 123 #45-67, Ciudad">
-                        {% if form.direccion.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.direccion.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Biografía -->
-                    <div class="form-group-futurista full-width">
-                        <label for="{{ form.biografia.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-file-text-fill"></i> {{ form.biografia.label }}
-                        </label>
-                        <textarea name="biografia" class="form-input-futurista form-textarea-futurista"
-                                  id="id_biografia" placeholder="Cuéntanos sobre ti...">{{ form.biografia.value|default:'' }}</textarea>
-                        {% if form.biografia.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.biografia.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Foto de Perfil -->
-                    <div class="form-group-futurista full-width">
-                        <label for="{{ form.foto_perfil.id_for_label }}" class="form-label-futurista">
-                            <i class="bi bi-camera-fill"></i> {{ form.foto_perfil.label }}
-                        </label>
-                        <input type="file" name="foto_perfil" class="form-input-futurista"
-                               id="id_foto_perfil" accept="image/*">
-                        <small class="text-muted d-block mt-2">
-                            <i class="bi bi-info-circle"></i> Formatos: JPG, PNG, GIF. Máximo 5MB
-                        </small>
-                        {% if form.foto_perfil.errors %}
-                            <div class="form-error-message" style="display: flex;">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span>{{ form.foto_perfil.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Botones -->
-                    <div class="form-actions-futurista">
-                        <a href="{% url 'usuarios:perfil' %}" class="btn-cancel-futurista">
-                            <i class="bi bi-x-circle"></i> Cancelar
-                        </a>
-                        <button type="submit" class="btn-save-futurista">
-                            <i class="bi bi-save"></i> Guardar Cambios
-                        </button>
+                    <div class="profile-header-info">
+                        <h1 class="profile-name">Editar Perfil</h1>
+                        <p class="profile-username">@{{ usuario.username }}</p>
+                        <div class="profile-badges">
+                            <span class="profile-badge badge-active">
+                                <i class="bi bi-pencil-square"></i> Modo Edición
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
 
-        <!-- Panel de seguridad -->
-        <div class="security-panel mt-4">
-            <h5 class="mb-3">
-                <i class="bi bi-shield-lock-fill"></i>
-                Cambiar Contraseña
-            </h5>
-            <p class="mb-3">Para cambiar tu contraseña, utiliza el sistema de recuperación segura.</p>
-            <a href="{% url 'usuarios:password_reset' %}" class="btn btn-warning">
-                <i class="bi bi-key-fill"></i> Ir a Cambio de Contraseña
-            </a>
+            <!-- Formulario Card -->
+            <div class="profile-tabs-card">
+                <div class="profile-tab-content">
+
+                    <form method="post" enctype="multipart/form-data" id="perfilForm" novalidate>
+                        {% csrf_token %}
+
+                        <div class="profile-section">
+                            <h3 class="section-title">
+                                <i class="bi bi-person-lines-fill"></i>
+                                Información Personal
+                            </h3>
+
+                            <div class="row g-4">
+                                <!-- Username -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label for="{{ form.username.id_for_label }}" class="info-label">
+                                            <i class="bi bi-person-circle"></i>
+                                            Nombre de Usuario
+                                        </label>
+                                        <input type="text"
+                                               name="username"
+                                               value="{{ form.username.value|default:usuario.username }}"
+                                               class="form-control form-control-lg"
+                                               id="id_username"
+                                               required
+                                               minlength="4"
+                                               maxlength="150"
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        {% if form.username.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.username.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label for="{{ form.email.id_for_label }}" class="info-label">
+                                            <i class="bi bi-envelope-fill"></i>
+                                            Correo Electrónico
+                                        </label>
+                                        <input type="email"
+                                               name="email"
+                                               value="{{ form.email.value|default:usuario.email }}"
+                                               class="form-control form-control-lg"
+                                               id="id_email"
+                                               required
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        {% if form.email.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.email.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Nombre -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label for="{{ form.first_name.id_for_label }}" class="info-label">
+                                            <i class="bi bi-person-fill"></i>
+                                            Nombre
+                                        </label>
+                                        <input type="text"
+                                               name="first_name"
+                                               value="{{ form.first_name.value|default:usuario.first_name }}"
+                                               class="form-control form-control-lg"
+                                               id="id_first_name"
+                                               required
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        {% if form.first_name.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.first_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Apellido -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label for="{{ form.last_name.id_for_label }}" class="info-label">
+                                            <i class="bi bi-person-fill"></i>
+                                            Apellido
+                                        </label>
+                                        <input type="text"
+                                               name="last_name"
+                                               value="{{ form.last_name.value|default:usuario.last_name }}"
+                                               class="form-control form-control-lg"
+                                               id="id_last_name"
+                                               required
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        {% if form.last_name.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.last_name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Teléfono -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label for="{{ form.telefono.id_for_label }}" class="info-label">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            Teléfono
+                                        </label>
+                                        <input type="tel"
+                                               name="telefono"
+                                               value="{{ form.telefono.value|default:'' }}"
+                                               class="form-control form-control-lg"
+                                               id="id_telefono"
+                                               maxlength="10"
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        {% if form.telefono.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.telefono.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Fecha de Nacimiento -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="info-label">
+                                            <i class="bi bi-calendar-event"></i>
+                                            Fecha de Nacimiento
+                                        </label>
+                                        <input type="date"
+                                               name="fecha_nacimiento"
+                                               value="{{ form.fecha_nacimiento.value|date:'Y-m-d'|default:'' }}"
+                                               class="form-control form-control-lg"
+                                               id="id_fecha_nacimiento"
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        {% if form.fecha_nacimiento.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.fecha_nacimiento.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Dirección -->
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label for="{{ form.direccion.id_for_label }}" class="info-label">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                            Dirección
+                                        </label>
+                                        <input type="text"
+                                               name="direccion"
+                                               value="{{ form.direccion.value|default:'' }}"
+                                               class="form-control form-control-lg"
+                                               id="id_direccion"
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        {% if form.direccion.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.direccion.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Biografía -->
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label for="{{ form.biografia.id_for_label }}" class="info-label">
+                                            <i class="bi bi-file-text-fill"></i>
+                                            Biografía
+                                        </label>
+                                        <textarea name="biografia"
+                                                  class="form-control form-control-lg"
+                                                  id="id_biografia"
+                                                  rows="4"
+                                                  style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">{{ form.biografia.value|default:'' }}</textarea>
+                                        {% if form.biografia.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.biografia.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Foto de Perfil -->
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label for="{{ form.foto_perfil.id_for_label }}" class="info-label">
+                                            <i class="bi bi-camera-fill"></i>
+                                            Foto de Perfil
+                                        </label>
+                                        <input type="file"
+                                               name="foto_perfil"
+                                               class="form-control form-control-lg"
+                                               id="id_foto_perfil"
+                                               accept="image/*"
+                                               style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                        <small class="text-muted mt-2 d-block" style="color: var(--text-secondary) !important;">
+                                            <i class="bi bi-info-circle"></i>
+                                            Formatos: JPG, PNG, GIF. Tamaño máximo: 5MB
+                                        </small>
+                                        {% if form.foto_perfil.errors %}
+                                            <div class="text-danger mt-2">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                {{ form.foto_perfil.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-4" style="border-top: 2px solid var(--border-color);">
+                            <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn-edit-profile">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Guardar Cambios</span>
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
+
+<style>
+/* Estilos adicionales para formularios */
+.form-control-lg {
+    padding: 0.875rem 1.125rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.form-control-lg:focus {
+    border-color: #BF5486 !important;
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.15) !important;
+}
+
+.btn-outline-secondary {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    background: transparent;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    border-color: #BF5486;
+    color: #BF5486;
+    background: rgba(191, 84, 134, 0.05);
+}
+
+/* Adaptar inputs al modo claro */
+html[data-theme="light"] .form-control-lg {
+    background: white !important;
+    color: #1a202c !important;
+}
+
+html[data-theme="light"] .text-muted {
+    color: #64748b !important;
+}
+</style>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'usuarios/js/perfil.js' %}"></script>
+<script>
+// Preview de avatar en tiempo real
+document.getElementById('id_foto_perfil')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('avatarPreview');
+            if (preview.tagName === 'IMG') {
+                preview.src = e.target.result;
+            } else {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'profile-avatar';
+                img.id = 'avatarPreview';
+                preview.replaceWith(img);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
 {% endblock %}
-

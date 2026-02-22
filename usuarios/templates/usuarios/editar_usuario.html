@@ -1,138 +1,170 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
+{% load bootstrap5 %}
 
-{% block title %}Editar Usuario{% endblock %}
+{% block title %}{{ titulo|default:"Editar Usuario" }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="perfil-container panel-fade-in">
-    <div class="panel-card">
-        <div class="panel-card-header">
-            <h1 class="panel-card-title">
-                <i class="fas fa-user-edit"></i> Editar Usuario
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ titulo|default:"Editar Usuario" }}
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-pencil-square"></i>
+                {{ titulo|default:"Editar Usuario" }}
             </h1>
-            <p class="panel-card-subtitle">
-                Editando: <strong>@{{ usuario.username }}</strong>
-            </p>
+            <p>Modifica la información del usuario {{ usuario.username }}</p>
+        </div>
+    </div>
+
+    <!-- Alerta si es auto-edición -->
+    {% if es_auto_edicion %}
+    <div class="alert-warning-box">
+        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+        <div>
+            <strong>⚠️ Estás editando tu propia cuenta</strong>
+            <p class="mb-0 mt-1">No puedes modificar tu rol de superadministrador ni desactivar tu cuenta.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Información Personal -->
+        <div class="form-card">
+            <h3 class="form-section-title">
+                <i class="bi bi-person-fill"></i>
+                Información Personal
+            </h3>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    {% bootstrap_field form.first_name show_label=True %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field form.last_name show_label=True %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field form.username show_label=True %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field form.email show_label=True %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field form.documento show_label=True %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field form.telefono show_label=True %}
+                </div>
+                <div class="col-md-12">
+                    {% bootstrap_field form.direccion show_label=True %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field form.fecha_nacimiento show_label=True %}
+                </div>
+                <div class="col-md-6">
+                    {% bootstrap_field form.foto_perfil show_label=True %}
+                    {% if usuario.perfil.foto_perfil %}
+                    <div class="mt-2">
+                        <small class="text-muted">Foto actual:</small><br>
+                        <img src="{{ usuario.perfil.foto_perfil.url }}" alt="Foto actual" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid var(--border-color);">
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-12">
+                    {% bootstrap_field form.biografia show_label=True %}
+                </div>
+            </div>
         </div>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
+        <!-- Permisos y Estado -->
+        <div class="form-card">
+            <h3 class="form-section-title">
+                <i class="bi bi-shield-lock-fill"></i>
+                Permisos y Estado
+            </h3>
 
-            <div class="perfil-form-grid">
-                <!-- Usuario -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.username.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-user"></i> {{ form.username.label }}
-                    </label>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                        <div class="perfil-form-error">{{ form.username.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Email -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.email.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-envelope"></i> {{ form.email.label }}
-                    </label>
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                        <div class="perfil-form-error">{{ form.email.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Nombre -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.first_name.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-signature"></i> {{ form.first_name.label }}
-                    </label>
-                    {{ form.first_name }}
-                    {% if form.first_name.errors %}
-                        <div class="perfil-form-error">{{ form.first_name.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Apellido -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.last_name.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-signature"></i> {{ form.last_name.label }}
-                    </label>
-                    {{ form.last_name }}
-                    {% if form.last_name.errors %}
-                        <div class="perfil-form-error">{{ form.last_name.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Teléfono -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.telefono.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-phone"></i> {{ form.telefono.label }}
-                    </label>
-                    {{ form.telefono }}
-                    {% if form.telefono.errors %}
-                        <div class="perfil-form-error">{{ form.telefono.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Fecha de Nacimiento -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.fecha_nacimiento.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-birthday-cake"></i> {{ form.fecha_nacimiento.label }}
-                    </label>
-                    {{ form.fecha_nacimiento }}
-                    {% if form.fecha_nacimiento.errors %}
-                        <div class="perfil-form-error">{{ form.fecha_nacimiento.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Dirección -->
-                <div class="perfil-form-group full-width">
-                    <label for="{{ form.direccion.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-map-marker-alt"></i> {{ form.direccion.label }}
-                    </label>
-                    {{ form.direccion }}
-                    {% if form.direccion.errors %}
-                        <div class="perfil-form-error">{{ form.direccion.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Biografía -->
-                <div class="perfil-form-group full-width">
-                    <label for="{{ form.biografia.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-pen"></i> {{ form.biografia.label }}
-                    </label>
-                    {{ form.biografia }}
-                    {% if form.biografia.errors %}
-                        <div class="perfil-form-error">{{ form.biografia.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Foto de Perfil -->
-                <div class="perfil-form-group full-width">
-                    <label for="{{ form.foto_perfil.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-camera"></i> {{ form.foto_perfil.label }}
-                    </label>
-                    {{ form.foto_perfil }}
-                    {% if form.foto_perfil.errors %}
-                        <div class="perfil-form-error">{{ form.foto_perfil.errors.0 }}</div>
-                    {% endif %}
+            {% if es_auto_edicion %}
+            <div class="alert-info-box mb-3">
+                <i class="bi bi-info-circle-fill fs-5"></i>
+                <div>
+                    <small>Algunos campos están deshabilitados porque estás editando tu propia cuenta por seguridad.</small>
                 </div>
             </div>
+            {% endif %}
 
-            <div class="perfil-form-actions">
-                <a href="{% url 'usuarios:lista_usuarios' %}" class="panel-btn panel-btn-secondary">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
-                <button type="submit" class="panel-btn panel-btn-primary">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                            <strong>{{ form.is_active.label }}</strong><br>
+                            <small class="text-muted">{{ form.is_active.help_text }}</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        {{ form.is_staff }}
+                        <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">
+                            <strong>{{ form.is_staff.label }}</strong><br>
+                            <small class="text-muted">{{ form.is_staff.help_text }}</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        {{ form.is_superuser }}
+                        <label class="form-check-label" for="{{ form.is_superuser.id_for_label }}">
+                            <strong>{{ form.is_superuser.label }}</strong><br>
+                            <small class="text-muted">{{ form.is_superuser.help_text }}</small>
+                        </label>
+                    </div>
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn-guardar">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ boton_texto|default:"Guardar Cambios" }}
+            </button>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancelar">
+                <i class="bi bi-x-circle-fill me-2"></i>
+                Cancelar
+            </a>
+        </div>
+    </form>
 </div>
 {% endblock %}
 

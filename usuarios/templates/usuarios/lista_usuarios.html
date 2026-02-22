@@ -3,252 +3,203 @@
 
 {% block title %}Gestión de Usuarios{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="panel-fade-in">
-    <!-- Header con acciones -->
-    <div class="panel-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <div>
-                <h1 class="panel-card-title" style="margin-bottom: 0.5rem;">
-                    <i class="fas fa-users-cog"></i> Gestión de Usuarios
-                </h1>
-                <p class="panel-card-subtitle" style="margin: 0;">
-                    Administra los usuarios del sistema
-                </p>
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Gestión de Usuarios
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header con botón de crear -->
+    <div class="page-header">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-people-fill"></i>
+                Gestión de Usuarios
+            </h1>
+            <p>Administra los usuarios del sistema</p>
+        </div>
+        <a href="{% url 'usuarios:crear_usuario' %}" class="btn-crear-usuario">
+            <i class="bi bi-person-plus-fill"></i>
+            Nuevo Usuario
+        </a>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-people-fill"></i>
             </div>
-            <div style="display: flex; gap: 0.75rem;">
-                <a href="{% url 'usuarios:crear_usuario' %}" class="panel-btn panel-btn-primary">
-                    <i class="fas fa-user-plus"></i> Nuevo Usuario
-                </a>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_usuarios }}</div>
+                <div class="stat-label">Total Usuarios</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-success">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ usuarios_activos }}</div>
+                <div class="stat-label">Usuarios Activos</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-danger">
+                <i class="bi bi-shield-fill-check"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ superadmins }}</div>
+                <div class="stat-label">Superadministradores</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-info">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ admins }}</div>
+                <div class="stat-label">Administradores</div>
             </div>
         </div>
     </div>
 
     <!-- Tabla de usuarios -->
-    <div class="panel-card">
-        <div class="panel-table-container">
-            <table class="panel-table">
-                <thead>
-                    <tr>
-                        <th>Usuario</th>
-                        <th>Nombre Completo</th>
-                        <th>Email</th>
-                        <th>Documento</th>
-                        <th>Rol</th>
-                        <th>Estado</th>
-                        <th style="text-align: center;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios %}
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                {% if usuario.perfil.foto_perfil %}
-                                    <img src="{{ usuario.perfil.foto_perfil.url }}"
-                                         alt="{{ usuario.username }}"
-                                         style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #BF5486;">
-                                {% else %}
-                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #BF5486 0%, #D9A7C2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">
+    <div class="usuarios-table-container">
+        <table class="usuarios-table">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Documento</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Fecha Registro</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>
+                        <div class="usuario-avatar-wrapper">
+                            {% if usuario.perfil.foto_perfil %}
+                                <img src="{{ usuario.perfil.foto_perfil.url }}"
+                                     alt="{{ usuario.get_full_name }}"
+                                     class="usuario-avatar">
+                            {% else %}
+                                <div class="usuario-avatar-placeholder">
+                                    {% if usuario.first_name and usuario.last_name %}
                                         {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
-                                    </div>
-                                {% endif %}
-                                <strong>@{{ usuario.username }}</strong>
-                            </div>
-                        </td>
-                        <td>{{ usuario.get_full_name|default:"-" }}</td>
-                        <td>{{ usuario.email }}</td>
-                        <td>{{ usuario.documento }}</td>
-                        <td>
-                            {% if usuario.is_superuser %}
-                                <span class="panel-badge panel-badge-danger">
-                                    <i class="fas fa-crown"></i> SuperAdmin
-                                </span>
-                            {% elif usuario.is_staff %}
-                                <span class="panel-badge panel-badge-info">
-                                    <i class="fas fa-user-tie"></i> Admin
-                                </span>
-                            {% else %}
-                                <span class="panel-badge panel-badge-warning">
-                                    <i class="fas fa-user"></i> Usuario
-                                </span>
+                                    {% else %}
+                                        {{ usuario.username.0|upper }}
+                                    {% endif %}
+                                </div>
                             {% endif %}
-                        </td>
-                        <td>
-                            {% if usuario.is_active %}
-                                <span class="panel-badge panel-badge-success">
-                                    <i class="fas fa-check-circle"></i> Activo
-                                </span>
-                            {% else %}
-                                <span class="panel-badge panel-badge-danger">
-                                    <i class="fas fa-times-circle"></i> Inactivo
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td style="text-align: center;">
-                            <div style="display: inline-flex; gap: 0.5rem;">
-                                <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
-                                   class="panel-btn panel-btn-secondary"
-                                   style="padding: 0.5rem 1rem; font-size: 0.875rem;"
-                                   title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-
-                                {% if usuario.id != user.id and usuario.is_active %}
-                                <a href="{% url 'usuarios:desactivar_usuario' usuario.id %}"
-                                   class="panel-btn panel-btn-danger"
-                                   style="padding: 0.5rem 1rem; font-size: 0.875rem;"
-                                   title="Desactivar">
-                                    <i class="fas fa-user-slash"></i>
-                                </a>
-                                {% endif %}
+                            <div class="usuario-info">
+                                <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>
+                                <small>@{{ usuario.username }}</small>
                             </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 3rem;">
-                            <i class="fas fa-users" style="font-size: 3rem; color: #D9A7C2; margin-bottom: 1rem;"></i>
-                            <p style="margin: 0; color: #59282C;">No hay usuarios registrados en el sistema.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        </div>
+                    </td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.documento }}</td>
+                    <td>
+                        {% if usuario.is_superuser %}
+                            <span class="badge-rol badge-superadmin">
+                                <i class="bi bi-shield-fill-check"></i> SuperAdmin
+                            </span>
+                        {% elif usuario.is_staff %}
+                            <span class="badge-rol badge-admin">
+                                <i class="bi bi-person-badge-fill"></i> Admin
+                            </span>
+                        {% else %}
+                            <span class="badge-rol badge-usuario">
+                                <i class="bi bi-person-fill"></i> Usuario
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if usuario.is_active %}
+                            <span class="badge-estado badge-activo">
+                                <i class="bi bi-check-circle-fill"></i> Activo
+                            </span>
+                        {% else %}
+                            <span class="badge-estado badge-inactivo">
+                                <i class="bi bi-x-circle-fill"></i> Inactivo
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                    <td>
+                        <div class="acciones-wrapper">
+                            <a href="{% url 'usuarios:visualizar_usuario' usuario.id %}"
+                               class="btn-action btn-ver"
+                               title="Ver detalles">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
 
-    <!-- Estadísticas -->
-    <div class="panel-stats-grid">
-        <div class="panel-stat-card">
-            <div class="panel-stat-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="panel-stat-value">{{ usuarios.count }}</div>
-            <div class="panel-stat-label">Total Usuarios</div>
-        </div>
+                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
+                               class="btn-action btn-editar"
+                               title="Editar usuario">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
 
-        <div class="panel-stat-card">
-            <div class="panel-stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="panel-stat-value">{{ usuarios|selectattr:"is_active"|list|length }}</div>
-            <div class="panel-stat-label">Usuarios Activos</div>
-        </div>
-
-        <div class="panel-stat-card">
-            <div class="panel-stat-icon" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
-                <i class="fas fa-crown"></i>
-            </div>
-            <div class="panel-stat-value">{{ usuarios|selectattr:"is_superuser"|list|length }}</div>
-            <div class="panel-stat-label">SuperAdmins</div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-                        <option value="false" {% if filtro_staff == 'false' %}selected{% endif %}>Usuarios normales</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-funnel"></i> Filtrar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Tabla de Usuarios -->
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Documento</th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Correo</th>
-                            <th>Dirección</th>
-                            <th>Foto</th>
-                            <th>Fecha Nacimiento</th>
-                            <th>Teléfono</th>
-                            <th>Fecha Registro</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for usuario in usuarios %}
-                        <tr>
-                            <td><strong>{{ usuario.perfil.documento }}</strong></td>
-                            <td>{{ usuario.first_name }}</td>
-                            <td>{{ usuario.last_name }}</td>
-                            <td>{{ usuario.email }}</td>
-                            <td>{{ usuario.perfil.direccion|default:"N/A" }}</td>
-                            <td>
-                                {% if usuario.perfil.foto_perfil %}
-                                    <img src="{{ usuario.perfil.foto_perfil.url }}" 
-                                         alt="{{ usuario.get_full_name }}" 
-                                         class="rounded-circle"
-                                         width="40" height="40">
-                                {% else %}
-                                    <i class="bi bi-person-circle fs-4"></i>
-                                {% endif %}
-                            </td>
-                            <td>{{ usuario.perfil.fecha_nacimiento|date:"d/m/Y" }}</td>
-                            <td>{{ usuario.perfil.telefono|default:"N/A" }}</td>
-                            <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
-                            <td>
+                            {% if usuario.id != user.id %}
                                 {% if usuario.is_active %}
-                                    <span class="badge bg-success">
-                                        <i class="bi bi-check-circle"></i> Activo
-                                    </span>
+                                    <a href="{% url 'usuarios:desactivar_usuario' usuario.id %}"
+                                       class="btn-action btn-desactivar"
+                                       title="Desactivar usuario">
+                                        <i class="bi bi-person-slash"></i>
+                                    </a>
                                 {% else %}
-                                    <span class="badge bg-danger">
-                                        <i class="bi bi-x-circle"></i> Inactivo
-                                    </span>
+                                    <a href="{% url 'usuarios:activar_usuario' usuario.id %}"
+                                       class="btn-action btn-activar"
+                                       title="Activar usuario">
+                                        <i class="bi bi-person-check"></i>
+                                    </a>
                                 {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <!-- Botón Ver Detalles -->
-                                <a href="/"
-                                   class="btn btn-sm btn-outline-info"
-                                   title="Ver detalles"
-                                   data-bs-toggle="tooltip">
-                                    <i class="bi bi-eye-fill"></i>
-                                </a>
-
-                                <!-- Botón Editar -->
-                                <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
-                                   class="btn btn-sm btn-outline-primary"
-                                   title="Editar instructor"
-                                   data-bs-toggle="tooltip">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-
-                                <!-- Botón Eliminar -->
-                                <a href="{% url 'usuarios:eliminar_usuario' usuario.id %}"
-                                   class="btn btn-sm btn-outline-danger"
-                                   title="Eliminar instructor"
-                                   data-bs-toggle="tooltip">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="11" class="text-center text-muted py-5">
-                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                                No se encontraron usuarios
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="bi bi-people"></i>
+                            <p>No hay usuarios registrados en el sistema.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'usuarios/js/admin_usuarios.js' %}"></script>
+{% endblock %}
+

@@ -1,0 +1,106 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Usuario{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Eliminar Usuario
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-danger">
+            <i class="bi bi-trash-fill"></i>
+        </div>
+
+        <h1 class="confirmation-title">⚠️ ¿Eliminar Usuario?</h1>
+
+        <p class="confirmation-message">
+            <strong>¡ATENCIÓN!</strong> Esta acción es <strong>PERMANENTE</strong> y no se puede deshacer.
+            Todos los datos del usuario serán eliminados de la base de datos.
+        </p>
+
+        <div class="user-info-box">
+            {% if usuario.perfil.foto_perfil %}
+                <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="user-info-avatar">
+            {% else %}
+                <div class="user-info-avatar-placeholder">
+                    {% if usuario.first_name and usuario.last_name %}
+                        {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
+                    {% else %}
+                        {{ usuario.username.0|upper }}
+                    {% endif %}
+                </div>
+            {% endif %}
+            <div class="user-info-content">
+                <h4>{{ usuario.get_full_name|default:usuario.username }}</h4>
+                <p>@{{ usuario.username }} • {{ usuario.email }}</p>
+            </div>
+        </div>
+
+        <ul class="info-list info-list-danger">
+            <li>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>El usuario será <strong>eliminado permanentemente</strong></span>
+            </li>
+            <li>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Todos sus datos personales serán borrados</span>
+            </li>
+            <li>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Esta acción <strong>NO se puede deshacer</strong></span>
+            </li>
+            <li>
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Si solo quieres suspender acceso, considera <strong>Desactivar</strong> en lugar de eliminar</span>
+            </li>
+        </ul>
+
+        <div class="alert-danger-box">
+            <i class="bi bi-exclamation-octagon-fill fs-4"></i>
+            <div>
+                <strong>Recomendación:</strong>
+                <p class="mb-0">En lugar de eliminar, considera desactivar el usuario para mantener el historial y poder reactivarlo en el futuro.</p>
+            </div>
+        </div>
+
+        <form method="post" class="d-flex justify-content-center gap-3 flex-wrap">
+            {% csrf_token %}
+            <button type="submit" class="btn-confirm btn-confirm-danger">
+                <i class="bi bi-trash-fill"></i>
+                Eliminar Permanentemente
+            </button>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancel">
+                <i class="bi bi-arrow-left"></i>
+                Cancelar y Volver
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

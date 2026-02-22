@@ -1,10 +1,68 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Desactivar Usuario{% endblock %}
+{% block title %}Activar Usuario{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+{% endblock %}
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    font-size: 1rem;
+}
+
+.btn-confirm:hover {
+    background: linear-gradient(135deg, #20c997, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    color: white;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.875rem 2.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    border: 2px solid var(--border-color);
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn-cancel:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.info-list li {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.info-list li i {
+    color: #28a745;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -26,21 +84,21 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">
-                    Desactivar Usuario
+                    Activar Usuario
                 </li>
             </ol>
         </nav>
     </div>
 
-    <div class="confirmation-card">
-        <div class="confirmation-icon confirmation-icon-warning">
-            <i class="bi bi-person-slash"></i>
+        <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-success">
+            <i class="bi bi-person-check"></i>
         </div>
 
-        <h1 class="confirmation-title">¿Desactivar Usuario?</h1>
+        <h1 class="confirmation-title">¿Activar Usuario?</h1>
 
         <p class="confirmation-message">
-            Estás a punto de desactivar el siguiente usuario. Esta acción no eliminará el usuario de la base de datos.
+            Estás a punto de activar el siguiente usuario. Una vez activado, podrá iniciar sesión nuevamente en el sistema.
         </p>
 
         <div class="user-info-box">
@@ -48,11 +106,7 @@
                 <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="user-info-avatar">
             {% else %}
                 <div class="user-info-avatar-placeholder">
-                    {% if usuario.first_name and usuario.last_name %}
-                        {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
-                    {% else %}
-                        {{ usuario.username.0|upper }}
-                    {% endif %}
+                    {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
                 </div>
             {% endif %}
             <div class="user-info-content">
@@ -61,34 +115,26 @@
             </div>
         </div>
 
-        <ul class="info-list info-list-warning">
+        <ul class="info-list info-list-success">
             <li>
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span>El usuario NO será eliminado de la base de datos</span>
-            </li>
-            <li>
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span>Se marcará como inactivo (is_active=False)</span>
-            </li>
-            <li>
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span>No podrá iniciar sesión en el sistema</span>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>El usuario podrá iniciar sesión en el sistema</span>
             </li>
             <li>
                 <i class="bi bi-check-circle-fill"></i>
-                <span>Todos sus datos se mantendrán intactos</span>
+                <span>Recuperará acceso a todas sus funcionalidades</span>
             </li>
             <li>
                 <i class="bi bi-check-circle-fill"></i>
-                <span>Puede ser reactivado por un administrador</span>
+                <span>Se restaurará su estado activo</span>
             </li>
         </ul>
 
         <form method="post" class="d-flex justify-content-center gap-3 flex-wrap">
             {% csrf_token %}
-            <button type="submit" class="btn-confirm btn-confirm-danger">
-                <i class="bi bi-person-slash"></i>
-                Confirmar Desactivación
+            <button type="submit" class="btn-confirm btn-confirm-success">
+                <i class="bi bi-check-circle-fill"></i>
+                Sí, Activar Usuario
             </button>
             <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancel">
                 <i class="bi bi-x-circle-fill"></i>

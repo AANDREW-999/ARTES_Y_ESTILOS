@@ -30,6 +30,7 @@ urlpatterns = [
     path('proveedores/', include('proveedores.urls')),
     path('compras/', include('compras.urls')),  
     path('clientes/', include('clientes.urls')), 
+    path('arreglo', include('arreglo.urls')),
     # Ruta específica para el favicon
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'img/FaviconAE.png', permanent=True)),
 

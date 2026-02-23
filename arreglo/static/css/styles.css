@@ -1,0 +1,47 @@
+/* --- ESTILOS COMPARTIDOS --- */
+
+/* Tarjetas con bordes redondeados de 25px */
+.card-floral {
+    border-radius: 25px !important;
+    border: none !important;
+    background: #ffffff;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    height: 100%;
+}
+
+/* Contenedor de imagen para simetría total */
+.card-img-wrapper {
+    width: 100%;
+    height: 250px; /* Altura fija para que todas las cartas sean iguales */
+    overflow: hidden;
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+}
+
+.card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Mantiene el formato igual sin importar la foto original */
+}
+
+/* Botón Rosa de la imagen de referencia */
+.btn-rosa {
+    background-color: #b35581 !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 8px 18px !important;
+    border: none !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn-rosa:hover {
+    background-color: #8e4265 !important;
+    color: white !important;
+}
+
+/* Colores de Títulos */
+.text-cafe {
+    color: #5d4037 !important;
+}

@@ -15,6 +15,7 @@
     --bg-primary: #0a0e27;
     --bg-secondary: #141833;
     --bg-card: #1a1f3a;
+    --bg-hover: #252a4a;
     --text-primary: #ffffff;
     --text-secondary: #8b92b0;
     --border-color: rgba(139, 146, 176, 0.1);
@@ -740,6 +741,7 @@ html[data-theme="light"] {
     --bg-primary: #f5f7fa;
     --bg-secondary: #ffffff;
     --bg-card: #ffffff;
+    --bg-hover: #f8f9fa;
     --text-primary: #1a202c;
     --text-secondary: #64748b;
     --border-color: rgba(203, 213, 225, 0.5);

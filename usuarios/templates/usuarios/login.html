@@ -54,16 +54,6 @@
     </div>
   </div>
 </div>
-  <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="true" data-bs-delay="8000" style="background-color: #ffc107; color: #000;">
-    <div class="d-flex">
-      <div class="toast-body d-flex align-items-center fw-semibold">
-        <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
-        <span id="warningToastMessage">Completa todos los campos.</span>
-      </div>
-      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
-    </div>
-  </div>
-</div>
 
 <!-- ========================================================================== -->
 <!-- MENSAJES DE DJANGO (SE CONVIERTEN A TOASTS VÍA JS) -->
@@ -101,13 +91,16 @@
             {% csrf_token %}
 
             <!-- Usuario o Documento -->
-            <div class="form-floating mb-3">
-              {{ form.username }}
-              <label for="id_username">
-                <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
-                Usuario o Documento
-              </label>
-              <div class="invalid-feedback">Este campo es obligatorio</div>
+            <div class="mb-3">
+              <div class="form-floating">
+                {{ form.username }}
+                <label for="id_username">
+                  <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                  Usuario o Documento
+                </label>
+                <div class="invalid-feedback">Este campo es obligatorio</div>
+              </div>
+              <!-- El mensaje de ayuda se insertará aquí dinámicamente por JS -->
             </div>
 
             <!-- Contraseña -->

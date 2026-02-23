@@ -81,12 +81,21 @@
                         </div>
                     </div>
 
+                    {% if es_propio_perfil %}
                     <div class="profile-header-actions">
                         <a href="{% url 'usuarios:editar_usuario' usuario.id %}" class="profile-action-btn btn-edit">
                             <i class="bi bi-pencil-square"></i>
                             <span>Editar</span>
                         </a>
                     </div>
+                    {% else %}
+                    <div class="profile-header-actions">
+                        <span class="badge-readonly" style="padding: 0.75rem 1.25rem;">
+                            <i class="bi bi-lock-fill"></i>
+                            <span>Solo lectura</span>
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 

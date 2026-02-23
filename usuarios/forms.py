@@ -65,6 +65,18 @@ class EditarPerfilForm(forms.ModelForm):
         }),
     )
 
+    documento = forms.CharField(
+        required=True,
+        label='Documento',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Documento (10 dígitos)',
+            'pattern': '[0-9]{10}',
+            'maxlength': '10'
+        }),
+        help_text='Cambiar el documento requiere confirmación'
+    )
+
     # Campos del modelo Perfil
     telefono = forms.CharField(
         required=False,
@@ -113,11 +125,42 @@ class EditarPerfilForm(forms.ModelForm):
         })
     )
 
+    # Campos de permisos y estado
+    is_active = forms.BooleanField(
+        required=False,
+        label='Usuario activo',
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+        }),
+        help_text='Los usuarios inactivos no pueden iniciar sesión'
+    )
+
+    is_staff = forms.BooleanField(
+        required=False,
+        label='Administrador',
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+        }),
+        help_text='Permite acceso al panel administrativo'
+    )
+
+    is_superuser = forms.BooleanField(
+        required=False,
+        label='Superadministrador',
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+        }),
+        help_text='Acceso total al sistema (usar con precaución)'
+    )
+
     class Meta:
         model = UserModel
-        fields = ('username', 'first_name', 'last_name', 'email')
+        fields = ('username', 'first_name', 'last_name', 'email', 'documento',
+                  'is_active', 'is_staff', 'is_superuser')
 
     def __init__(self, *args, **kwargs):
+        # Guardar referencia al usuario que está editando (request.user)
+        self.editing_user = kwargs.pop('editing_user', None)
         super().__init__(*args, **kwargs)
 
         # Si existe la instancia y tiene perfil, pre-cargar datos del perfil
@@ -128,6 +171,18 @@ class EditarPerfilForm(forms.ModelForm):
             self.fields['fecha_nacimiento'].initial = perfil.fecha_nacimiento
             self.fields['biografia'].initial = perfil.biografia
             # No pre-cargamos foto_perfil para evitar problemas con FileField
+
+        # Pre-cargar valores de los checkboxes de permisos
+        if self.instance and self.instance.pk:
+            self.fields['is_active'].initial = self.instance.is_active
+            self.fields['is_staff'].initial = self.instance.is_staff
+            self.fields['is_superuser'].initial = self.instance.is_superuser
+
+            # PROTECCIÓN: Deshabilitar checkbox is_active si es auto-edición
+            if self.editing_user and self.instance.pk == self.editing_user.pk:
+                self.fields['is_active'].widget.attrs['disabled'] = 'disabled'
+                self.fields['is_active'].widget.attrs['onclick'] = 'return false;'
+                self.fields['is_active'].help_text = '⚠️ No puedes desactivar tu propia cuenta'
 
     def clean_username(self):
         """Validar que el username no esté en uso por otro usuario"""
@@ -166,18 +221,53 @@ class EditarPerfilForm(forms.ModelForm):
 
         return email
 
+    def clean_documento(self):
+        """Validar que el documento no esté en uso por otro usuario"""
+        documento = self.cleaned_data.get('documento', '')
+
+        # Validar formato (10 dígitos)
+        import re
+        if not re.match(r'^\d{10}$', documento):
+            raise forms.ValidationError('El documento debe tener exactamente 10 dígitos.')
+
+        # Verificar que no esté en uso (excluyendo el usuario actual)
+        existentes = UserModel.objects.filter(documento=documento)
+        if self.instance and self.instance.pk:
+            existentes = existentes.exclude(pk=self.instance.pk)
+
+        if existentes.exists():
+            raise forms.ValidationError('Este documento ya está registrado.')
+
+        return documento
+
+    def clean_is_active(self):
+        """Validar que el usuario no se desactive a sí mismo"""
+        is_active = self.cleaned_data.get('is_active')
+
+        # PROTECCIÓN: Prevenir auto-desactivación
+        if self.editing_user and self.instance.pk == self.editing_user.pk:
+            if not is_active:
+                raise forms.ValidationError('⛔ No puedes desactivar tu propia cuenta.')
+
+        return is_active
+
     def save(self, commit=True):
         """
         Guarda el usuario y actualiza su perfil.
 
         Flujo:
-        1. Guarda el modelo Usuario con los campos básicos
+        1. Guarda el modelo Usuario con los campos básicos y permisos
         2. Obtiene el Perfil asociado
         3. Actualiza los campos del Perfil
         4. Guarda el Perfil
         """
-        # Guardar el usuario
+        # Guardar el usuario con permisos
         usuario = super().save(commit=False)
+
+        # Actualizar campos de permisos
+        usuario.is_active = self.cleaned_data.get('is_active', True)
+        usuario.is_staff = self.cleaned_data.get('is_staff', False)
+        usuario.is_superuser = self.cleaned_data.get('is_superuser', False)
 
         if commit:
             usuario.save()
@@ -399,7 +489,7 @@ class RegistroForm(UserCreationForm):
 
             perfil.save()
 
-        return usuario
+        return user
 
 
 class GestionUsuarioForm(forms.ModelForm):
@@ -466,8 +556,7 @@ class GestionUsuarioForm(forms.ModelForm):
             'class': 'form-control',
             'placeholder': 'Documento (10 dígitos)',
             'pattern': '[0-9]{10}',
-            'maxlength': '10',
-            'readonly': 'readonly'  # No permitir cambiar documento una vez creado
+            'maxlength': '10'
         }),
     )
 
@@ -697,7 +786,6 @@ class LoginForm(AuthenticationForm):
     )
 
     def clean(self):
-        cleaned = super().clean()
         usuario_o_documento = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
         User = get_user_model()
@@ -715,9 +803,17 @@ class LoginForm(AuthenticationForm):
 
             if user is None:
                 raise forms.ValidationError('Credenciales inválidas, verifica tu usuario/documento y contraseña.')
+
+            # Verificar que el usuario pueda iniciar sesión
             self.confirm_login_allowed(user)
             self._user = user
-        return cleaned
+        else:
+            if not usuario_o_documento:
+                raise forms.ValidationError('El campo de usuario/documento es obligatorio.')
+            if not password:
+                raise forms.ValidationError('El campo de contraseña es obligatorio.')
+
+        return self.cleaned_data
 
     def get_user(self):
         return getattr(self, '_user', None)

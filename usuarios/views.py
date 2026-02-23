@@ -7,9 +7,8 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, 
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 
-from .forms import RegistroForm, LoginForm, EditarPerfilForm, GestionUsuarioForm
+from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message
 from .decorators import panel_login_required, superadmin_required
 
@@ -361,31 +360,37 @@ class RestablecerPasswordCompletoView(PasswordResetCompleteView):
 # 👥 GESTIÓN DE USUARIOS (SOLO SUPERADMINS)
 # ========================================
 
-@superadmin_required
+@login_required
 def lista_usuarios_view(request):
     """
     Lista todos los usuarios del sistema.
-    Solo accesible para superadmins.
-    
+    Accesible para todos los usuarios autenticados.
+
     Características:
-    - Muestra todos los usuarios registrados
-    - Información combinada de User y Perfil
+    - El usuario en sesión se muestra primero en sección separada "Mi Usuario"
+    - Solo puede editar/eliminar su propio perfil
+    - Los demás usuarios se muestran en "Otros Usuarios" (solo lectura)
+    - Validaciones en backend contra manipulación de URLs
     - Estadísticas en tiempo real
-    - Acciones: Ver, Editar, Desactivar/Activar
 
     URL: /panel/usuarios/
     """
-    usuarios = User.objects.all().select_related('perfil').order_by('-date_joined')
+    # Obtener el usuario actual
+    usuario_actual = request.user
+
+    # Obtener todos los usuarios excepto el actual
+    otros_usuarios = User.objects.exclude(id=usuario_actual.id).select_related('perfil').order_by('-date_joined')
 
     # Calcular estadísticas
-    total_usuarios = usuarios.count()
-    usuarios_activos = usuarios.filter(is_active=True).count()
-    superadmins = usuarios.filter(is_superuser=True).count()
-    admins = usuarios.filter(is_staff=True, is_superuser=False).count()
-    usuarios_normales = usuarios.filter(is_staff=False).count()
+    total_usuarios = User.objects.count()
+    usuarios_activos = User.objects.filter(is_active=True).count()
+    superadmins = User.objects.filter(is_superuser=True).count()
+    admins = User.objects.filter(is_staff=True, is_superuser=False).count()
+    usuarios_normales = User.objects.filter(is_staff=False).count()
 
     context = {
-        'usuarios': usuarios,
+        'usuario_actual': usuario_actual,
+        'otros_usuarios': otros_usuarios,
         'total_usuarios': total_usuarios,
         'usuarios_activos': usuarios_activos,
         'superadmins': superadmins,
@@ -402,14 +407,23 @@ def crear_usuario_view(request):
     Solo accesible para superadmins.
     
     Características:
-    - Usa RegistroForm para crear usuario + perfil
+    - Usa formulario personalizado para crear usuario + perfil
     - El superadmin define si es activo, staff o superuser
     - Validaciones de seguridad en backend
 
     URL: /panel/usuarios/crear/
     """
     if request.method == 'POST':
-        form = RegistroForm(request.POST, request.FILES)
+        # Crear una copia mutable de POST para agregar los datos
+        post_data = request.POST.copy()
+
+        # Obtener los valores de permisos (checkboxes)
+        is_active = request.POST.get('is_active') == 'on'
+        is_staff = request.POST.get('is_staff') == 'on'
+        is_superuser = request.POST.get('is_superuser') == 'on'
+
+        # Crear el formulario base RegistroForm para manejar contraseñas
+        form = RegistroForm(post_data, request.FILES)
 
         if form.is_valid():
             try:
@@ -417,14 +431,13 @@ def crear_usuario_view(request):
                 usuario = form.save(commit=False)
 
                 # El superadmin decide el estado inicial
-                # Por defecto: activo y staff (acceso al panel)
-                usuario.is_staff = request.POST.get('is_staff') == 'on'
-                usuario.is_active = request.POST.get('is_active', 'on') == 'on'
-                usuario.is_superuser = request.POST.get('is_superuser') == 'on'
+                usuario.is_staff = is_staff
+                usuario.is_active = is_active
+                usuario.is_superuser = is_superuser
 
                 usuario.save()
 
-                # Actualizar perfil
+                # Actualizar perfil (la señal ya lo creó)
                 perfil = usuario.perfil
                 perfil.telefono = form.cleaned_data.get('telefono', '')
                 perfil.direccion = form.cleaned_data.get('direccion', '')
@@ -451,96 +464,141 @@ def crear_usuario_view(request):
                     extra_tags='level-error field-general'
                 )
         else:
-            messages.warning(
-                request,
-                '⚠️ Revisa los campos resaltados y corrige los errores.',
-                extra_tags='level-warning field-general'
-            )
+            # Mostrar errores específicos
+            error_mostrado = False
+
+            if 'documento' in form.errors:
+                documento_value = request.POST.get('documento', '')
+                messages.error(
+                    request,
+                    f'El documento {documento_value} ya está registrado.',
+                    extra_tags='level-error field-documento'
+                )
+                error_mostrado = True
+
+            if 'email' in form.errors:
+                email_value = request.POST.get('email', '')
+                messages.error(
+                    request,
+                    f'El correo electrónico {email_value} ya está registrado.',
+                    extra_tags='level-error field-email'
+                )
+                error_mostrado = True
+
+            if 'username' in form.errors:
+                username_value = request.POST.get('username', '')
+                messages.error(
+                    request,
+                    f'El nombre de usuario "{username_value}" ya está en uso.',
+                    extra_tags='level-error field-username'
+                )
+                error_mostrado = True
+
+            if not error_mostrado:
+                messages.warning(
+                    request,
+                    '⚠️ Revisa los campos resaltados y corrige los errores.',
+                    extra_tags='level-warning field-general'
+                )
     else:
         form = RegistroForm()
-    
+        # Establecer valores por defecto para los checkboxes
+        is_active = True
+        is_staff = False
+        is_superuser = False
+
     context = {
         'form': form,
         'titulo': 'Crear Nuevo Usuario',
         'boton_texto': 'Crear Usuario',
+        'is_active': is_active if request.method == 'POST' else True,
+        'is_staff': is_staff if request.method == 'POST' else False,
+        'is_superuser': is_superuser if request.method == 'POST' else False,
     }
     return render(request, 'usuarios/crear_usuario.html', context)
 
 
-@superadmin_required
+@login_required
 def editar_usuario_view(request, user_id):
     """
-    Edita un usuario existente (por superadmin).
-    Solo accesible para superadmins.
-    
+    Edita un usuario existente.
+
     Restricciones de seguridad:
-    - Un superadmin puede editar cualquier usuario
-    - Un superadmin NO puede quitarse a sí mismo el rol de superadmin
-    - Un superadmin NO puede desactivarse a sí mismo
-    - Todas las validaciones se replican en backend (no confiar en frontend)
+    - Un usuario SOLO puede editar su propio perfil (validación en backend)
+    - No puede editar otros usuarios
+    - Protección contra manipulación manual de URLs
+    - Cambios críticos requieren confirmación (documento)
+    - Redirige con mensaje de error si intenta editar otro usuario
 
     Validaciones:
     - Username único (excepto el usuario actual)
     - Email único (excepto el usuario actual)
     - Documento único (excepto el usuario actual)
-    - No permitir superadmin inactivo
-    - No permitir que el usuario actual se quite privilegios
+    - Confirmación requerida para cambio de documento
 
     URL: /panel/usuarios/<id>/editar/
     """
     usuario = get_object_or_404(User, id=user_id)
     
-    # Validación: Prevenir auto-edición peligrosa
-    es_auto_edicion = (usuario.id == request.user.id)
+    # 🔒 VALIDACIÓN CRÍTICA: Solo puede editar su propio perfil
+    if usuario.id != request.user.id:
+        messages.error(
+            request,
+            '⛔ No tienes permiso para editar este usuario. Solo puedes editar tu propio perfil.',
+            extra_tags='level-error field-general'
+        )
+        return redirect('usuarios:lista_usuarios')
 
     if request.method == 'POST':
-        # Usar GestionUsuarioForm con validaciones de seguridad
-        form = GestionUsuarioForm(
+        # Verificar si el documento cambió
+        documento_original = usuario.documento
+        documento_nuevo = request.POST.get('documento', '')
+        documento_cambio = documento_original != documento_nuevo
+
+        # Si el documento cambió, verificar confirmación
+        if documento_cambio:
+            confirmar_documento = request.POST.get('confirmar_cambio_documento', '')
+            if confirmar_documento != 'CONFIRMAR':
+                messages.error(
+                    request,
+                    '⚠️ Para cambiar el documento debes marcar la casilla de confirmación y escribir "CONFIRMAR" en el campo.',
+                    extra_tags='level-error field-documento'
+                )
+                form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
+                context = {
+                    'form': form,
+                    'usuario': usuario,
+                    'es_auto_edicion': True,
+                    'titulo': 'Editar Mi Perfil',
+                    'boton_texto': 'Guardar Cambios',
+                    'documento_original': documento_original,
+                }
+                return render(request, 'usuarios/editar_usuario.html', context)
+
+        # Usar EditarPerfilForm (formulario completo con todos los campos)
+        form = EditarPerfilForm(
             request.POST,
             request.FILES,
             instance=usuario,
-            current_user=request.user
+            editing_user=request.user  # Pasar usuario que está editando
         )
 
         if form.is_valid():
             try:
-                # Validación adicional backend: No permitir auto-desactivación
-                if es_auto_edicion and not form.cleaned_data.get('is_active'):
-                    messages.error(
-                        request,
-                        '⛔ No puedes desactivar tu propia cuenta.',
-                        extra_tags='level-error field-general'
-                    )
-                    return redirect('usuarios:editar_usuario', user_id=user_id)
-
-                # Validación adicional backend: No permitir quitarse superadmin
-                if es_auto_edicion and request.user.is_superuser and not form.cleaned_data.get('is_superuser'):
-                    messages.error(
-                        request,
-                        '⛔ No puedes quitarte el rol de superadministrador.',
-                        extra_tags='level-error field-general'
-                    )
-                    return redirect('usuarios:editar_usuario', user_id=user_id)
-
                 # Guardar cambios
                 form.save()
 
                 messages.success(
                     request,
-                    f'✅ Usuario <strong>{usuario.username}</strong> actualizado correctamente.',
+                    f'✅ Tu perfil ha sido actualizado correctamente.',
                     extra_tags='level-success field-general'
                 )
-
-                # Si editó su propio perfil, redirigir al perfil
-                if es_auto_edicion:
-                    return redirect('usuarios:perfil')
-                else:
-                    return redirect('usuarios:lista_usuarios')
+                return redirect('usuarios:perfil')
 
             except Exception as e:
                 messages.error(
                     request,
-                    f'❌ Error al actualizar usuario: {str(e)}',
+                    f'❌ Error al actualizar perfil: {str(e)}',
                     extra_tags='level-error field-general'
                 )
         else:
@@ -551,17 +609,18 @@ def editar_usuario_view(request, user_id):
                 extra_tags='level-warning field-general'
             )
     else:
-        form = GestionUsuarioForm(
+        form = EditarPerfilForm(
             instance=usuario,
-            current_user=request.user
+            editing_user=request.user  # Pasar usuario que está editando
         )
 
     context = {
         'form': form,
         'usuario': usuario,
-        'es_auto_edicion': es_auto_edicion,
-        'titulo': 'Editar Usuario',
+        'es_auto_edicion': True,  # Siempre True porque solo puede editar su propio perfil
+        'titulo': 'Editar Mi Perfil',
         'boton_texto': 'Guardar Cambios',
+        'documento_original': usuario.documento,
     }
     return render(request, 'usuarios/editar_usuario.html', context)
 
@@ -626,25 +685,29 @@ def desactivar_usuario_view(request, user_id):
     return render(request, 'usuarios/desactivar_usuario.html', context)
 
 
-@superadmin_required
+@login_required
 def visualizar_usuario_view(request, user_id):
     """
     Muestra el detalle completo de un usuario (solo lectura).
-    Solo accesible para superadmins.
+    Accesible para todos los usuarios autenticados.
 
     Características:
     - Información completa del usuario y perfil
-    - Historial de actividad (futuro)
-    - Permisos y roles
-    - No permite edición (solo visualización)
+    - Todos pueden ver cualquier usuario
+    - Solo botones de edición/eliminación si es el propio usuario
+    - Protección contra manipulación de URLs en backend
 
     URL: /panel/usuarios/<id>/ver/
     """
     usuario = get_object_or_404(User.objects.select_related('perfil'), id=user_id)
 
+    # Verificar si el usuario está viendo su propio perfil
+    es_propio_perfil = (usuario.id == request.user.id)
+
     context = {
         'usuario': usuario,
         'perfil': usuario.perfil,
+        'es_propio_perfil': es_propio_perfil,
     }
     return render(request, 'usuarios/visualizar_usuario.html', context)
 
@@ -676,19 +739,19 @@ def activar_usuario_view(request, user_id):
     return render(request, 'usuarios/activar_usuario.html', context)
 
 
-@superadmin_required
+@login_required
 def eliminar_usuario_view(request, user_id):
     """
     Elimina PERMANENTEMENTE un usuario de la base de datos.
-    Solo accesible para superadmins.
 
     ⚠️ OPERACIÓN CRÍTICA - DESTRUCCIÓN DE DATOS ⚠️
 
     Restricciones de seguridad:
-    - Un superadmin NO puede eliminarse a sí mismo
-    - Un superadmin NO puede eliminar a otro superadmin
-    - Requiere doble confirmación (checkbox + POST)
+    - Un usuario SOLO puede eliminar su propia cuenta (validación en backend)
+    - No puede eliminar otros usuarios
+    - Requiere doble confirmación (escribir "ELIMINAR" + POST)
     - NO es reversible (elimina permanentemente)
+    - Protección contra manipulación manual de URLs
 
     Recomendación: Usar desactivar_usuario_view en lugar de esta función.
 
@@ -696,21 +759,11 @@ def eliminar_usuario_view(request, user_id):
     """
     usuario = get_object_or_404(User, id=user_id)
 
-    # Validación 1: Prevenir auto-eliminación
-    if usuario.id == request.user.id:
+    # 🔒 VALIDACIÓN CRÍTICA: Solo puede eliminar su propio perfil
+    if usuario.id != request.user.id:
         messages.error(
             request,
-            '⛔ No puedes eliminar tu propia cuenta.',
-            extra_tags='level-error field-general'
-        )
-        return redirect('usuarios:lista_usuarios')
-
-    # Validación 2: Prevenir eliminación de superadmins
-    if usuario.is_superuser:
-        messages.error(
-            request,
-            '⛔ No puedes eliminar a un superadministrador. '
-            'Esta operación no está permitida por seguridad.',
+            '⛔ No tienes permiso para eliminar este usuario. Solo puedes eliminar tu propia cuenta.',
             extra_tags='level-error field-general'
         )
         return redirect('usuarios:lista_usuarios')
@@ -721,14 +774,19 @@ def eliminar_usuario_view(request, user_id):
 
         if confirmacion == 'ELIMINAR':
             username = usuario.username
+
+            # Cerrar sesión antes de eliminar
+            auth_logout(request)
+
+            # Eliminar usuario
             usuario.delete()
 
             messages.warning(
                 request,
-                f'⚠️ Usuario <strong>{username}</strong> eliminado permanentemente.',
+                f'⚠️ Tu cuenta <strong>{username}</strong> ha sido eliminada permanentemente.',
                 extra_tags='level-warning field-general'
             )
-            return redirect('usuarios:lista_usuarios')
+            return redirect('core:index')  # Redirigir al inicio público
         else:
             messages.error(
                 request,

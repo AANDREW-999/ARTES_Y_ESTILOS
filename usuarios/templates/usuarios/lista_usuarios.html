@@ -26,19 +26,21 @@
         </nav>
     </div>
 
-    <!-- Header con botón de crear -->
+    <!-- Header -->
     <div class="page-header">
         <div class="page-header-info">
             <h1>
                 <i class="bi bi-people-fill"></i>
                 Gestión de Usuarios
             </h1>
-            <p>Administra los usuarios del sistema</p>
+            <p>Visualiza tu perfil y los demás usuarios del sistema</p>
         </div>
-        <a href="{% url 'usuarios:crear_usuario' %}" class="btn-crear-usuario">
-            <i class="bi bi-person-plus-fill"></i>
-            Nuevo Usuario
-        </a>
+        <div class="page-header-actions">
+            <a href="{% url 'usuarios:crear_usuario' %}" class="btn-primary-custom">
+                <i class="bi bi-person-plus-fill"></i>
+                <span>Nuevo Usuario</span>
+            </a>
+        </div>
     </div>
 
     <!-- Estadísticas -->
@@ -84,117 +86,200 @@
         </div>
     </div>
 
-    <!-- Tabla de usuarios -->
-    <div class="usuarios-table-container">
-        <table class="usuarios-table">
-            <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Documento</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th>Fecha Registro</th>
-                    <th style="text-align: center;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td>
-                        <div class="usuario-avatar-wrapper">
-                            {% if usuario.perfil.foto_perfil %}
-                                <img src="{{ usuario.perfil.foto_perfil.url }}"
-                                     alt="{{ usuario.get_full_name }}"
-                                     class="usuario-avatar">
-                            {% else %}
-                                <div class="usuario-avatar-placeholder">
-                                    {% if usuario.first_name and usuario.last_name %}
-                                        {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
-                                    {% else %}
-                                        {{ usuario.username.0|upper }}
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                            <div class="usuario-info">
-                                <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>
-                                <small>@{{ usuario.username }}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>{{ usuario.email }}</td>
-                    <td>{{ usuario.documento }}</td>
-                    <td>
-                        {% if usuario.is_superuser %}
-                            <span class="badge-rol badge-superadmin">
-                                <i class="bi bi-shield-fill-check"></i> SuperAdmin
-                            </span>
-                        {% elif usuario.is_staff %}
-                            <span class="badge-rol badge-admin">
-                                <i class="bi bi-person-badge-fill"></i> Admin
-                            </span>
-                        {% else %}
-                            <span class="badge-rol badge-usuario">
-                                <i class="bi bi-person-fill"></i> Usuario
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if usuario.is_active %}
-                            <span class="badge-estado badge-activo">
-                                <i class="bi bi-check-circle-fill"></i> Activo
-                            </span>
-                        {% else %}
-                            <span class="badge-estado badge-inactivo">
-                                <i class="bi bi-x-circle-fill"></i> Inactivo
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
-                    <td>
-                        <div class="acciones-wrapper">
-                            <a href="{% url 'usuarios:visualizar_usuario' usuario.id %}"
-                               class="btn-action btn-ver"
-                               title="Ver detalles">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-
-                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
-                               class="btn-action btn-editar"
-                               title="Editar usuario">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-
-                            {% if usuario.id != user.id %}
-                                {% if usuario.is_active %}
-                                    <a href="{% url 'usuarios:desactivar_usuario' usuario.id %}"
-                                       class="btn-action btn-desactivar"
-                                       title="Desactivar usuario">
-                                        <i class="bi bi-person-slash"></i>
-                                    </a>
+    <!-- Sección: Mi Usuario -->
+    <div class="seccion-mi-usuario">
+        <h2 class="seccion-titulo">
+            <i class="bi bi-person-circle"></i>
+            Mi Usuario
+        </h2>
+        <div class="usuarios-table-container">
+            <table class="usuarios-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th style="text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="fila-usuario-actual">
+                        <td>
+                            <div class="usuario-avatar-wrapper">
+                                {% if usuario_actual.perfil.foto_perfil %}
+                                    <img src="{{ usuario_actual.perfil.foto_perfil.url }}"
+                                         alt="{{ usuario_actual.get_full_name }}"
+                                         class="usuario-avatar">
                                 {% else %}
-                                    <a href="{% url 'usuarios:activar_usuario' usuario.id %}"
-                                       class="btn-action btn-activar"
-                                       title="Activar usuario">
-                                        <i class="bi bi-person-check"></i>
-                                    </a>
+                                    <div class="usuario-avatar-placeholder">
+                                        {% if usuario_actual.first_name and usuario_actual.last_name %}
+                                            {{ usuario_actual.first_name.0 }}{{ usuario_actual.last_name.0 }}
+                                        {% else %}
+                                            {{ usuario_actual.username.0|upper }}
+                                        {% endif %}
+                                    </div>
                                 {% endif %}
+                                <div class="usuario-info">
+                                    <strong>{{ usuario_actual.get_full_name|default:usuario_actual.username }}</strong>
+                                    <small>@{{ usuario_actual.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ usuario_actual.email }}</td>
+                        <td>
+                            {% if usuario_actual.is_superuser %}
+                                <span class="badge-rol badge-superadmin">
+                                    <i class="bi bi-shield-fill-check"></i> SuperAdmin
+                                </span>
+                            {% elif usuario_actual.is_staff %}
+                                <span class="badge-rol badge-admin">
+                                    <i class="bi bi-person-badge-fill"></i> Admin
+                                </span>
+                            {% else %}
+                                <span class="badge-rol badge-usuario">
+                                    <i class="bi bi-person-fill"></i> Usuario
+                                </span>
                             {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7">
-                        <div class="empty-state">
-                            <i class="bi bi-people"></i>
-                            <p>No hay usuarios registrados en el sistema.</p>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td>
+                            {% if usuario_actual.is_active %}
+                                <span class="badge-estado badge-activo">
+                                    <i class="bi bi-check-circle-fill"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="badge-estado badge-inactivo">
+                                    <i class="bi bi-x-circle-fill"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="acciones-wrapper">
+                                <a href="{% url 'usuarios:visualizar_usuario' usuario_actual.id %}"
+                                   class="btn-action btn-ver"
+                                   title="Ver detalles">
+                                    <i class="bi bi-eye-fill"></i>
+                                    <span>Detalles</span>
+                                </a>
+
+                                <a href="{% url 'usuarios:editar_usuario' usuario_actual.id %}"
+                                   class="btn-action btn-editar"
+                                   title="Editar mi perfil">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span>Editar</span>
+                                </a>
+
+                                <a href="{% url 'usuarios:eliminar_usuario' usuario_actual.id %}"
+                                   class="btn-action btn-eliminar"
+                                   title="Eliminar mi cuenta">
+                                    <i class="bi bi-trash-fill"></i>
+                                    <span>Eliminar</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sección: Otros Usuarios -->
+    <div class="seccion-otros-usuarios">
+        <h2 class="seccion-titulo">
+            <i class="bi bi-people-fill"></i>
+            Otros Usuarios
+        </h2>
+        <div class="usuarios-table-container">
+            <table class="usuarios-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th style="text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in otros_usuarios %}
+                    <tr>
+                        <td>
+                            <div class="usuario-avatar-wrapper">
+                                {% if usuario.perfil.foto_perfil %}
+                                    <img src="{{ usuario.perfil.foto_perfil.url }}"
+                                         alt="{{ usuario.get_full_name }}"
+                                         class="usuario-avatar">
+                                {% else %}
+                                    <div class="usuario-avatar-placeholder">
+                                        {% if usuario.first_name and usuario.last_name %}
+                                            {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
+                                        {% else %}
+                                            {{ usuario.username.0|upper }}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                <div class="usuario-info">
+                                    <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>
+                                    <small>@{{ usuario.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            {% if usuario.is_superuser %}
+                                <span class="badge-rol badge-superadmin">
+                                    <i class="bi bi-shield-fill-check"></i> SuperAdmin
+                                </span>
+                            {% elif usuario.is_staff %}
+                                <span class="badge-rol badge-admin">
+                                    <i class="bi bi-person-badge-fill"></i> Admin
+                                </span>
+                            {% else %}
+                                <span class="badge-rol badge-usuario">
+                                    <i class="bi bi-person-fill"></i> Usuario
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.is_active %}
+                                <span class="badge-estado badge-activo">
+                                    <i class="bi bi-check-circle-fill"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="badge-estado badge-inactivo">
+                                    <i class="bi bi-x-circle-fill"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="acciones-wrapper">
+                                <a href="{% url 'usuarios:visualizar_usuario' usuario.id %}"
+                                   class="btn-action btn-ver"
+                                   title="Ver detalles">
+                                    <i class="bi bi-eye-fill"></i>
+                                    <span>Detalles</span>
+                                </a>
+
+                                <!-- Los otros usuarios NO tienen acciones de editar/eliminar -->
+                                <span class="badge-readonly">
+                                    <i class="bi bi-lock-fill"></i> Solo lectura
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="bi bi-people"></i>
+                                <p>No hay otros usuarios registrados en el sistema.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

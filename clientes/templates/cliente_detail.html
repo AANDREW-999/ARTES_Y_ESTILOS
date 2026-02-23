@@ -1,52 +1,92 @@
-               {% extends 'core/panel_admin_base.html' %}
+{% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
 {% block page_title %}Detalle Cliente{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="mb-0">Detalle de Cliente</h5>
-    <div>
-        <a href="{% url 'clientes:editar_cliente' cliente.pk %}" class="btn btn-sm btn-primary">
+    <h5 class="mb-0 fw-semibold">Detalle de Cliente</h5>
+
+    <div class="d-flex gap-2">
+        <a href="{% url 'clientes:editar_cliente' cliente.pk %}" class="btn btn-sm btn-primary shadow-sm">
             <i class="bi bi-pencil-square"></i> Editar
         </a>
-        <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-sm btn-secondary">
+
+        <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-sm btn-light border shadow-sm">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <dl class="row mb-0">
-            <dt class="col-sm-3">ID</dt>
-            <dd class="col-sm-9">{{ cliente.id }}</dd>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
 
-            <dt class="col-sm-3">Documento</dt>
-            <dd class="col-sm-9">{{ cliente.tipo_documento }} - {{ cliente.documento }}</dd>
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-light rounded-circle p-3 me-3">
+                <i class="bi bi-person fs-4"></i>
+            </div>
 
-            <dt class="col-sm-3">Nombre</dt>
-            <dd class="col-sm-9">{{ cliente.nombre }} {{ cliente.apellido }}</dd>
+            <div>
+                <div class="text-muted small">Cliente</div>
+                <div class="fw-bold fs-5">
+                    {{ cliente.nombre }} {{ cliente.apellido }}
+                </div>
+            </div>
+        </div>
 
-            <dt class="col-sm-3">Teléfono</dt>
-            <dd class="col-sm-9">{{ cliente.telefono|default:'-' }}</dd>
+        <div class="row g-4">
 
-            <dt class="col-sm-3">Correo electrónico</dt>
-            <dd class="col-sm-9">{{ cliente.correo_electronico|default:'-' }}</dd>
+            <div class="col-md-6">
+                <div class="small text-muted">Documento</div>
+                <div class="fw-semibold">
+                    {{ cliente.tipo_documento }} - {{ cliente.documento }}
+                </div>
+            </div>
 
-            <dt class="col-sm-3">Dirección</dt>
-            <dd class="col-sm-9">{{ cliente.direccion|default:'-' }}</dd>
+            <div class="col-md-6">
+                <div class="small text-muted">Teléfono</div>
+                <div class="fw-semibold">
+                    {{ cliente.telefono|default:'No registrado' }}
+                </div>
+            </div>
 
-            <dt class="col-sm-3">Ciudad</dt>
-            <dd class="col-sm-9">{{ cliente.ciudad|default:'-' }}</dd>
+            <div class="col-md-6">
+                <div class="small text-muted">Correo electrónico</div>
+                <div class="fw-semibold">
+                    {{ cliente.correo_electronico|default:'No registrado' }}
+                </div>
+            </div>
 
-            <dt class="col-sm-3">Departamento</dt>
-            <dd class="col-sm-9">{{ cliente.departamento|default:'-' }}</dd>
+            <div class="col-md-6">
+                <div class="small text-muted">Dirección</div>
+                <div class="fw-semibold">
+                    {{ cliente.direccion|default:'No registrada' }}
+                </div>
+            </div>
 
-            <dt class="col-sm-3">Creado</dt>
-            <dd class="col-sm-9">{{ cliente.created_at }}</dd>
-        </dl>
+            <div class="col-md-6">
+                <div class="small text-muted">Ciudad</div>
+                <div class="fw-semibold">
+                    {{ cliente.ciudad|default:'-' }}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="small text-muted">Departamento</div>
+                <div class="fw-semibold">
+                    {{ cliente.departamento|default:'-' }}
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="small text-muted">Fecha de registro</div>
+                <div class="fw-semibold">
+                    {{ cliente.created_at }}
+                </div>
+            </div>
+
+        </div>
+
     </div>
 </div>
-
 {% endblock %}

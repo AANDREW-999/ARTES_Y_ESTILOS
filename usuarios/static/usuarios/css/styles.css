@@ -1,9 +1,19 @@
+/* Variables CSS (fallback si no se cargan del CSS principal) */
+:root {
+  --vino-oscuro: #59282C;
+  --rosa-intenso: #BF5486;
+  --rosa-suave: #D9A7C2;
+  --verde-claro: #D6D97E;
+  --beige-claro: #F2E7DC;
+}
+
 /* Fondo slideshow a pantalla completa */
 #bg-slideshow {
   position: fixed;
   inset: 0;
-  z-index: -1; /* detrás del contenido */
+  z-index: 0; /* detrás del contenido */
   overflow: hidden;
+  pointer-events: none; /* evitar que el fondo capture clicks */
 }
 #bg-slideshow .slide {
   position: absolute;
@@ -23,9 +33,10 @@
 
 body {
     background: transparent; /* el fondo lo pone el slideshow */
-    min-height: auto;
+    min-height: 100vh;
     display: block;
     overflow-x: hidden;
+    position: relative;
 }
 
 .login-page {
@@ -34,7 +45,9 @@ body {
     display: flex;
     justify-content: center;
     position: relative;
-    z-index: 1;
+    z-index: 10;
+    min-height: 100vh;
+    align-items: center;
 }
 
 .login-page .row {

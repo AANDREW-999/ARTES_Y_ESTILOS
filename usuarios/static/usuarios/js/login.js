@@ -209,8 +209,17 @@
       const usernameInput = document.getElementById('id_username');
       if (!usernameInput) return;
 
+      // Crear el elemento de ayuda si no existe
+      let helpBadge = document.getElementById('username-help');
+      if (!helpBadge) {
+        helpBadge = document.createElement('div');
+        helpBadge.id = 'username-help';
+        helpBadge.className = 'form-text text-muted mt-1';
+        helpBadge.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (10 dígitos)';
+      }
+
       const formFloating = usernameInput.closest('.form-floating');
-      if (formFloating) {
+      if (formFloating && !document.getElementById('username-help')) {
         formFloating.parentNode.insertBefore(helpBadge, formFloating.nextSibling);
       }
 
@@ -218,24 +227,27 @@
       usernameInput.addEventListener('input', (e) => {
         const value = e.target.value.trim();
         const isNumeric = /^\d+$/.test(value);
-        
+        const helpBadgeElement = document.getElementById('username-help');
+
+        if (!helpBadgeElement) return;
+
         if (isNumeric) {
           if (value.length === 10) {
-            helpBadge.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Documento válido detectado';
-            helpBadge.className = 'form-text text-success mt-1';
+            helpBadgeElement.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Documento válido detectado';
+            helpBadgeElement.className = 'form-text text-success mt-1';
           } else if (value.length > 0 && value.length < 10) {
-            helpBadge.innerHTML = `<i class="bi bi-hash me-1"></i>Documento: ${value.length}/10 dígitos`;
-            helpBadge.className = 'form-text text-primary mt-1';
+            helpBadgeElement.innerHTML = `<i class="bi bi-hash me-1"></i>Documento: ${value.length}/10 dígitos`;
+            helpBadgeElement.className = 'form-text text-primary mt-1';
           } else if (value.length > 10) {
-            helpBadge.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>El documento debe tener exactamente 10 dígitos';
-            helpBadge.className = 'form-text text-warning mt-1';
+            helpBadgeElement.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>El documento debe tener exactamente 10 dígitos';
+            helpBadgeElement.className = 'form-text text-warning mt-1';
           }
         } else if (value.length > 0) {
-          helpBadge.innerHTML = '<i class="bi bi-person-circle text-primary me-1"></i>Usuario detectado';
-          helpBadge.className = 'form-text text-primary mt-1';
+          helpBadgeElement.innerHTML = '<i class="bi bi-person-circle text-primary me-1"></i>Usuario detectado';
+          helpBadgeElement.className = 'form-text text-primary mt-1';
         } else {
-          helpBadge.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (10 dígitos)';
-          helpBadge.className = 'form-text text-muted mt-1';
+          helpBadgeElement.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (10 dígitos)';
+          helpBadgeElement.className = 'form-text text-muted mt-1';
         }
       });
 

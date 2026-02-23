@@ -678,7 +678,7 @@ body {
   transition: opacity 0.3s ease;
 }
 
-/* Badge de ayuda para documento */
+/* Badge de ayuda para documento (arriba del campo) */
 #username-help {
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
@@ -686,34 +686,43 @@ body {
   border-left: 3px solid #6c757d;
   font-weight: 500;
   animation: slideDown 0.3s ease;
+  margin-bottom: 0.95rem !important;
 }
 
 #username-help.text-success {
   background: rgba(40, 167, 69, 0.1);
   border-left-color: #28a745;
   color: #155724 !important;
+  margin-bottom: 2rem !important;
 }
 
 #username-help.text-primary {
   background: rgba(191, 84, 134, 0.1);
   border-left-color: #BF5486;
   color: #59282C !important;
+  margin-bottom: 2rem !important;
 }
 
 #username-help.text-warning {
   background: rgba(255, 193, 7, 0.1);
   border-left-color: #ffc107;
   color: #856404 !important;
+  margin-bottom: 2rem !important;
+}
+
+#username-help.text-muted {
+  background: rgba(108, 117, 125, 0.05);
+  border-left-color: #6c757d;
+  color: #6c757d !important;
+  margin-bottom: 2rem !important;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-5px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 

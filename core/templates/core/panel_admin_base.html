@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Panel Administrativo{% endblock %} - Mi Proyecto SENA</title>
+    <title>{% block title %}Panel Administrativo{% endblock %} - Artes Y Estilosi</title>
 
     <!-- Favicon -->
     {% load static %}
@@ -27,7 +27,7 @@
     {% bootstrap_javascript %}
 
     <!-- CSS personalizado del dashboard (después de Bootstrap para override correcto) -->
-    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}?v=20260203">
+    <link rel="stylesheet" href="{% static 'core/css/panel_admin_base.css' %}?v=20260221">
 
     <!-- CSS adicional de cada página -->
     {% block extra_css %}{% endblock %}
@@ -67,7 +67,7 @@
             <ul class="nav flex-column">
 
                 <li class="nav-item">
-                    <a href="{% url 'usuarios:perfil' %}" class="nav-link">
+                    <a href="{% url 'usuarios:perfil' %}" class="nav-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
                         <i class="bi bi-person-circle"></i>
                         <span>Mi Perfil</span>
                     </a>
@@ -266,16 +266,21 @@
                 <button class="btn btn-toggle" id="sidebar-toggle">
                     <i class="bi bi-list"></i>
                 </button>
-                <h4 class="page-title mb-0">{% block page_title %}Dashboard{% endblock %}</h4>
+                <h4 class="page-title">{% block page_title %}Dashboard{% endblock %}</h4>
             </div>
-            
+
             <div class="topbar-right">
                 <!-- Barra de búsqueda -->
                 <div class="search-box">
                     <i class="bi bi-search"></i>
                     <input type="text" class="form-control" placeholder="Buscar...">
                 </div>
-                
+
+                <!-- Botón de Modo Oscuro/Claro -->
+                <button class="btn btn-icon" id="theme-toggle" title="Cambiar tema">
+                    <i class="bi bi-moon-stars-fill" id="theme-icon"></i>
+                </button>
+
                 <!-- Notificaciones -->
                 <div class="dropdown">
                     <button class="btn btn-icon" data-bs-toggle="dropdown">
@@ -316,17 +321,6 @@
             </div>
         </div>
 
-        <!-- Breadcrumb (opcional) -->
-        {% block breadcrumb %}
-        <nav aria-label="breadcrumb" class="breadcrumb-nav">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-                {% block breadcrumb_items %}
-                {% endblock %}
-            </ol>
-        </nav>
-        {% endblock %}
-        
         <!-- Contenido Principal -->
         <div class="content-wrapper">
             {% block content %}
@@ -349,11 +343,50 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <!-- JavaScript del dashboard -->
-    <script src="{% static 'js/dashboard.js' %}"></script>
-    
+    <script src="{% static 'js/dashboard.js' %}?v=20260220"></script>
+
     <!-- Sistema de Toasts para Notificaciones -->
     <!-- JavaScript adicional de cada página -->
     {% block extra_js %}{% endblock %}
+
+    <!-- Script de Control de Tema Oscuro/Claro -->
+    <script>
+        (function() {
+            'use strict';
+
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const htmlElement = document.documentElement;
+            const bodyElement = document.body;
+
+            // Cargar tema guardado (por defecto oscuro)
+            const savedTheme = localStorage.getItem('adminTheme') || 'dark';
+            setTheme(savedTheme);
+
+            // Evento click para cambiar tema
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+                localStorage.setItem('adminTheme', newTheme);
+            });
+
+            function setTheme(theme) {
+                htmlElement.setAttribute('data-theme', theme);
+
+                if (theme === 'light') {
+                    bodyElement.classList.add('light-mode');
+                    themeIcon.className = 'bi bi-sun-fill';
+                    themeToggle.setAttribute('title', 'Cambiar a modo oscuro');
+                } else {
+                    bodyElement.classList.remove('light-mode');
+                    themeIcon.className = 'bi bi-moon-stars-fill';
+                    themeToggle.setAttribute('title', 'Cambiar a modo claro');
+                }
+            }
+        })();
+    </script>
+
     {% comment %}Widget de accesibilidad (se carga al final del body) - requiere accesibilidad_tags{% endcomment %}
     {% accesibilidad_widget %}
 </body>

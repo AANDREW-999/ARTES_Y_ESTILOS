@@ -85,15 +85,18 @@
                     <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
                 </div>
                 <div class="card-body">
+                    <a href="{% url 'usuarios:editar_perfil' %}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-person-circle"></i> Mi Perfil
+                    </a>
+
+                    {% if user.is_superuser %}
                     <a href="{% url 'usuarios:crear_usuario' %}" class="btn btn-primary me-2">
                         <i class="bi bi-person-plus"></i> Crear Usuario
                     </a>
                     <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-primary me-2">
                         <i class="bi bi-people"></i> Ver Usuarios
                     </a>
-                    <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-person-circle"></i> Mi Perfil
-                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -122,7 +125,7 @@
                             <tbody>
                                 {% for usuario in ultimos_usuarios %}
                                 <tr>
-                                    <td>{{ usuario.perfil.documento }}</td>
+                                    <td>{{ usuario.documento }}</td>
                                     <td>{{ usuario.get_full_name }}</td>
                                     <td>{{ usuario.email }}</td>
                                     <td>{{ usuario.date_joined|date:"d/m/Y H:i" }}</td>
@@ -134,10 +137,12 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{% url 'usuarios:editar_usuario' usuario.id %}" 
+                                        {% if user.is_superuser %}
+                                        <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% empty %}

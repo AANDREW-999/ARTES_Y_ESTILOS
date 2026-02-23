@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from catalogo.models import Producto
+from usuarios.decorators import panel_login_required
 
 from django.shortcuts import render
 
@@ -16,10 +16,11 @@ def PanelAdmin_base(request):
     return render(request, 'core/panel_admin_base.html')
 
 
-@login_required
+@panel_login_required
 def dashboard_view(request):
     """
-    Vista principal del panel de administración
+    Vista principal del panel de administración.
+    Requiere autenticación y permisos de staff.
     """
     User = get_user_model()
     # Estadísticas generales

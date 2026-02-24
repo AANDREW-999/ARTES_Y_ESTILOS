@@ -7,8 +7,9 @@ register = template.Library()
 @register.simple_tag
 def accesibilidad_widget():
     fa_css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
-    css_url = static('accessibility/css/accesibility.css')
-    js_url = static('accessibility/js/accessibility.js')
+    # Agrega una versión al final de la URL (puedes cambiar v1 por v2, v3, etc.)
+    css_url = static('accessibility/css/accesibility.css') + '?v=1.1'
+    js_url = static('accessibility/js/accessibility.js') + '?v=1.1'
     return mark_safe(f'''
         <link rel="stylesheet" href="{fa_css}">
         <link rel="stylesheet" href="{css_url}">
@@ -18,7 +19,7 @@ def accesibilidad_widget():
             <i class="fas fa-universal-access"></i>
             <div class="flower-decoration"></div>
         </div>
-
+ 
         <!-- Panel de opciones -->
         <div id="accPanel" class="acc-widget-panel floral-panel" style="display: none; max-height: 80vh; overflow-y: auto;">
             <div class="panel-header">

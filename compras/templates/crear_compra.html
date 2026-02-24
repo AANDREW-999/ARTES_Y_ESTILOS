@@ -11,87 +11,141 @@
 <div class="container-compra">
     <div class="compra-card">
         <h2 class="compra-titulo">Nueva Compra</h2>
-        
+
+        {# Mostrar errores del form si existen #}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Errores en el formulario:</strong>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li><b>{{ field }}:</b> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <form method="POST" id="formCompra">
             {% csrf_token %}
-            
+
             <div class="compra-grid">
                 <!-- Columna Izquierda -->
                 <div class="compra-col">
+
                     <!-- Proveedor -->
                     <div class="form-group">
-                        <label for="proveedor">Proveedor</label>
-                        <select name="proveedor" id="proveedor" class="form-control" required>
+                        <label for="id_proveedor">Proveedor *</label>
+                        <select name="proveedor" id="id_proveedor" class="form-control" required>
                             <option value="">Seleccione Proveedor</option>
                             {% for proveedor in proveedores %}
-                            <option value="{{ proveedor.id }}">{{ proveedor.nombre_proveedor }}</option>
+                            <option value="{{ proveedor.id }}"
+                                {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
+                                {{ proveedor.nombre_proveedor }}
+                            </option>
                             {% endfor %}
                         </select>
-                        
-                        <!-- Debug: Mostrar información de proveedores -->
-                        {% if proveedores %}
-                            <small class="text-muted">{{ proveedores|length }} proveedor(es) disponible(s)</small>
-                        {% else %}
-                            <small class="text-danger">⚠️ No hay proveedores disponibles. <a href="{% url 'proveedores:crear' %}">Crear proveedor</a></small>
+                        {% if form.proveedor.errors %}
+                            <small class="text-danger">{{ form.proveedor.errors|join:", " }}</small>
+                        {% endif %}
+                        {% if not proveedores %}
+                            <small class="text-danger">⚠️ No hay proveedores disponibles.
+                                <a href="{% url 'proveedores:crear' %}">Crear proveedor</a>
+                            </small>
                         {% endif %}
                     </div>
-                </div>
 
-                <div class="compra-col">
-                    <!-- Fecha de emisión -->
+                    <!-- Descripción -->
                     <div class="form-group">
-                        <label for="fecha_emision">Fecha de emisión</label>
-                        <input type="date" name="fecha_emision" id="fecha_emision" class="form-control" required>
+                        <label for="id_descripcion">Descripción</label>
+                        <textarea name="descripcion" id="id_descripcion" class="form-control"
+                                  rows="3" placeholder="Descripción de la compra...">{{ form.descripcion.value|default:'' }}</textarea>
+                        {% if form.descripcion.errors %}
+                            <small class="text-danger">{{ form.descripcion.errors|join:", " }}</small>
+                        {% endif %}
                     </div>
 
-                    <!-- Descuento -->
+
+                    <!-- Medio de Pago -->
                     <div class="form-group">
-                        <label for="descuento">Descuento</label>
-                        <div class="input-group">
-                            <input type="number" name="descuento" id="descuento" class="form-control" step="0.01" min="0" value="0">
-                            <span class="input-suffix">%</span>
+                        <label for="id_medio_pago">Medio de Pago</label>
+                        <select name="medio_pago" id="id_medio_pago" class="form-control">
+                            <option value="">Seleccione...</option>
+                            <option value="EFECTIVO" {% if form.medio_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
+                            <option value="TRANSFERENCIA" {% if form.medio_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+                            <option value="TARJETA" {% if form.medio_pago.value == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="compra-col">
+
+                    <!-- Fecha de Emisión -->
+                    <div class="form-group">
+                        <label for="id_fecha_emision">Fecha de Emisión *</label>
+                        <input type="date" name="fecha_emision" id="id_fecha_emision"
+                               class="form-control" required
+                               value="{{ form.fecha_emision.value|default:'' }}">
+                        {% if form.fecha_emision.errors %}
+                            <small class="text-danger">{{ form.fecha_emision.errors|join:", " }}</small>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sección de Productos -->
+            <div class="productos-section">
+                <h3 class="section-subtitle">Productos</h3>
+
+                <div id="productos-container">
+                    <!-- Producto Item Template -->
+                    <div class="producto-item">
+                        <div class="producto-grid">
+                            <div class="form-group">
+                                <label>RIF</label>
+                                <input type="text" name="rif[]" class="form-control form-control-sm rif-input" placeholder="RIF">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Precio *</label>
+                                <input type="text" name="precio[]"
+                                       class="form-control form-control-sm precio-input"
+                                       inputmode="decimal" placeholder="0,00" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Cantidad *</label>
+                                <input type="number" name="cantidad[]"
+                                       class="form-control form-control-sm cantidad-input"
+                                       min="1" value="1" placeholder="1" required>
+                            </div>
+
+                            <div class="form-group align-self-end">
+                                <button type="button" class="btn-eliminar-producto" title="Eliminar producto">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Sección de Productos -->
-            <!-- Sección de Productos -->
-<div class="productos-section">
-    <h3 class="section-subtitle">Productos</h3>
-    
-    <div id="productos-container">
-        <!-- Producto Item Template -->
-        <div class="producto-item">
-            <div class="producto-grid">
                 <div class="form-group">
-                    <label>RIF</label>
-                    <input type="text" name="rif[]" class="form-control form-control-sm rif-input" placeholder="RIF">
-                </div>
-                
-                <div class="form-group">
-                    <label>Precio</label>
-                    <input type="number" name="precio[]" class="form-control form-control-sm precio-input" step="0.01" min="0" placeholder="0.00" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Cantidad</label>
-                    <input type="number" name="cantidad[]" class="form-control form-control-sm cantidad-input" min="1" value="1" placeholder="1" required>
-                </div>
-                
-                <div class="form-group align-self-end">
-                    <button type="button" class="btn-eliminar-producto" title="Eliminar producto">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <button type="button" id="btnAgregarProducto" class="btn-agregar">
-        Agregar Artículo
-    </button>
+       {% comment %} <label>Categoría *</label>
+    <select name="categoria[]" class="form-control form-control-sm categoria-input" required>
+        <option value="">Seleccione...</option>
+        {% for cat in categorias %}
+            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+        {% endfor %}
+    </select> {% endcomment %}
 </div>
+
+                <button type="button" id="btnAgregarProducto" class="btn-agregar">
+                    Agregar Artículo
+                </button>
+            </div>
 
             <!-- Totales -->
             <div class="totales-section">
@@ -99,19 +153,11 @@
                     <span class="total-label">Subtotal</span>
                     <span class="total-value" id="subtotal">$0.00</span>
                 </div>
-                
                 <div class="total-item total-final">
                     <span class="total-label">Total</span>
                     <span class="total-value" id="total">$0.00</span>
                 </div>
             </div>
-
-            <!-- Botones de Acción -->
-            <div class="acciones-section">
-                <button type="button" id="btnAgregarImg" class="btn-secondary">
-                    Agregar Img/Boleta Pedido
-                </button>
-                
                 <div class="acciones-principales">
                     <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">Cancelar</a>
                     <button type="submit" class="btn-guardar">Guardar</button>
@@ -120,22 +166,6 @@
         </form>
     </div>
 </div>
-
-<div class="mt-3 p-3 border rounded bg-light" style="font-family: monospace; font-size: 12px;">
-    <strong> Debug Info:</strong><br>
-    Total proveedores en contexto: {{ proveedores|length }}<br>
-    {% if proveedores %}
-        <strong>Lista de proveedores:</strong>
-        <ul>
-        {% for proveedor in proveedores %}
-            <li>ID: {{ proveedor.id }} - Nombre: {{ proveedor.nombre_proveedor }} - Activo: {{ proveedor.activo }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <span class="text-danger"> No se encontraron proveedores</span>
-    {% endif %}
-</div>
-
 {% endblock %}
 
 {% block extra_js %}

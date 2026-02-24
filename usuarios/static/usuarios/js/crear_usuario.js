@@ -349,45 +349,47 @@
     /**
      * Validar campo y aplicar clases Bootstrap con animación
      */
-    validateField(input) {
+    validateField(input, forceValidation = false) {
       const validators = this.getValidators();
       const validator = validators[input.id];
 
       if (!validator) return true;
 
       const result = validator(input.value);
+      const hasContent = input.value.trim().length > 0;
 
+      // Limpiar estados previos
       input.classList.remove('is-valid', 'is-invalid');
 
-      const parent = input.closest('.form-floating') || input.closest('.form-group');
-      if (parent) {
-        const invalidFeedback = parent.querySelector('.invalid-feedback');
-        const validFeedback = parent.querySelector('.valid-feedback');
+      const parent = input.closest('.form-floating') || input.closest('.form-group') || input.parentElement;
+      if (!parent) return result.valid;
 
-        // SOLO mostrar validaciones si el campo tiene contenido Y el usuario ha interactuado
-        // Esto evita que aparezcan estados en campos vacíos
-        const hasContent = input.value.trim().length > 0;
-        const isPasswordField = input.id === 'id_password1' || input.id === 'id_password2';
+      const invalidFeedback = parent.querySelector('.invalid-feedback');
+      const validFeedback = parent.querySelector('.valid-feedback');
 
-        // Para campos de contraseña, también validar si el usuario ha empezado a escribir
-        if (hasContent || (isPasswordField && input.value.length > 0)) {
-          input.classList.add(result.valid ? 'is-valid' : 'is-invalid');
+      // Ocultar todos los feedbacks primero
+      if (invalidFeedback) invalidFeedback.style.display = 'none';
+      if (validFeedback) validFeedback.style.display = 'none';
 
-          if (result.valid && validFeedback) {
-            validFeedback.textContent = result.message;
+      // Solo mostrar validaciones si:
+      // 1. El campo tiene contenido O
+      // 2. Se fuerza la validación (submit del formulario)
+      if (hasContent || forceValidation) {
+        if (result.valid && hasContent) {
+          input.classList.add('is-valid');
+          if (validFeedback) {
+            validFeedback.innerHTML = `<i class="bi bi-check-circle me-1"></i>${result.message}`;
             validFeedback.style.display = 'block';
-          } else if (!result.valid && invalidFeedback) {
-            invalidFeedback.textContent = result.message;
+          }
+        } else if (!result.valid) {
+          input.classList.add('is-invalid');
+          if (invalidFeedback) {
+            invalidFeedback.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>${result.message}`;
             invalidFeedback.style.display = 'block';
           }
-
-          if (!result.valid) {
+          if (forceValidation) {
             this.shakeElement(input);
           }
-        } else {
-          // Si está vacío, ocultar los mensajes de feedback
-          if (invalidFeedback) invalidFeedback.style.display = 'none';
-          if (validFeedback) validFeedback.style.display = 'none';
         }
       }
 
@@ -494,6 +496,9 @@
     // BIND DE EVENTOS EN CAMPOS
     // ========================================================================
     bindFieldEvents() {
+      // Map para rastrear si el usuario ha interactuado con cada campo
+      const interactedFields = new Map();
+
       this.fieldsToValidate.forEach(id => {
         const el = document.getElementById(id);
         if (!el) {
@@ -505,19 +510,20 @@
           el.classList.add('form-control');
         }
 
-        let hasInteracted = false;
-
+        // Marcar como interactuado cuando el usuario empieza a escribir
         el.addEventListener('input', () => {
-          hasInteracted = true;
-          this.validateField(el);
+          interactedFields.set(id, true);
+          this.validateField(el, false);
         });
 
+        // Validar al perder el foco solo si ha interactuado
         el.addEventListener('blur', () => {
-          if (hasInteracted && el.value.trim().length > 0) {
-            this.validateField(el);
+          if (interactedFields.get(id) && el.value.trim().length > 0) {
+            this.validateField(el, false);
           }
         });
 
+        // Animación de focus
         el.addEventListener('focus', () => {
           el.style.transform = 'scale(1.01)';
           el.style.transition = 'transform 0.2s ease';
@@ -528,23 +534,27 @@
         });
       });
 
+      // Eventos especiales para contraseñas
       const pwd1 = document.getElementById('id_password1');
       const pwd2 = document.getElementById('id_password2');
 
       if (pwd1) {
         pwd1.addEventListener('input', (e) => {
+          interactedFields.set('id_password1', true);
           this.updatePasswordProgress(e.target.value);
-          this.validateField(pwd1);
+          this.validateField(pwd1, false);
 
-          if (pwd2 && pwd2.value.length > 0) {
-            this.validateField(pwd2);
+          // Si pwd2 ya tiene contenido, revalidarlo
+          if (pwd2 && pwd2.value.length > 0 && interactedFields.get('id_password2')) {
+            this.validateField(pwd2, false);
           }
         });
       }
 
       if (pwd2) {
         pwd2.addEventListener('input', () => {
-          this.validateField(pwd2);
+          interactedFields.set('id_password2', true);
+          this.validateField(pwd2, false);
         });
       }
 
@@ -572,12 +582,19 @@
           const input = document.getElementById(id);
           if (input) {
             const isEmpty = !input.value || input.value.trim() === '';
-            console.log(`Campo ${id}: ${isEmpty ? '❌ Vacío' : '✅ Tiene valor'} - Valor: "${input.value}"`);
 
             if (isEmpty) {
               hasErrors = true;
               input.classList.add('is-invalid');
               input.classList.remove('is-valid');
+
+              const parent = input.closest('.form-floating') || input.closest('.form-group') || input.parentElement;
+              const invalidFeedback = parent ? parent.querySelector('.invalid-feedback') : null;
+              if (invalidFeedback) {
+                invalidFeedback.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>Este campo es obligatorio';
+                invalidFeedback.style.display = 'block';
+              }
+
               errors.push(`${input.name || id}: Campo vacío`);
               console.log(`❌ ${id}: Vacío`);
 
@@ -585,7 +602,8 @@
                 firstInvalidField = input;
               }
             } else {
-              const isValid = this.validateField(input);
+              // Forzar validación en submit
+              const isValid = this.validateField(input, true);
               if (!isValid) {
                 hasErrors = true;
                 errors.push(`${input.name || id}: Formato inválido`);

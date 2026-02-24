@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/crear_usuario.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -135,12 +136,8 @@
                             Documento <span class="text-danger">*</span>
                         </label>
                         <div class="invalid-feedback">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            El documento debe tener exactamente 10 dígitos
                         </div>
                         <div class="valid-feedback">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Documento válido
                         </div>
                     </div>
                 </div>
@@ -154,12 +151,8 @@
                             Correo electrónico <span class="text-danger">*</span>
                         </label>
                         <div class="invalid-feedback">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            Ingresa un correo válido
                         </div>
                         <div class="valid-feedback">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Correo válido
                         </div>
                     </div>
                 </div>
@@ -173,12 +166,8 @@
                             Nombre <span class="text-danger">*</span>
                         </label>
                         <div class="invalid-feedback">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            El nombre es obligatorio
                         </div>
                         <div class="valid-feedback">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Nombre válido
                         </div>
                     </div>
                 </div>
@@ -192,12 +181,8 @@
                             Apellido <span class="text-danger">*</span>
                         </label>
                         <div class="invalid-feedback">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            El apellido es obligatorio
                         </div>
                         <div class="valid-feedback">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Apellido válido
                         </div>
                     </div>
                 </div>
@@ -223,12 +208,8 @@
                             Nombre de usuario <span class="text-danger">*</span>
                         </label>
                         <div class="invalid-feedback">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            El usuario debe tener al menos 4 caracteres
                         </div>
                         <div class="valid-feedback">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Usuario válido
                         </div>
                     </div>
                 </div>
@@ -245,12 +226,8 @@
                             <i class="bi bi-eye"></i>
                         </button>
                         <div class="invalid-feedback">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            La contraseña no cumple los requisitos
                         </div>
                         <div class="valid-feedback">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Contraseña segura
                         </div>
                     </div>
                 </div>
@@ -267,12 +244,8 @@
                             <i class="bi bi-eye"></i>
                         </button>
                         <div class="invalid-feedback">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            Las contraseñas no coinciden
                         </div>
                         <div class="valid-feedback">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Las contraseñas coinciden
                         </div>
                     </div>
                 </div>

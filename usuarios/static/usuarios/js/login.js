@@ -437,7 +437,7 @@
     }
 
     // ========================================================================
-    // SLIDESHOW DE FONDO
+    // SLIDESHOW DE FONDO - MEJORADO CON CLICK Y TRANSICIONES SUAVES
     // ========================================================================
     initializeSlideshow() {
       const container = document.getElementById('bg-slideshow');
@@ -453,22 +453,41 @@
       }
 
       let currentIndex = 0;
+      let intervalId = null;
 
       const activateSlide = (index) => {
         slides.forEach((slide, i) => {
           slide.classList.toggle('active', i === index);
         });
+        console.log(`🖼️ Slide activo: ${index + 1}/${slides.length}`);
+      };
+
+      const nextSlide = () => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        activateSlide(currentIndex);
+      };
+
+      const startAutoSlide = () => {
+        // Limpiar intervalo anterior si existe
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+        // Cambiar slide cada 10 segundos
+        intervalId = setInterval(nextSlide, 10000);
       };
 
       // Activar el primer slide
       activateSlide(currentIndex);
-      console.log('✅ Slideshow de fondo iniciado');
+      startAutoSlide();
+      console.log('✅ Slideshow iniciado - Click en el fondo para cambiar');
 
-      // Cambiar slide cada 10 segundos
-      setInterval(() => {
-        currentIndex = (currentIndex + 1) % slides.length;
-        activateSlide(currentIndex);
-      }, 10000);
+      // Permitir cambio manual con click en el fondo
+      container.addEventListener('click', () => {
+        nextSlide();
+        // Reiniciar el intervalo automático
+        startAutoSlide();
+        console.log('👆 Click en fondo - Cambiando slide manualmente');
+      });
     }
   }
 

@@ -3,7 +3,7 @@
 {% block title %}Iniciar Sesión · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/auth.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -96,24 +96,40 @@
                 {{ form.username }}
                 <label for="id_username">
                   <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
-                  Usuario o Documento
+                  Usuario o Documento <span class="text-danger" aria-label="campo requerido">*</span>
                 </label>
-                <div class="invalid-feedback">Este campo es obligatorio</div>
+                <div class="invalid-feedback">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Este campo es obligatorio
+                </div>
+                <div class="valid-feedback">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Campo válido
+                </div>
               </div>
               <!-- El mensaje de ayuda se insertará aquí dinámicamente por JS -->
             </div>
 
             <!-- Contraseña -->
-            <div class="form-floating mb-3 position-relative">
-              {{ form.password }}
-              <label for="id_password">
-                <i class="bi bi-key-fill me-1" aria-hidden="true"></i>
-                Contraseña
-              </label>
-              <button type="button" class="toggle-password btn btn-sm" data-target="id_password" aria-label="Mostrar/Ocultar contraseña" title="Mostrar/Ocultar">
-                <i class="bi bi-eye"></i>
-              </button>
-              <div class="invalid-feedback">Este campo es obligatorio</div>
+            <div class="mb-3">
+              <div class="form-floating position-relative">
+                {{ form.password }}
+                <label for="id_password">
+                  <i class="bi bi-key-fill me-1" aria-hidden="true"></i>
+                  Contraseña <span class="text-danger" aria-label="campo requerido">*</span>
+                </label>
+                <button type="button" class="toggle-password btn btn-sm" data-target="id_password" aria-label="Mostrar/Ocultar contraseña" title="Mostrar/Ocultar">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <div class="invalid-feedback">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Este campo es obligatorio
+                </div>
+                <div class="valid-feedback">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Campo válido
+                </div>
+              </div>
             </div>
 
             <!-- Botón de envío -->

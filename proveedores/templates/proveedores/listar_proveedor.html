@@ -15,19 +15,37 @@
         <i class="bi bi-plus-circle"></i> Nuevo Proveedor
     </a>
 </div>
-
-<form method="get" class="row mb-3">
-    <div class="col-md-4">
-        <input type="text" name="q" class="form-control"
-               placeholder="Buscar por nombre, ciudad o correo"
-               value="{{ request.GET.q }}">
+  
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" id="filtroForm">
+                        <div class="row align-items-end">
+                            <div class="col-md-3">
+                                <label for="proveedor">Proveedor</label>
+                                <select name="proveedor" id="proveedor" class="form-control">
+                                    <option value="">Todos los proveedores</option>
+                                    {% for proveedor in proveedores %}
+                                    <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="fecha_desde">Fecha desde</label>
+                                <input type="date" name="fecha_desde" id="fecha_desde" class="form-control">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-info w-100">
+                                    <i class="fas fa-filter"></i> Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-2">
-        <button class="btn btn-outline-primary">
-            <i class="bi bi-search"></i> Buscar
-        </button>
-    </div>
-</form>
 
 <div class="card shadow">
     <div class="card-body table-responsive">

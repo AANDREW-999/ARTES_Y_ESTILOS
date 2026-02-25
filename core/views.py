@@ -13,7 +13,7 @@ def index(request):
 
 
 def PanelAdmin_base(request):
-    return render(request, 'core/panel_admin_base.html')
+    return render(request, 'panel_admin_base.html')
 
 
 @panel_login_required

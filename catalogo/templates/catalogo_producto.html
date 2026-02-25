@@ -1,0 +1,87 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-secondary fw-bold">Gestión de Catálogo</h2>
+
+    <div class="d-flex gap-3">
+        <form action="{% url 'catalogo:gestion_productos' %}" method="GET" class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" name="busqueda" value="{{ busqueda|default:'' }}" class="form-control" placeholder="Buscar flores..." />
+        </form>
+        <a href="{% url 'catalogo:agregar_producto' %}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle"></i> Nuevo Producto
+        </a>
+    </div>
+</div>
+
+<div class="table-responsive shadow rounded-3">
+    <table class="table table-hover bg-white mb-0 align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Tamaño</th>
+                <th>Precio</th>
+                <th class="text-center">Imagen</th>
+                <th>Descripción</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td><strong>{{ p.nombre }}</strong></td>
+                <td><span class="badge bg-light text-dark border">{{ p.get_categoria_display }}</span></td>
+                <td>{{ p.tamano }}</td>
+                <td>${{ p.precio }}</td>
+                <td class="text-center">
+                    {% if p.imagen %}
+                    <img src="{{ p.imagen.url }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded-circle shadow-sm" />
+                    {% else %}
+                    <i class="bi bi-image text-muted" style="font-size: 1.5rem;"></i>
+                    {% endif %}
+                </td>
+                <td><small class="text-muted">{{ p.descripcion|default:'-'|truncatechars:25 }}</small></td>
+                <td class="text-center">
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'catalogo:editar_producto' p.id %}" class="btn btn-primary btn-sm" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'catalogo:detalle_producto' p.id %}" class="btn btn-info btn-sm text-white" title="Ver Detalle"><i class="bi bi-eye"></i></a>
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmarEliminacion{{ p.id }}" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+
+            <div class="modal fade" id="confirmarEliminacion{{ p.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-danger text-white justify-content-center py-2">
+                            <h5 class="modal-title fw-bold">Confirmar Eliminación</h5>
+                        </div>
+                        <div class="modal-body text-center p-4">
+                            <p>¿Estás seguro que deseas eliminar <strong>{{ p.nombre }}</strong>?</p>
+                        </div>
+                        <div class="modal-footer border-0 justify-content-center pb-4">
+                            <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                            <form action="{% url 'catalogo:eliminar_producto' p.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger px-4">Sí, Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No hay productos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

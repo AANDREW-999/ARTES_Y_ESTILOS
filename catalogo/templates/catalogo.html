@@ -1,0 +1,59 @@
+{% extends 'core/productos.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+
+<section class="py-5" style="background-color: #fdfbfb;">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="fw-bold" style="color: #5d4037; font-size: 2.5rem;">Catálogo</h1>
+                <p class="text-muted">Elige el arreglo perfecto para tu ocasión especial.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12">
+                <h2 class="fw-bold mb-4" style="color: #5d4037;">Nuestros trabajos</h2>
+            </div>
+
+            {% for p in productos %}
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card card-floral border-0 shadow-sm">
+                    
+                    {% if p.imagen %}
+                        <div class="card-img-container">
+                            <img src="{{ p.imagen.url }}" class="card-img-top" alt="{{ p.nombre }}">
+                        </div>
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="bi bi-image text-muted fs-1"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="card-body p-4">
+                        <h5 class="card-title">{{ p.nombre }}</h5>
+                        <p class="card-text small mb-4">{{ p.descripcion|truncatechars:90 }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="fw-bold fs-4" style="color: #5d4037;">${{ p.precio }}</span>
+                            
+                            <a href="{% url 'catalogo:detalle_producto' p.id %}" class="btn btn-rosa shadow-sm">
+                                Ver detalle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <h4 class="text-muted">Aún no hay arreglos en el catálogo.</h4>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<script src="{% static 'js/archivo.js' %}"></script>
+{% endblock %}

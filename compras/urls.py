@@ -5,7 +5,7 @@ from . import views
 app_name = 'compras'
 
 urlpatterns = [
-    path('', views.compras_list, name='lista_compras'),
+    path('', views.compras_list, name='lista_compra'),
     path('<int:id>/', views.compra_detail, name='compra_detail'),
     path('crear/', views.CompraCreateView.as_view(), name='crear_compra'),
     path('editar/<int:compra_id>/', views.CompraUpdateView.as_view(), name='editar_compra'),

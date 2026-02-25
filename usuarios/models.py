@@ -1,80 +1,81 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
-class PerfilUsuario(models.Model):
+class Usuario(AbstractUser):
     """
-    Modelo para extender la información del usuario
-    Relacionado 1:1 con el modelo User de Django
+    Modelo de Usuario personalizado para autenticación.
+    Solo contiene campos esenciales para login/auth.
+    Los datos adicionales están en el modelo Perfil (relación 1:1)
     """
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='perfil'
-    )
-
+    # Documento de 10 dígitos, único (requerido para registro)
     documento = models.CharField(
-        max_length=20,
+        max_length=10,
         unique=True,
-        help_text="Número de documento de identidad"
+        validators=[RegexValidator(r"^\d{10}$", message="El documento debe tener exactamente 10 dígitos.")],
+        help_text="Documento de identidad (10 dígitos)"
     )
 
-    telefono = models.CharField(
-        max_length=15,
-        blank=True,
-        help_text="Número de teléfono"
-    )
+    # Email único (requerido para registro)
+    email = models.EmailField('correo electrónico', unique=True, blank=True, default='')
 
-    direccion = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Dirección de residencia"
-    )
-
-    foto_perfil = models.ImageField(
-        upload_to='perfiles/',
-        blank=True,
-        null=True,
-        help_text="Foto de perfil del usuario"
-    )
-
-    fecha_nacimiento = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Fecha de nacimiento"
-    )
-
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Perfil de Usuario"
-        verbose_name_plural = "Perfiles de Usuarios"
-        ordering = ['-user__date_joined']
+    # Usamos first_name y last_name de Django (no duplicamos campos)
+    # first_name y last_name ya están en AbstractUser
 
     def __str__(self):
-        return f"Perfil de {self.user.username}"
+        nombre_completo = f"{self.first_name} {self.last_name}".strip()
+        return nombre_completo or self.username or self.documento
 
-    def get_nombre_completo(self):
-        """Retorna el nombre completo del usuario"""
-        return f"{self.user.first_name} {self.user.last_name}"
+    class Meta:
+        verbose_name = 'Usuario'
+        verbose_name_plural = 'Usuarios'
 
 
-# Señales para crear/actualizar perfil automáticamente
-@receiver(post_save, sender=User)
+class Perfil(models.Model):
+    """
+    Perfil de usuario con información adicional.
+    Relación 1:1 con Usuario.
+    Se crea automáticamente al crear un usuario.
+    """
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil')
+
+    # Información de contacto
+    telefono = models.CharField(max_length=20, blank=True, verbose_name='Teléfono')
+    direccion = models.CharField(max_length=255, blank=True, verbose_name='Dirección')
+
+    # Información personal
+    fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name='Fecha de nacimiento')
+    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name='Foto de perfil')
+
+    # Campos adicionales opcionales (por si los necesitas después)
+    biografia = models.TextField(blank=True, verbose_name='Biografía')
+
+    # Metadata
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Perfil de {self.usuario.username}"
+
+    class Meta:
+        verbose_name = 'Perfil de Usuario'
+        verbose_name_plural = 'Perfiles de Usuarios'
+
+
+# Signal para crear automáticamente el perfil cuando se crea un usuario
+@receiver(post_save, sender=Usuario)
 def crear_perfil_usuario(sender, instance, created, **kwargs):
-    """
-    Crea automáticamente un perfil cuando se crea un usuario
-    """
+    """Crea un perfil automáticamente cuando se crea un nuevo usuario"""
     if created:
-        PerfilUsuario.objects.create(user=instance)
+        Perfil.objects.create(usuario=instance)
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=Usuario)
 def guardar_perfil_usuario(sender, instance, **kwargs):
-    """
-    Guarda el perfil cuando se guarda el usuario
-    """
+    """Guarda el perfil cuando se guarda el usuario"""
     if hasattr(instance, 'perfil'):
         instance.perfil.save()
+
+

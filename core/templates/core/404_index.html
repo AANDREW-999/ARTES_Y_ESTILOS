@@ -1,0 +1,449 @@
+<!-- File: `core/templates/core/404_index.html` -->
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}404 — Página no encontrada · Arte & Estilos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/styles.css' %}?v=20260210">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    /* Colores pastel más brillantes */
+    --bg-primary: #fff9f5;
+    --bg-secondary: #ffffff;
+    --accent-peach: #ff9f8c;
+    --accent-peach-dark: #ff8b75;
+    --accent-lavender: #b4a0ff;
+    --accent-lavender-dark: #a18aff;
+    --accent-mint: #7fd9c8;
+    --accent-mint-dark: #6acfbb;
+    --accent-cream: #ffdbc9;
+    --accent-cream-dark: #ffcdb5;
+    --text-dark: #4a4a4f;
+    --text-light: #7a7a80;
+    --border-color: #f0eae5;
+    --shadow-light: 0 4px 12px rgba(74, 74, 79, 0.08);
+    --shadow-medium: 0 8px 24px rgba(74, 74, 79, 0.12);
+    --radius: 16px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg-primary) 0%, #fff5f0 100%);
+    color: var(--text-dark);
+}
+
+/* Contenido principal estilo floristería */
+.flower-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.flower-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-medium);
+    padding: 3.5rem;
+    max-width: 1000px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto de borde decorativo pastel */
+.flower-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg,
+        var(--accent-peach) 0%,
+        var(--accent-lavender) 33%,
+        var(--accent-mint) 66%,
+        var(--accent-cream) 100%);
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+/* Número 404 estilo pastel brillante */
+.flower-number {
+    font-size: 8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg,
+        var(--accent-peach) 0%,
+        var(--accent-lavender) 50%,
+        var(--accent-mint) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 4px 20px rgba(180, 160, 255, 0.25);
+}
+
+.flower-digit {
+    display: inline-block;
+    transition: opacity 0.3s ease;
+}
+
+.flower-digit:nth-child(1) {
+    background: linear-gradient(135deg, var(--accent-peach) 0%, var(--accent-peach-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+.flower-digit:nth-child(2) {
+    background: linear-gradient(135deg, var(--accent-lavender) 0%, var(--accent-lavender-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+.flower-digit:nth-child(3) {
+    background: linear-gradient(135deg, var(--accent-mint) 0%, var(--accent-mint-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+/* Título y mensaje - NUEVO TEXTO */
+.flower-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.flower-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+}
+
+/* Flores pastel - animación simplificada */
+.flower-garden {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin: 2.5rem 0 3rem;
+    flex-wrap: wrap;
+}
+
+.flower-bloom {
+    width: 90px;
+    height: 90px;
+    position: relative;
+    filter: drop-shadow(0 5px 15px rgba(74, 74, 79, 0.1));
+    transition: opacity 0.3s ease;
+}
+
+.flower-bloom:nth-child(1) {
+    color: var(--accent-peach);
+}
+.flower-bloom:nth-child(2) {
+    color: var(--accent-lavender);
+}
+.flower-bloom:nth-child(3) {
+    color: var(--accent-mint);
+}
+
+/* Botones simplificados - sin animaciones complejas */
+.error-actions {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+}
+
+.btn {
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    position: relative;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-peach) 0%, var(--accent-peach-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 159, 140, 0.3);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--accent-lavender-dark);
+    border: 2px solid rgba(180, 160, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(180, 160, 255, 0.1);
+}
+
+.btn-secondary:hover {
+    background: rgba(180, 160, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    margin-right: 0.6rem;
+    width: 20px;
+    height: 20px;
+}
+
+/* Footer pastel */
+.flower-footer {
+    text-align: center;
+    padding: 2.5rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-top: 3rem;
+    position: relative;
+}
+
+.flower-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--accent-cream) 50%,
+        transparent 100%);
+}
+
+/* Efectos decorativos pastel simplificados */
+.decorative-dots {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.dot {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--accent-cream);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .flower-card {
+        padding: 2.5rem 2rem;
+        margin: 1rem;
+    }
+
+    .flower-number {
+        font-size: 6rem;
+    }
+
+    .flower-title {
+        font-size: 1.8rem;
+    }
+
+    .flower-subtitle {
+        font-size: 1rem;
+    }
+
+    .flower-garden {
+        gap: 1.5rem;
+    }
+
+    .flower-bloom {
+        width: 70px;
+        height: 70px;
+    }
+
+    .error-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: 280px;
+        padding: 0.9rem 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .flower-container {
+        padding: 1.5rem;
+    }
+
+    .flower-number {
+        font-size: 5rem;
+    }
+
+    .flower-title {
+        font-size: 1.6rem;
+    }
+
+    .flower-garden {
+        gap: 1rem;
+    }
+
+    .flower-bloom {
+        width: 60px;
+        height: 60px;
+    }
+
+    .btn {
+        padding: 0.8rem 1.8rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Contenido principal de Arte & Estilos -->
+<main class="flower-container">
+    <!-- Puntos decorativos pastel -->
+    <div class="decorative-dots" id="decorative-dots"></div>
+
+    <div class="flower-card">
+        <!-- Número 404 -->
+        <h1 class="flower-number">
+            <span class="flower-digit">4</span>
+            <span class="flower-digit">0</span>
+            <span class="flower-digit">4</span>
+        </h1>
+
+        <!-- Título y mensaje - NUEVO TEXTO MÁS ATRACTIVO -->
+        <h2 class="flower-title">¡Ups! Esta página no está disponible</h2>
+        <p class="flower-subtitle">
+            Parece que te has desviado del camino. Pero no te preocupes, nuestras mejores flores te están esperando en la página principal. ¡Déjate sorprender!
+        </p>
+
+        <!-- Flores decorativas de Arte & Estilos -->
+        <div class="flower-garden">
+            <div class="flower-bloom">
+                <svg viewBox="0 0 80 80" fill="currentColor">
+                    <circle cx="40" cy="40" r="30" opacity="0.9"/>
+                    <circle cx="40" cy="40" r="15" fill="white" opacity="0.8"/>
+                    <circle cx="40" cy="40" r="8" fill="var(--accent-cream)"/>
+                </svg>
+            </div>
+
+            <div class="flower-bloom">
+                <svg viewBox="0 0 80 80" fill="currentColor">
+                    <path d="M40 10 Q 20 5, 20 30 Q 25 45, 40 40 Q 55 45, 60 30 Q 60 5, 40 10 Z" opacity="0.9"/>
+                    <path d="M40 10 Q 60 5, 60 30 Q 55 45, 40 40 Q 25 45, 20 30 Q 20 5, 40 10 Z" opacity="0.8" transform="rotate(45, 40, 40)"/>
+                    <circle cx="40" cy="40" r="12" fill="white" opacity="0.8"/>
+                    <circle cx="40" cy="40" r="6" fill="var(--accent-lavender)"/>
+                </svg>
+            </div>
+
+            <div class="flower-bloom">
+                <svg viewBox="0 0 80 80" fill="currentColor">
+                    <path d="M40 15 Q 25 10, 25 35 Q 30 50, 40 45 Q 50 50, 55 35 Q 55 10, 40 15 Z" opacity="0.9"/>
+                    <path d="M40 15 Q 55 10, 55 35 Q 50 50, 40 45 Q 30 50, 25 35 Q 25 10, 40 15 Z" opacity="0.8" transform="rotate(72, 40, 40)"/>
+                    <path d="M40 15 Q 55 10, 55 35 Q 50 50, 40 45 Q 30 50, 25 35 Q 25 10, 40 15 Z" opacity="0.7" transform="rotate(144, 40, 40)"/>
+                    <circle cx="40" cy="40" r="10" fill="white" opacity="0.8"/>
+                    <circle cx="40" cy="40" r="5" fill="var(--accent-mint)"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Botones ORIGINALES con hover simplificado -->
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Volver al inicio
+            </a>
+
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                </svg>
+                Volver atrás
+            </a>
+        </div>
+    </div>
+</main>
+
+<!-- Footer de Arte & Estilos -->
+<footer class="flower-footer">
+    <p>© 2024 Arte & Estilos · Gestión Floral. Todos los derechos reservados. | <a href="/" style="color: var(--accent-lavender); text-decoration: none;">Volver al inicio</a></p>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Crear puntos decorativos pastel (simplificado)
+    const dotsContainer = document.getElementById('decorative-dots');
+    if (dotsContainer) {
+        const dotColors = [
+            'var(--accent-peach)',
+            'var(--accent-lavender)',
+            'var(--accent-mint)',
+            'var(--accent-cream)'
+        ];
+
+        for (let i = 0; i < 10; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+
+            const size = Math.random() * 6 + 2;
+            dot.style.width = `${size}px`;
+            dot.style.height = `${size}px`;
+            dot.style.left = `${Math.random() * 100}%`;
+            dot.style.top = `${Math.random() * 100}%`;
+
+            const colorIndex = Math.floor(Math.random() * dotColors.length);
+            dot.style.backgroundColor = dotColors[colorIndex];
+            dot.style.opacity = Math.random() * 0.2 + 0.1;
+
+            dotsContainer.appendChild(dot);
+        }
+    }
+
+    // Animación de entrada simple para la tarjeta
+    const card = document.querySelector('.flower-card');
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+
+    setTimeout(() => {
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, 100);
+});
+</script>
+{% endblock %}

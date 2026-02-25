@@ -1,27 +1,31 @@
-
 :root {
-    --floral-brown: #BF5486;
+    --floral-brown: #e42980;
     --floral-pink:  #83232b;
-    --floral-mauve: #eb6152;
-    --floral-yellow: #f312e8;
-    --floral-cream: #d15d9b;
+    --floral-mauve:  hsl(332, 63%, 31%);
+    --floral-yellow:  #912b5b;
+    --floral-cream:  #701e44;
 }
 
+/* Wrapper para aislar filtros - afecta solo al contenido, NO al widget */
+#accessibility-content-wrapper {
+    position: static !important;
+}
 
+/* Botón de accesibilidad */
 .minegate-acc-trigger.floral-theme {
     position: fixed !important;
     bottom: 30px !important;
     right: 30px !important;
     width: 70px !important;
     height: 70px !important;
-    background: linear-gradient(135deg, var(--floral-pink) 0%, var(--floral-mauve) 100%) !important;
+    background: linear-gradient(135deg, #eb76db 0%, #cc7be0 100%) !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
     z-index: 999999 !important;
-    box-shadow: 0 8px 25px rgba(191, 84, 148, 0.4) !important;
+    box-shadow: 0 8px 25px rgba(231, 56, 161, 0.4) !important;
     transition: all 0.4s ease !important;
     border: 3px solid var(--floral-cream) !important;
 }
@@ -45,18 +49,19 @@
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 60%);
 }
 
-
+/* Panel de accesibilidad */
 .acc-widget-panel.floral-panel {
     position: fixed !important;
     right: 120px !important;
     bottom: 30px !important;
     width: 400px !important;
-    background: linear-gradient(180deg, var(--floral-cream) 0%, #ffffff 100%) !important;
+    background: linear-gradient(180deg, #e5d4f1 0%, #f5f0fa 100%) !important;
     border-radius: 30px !important;
     padding: 30px !important;
     z-index: 999998 !important;
-    box-shadow: 0 15px 50px rgba(89, 40, 44, 0.2) !important;
-    border: 3px solid var(--floral-mauve) !important;
+    box-shadow: 0 15px 50px rgba(141, 57, 130, 0.2) !important;
+    border: 3px solid #cc7be0 !important;
+    animation: floatIn 0.4s ease-out;
 }
 
 .panel-header {
@@ -71,13 +76,13 @@
 
 .panel-icon {
     font-size: 1.5rem;
-    color: var(--floral-pink);
+    color: #eb6eda;
 }
 
 .panel-title {
     margin: 0;
     font-family: 'Georgia', serif;
-    color: var(--floral-brown);
+    color: #8d3982 !important;
     font-size: 1.4rem;
     letter-spacing: 1px;
 }
@@ -87,6 +92,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
 }
+
 .acc-opt.floral-btn {
     border: none;
     border-radius: 20px;
@@ -114,6 +120,15 @@
     transform: translateX(100%);
 }
 
+.acc-opt.floral-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.acc-opt.floral-btn:active {
+    transform: translateY(0);
+}
+
 .btn-content {
     display: flex;
     flex-direction: column;
@@ -136,44 +151,56 @@
 }
 
 .floral-btn.color-1 {
-    background: linear-gradient(135deg, var(--floral-brown) 0%, #ca5555 100%);
-    color: white;
+    background: linear-gradient(135deg, #d455c3 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-2 {
-    background: linear-gradient(135deg, var(--floral-pink) 0%, #d56ea8 100%);
-    color: white;
+    background: linear-gradient(135deg, #e45cd2 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-3 {
-    background: linear-gradient(135deg, var(--floral-mauve) 0%, #e5bdd6 100%);
-    color: var(--floral-brown);
+    background: linear-gradient(135deg, #d45cc4 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-4 {
-    background: linear-gradient(135deg, var(--floral-yellow) 0%, #e0e48e 100%);
-    color: var(--floral-brown);
+    background: linear-gradient(135deg, #da60c9 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-5 {
-    background: linear-gradient(135deg, var(--floral-cream) 0%, #fff5eb 100%);
-    color: var(--floral-brown);
-    border: 2px solid var(--floral-mauve);
+    background: linear-gradient(135deg, #db5aca 0%, #cc7be0 100%);
+    color: white !important;
+    border: 2px solid #d655c5;
 }
 
 .floral-btn.reset-btn {
     background: linear-gradient(135deg, #8d3982 0%, #cc7be0 100%);
-    color: white;
+    color: white !important;
     grid-column: 1 / -1;
 }
 
-.floral-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+.floral-btn.active {
+    box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.floral-btn:active {
-    transform: translateY(0);
+.floral-btn.active::after {
+    content: '✓';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: white;
+    color: var(--floral-pink);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
 }
 
 .panel-footer {
@@ -189,16 +216,53 @@
     animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.1);
-        opacity: 0.8;
-    }
+/* Menú desplegable de daltonismo */
+.color-blind-btn-wrapper {
+    position: relative;
+     display: contents;
 }
+
+.color-blind-menu {
+    display: none;
+    position: absolute;
+    top: -10px;
+    left: calc(100% + 10px);
+    background: white;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000000;
+    min-width: 180px;
+    border: 2px solid var(--floral-mauve);
+}
+
+.color-blind-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    color: rgb(255, 255, 255) !important;
+    gap: 10px;
+}
+
+.color-blind-menu-item:hover {
+    background: var(--floral-cream);
+    transform: translateX(5px);
+}
+
+.color-blind-menu-item.active {
+    background: var(--floral-pink);
+    color: white;
+}
+
+.color-blind-menu-item i {
+    font-size: 1.2rem;
+}
+
+/* Guía de lectura */
 #reading-guide {
     position: fixed;
     left: 0;
@@ -211,6 +275,76 @@
     pointer-events: none;
 }
 
+
+/* Alto contraste */
+#accessibility-content-wrapper.high-contrast-mode {
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+#accessibility-content-wrapper.high-contrast-mode *:not(.acc-opt):not(.acc-opt *):not(.minegate-acc-trigger):not(.minegate-acc-trigger *) {
+    background-color: #000 !important;
+    color: #f5f1f1 !important;
+    border-color: #fff !important;
+}
+
+/* Cursor grande */
+#accessibility-content-wrapper.big-cursor,
+#accessibility-content-wrapper.big-cursor * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='50' viewBox='0 0 40 50'%3E%3Cpath d='M20 20 Q18 35 20 45' stroke='%2334C759' stroke-width='3' fill='none'/%3E%3Cellipse cx='15' cy='30' rx='4' ry='6' fill='%2334C759' transform='rotate(-30 15 30)'/%3E%3Cellipse cx='20' cy='8' rx='5' ry='8' fill='%23FF69B4'/%3E%3Cellipse cx='12' cy='12' rx='8' ry='5' fill='%23FF1493'/%3E%3Cellipse cx='28' cy='12' rx='8' ry='5' fill='%23FF1493'/%3E%3Cellipse cx='15' cy='18' rx='6' ry='7' fill='%23FF69B4' transform='rotate(-45 15 18)'/%3E%3Cellipse cx='25' cy='18' rx='6' ry='7' fill='%23FF69B4' transform='rotate(45 25 18)'/%3E%3Ccircle cx='20' cy='15' r='5' fill='%23FFD700'/%3E%3C/svg%3E") 20 45, auto !important;
+}
+
+/* Espaciado extra */
+#accessibility-content-wrapper.extra-spacing * {
+    letter-spacing: 2px !important;
+    word-spacing: 4px !important;
+    line-height: 1.8 !important;
+}
+
+/* Subrayar enlaces */
+#accessibility-content-wrapper.underline-links a {
+    text-decoration: underline !important;
+    text-decoration-thickness: 2px !important;
+}
+
+/* FILTROS PARA DALTONISMO */
+
+#accessibility-content-wrapper.color-blind-protanopia {
+    filter: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="protanopia"><feColorMatrix type="matrix" values="0.567 0.433 0 0 0 0.558 0.442 0 0 0 0 0.242 0.758 0 0 0 0 0 1 0"/></filter></svg>#protanopia');
+}
+
+#accessibility-content-wrapper.color-blind-deuteranopia {
+    filter: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="deuteranopia"><feColorMatrix type="matrix" values="0.625 0.375 0 0 0 0.7 0.3 0 0 0 0 0.3 0.7 0 0 0 0 0 1 0"/></filter></svg>#deuteranopia');
+}
+
+#accessibility-content-wrapper.color-blind-tritanopia {
+    filter: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="tritanopia"><feColorMatrix type="matrix" values="0.95 0.05 0 0 0 0 0.433 0.567 0 0 0 0.475 0.525 0 0 0 0 0 1 0"/></filter></svg>#tritanopia');
+}
+
+/* ANIMACIONES */
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
     .acc-widget-panel.floral-panel {
         right: 20px !important;
@@ -243,6 +377,15 @@
     .btn-content span {
         font-size: 0.85rem;
     }
+    
+    .color-blind-menu {
+        position: fixed;
+        left: 20px;
+        right: 20px;
+        top: auto;
+        bottom: 200px;
+        min-width: auto;
+    }
 }
 
 @media (max-width: 480px) {
@@ -262,100 +405,4 @@
     .btn-content i {
         font-size: 1.3rem;
     }
-}
-
-
-@keyframes floatIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.acc-widget-panel.floral-panel {
-    animation: floatIn 0.4s ease-out;
-}
-
-.floral-btn.active {
-    box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.floral-btn.active::after {
-    content: '✓';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: white;
-    color: var(--floral-pink);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-
-body.high-contrast-mode {
-    background-color: #000 !important;
-    color: #fff !important;
-}
-
-body.high-contrast-mode *:not(.acc-opt):not(.acc-opt *):not(.minegate-acc-trigger):not(.minegate-acc-trigger *) {
-    background-color: #000 !important;
-    color: #fff !important;
-    border-color: #fff !important;
-}
-
-body.big-cursor,
-body.big-cursor * {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="white" stroke="black" stroke-width="2" d="M2 2 L2 28 L12 20 L18 30 L22 28 L16 18 L28 18 Z"/></svg>'), auto !important;
-}
-
-body.extra-spacing * {
-    letter-spacing: 2px !important;
-    word-spacing: 4px !important;
-    line-height: 1.8 !important;
-}
-
-body.underline-links a {
-    text-decoration: underline !important;
-    text-decoration-thickness: 2px !important;
-}
-
-/* Filtro para daltonismo - Blanco y negro para prueba */
-/* REEMPLAZA ESTO: */
-body.color-blind-mode {
-    filter: grayscale(100%) !important;
-}
-
-/* POR ESTO (para prueba): */
-body.color-blind-mode {
-    filter: grayscale(100%) contrast(1.5) !important;
-    background-color: #f0f0f0 !important;
-}
-
-/* Aplicar filtro invertido a elementos específicos para mejor contraste */
-body.color-blind-mode img {
-    filter: grayscale(100%) contrast(1.2) !important;
-}
-
-body.color-blind-mode button,
-body.color-blind-mode a {
-    filter: grayscale(100%) contrast(1.15) !important;
-}
-
-/* Excluir el panel de accesibilidad para que siempre sea legible */
-body.color-blind-mode #accPanel {
-    filter: none !important;
-}
-
-body.color-blind-mode .minegate-acc-trigger {
-    filter: none !important;
 }

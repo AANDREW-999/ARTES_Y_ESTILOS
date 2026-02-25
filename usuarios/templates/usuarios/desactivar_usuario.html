@@ -1,0 +1,82 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Desactivar Usuario{% endblock %}
+
+{% block content %}
+<div class="panel-fade-in">
+    <div class="panel-card" style="max-width: 600px; margin: 0 auto;">
+        <div class="panel-card-header">
+            <h1 class="panel-card-title" style="color: #dc3545;">
+                <i class="fas fa-exclamation-triangle"></i> Desactivar Usuario
+            </h1>
+            <p class="panel-card-subtitle">Esta acción no eliminará el usuario de la base de datos</p>
+        </div>
+
+        <!-- Información del usuario -->
+        <div style="background: rgba(220, 53, 69, 0.05); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #dc3545; margin-bottom: 2rem;">
+            <h3 style="color: #721c24; margin-bottom: 1rem;">
+                <i class="fas fa-user"></i> Información del Usuario
+            </h3>
+
+            <div style="display: grid; gap: 0.75rem;">
+                <p style="margin: 0; color: #721c24;">
+                    <strong>Nombre completo:</strong> {{ usuario.get_full_name|default:usuario.username }}
+                </p>
+                <p style="margin: 0; color: #721c24;">
+                    <strong>Usuario:</strong> @{{ usuario.username }}
+                </p>
+                <p style="margin: 0; color: #721c24;">
+                    <strong>Email:</strong> {{ usuario.email }}
+                </p>
+                <p style="margin: 0; color: #721c24;">
+                    <strong>Documento:</strong> {{ usuario.documento }}
+                </p>
+                <p style="margin: 0; color: #721c24;">
+                    <strong>Rol:</strong>
+                    {% if usuario.is_superuser %}
+                        <span class="panel-badge panel-badge-danger">SuperAdministrador</span>
+                    {% else %}
+                        <span class="panel-badge panel-badge-info">Administrador</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Advertencia -->
+        <div style="background: rgba(255, 193, 7, 0.1); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #ffc107; margin-bottom: 2rem;">
+            <h4 style="color: #856404; margin-bottom: 1rem;">
+                <i class="fas fa-info-circle"></i> ¿Qué sucederá al desactivar este usuario?
+            </h4>
+            <ul style="color: #856404; margin: 0; padding-left: 1.5rem; line-height: 1.8;">
+                <li>El usuario <strong>NO será eliminado</strong> de la base de datos</li>
+                <li>Se marcará como <strong>inactivo (is_active=False)</strong></li>
+                <li>No podrá iniciar sesión en el sistema</li>
+                <li>Todos sus datos se mantendrán intactos</li>
+                <li>Un superadministrador puede reactivarlo cuando lo desee</li>
+            </ul>
+        </div>
+
+        <!-- Confirmación -->
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="background: rgba(89, 40, 44, 0.05); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                <p style="color: #59282C; font-weight: 600; text-align: center; margin: 0;">
+                    ¿Estás seguro de que deseas desactivar a <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>?
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="{% url 'usuarios:lista_usuarios' %}" class="panel-btn panel-btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancelar
+                </a>
+                <button type="submit" class="panel-btn panel-btn-danger">
+                    <i class="fas fa-user-slash"></i> Confirmar Desactivación
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,20 +1,26 @@
 from django import template
 from django.utils.safestring import mark_safe
+from django.templatetags.static import static
 
 register = template.Library()
 
 @register.simple_tag
 def accesibilidad_widget():
-    return mark_safe('''
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="/static/accessibility/css/accesibility.css">
-        <link rel="stylesheet" href="/static/accessibility/css/daltonismo.css">
+    fa_css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+    # Agrega una versión al final de la URL (puedes cambiar v1 por v2, v3, etc.)
+    css_url = static('accessibility/css/accesibility.css') + '?v=1.1'
+    js_url = static('accessibility/js/accessibility.js') + '?v=1.1'
+    return mark_safe(f'''
+        <link rel="stylesheet" href="{fa_css}">
+        <link rel="stylesheet" href="{css_url}">
         
+        <!-- Botón de accesibilidad -->
         <div class="minegate-acc-trigger floral-theme" onclick="toggleAccPanel()" title="Opciones de Accesibilidad">
             <i class="fas fa-universal-access"></i>
             <div class="flower-decoration"></div>
         </div>
-
+ 
+        <!-- Panel de opciones -->
         <div id="accPanel" class="acc-widget-panel floral-panel" style="display: none; max-height: 80vh; overflow-y: auto;">
             <div class="panel-header">
                 <i class="fas fa-seedling panel-icon"></i>
@@ -39,13 +45,31 @@ def accesibilidad_widget():
                     <div class="btn-content"><i class="fas fa-link"></i><span>Enlaces</span></div>
                 </button>
                 
-                <button class="acc-opt floral-btn color-2" onclick="toggleFeature('big-cursor')">
-                    <div class="btn-content"><i class="fas fa-mouse-pointer"></i><span>Cursor</span></div>
-                </button>
-
-                <button class="acc-opt floral-btn color-5" onclick="handleColorBlind()">
-                    <div class="btn-content"><i class="fas fa-eye"></i><span>Daltonismo</span></div>
-                </button>
+                <!-- Botón de Daltonismo con menú -->
+                <div class="color-blind-btn-wrapper">
+                    <button class="acc-opt floral-btn color-5 color-blind-btn" onclick="toggleColorBlindMenu(event)">
+                        <div class="btn-content"><i class="fas fa-eye"></i><span>Daltonismo</span></div>
+                    </button>
+                    
+                    <div id="colorBlindMenu" class="color-blind-menu">
+                        <div class="color-blind-menu-item" onclick="setColorBlindType('none')">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Desactivar</span>
+                        </div>
+                        <div class="color-blind-menu-item" onclick="setColorBlindType('protanopia')">
+                            <i class="fas fa-circle" style="color: #ff0000;"></i>
+                            <span>Protanopía</span>
+                        </div>
+                        <div class="color-blind-menu-item" onclick="setColorBlindType('deuteranopia')">
+                            <i class="fas fa-circle" style="color: #00ff00;"></i>
+                            <span>Deuteranopía</span>
+                        </div>
+                        <div class="color-blind-menu-item" onclick="setColorBlindType('tritanopia')">
+                            <i class="fas fa-circle" style="color: #0000ff;"></i>
+                            <span>Tritanopía</span>
+                        </div>
+                    </div>
+                </div>
                 
                 <button class="acc-opt floral-btn reset-btn" onclick="resetAll()">
                     <div class="btn-content"><i class="fas fa-sync-alt"></i><span>Restablecer</span></div>
@@ -59,5 +83,5 @@ def accesibilidad_widget():
 
         <div id="reading-guide"></div>
 
-        <script src="/static/accessibility/js/accessibility.js"></script>
+        <script src="{js_url}"></script>
     ''')

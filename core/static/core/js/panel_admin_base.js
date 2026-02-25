@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
             
-            // Guardar estado en localStorage
             const isCollapsed = sidebar.classList.contains('collapsed');
             localStorage.setItem('sidebarCollapsed', isCollapsed);
         });
@@ -21,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mainContent.classList.add('expanded');
     }
     
-    // ==================== SIDEBAR RESPONSIVE ====================
+    // Sidebar responsive
     function handleResponsiveSidebar() {
         if (window.innerWidth <= 991) {
             sidebar.classList.remove('collapsed');
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebar.classList.toggle('active');
             });
             
-            // Cerrar sidebar al hacer clic fuera
             document.addEventListener('click', function(e) {
                 if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                     sidebar.classList.remove('active');
@@ -43,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     handleResponsiveSidebar();
     window.addEventListener('resize', handleResponsiveSidebar);
     
-    // ==================== AUTO-CERRAR ALERTAS ====================
+    // Auto-cerrar alertas
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -52,144 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
     
-    // ==================== MARCAR LINK ACTIVO EN SIDEBAR ====================
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    
-    navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-            link.classList.add('active');
-        }
-    });
-    
-    // ==================== BÚSQUEDA EN TIEMPO REAL ====================
-    const searchInput = document.querySelector('.search-box input');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            console.log('Buscando:', searchTerm);
-            // Aquí puedes implementar la lógica de búsqueda
-        });
-    }
-    
-    // ==================== TOOLTIPS DE BOOTSTRAP ====================
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-    
-    // ==================== CONFIRMACIÓN DE ELIMINACIÓN ====================
-    const deleteButtons = document.querySelectorAll('[data-confirm-delete]');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            if (!confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
-                e.preventDefault();
-            }
-        });
-    });
-    
-    // ==================== FUNCIÓN PARA CARGAR GRÁFICOS ====================
-    window.initDashboardChart = function(canvasId, data, options) {
-        const ctx = document.getElementById(canvasId);
-        if (ctx) {
-            new Chart(ctx, {
-                type: data.type || 'bar',
-                data: data,
-                options: options || {}
-            });
-        }
-    };
-    
-    console.log('Dashboard inicializado correctamente');
-});
-
-// ==================== FUNCIONES GLOBALES ====================
-
-// Función para mostrar notificaciones
-function showNotification(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.role = 'alert';
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    const messagesContainer = document.querySelector('.messages-container') || document.querySelector('.content-wrapper');
-    if (messagesContainer) {
-        messagesContainer.insertBefore(alertDiv, messagesContainer.firstChild);
-        
-        setTimeout(() => {
-            const bsAlert = new bootstrap.Alert(alertDiv);
-            bsAlert.close();
-        }, 5000);
-    }
-}
-
-// Función para confirmar acciones
-function confirmAction(message) {
-    return confirm(message || '¿Estás seguro de realizar esta acción?');
-}
-
-// Exportar funciones para uso global
-window.showNotification = showNotification;
-window.confirmAction = confirmAction;
-
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
-    
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-            
-            // Guardar estado en localStorage
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
-        });
-    }
-    
-    // Restaurar estado del sidebar
-    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
-    if (sidebarCollapsed === 'true') {
-        sidebar.classList.add('collapsed');
-        mainContent.classList.add('expanded');
-    }
-    
-    // ==================== SIDEBAR RESPONSIVE ====================
-    function handleResponsiveSidebar() {
-        if (window.innerWidth <= 991) {
-            sidebar.classList.remove('collapsed');
-            mainContent.classList.remove('expanded');
-            
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-            });
-            
-            // Cerrar sidebar al hacer clic fuera
-            document.addEventListener('click', function(e) {
-                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-                    sidebar.classList.remove('active');
-                }
-            });
-        }
-    }
-    
-    handleResponsiveSidebar();
-    window.addEventListener('resize', handleResponsiveSidebar);
-    
-    // ==================== AUTO-CERRAR ALERTAS ====================
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }, 5000);
-    });
-    
-    // ==================== MARCAR LINK ACTIVO EN SIDEBAR ====================
+    // Marcar link activo en sidebar
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
     
@@ -199,16 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ==================== SUBMENÚS DESPLEGABLES (COMPRAS, ETC.) ====================
-    /**
-     * Para cada submenú colapsable del sidebar:
-     * 1. Si alguno de sus enlaces hijos coincide con la URL actual,
-     *    se abre automáticamente y se marca el padre como "active".
-     * 2. El estado abierto/cerrado se guarda en localStorage para
-     *    que no se cierre al navegar entre páginas.
-     * 3. Al cerrar el sidebar (collapse) se vuelve a abrir si
-     *    el submenú estaba activo.
-     */
+    // Submenús desplegables (Compras, etc.)
     const submenuToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
 
     submenuToggles.forEach(toggle => {
@@ -220,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const storageKey = 'submenu_' + targetId.replace('#', '');
 
-        // --- Detectar si algún hijo está activo ---
+        // Detectar si algún hijo está activo
         const childLinks = submenu.querySelectorAll('.nav-link');
         let hasActiveChild = false;
 
@@ -232,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // --- Abrir el submenú si tiene hijo activo O si estaba abierto antes ---
+        // Abrir el submenú si tiene hijo activo O si estaba abierto antes
         const wasOpen = localStorage.getItem(storageKey) === 'true';
 
         if (hasActiveChild || wasOpen) {
@@ -241,14 +93,13 @@ document.addEventListener('DOMContentLoaded', function() {
             toggle.classList.add('active');
         }
 
-        // --- Guardar estado al abrir/cerrar manualmente ---
+        // Guardar estado al abrir/cerrar manualmente
         submenu.addEventListener('show.bs.collapse', function() {
             localStorage.setItem(storageKey, 'true');
             toggle.classList.add('active');
         });
 
         submenu.addEventListener('hide.bs.collapse', function() {
-            // Solo guardar "cerrado" si no tiene hijo activo
             if (!hasActiveChild) {
                 localStorage.setItem(storageKey, 'false');
             }
@@ -256,23 +107,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ==================== BÚSQUEDA EN TIEMPO REAL ====================
+    // Búsqueda en tiempo real
     const searchInput = document.querySelector('.search-box input');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
             console.log('Buscando:', searchTerm);
-            // Aquí puedes implementar la lógica de búsqueda
         });
     }
     
-    // ==================== TOOLTIPS DE BOOTSTRAP ====================
+    // Tooltips de Bootstrap
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // ==================== CONFIRMACIÓN DE ELIMINACIÓN ====================
+    // Confirmación de eliminación
     const deleteButtons = document.querySelectorAll('[data-confirm-delete]');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -282,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ==================== FUNCIÓN PARA CARGAR GRÁFICOS ====================
+    // Función para cargar gráficos
     window.initDashboardChart = function(canvasId, data, options) {
         const ctx = document.getElementById(canvasId);
         if (ctx) {
@@ -297,9 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard inicializado correctamente');
 });
 
-// ==================== FUNCIONES GLOBALES ====================
-
-// Función para mostrar notificaciones
+// Funciones globales
 function showNotification(message, type = 'info') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
@@ -320,11 +168,82 @@ function showNotification(message, type = 'info') {
     }
 }
 
-// Función para confirmar acciones
 function confirmAction(message) {
     return confirm(message || '¿Estás seguro de realizar esta acción?');
 }
+        (function() {
+            'use strict';
 
-// Exportar funciones para uso global
+            // Inicializar toasts
+            const toasts = {
+                success: null,
+                error: null,
+                warning: null
+            };
+
+            const toastConfigs = {
+                success: { delay: 9000, animation: true },
+                error: { delay: 12000, animation: true },
+                warning: { delay: 10000, animation: true }
+            };
+
+            // Crear instancias de toasts
+            Object.keys(toastConfigs).forEach(type => {
+                const toastEl = document.getElementById(`${type}Toast`);
+                if (toastEl) {
+                    try {
+                        toasts[type] = new bootstrap.Toast(toastEl, toastConfigs[type]);
+                        console.log(`✅ Toast ${type} inicializado`);
+                    } catch (error) {
+                        console.error(`❌ Error al inicializar toast ${type}:`, error);
+                    }
+                }
+            });
+
+            // Función para mostrar toast
+            function showToast(type, message) {
+                console.log(`🔔 Mostrando toast: tipo="${type}", mensaje="${message}"`);
+
+                const messageEl = document.getElementById(`${type}ToastMessage`);
+                const toastInstance = toasts[type];
+
+                if (!messageEl || !toastInstance) {
+                    console.error(`❌ No se encontró el toast: ${type}`);
+                    return;
+                }
+
+                messageEl.textContent = message;
+
+                try {
+                    toastInstance.show();
+                    console.log(`📢 Toast ${type} mostrado exitosamente`);
+                } catch (error) {
+                    console.error(`❌ Error al mostrar toast: ${error.message}`);
+                }
+            }
+
+            // Procesar mensajes de Django
+            const djangoMessages = document.getElementById('django-messages');
+            if (djangoMessages) {
+                const messages = djangoMessages.querySelectorAll('[data-message-level]');
+                console.log(`📨 Procesando ${messages.length} mensajes de Django`);
+
+                messages.forEach(msg => {
+                    const level = msg.getAttribute('data-message-level');
+                    const text = msg.getAttribute('data-message-text');
+
+                    console.log(`📋 Mensaje: level="${level}", text="${text}"`);
+
+                    // Mapear niveles de Django a tipos de toast
+                    if (level.includes('level-success') || level.includes('success')) {
+                        showToast('success', text);
+                    } else if (level.includes('level-error') || level.includes('error') || level.includes('danger')) {
+                        showToast('error', text);
+                    } else if (level.includes('level-warning') || level.includes('warning') || level.includes('info')) {
+                        showToast('warning', text);
+                    }
+                });
+            }
+        })();
 window.showNotification = showNotification;
 window.confirmAction = confirmAction;

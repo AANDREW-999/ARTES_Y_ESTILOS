@@ -1,53 +1,151 @@
-<!-- usuarios/templates/usuarios/panel_admin/lista_usuarios.html -->
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Lista de usuarios{% endblock %}
+{% block title %}Gestión de Usuarios{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h1 class="display-6 fw-bold">
-                <i class="bi bi-people"></i> {{ titulo }}
-            </h1>
-        </div>
-        <div class="col-md-6 text-end">
-            <a href="{% url 'usuarios:crear_usuario' %}" class="btn btn-primary">
-                <i class="bi bi-person-plus"></i> Nuevo Usuario
-            </a>
-            <a href="{% url 'core:dashboard' %}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Volver
-            </a>
+<div class="panel-fade-in">
+    <!-- Header con acciones -->
+    <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 class="panel-card-title" style="margin-bottom: 0.5rem;">
+                    <i class="fas fa-users-cog"></i> Gestión de Usuarios
+                </h1>
+                <p class="panel-card-subtitle" style="margin: 0;">
+                    Administra los usuarios del sistema
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="{% url 'usuarios:crear_usuario' %}" class="panel-btn panel-btn-primary">
+                    <i class="fas fa-user-plus"></i> Nuevo Usuario
+                </a>
+            </div>
         </div>
     </div>
-    
-    <!-- Filtros y Búsqueda -->
-    <div class="card shadow mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" name="buscar" class="form-control" 
-                               placeholder="Buscar por documento, nombre, email..." 
-                               value="{{ busqueda }}">
-                    </div>
-                </div>
-                
-                <div class="col-md-3">
-                    <select name="activo" class="form-select">
-                        <option value="">Todos los estados</option>
-                        <option value="true" {% if filtro_activo == 'true' %}selected{% endif %}>Activos</option>
-                        <option value="false" {% if filtro_activo == 'false' %}selected{% endif %}>Inactivos</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-3">
-                    <select name="staff" class="form-select">
-                        <option value="">Todos los tipos</option>
-                        <option value="true" {% if filtro_staff == 'true' %}selected{% endif %}>Administradores</option>
+
+    <!-- Tabla de usuarios -->
+    <div class="panel-card">
+        <div class="panel-table-container">
+            <table class="panel-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre Completo</th>
+                        <th>Email</th>
+                        <th>Documento</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th style="text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                {% if usuario.perfil.foto_perfil %}
+                                    <img src="{{ usuario.perfil.foto_perfil.url }}"
+                                         alt="{{ usuario.username }}"
+                                         style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #BF5486;">
+                                {% else %}
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #BF5486 0%, #D9A7C2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">
+                                        {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
+                                    </div>
+                                {% endif %}
+                                <strong>@{{ usuario.username }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ usuario.get_full_name|default:"-" }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.documento }}</td>
+                        <td>
+                            {% if usuario.is_superuser %}
+                                <span class="panel-badge panel-badge-danger">
+                                    <i class="fas fa-crown"></i> SuperAdmin
+                                </span>
+                            {% elif usuario.is_staff %}
+                                <span class="panel-badge panel-badge-info">
+                                    <i class="fas fa-user-tie"></i> Admin
+                                </span>
+                            {% else %}
+                                <span class="panel-badge panel-badge-warning">
+                                    <i class="fas fa-user"></i> Usuario
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.is_active %}
+                                <span class="panel-badge panel-badge-success">
+                                    <i class="fas fa-check-circle"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="panel-badge panel-badge-danger">
+                                    <i class="fas fa-times-circle"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <div style="display: inline-flex; gap: 0.5rem;">
+                                <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
+                                   class="panel-btn panel-btn-secondary"
+                                   style="padding: 0.5rem 1rem; font-size: 0.875rem;"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                {% if usuario.id != user.id and usuario.is_active %}
+                                <a href="{% url 'usuarios:desactivar_usuario' usuario.id %}"
+                                   class="panel-btn panel-btn-danger"
+                                   style="padding: 0.5rem 1rem; font-size: 0.875rem;"
+                                   title="Desactivar">
+                                    <i class="fas fa-user-slash"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-users" style="font-size: 3rem; color: #D9A7C2; margin-bottom: 1rem;"></i>
+                            <p style="margin: 0; color: #59282C;">No hay usuarios registrados en el sistema.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="panel-stats-grid">
+        <div class="panel-stat-card">
+            <div class="panel-stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="panel-stat-value">{{ usuarios.count }}</div>
+            <div class="panel-stat-label">Total Usuarios</div>
+        </div>
+
+        <div class="panel-stat-card">
+            <div class="panel-stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="panel-stat-value">{{ usuarios|selectattr:"is_active"|list|length }}</div>
+            <div class="panel-stat-label">Usuarios Activos</div>
+        </div>
+
+        <div class="panel-stat-card">
+            <div class="panel-stat-icon" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="panel-stat-value">{{ usuarios|selectattr:"is_superuser"|list|length }}</div>
+            <div class="panel-stat-label">SuperAdmins</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
                         <option value="false" {% if filtro_staff == 'false' %}selected{% endif %}>Usuarios normales</option>
                     </select>
                 </div>
@@ -69,8 +167,12 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Documento</th>
-                            <th>Nombre Completo</th>
-                            <th>Email</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Correo</th>
+                            <th>Dirección</th>
+                            <th>Foto</th>
+                            <th>Fecha Nacimiento</th>
                             <th>Teléfono</th>
                             <th>Fecha Registro</th>
                             <th>Estado</th>
@@ -81,18 +183,21 @@
                         {% for usuario in usuarios %}
                         <tr>
                             <td><strong>{{ usuario.perfil.documento }}</strong></td>
+                            <td>{{ usuario.first_name }}</td>
+                            <td>{{ usuario.last_name }}</td>
+                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.perfil.direccion|default:"N/A" }}</td>
                             <td>
                                 {% if usuario.perfil.foto_perfil %}
                                     <img src="{{ usuario.perfil.foto_perfil.url }}" 
                                          alt="{{ usuario.get_full_name }}" 
-                                         class="rounded-circle me-2" 
-                                         width="35" height="35">
+                                         class="rounded-circle"
+                                         width="40" height="40">
                                 {% else %}
-                                    <i class="bi bi-person-circle fs-4 me-2"></i>
+                                    <i class="bi bi-person-circle fs-4"></i>
                                 {% endif %}
-                                {{ usuario.get_full_name }}
                             </td>
-                            <td>{{ usuario.email }}</td>
+                            <td>{{ usuario.perfil.fecha_nacimiento|date:"d/m/Y" }}</td>
                             <td>{{ usuario.perfil.telefono|default:"N/A" }}</td>
                             <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
                             <td>
@@ -107,34 +212,34 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                            <!-- Botón Ver Detalles -->
-                            <a href="/" 
-                               class="btn btn-sm btn-outline-info" 
-                               title="Ver detalles"
-                               data-bs-toggle="tooltip">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-                            
-                            <!-- Botón Editar -->
-                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}" 
-                               class="btn btn-sm btn-outline-primary" 
-                               title="Editar instructor"
-                               data-bs-toggle="tooltip">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            
-                            <!-- Botón Eliminar -->
-                            <a href="{% url 'usuarios:eliminar_usuario' usuario.id %}" 
-                               class="btn btn-sm btn-outline-danger" 
-                               title="Eliminar instructor"
-                               data-bs-toggle="tooltip">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
+                                <!-- Botón Ver Detalles -->
+                                <a href="/"
+                                   class="btn btn-sm btn-outline-info"
+                                   title="Ver detalles"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+
+                                <!-- Botón Editar -->
+                                <a href="{% url 'usuarios:editar_usuario' usuario.id %}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Editar instructor"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <!-- Botón Eliminar -->
+                                <a href="{% url 'usuarios:eliminar_usuario' usuario.id %}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   title="Eliminar instructor"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-5">
+                            <td colspan="11" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                 No se encontraron usuarios
                             </td>

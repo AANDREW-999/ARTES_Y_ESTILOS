@@ -1,0 +1,57 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="text-cafe fw-bold">Catálogo de Arreglos</h1>
+            <p class="text-muted">Gestiona tus trabajos y diseños florales.</p>
+        </div>
+        <button class="btn btn-rosa" data-bs-toggle="modal" data-bs-target="#modalNuevo">Nuevo Arreglo</button>
+    </div>
+
+    <div class="row g-4">
+        {% for a in arreglos %}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card card-floral shadow-sm">
+                <div class="card-img-wrapper">
+                    {% if a.imagen %}
+                        <img src="{{ a.imagen.url }}" alt="{{ a.nombre_flor }}">
+                    {% endif %}
+                </div>
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-cafe">{{ a.nombre_flor }}</h5>
+                    <p class="text-muted small flex-grow-1">{{ a.descripcion|truncatechars:80 }}</p>
+                    <p class="fw-bold text-cafe fs-5 mb-3">${{ a.precio }}</p>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'arreglo:detalle' a.id %}" class="btn btn-rosa btn-sm flex-fill">Ver detalle</a>
+                        <a href="{% url 'arreglo:editar' a.id %}" class="btn btn-outline-secondary btn-sm flex-fill">Editar</a>
+                        <form action="{% url 'arreglo:eliminar' a.id %}" method="POST" class="flex-fill">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100" onclick="return confirm('¿Borrar?')">Borrar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevo" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content p-4 border-0 rounded-4">
+            <h4 class="text-cafe fw-bold mb-4">Agregar Arreglo</h4>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-rosa w-100 mt-3">Guardar Arreglo</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

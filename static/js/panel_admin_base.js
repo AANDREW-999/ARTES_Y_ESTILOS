@@ -67,7 +67,12 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const logoutUrl = link.getAttribute('href');
-                    if (confirmBtn) confirmBtn.setAttribute('href', logoutUrl);
+                    if (confirmBtn) {
+                        confirmBtn.setAttribute('href', logoutUrl);
+                        confirmBtn.addEventListener('click', () => {
+                            window.location.href = logoutUrl;
+                        }, { once: true }); // Asegurar que el evento se ejecute solo una vez
+                    }
                     this._showLogoutModal();
                 });
             });

@@ -1,8 +1,9 @@
 /**
- * REGISTRO.JS - Sistema de validación UX profesional con Bootstrap 5
+ * CREAR_USUARIO.JS - Sistema de validación para crear usuarios desde el panel admin
  * Versión optimizada con animaciones y feedback dinámico
- * @version 3.0
- * @date 2026-02-13
+ * Basado en registro.js
+ * @version 1.0
+ * @date 2026-02-23
  */
 
 (function() {
@@ -11,12 +12,13 @@
   // ============================================================================
   // CLASE PRINCIPAL DE VALIDACIÓN
   // ============================================================================
-  class RegistroValidator {
+  class CrearUsuarioValidator {
     constructor() {
       this.toasts = {
         success: null,
         error: null,
-        warning: null
+        warning: null,
+        info: null
       };
 
       this.fieldsToValidate = [
@@ -43,7 +45,7 @@
     // INICIALIZACIÓN PRINCIPAL
     // ========================================================================
     initialize() {
-      console.log('🚀 Iniciando sistema de validación...');
+      console.log('🚀 Iniciando sistema de validación de crear usuario...');
 
       // Verificar que Bootstrap esté disponible
       if (typeof bootstrap === 'undefined') {
@@ -51,17 +53,16 @@
         return;
       }
 
-      this.cleanFormOnLoad(); // Limpiar formulario al inicio
+      this.cleanFormOnLoad();
       this.initializeToasts();
       this.convertDjangoMessages();
       this.initializePasswordToggle();
-      this.restrictInputs(); // Restringir entrada de caracteres
+      this.restrictInputs();
       this.bindFieldEvents();
       this.bindFormSubmit();
-      // NO sincronizar errores del backend al inicio para que el formulario esté limpio
-      // this.syncBackendErrors();
       this.applyMobileOptimizations();
       this.addFieldAnimations();
+      this.checkPerfilDataOnCollapse();
 
       console.log('✅ Sistema de validación iniciado correctamente');
     }
@@ -70,19 +71,16 @@
     // LIMPIAR FORMULARIO AL CARGAR LA PÁGINA
     // ========================================================================
     cleanFormOnLoad() {
-      // Remover todas las clases de validación de los campos
       const allInputs = document.querySelectorAll('.form-control');
       allInputs.forEach(input => {
         input.classList.remove('is-valid', 'is-invalid');
       });
 
-      // Ocultar todos los mensajes de feedback
       const feedbacks = document.querySelectorAll('.valid-feedback, .invalid-feedback');
       feedbacks.forEach(fb => {
         fb.style.display = 'none';
       });
 
-      // Asegurar que el foco esté en el campo de documento
       setTimeout(() => {
         const documentoField = document.getElementById('id_documento');
         if (documentoField) {
@@ -99,7 +97,6 @@
     initializeToasts() {
       console.log('🎨 Inicializando sistema de toasts...');
 
-      // Verificar que Bootstrap esté disponible
       if (typeof bootstrap === 'undefined') {
         console.error('❌ Bootstrap no está cargado. Los toasts no funcionarán.');
         return;
@@ -108,7 +105,8 @@
       const toastConfigs = {
         success: { delay: 9000, animation: true },
         error: { delay: 12000, animation: true },
-        warning: { delay: 10000, animation: true }
+        warning: { delay: 10000, animation: true },
+        info: { delay: 15000, animation: true }
       };
 
       let toastsInicializados = 0;
@@ -129,7 +127,7 @@
         }
       });
 
-      console.log(`📊 Total de toasts inicializados: ${toastsInicializados}/3`);
+      console.log(`📊 Total de toasts inicializados: ${toastsInicializados}/4`);
     }
 
     /**
@@ -152,11 +150,9 @@
         return;
       }
 
-      // Actualizar el mensaje
       messageEl.textContent = message;
       console.log(`✅ Mensaje actualizado en ${type}ToastMessage`);
 
-      // Mostrar el toast
       try {
         toastInstance.show();
         console.log(`📢 Toast ${type} mostrado exitosamente`);
@@ -184,68 +180,65 @@
 
         console.log(`  📋 Mensaje recibido: level="${level}", text="${text}"`);
 
-        // Mapear niveles de Django a tipos de toast
-        if (level.includes('level-success')) {
+        if (level.includes('level-success') || level.includes('success')) {
           this.showToast('success', text);
-        } else if (level.includes('level-error')) {
+        } else if (level.includes('level-error') || level.includes('error') || level.includes('danger')) {
           this.showToast('error', text);
-        } else if (level.includes('level-warning')) {
-          this.showToast('warning', text);
-        } else if (level.includes('success')) {
-          this.showToast('success', text);
-        } else if (level.includes('error') || level.includes('danger')) {
-          this.showToast('error', text);
-        } else if (level.includes('warning') || level.includes('info')) {
+        } else if (level.includes('level-warning') || level.includes('warning') || level.includes('info')) {
           this.showToast('warning', text);
         }
       });
+
+      console.log('✅ Mensajes de Django convertidos a toasts');
     }
 
     // ========================================================================
-    // TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
+    // TOGGLE DE CONTRASEÑA
     // ========================================================================
     initializePasswordToggle() {
-      const buttons = document.querySelectorAll('.toggle-password[data-target]');
-      buttons.forEach(btn => {
-        const targetId = btn.getAttribute('data-target');
-        const input = document.getElementById(targetId);
-        if (!input) return;
+      const toggleButtons = document.querySelectorAll('.toggle-password');
 
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-
-          const isText = input.getAttribute('type') === 'text';
-          input.setAttribute('type', isText ? 'password' : 'text');
-
-          // Cambiar el ícono del botón sin afectar su posición
+      toggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-target');
+          const input = document.getElementById(targetId);
           const icon = btn.querySelector('i');
-          if (icon) {
-            icon.className = isText ? 'bi bi-eye' : 'bi bi-eye-slash';
-          }
 
-          // Micro animación de opacidad para feedback visual
-          btn.style.opacity = '0.6';
-          setTimeout(() => {
-            btn.style.opacity = '1';
-          }, 100);
+          if (input && icon) {
+            if (input.type === 'password') {
+              input.type = 'text';
+              icon.classList.remove('bi-eye');
+              icon.classList.add('bi-eye-slash');
+            } else {
+              input.type = 'password';
+              icon.classList.remove('bi-eye-slash');
+              icon.classList.add('bi-eye');
+            }
+
+            btn.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+              btn.style.transform = 'scale(1)';
+            }, 100);
+          }
         });
       });
-      console.log('✅ Toggles de contraseña inicializados');
+
+      console.log(`✅ ${toggleButtons.length} botones de toggle de contraseña inicializados`);
     }
 
     // ========================================================================
-    // RESTRINGIR ENTRADA DE CARACTERES
+    // RESTRICCIONES DE ENTRADA
     // ========================================================================
     restrictInputs() {
-      // Documento: solo números
       const documentoField = document.getElementById('id_documento');
       if (documentoField) {
         documentoField.addEventListener('keypress', (e) => {
-          // Permitir solo números
-          if (!/[0-9]/.test(e.key)) {
+          if (!/\d/.test(e.key)) {
             e.preventDefault();
           }
+        });
+        documentoField.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/\D/g, '').substring(0, 10);
         });
         documentoField.addEventListener('paste', (e) => {
           e.preventDefault();
@@ -255,13 +248,11 @@
         });
       }
 
-      // Nombre y Apellido: solo letras y espacios
       const nameFields = ['id_first_name', 'id_last_name'];
       nameFields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (field) {
           field.addEventListener('keypress', (e) => {
-            // Permitir solo letras (incluye acentos y ñ) y espacios
             if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/.test(e.key)) {
               e.preventDefault();
             }
@@ -358,38 +349,45 @@
     /**
      * Validar campo y aplicar clases Bootstrap con animación
      */
-    validateField(input) {
+    validateField(input, forceValidation = false) {
       const validators = this.getValidators();
       const validator = validators[input.id];
 
       if (!validator) return true;
 
       const result = validator(input.value);
+      const hasContent = input.value.trim().length > 0;
 
-      // Remover clases previas
+      // Limpiar estados previos
       input.classList.remove('is-valid', 'is-invalid');
 
-      // Actualizar feedback
-      const parent = input.closest('.form-floating') || input.closest('.form-group');
-      if (parent) {
-        const invalidFeedback = parent.querySelector('.invalid-feedback');
-        const validFeedback = parent.querySelector('.valid-feedback');
+      const parent = input.closest('.form-floating') || input.closest('.form-group') || input.parentElement;
+      if (!parent) return result.valid;
 
-        // SOLO mostrar validaciones si el campo tiene contenido
-        // Esto evita que aparezcan errores al cargar la página
-        if (input.value.trim().length > 0) {
-          // Aplicar clase con animación
-          input.classList.add(result.valid ? 'is-valid' : 'is-invalid');
+      const invalidFeedback = parent.querySelector('.invalid-feedback');
+      const validFeedback = parent.querySelector('.valid-feedback');
 
-          // Actualizar mensajes
-          if (result.valid && validFeedback) {
-            validFeedback.textContent = result.message;
-          } else if (!result.valid && invalidFeedback) {
-            invalidFeedback.textContent = result.message;
+      // Ocultar todos los feedbacks primero
+      if (invalidFeedback) invalidFeedback.style.display = 'none';
+      if (validFeedback) validFeedback.style.display = 'none';
+
+      // Solo mostrar validaciones si:
+      // 1. El campo tiene contenido O
+      // 2. Se fuerza la validación (submit del formulario)
+      if (hasContent || forceValidation) {
+        if (result.valid && hasContent) {
+          input.classList.add('is-valid');
+          if (validFeedback) {
+            validFeedback.innerHTML = `<i class="bi bi-check-circle me-1"></i>${result.message}`;
+            validFeedback.style.display = 'block';
           }
-
-          // Animación de shake si es inválido
-          if (!result.valid) {
+        } else if (!result.valid) {
+          input.classList.add('is-invalid');
+          if (invalidFeedback) {
+            invalidFeedback.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>${result.message}`;
+            invalidFeedback.style.display = 'block';
+          }
+          if (forceValidation) {
             this.shakeElement(input);
           }
         }
@@ -422,7 +420,6 @@
         if (el) {
           const icon = el.querySelector('i');
           if (icon) {
-            // Animación de transición
             icon.style.transition = 'all 0.3s ease';
 
             if (met) {
@@ -455,12 +452,10 @@
 
       const percent = (result.fulfilled / result.total) * 100;
 
-      // Animación suave de la barra
       progressBar.style.transition = 'width 0.3s ease, background-color 0.3s ease';
       progressBar.style.width = percent + '%';
       progressBar.setAttribute('aria-valuenow', percent);
 
-      // Cambiar color según progreso con animación
       progressBar.className = 'progress-bar';
 
       let strengthLabel = 'Sin contraseña';
@@ -485,12 +480,10 @@
         strengthLabel = '¡Excelente!';
       }
 
-      // Actualizar texto de fortaleza
       if (strengthText) {
         strengthText.textContent = strengthLabel;
       }
 
-      // Actualizar visually-hidden para lectores de pantalla
       const srText = progressBar.querySelector('.visually-hidden');
       if (srText) {
         srText.textContent = `${percent}% completado - ${strengthLabel}`;
@@ -503,6 +496,9 @@
     // BIND DE EVENTOS EN CAMPOS
     // ========================================================================
     bindFieldEvents() {
+      // Map para rastrear si el usuario ha interactuado con cada campo
+      const interactedFields = new Map();
+
       this.fieldsToValidate.forEach(id => {
         const el = document.getElementById(id);
         if (!el) {
@@ -510,28 +506,24 @@
           return;
         }
 
-        // Agregar clase form-control si no la tiene
         if (!el.classList.contains('form-control')) {
           el.classList.add('form-control');
         }
 
-        // Bandera para saber si el usuario ha empezado a escribir
-        let hasInteracted = false;
-
-        // Validar en tiempo real (input) - solo después de que el usuario empiece a escribir
+        // Marcar como interactuado cuando el usuario empieza a escribir
         el.addEventListener('input', () => {
-          hasInteracted = true;
-          this.validateField(el);
+          interactedFields.set(id, true);
+          this.validateField(el, false);
         });
 
-        // Validar al perder el foco (blur) - solo si ha interactuado y tiene contenido
+        // Validar al perder el foco solo si ha interactuado
         el.addEventListener('blur', () => {
-          if (hasInteracted && el.value.trim().length > 0) {
-            this.validateField(el);
+          if (interactedFields.get(id) && el.value.trim().length > 0) {
+            this.validateField(el, false);
           }
         });
 
-        // Efecto de focus
+        // Animación de focus
         el.addEventListener('focus', () => {
           el.style.transform = 'scale(1.01)';
           el.style.transition = 'transform 0.2s ease';
@@ -542,25 +534,27 @@
         });
       });
 
-      // Validación especial de contraseña
+      // Eventos especiales para contraseñas
       const pwd1 = document.getElementById('id_password1');
       const pwd2 = document.getElementById('id_password2');
 
       if (pwd1) {
         pwd1.addEventListener('input', (e) => {
+          interactedFields.set('id_password1', true);
           this.updatePasswordProgress(e.target.value);
-          this.validateField(pwd1);
+          this.validateField(pwd1, false);
 
-          // Revalidar confirmación si ya tiene valor
-          if (pwd2 && pwd2.value.length > 0) {
-            this.validateField(pwd2);
+          // Si pwd2 ya tiene contenido, revalidarlo
+          if (pwd2 && pwd2.value.length > 0 && interactedFields.get('id_password2')) {
+            this.validateField(pwd2, false);
           }
         });
       }
 
       if (pwd2) {
         pwd2.addEventListener('input', () => {
-          this.validateField(pwd2);
+          interactedFields.set('id_password2', true);
+          this.validateField(pwd2, false);
         });
       }
 
@@ -571,7 +565,7 @@
     // VALIDACIÓN AL ENVIAR FORMULARIO
     // ========================================================================
     bindFormSubmit() {
-      const form = document.querySelector('form[method="post"]');
+      const form = document.getElementById('crearUsuarioForm');
       if (!form) {
         console.warn('⚠️ Formulario no encontrado');
         return;
@@ -584,17 +578,23 @@
         let firstInvalidField = null;
         const errors = [];
 
-        // Validar TODOS los campos obligatorios (no solo que estén llenos, sino con formato correcto)
         this.fieldsToValidate.forEach(id => {
           const input = document.getElementById(id);
           if (input) {
             const isEmpty = !input.value || input.value.trim() === '';
-            console.log(`Campo ${id}: ${isEmpty ? '❌ Vacío' : '✅ Tiene valor'} - Valor: "${input.value}"`);
 
             if (isEmpty) {
               hasErrors = true;
               input.classList.add('is-invalid');
               input.classList.remove('is-valid');
+
+              const parent = input.closest('.form-floating') || input.closest('.form-group') || input.parentElement;
+              const invalidFeedback = parent ? parent.querySelector('.invalid-feedback') : null;
+              if (invalidFeedback) {
+                invalidFeedback.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>Este campo es obligatorio';
+                invalidFeedback.style.display = 'block';
+              }
+
               errors.push(`${input.name || id}: Campo vacío`);
               console.log(`❌ ${id}: Vacío`);
 
@@ -602,8 +602,8 @@
                 firstInvalidField = input;
               }
             } else {
-              // Validar formato usando los validadores
-              const isValid = this.validateField(input);
+              // Forzar validación en submit
+              const isValid = this.validateField(input, true);
               if (!isValid) {
                 hasErrors = true;
                 errors.push(`${input.name || id}: Formato inválido`);
@@ -626,7 +626,6 @@
 
           this.showToast('warning', 'Por favor, corrige los campos marcados en rojo antes de continuar.');
 
-          // Scroll al primer campo inválido
           if (firstInvalidField) {
             firstInvalidField.scrollIntoView({
               behavior: 'smooth',
@@ -654,39 +653,40 @@
     }
 
     // ========================================================================
-    // SINCRONIZAR ERRORES DEL BACKEND
+    // VERIFICAR DATOS DE PERFIL OPCIONALES
     // ========================================================================
-    syncBackendErrors() {
-      const fields = document.querySelectorAll('.form-floating, .form-group');
-      let hasBackendErrors = false;
+    checkPerfilDataOnCollapse() {
+      const collapseElement = document.getElementById('perfilCollapse');
+      if (!collapseElement) {
+        console.log('⚠️ Collapse de perfil no encontrado');
+        return;
+      }
 
-      fields.forEach(wrapper => {
-        const input = wrapper.querySelector('input, select, textarea');
-        const feedback = wrapper.querySelector('.invalid-feedback');
+      const form = document.getElementById('crearUsuarioForm');
+      if (!form) return;
 
-        if (input && feedback) {
-          const backendError = feedback.textContent.trim();
+      form.addEventListener('submit', (e) => {
+        // Verificar si los campos opcionales están vacíos
+        const telefono = document.getElementById('id_telefono');
+        const fecha_nacimiento = document.getElementById('id_fecha_nacimiento');
+        const direccion = document.getElementById('id_direccion');
+        const foto_perfil = document.getElementById('id_foto_perfil');
 
-          // Detectar si es un error real del backend (no un placeholder)
-          const isPlaceholder = backendError.includes('debe tener exactamente') ||
-                                backendError.includes('Ingresa un') ||
-                                backendError.includes('es obligatorio') ||
-                                backendError.includes('coinciden') ||
-                                backendError.includes('válido') ||
-                                backendError.includes('inválida') ||
-                                backendError.length < 10;
+        const perfilVacio = (!telefono || !telefono.value.trim()) &&
+                           (!fecha_nacimiento || !fecha_nacimiento.value.trim()) &&
+                           (!direccion || !direccion.value.trim()) &&
+                           (!foto_perfil || !foto_perfil.value);
 
-          if (!isPlaceholder && backendError.length > 0) {
-            input.classList.add('is-invalid');
-            hasBackendErrors = true;
-            console.log(`⚠️ Error del backend en ${input.id}: ${backendError}`);
-          }
+        // Si el perfil está vacío y no hay errores de validación, mostrar toast informativo
+        if (perfilVacio && !e.defaultPrevented) {
+          // Esperar un momento y luego mostrar el toast
+          setTimeout(() => {
+            this.showToast('info', 'Recuerda que el usuario puede completar su perfil (teléfono, fecha de nacimiento, dirección y foto) después del primer inicio de sesión.');
+          }, 500);
         }
       });
 
-      if (hasBackendErrors) {
-        this.showToast('error', 'Hay errores en el formulario. Por favor, revísalos.');
-      }
+      console.log('✅ Verificación de datos de perfil configurada');
     }
 
     // ========================================================================
@@ -695,7 +695,6 @@
     applyMobileOptimizations() {
       const inputs = document.querySelectorAll('input, select, textarea');
       inputs.forEach(el => {
-        // Evitar zoom en iOS cuando se hace focus en inputs
         if (el.style.fontSize === '' || parseFloat(el.style.fontSize) < 16) {
           el.style.fontSize = '16px';
         }
@@ -707,7 +706,6 @@
     // ANIMACIONES ADICIONALES
     // ========================================================================
     addFieldAnimations() {
-      // Agregar animación de shake CSS si no existe
       if (!document.getElementById('validation-animations')) {
         const style = document.createElement('style');
         style.id = 'validation-animations';
@@ -758,91 +756,21 @@
   // INICIALIZACIÓN AUTOMÁTICA
   // ============================================================================
   function init() {
-    console.log('🎨 Iniciando sistema de registro ARTES_Y_ESTILOS');
+    console.log('🎨 Iniciando sistema de crear usuario ARTES_Y_ESTILOS');
 
-    // Verificar que Bootstrap esté disponible
     if (typeof bootstrap === 'undefined') {
       console.error('❌ Bootstrap 5 no está cargado. El sistema de validación no funcionará.');
-      console.log('💡 Asegúrate de que Bootstrap 5 esté incluido en master.html');
       return;
     }
 
-    // Crear e inicializar el validador
-    const validator = new RegistroValidator();
+    const validator = new CrearUsuarioValidator();
     validator.initialize();
   }
 
-  // Esperar a que el DOM esté completamente cargado
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
-  }
-
-})();
-
-// ============================================================================
-// SLIDESHOW DE FONDO ANIMADO - MEJORADO CON CLICK Y TRANSICIONES SUAVES
-// ============================================================================
-(function() {
-  'use strict';
-
-  function initBackgroundSlideshow() {
-    const container = document.getElementById('bg-slideshow');
-    if (!container) {
-      console.warn('⚠️ Contenedor de slideshow no encontrado');
-      return;
-    }
-
-    const slides = Array.from(container.querySelectorAll('.slide'));
-    if (slides.length === 0) {
-      console.warn('⚠️ No se encontraron slides');
-      return;
-    }
-
-    let currentIndex = 0;
-    let intervalId = null;
-
-    const activateSlide = (index) => {
-      slides.forEach((slide, i) => {
-        slide.classList.toggle('active', i === index);
-      });
-      console.log(`🖼️ Slide activo: ${index + 1}/${slides.length}`);
-    };
-
-    const nextSlide = () => {
-      currentIndex = (currentIndex + 1) % slides.length;
-      activateSlide(currentIndex);
-    };
-
-    const startAutoSlide = () => {
-      // Limpiar intervalo anterior si existe
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-      // Cambiar slide cada 10 segundos
-      intervalId = setInterval(nextSlide, 10000);
-    };
-
-    // Activar el primer slide
-    activateSlide(currentIndex);
-    startAutoSlide();
-    console.log('✅ Slideshow iniciado - Click en el fondo para cambiar');
-
-    // Permitir cambio manual con click en el fondo
-    container.addEventListener('click', () => {
-      nextSlide();
-      // Reiniciar el intervalo automático
-      startAutoSlide();
-      console.log('👆 Click en fondo - Cambiando slide manualmente');
-    });
-  }
-
-  // Inicializar slideshow cuando el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBackgroundSlideshow);
-  } else {
-    initBackgroundSlideshow();
   }
 
 })();

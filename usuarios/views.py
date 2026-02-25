@@ -239,7 +239,12 @@ def editar_perfil_view(request):
     usuario = request.user
     
     if request.method == 'POST':
-        form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
+        form = EditarPerfilForm(
+            request.POST,
+            request.FILES,
+            instance=usuario,
+            editing_user=request.user
+        )
         
         if form.is_valid():
             form.save()
@@ -250,13 +255,20 @@ def editar_perfil_view(request):
             )
             return redirect('usuarios:editar_perfil')
         else:
+            print("==== ERRORES DEL FORM ====")
+            print(form.errors)
+            print("==== ERRORES NO FIELD ====")
+            print(form.non_field_errors())
             messages.warning(
                 request,
                 '⚠️ Revisa los campos resaltados y corrige los errores.',
                 extra_tags='level-warning field-general'
             )
     else:
-        form = EditarPerfilForm(instance=usuario)
+        form = EditarPerfilForm(
+            instance=usuario,
+            editing_user=request.user
+        )
     
     context = {
         'form': form,

@@ -1,6 +1,5 @@
 {% extends 'core/panel_admin_base.html' %}
 {% load static %}
-{% load bootstrap5 %}
 
 {% block title %}{{ titulo|default:"Editar Usuario" }}{% endblock %}
 
@@ -10,25 +9,18 @@
 
 {% block content %}
 <div class="container-fluid py-4">
+
     <!-- Breadcrumb -->
     <div class="page-breadcrumb mb-4">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item">
-                    <a href="{% url 'core:dashboard' %}">
-                        <i class="bi bi-house-door-fill"></i>
-                        <span>Inicio</span>
-                    </a>
+                    <a href="{% url 'core:dashboard' %}"><i class="bi bi-house-door-fill"></i> <span>Inicio</span></a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="{% url 'usuarios:lista_usuarios' %}">
-                        <i class="bi bi-people-fill"></i>
-                        <span>Usuarios</span>
-                    </a>
+                    <a href="{% url 'usuarios:lista_usuarios' %}"><i class="bi bi-people-fill"></i> <span>Usuarios</span></a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    {{ titulo|default:"Editar Usuario" }}
-                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ titulo|default:"Editar Usuario" }}</li>
             </ol>
         </nav>
     </div>
@@ -36,148 +28,253 @@
     <!-- Header -->
     <div class="page-header">
         <div class="page-header-info">
-            <h1>
-                <i class="bi bi-pencil-square"></i>
-                {{ titulo|default:"Editar Usuario" }}
-            </h1>
-            <p>Modifica la información del usuario {{ usuario.username }}</p>
+            <h1><i class="bi bi-pencil-square"></i> {{ titulo|default:"Editar Usuario" }}</h1>
+            <p>Modifica la información del usuario <strong>{{ usuario.username }}</strong></p>
         </div>
     </div>
 
-    <!-- Formulario -->
-    <form method="post" enctype="multipart/form-data" id="form-editar-usuario">
+    <!-- Errores globales -->
+    {% if form.non_field_errors %}
+    <div class="field-non-field-errors mb-4">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+            <strong>Corrige los siguientes errores:</strong>
+            <ul class="mb-0 mt-1 ps-3">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="form-editar-usuario" novalidate>
         {% csrf_token %}
 
-        <!-- Información Personal -->
+        <!-- ── DATOS DE CUENTA (tabla Usuario) ── -->
         <div class="form-card">
             <h3 class="form-section-title">
-                <i class="bi bi-person-fill"></i>
-                Información Personal
+                <i class="bi bi-person-badge-fill"></i> Datos de Cuenta
             </h3>
-
             <div class="row g-3">
+
                 <div class="col-md-6">
-                    {% bootstrap_field form.first_name show_label=True %}
-                </div>
-                <div class="col-md-6">
-                    {% bootstrap_field form.last_name show_label=True %}
-                </div>
-                <div class="col-md-6">
-                    {% bootstrap_field form.username show_label=True %}
-                </div>
-                <div class="col-md-6">
-                    {% bootstrap_field form.email show_label=True %}
-                </div>
-                <div class="col-md-6">
-                    {% bootstrap_field form.documento show_label=True %}
-                    <input type="hidden" id="documento-original" value="{{ documento_original }}">
-                </div>
-                <div class="col-md-6">
-                    {% bootstrap_field form.telefono show_label=True %}
-                </div>
-                <div class="col-md-12">
-                    {% bootstrap_field form.direccion show_label=True %}
-                </div>
-                <div class="col-md-6">
-                    {% bootstrap_field form.fecha_nacimiento show_label=True %}
-                </div>
-                <div class="col-md-6">
-                    {% bootstrap_field form.foto_perfil show_label=True %}
-                    {% if usuario.perfil.foto_perfil %}
-                    <div class="mt-2">
-                        <small class="text-muted">Foto actual:</small><br>
-                        <img src="{{ usuario.perfil.foto_perfil.url }}" alt="Foto actual" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid var(--border-color);">
+                    <div class="field-wrapper {% if form.first_name.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-person-fill"></i> Nombre</label>
+                        <input type="text" name="first_name" id="id_first_name"
+                               value="{{ form.first_name.value|default:'' }}"
+                               class="field-input {% if form.first_name.errors %}field-input--error{% endif %}"
+                               required>
+                        {% if form.first_name.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.first_name.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
-                <div class="col-md-12">
-                    {% bootstrap_field form.biografia show_label=True %}
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.last_name.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-person-fill"></i> Apellido</label>
+                        <input type="text" name="last_name" id="id_last_name"
+                               value="{{ form.last_name.value|default:'' }}"
+                               class="field-input {% if form.last_name.errors %}field-input--error{% endif %}"
+                               required>
+                        {% if form.last_name.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.username.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-at"></i> Nombre de usuario</label>
+                        <input type="text" name="username" id="id_username"
+                               value="{{ form.username.value|default:'' }}"
+                               class="field-input {% if form.username.errors %}field-input--error{% endif %}"
+                               required minlength="4" maxlength="150">
+                        {% if form.username.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.email.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-envelope-fill"></i> Correo electrónico</label>
+                        <input type="email" name="email" id="id_email"
+                               value="{{ form.email.value|default:'' }}"
+                               class="field-input {% if form.email.errors %}field-input--error{% endif %}"
+                               required>
+                        {% if form.email.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.documento.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-card-text"></i> Documento</label>
+                        <input type="text" name="documento" id="id_documento"
+                               value="{{ form.documento.value|default:'' }}"
+                               class="field-input {% if form.documento.errors %}field-input--error{% endif %}"
+                               maxlength="10" inputmode="numeric">
+                        <input type="hidden" id="documento-original" value="{{ documento_original }}">
+                        {% if form.documento.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.documento.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- Confirmación de Cambio de Documento -->
-        <div id="confirmacion-documento" class="form-card" style="display: none; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%); border-left: 4px solid #ffc107;">
-            <h3 class="form-section-title" style="color: #f57c00;">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                ⚠️ Confirmación Requerida - Cambio de Documento
+        <!-- ── INFORMACIÓN PERSONAL (tabla Perfil) ── -->
+        <div class="form-card">
+            <h3 class="form-section-title">
+                <i class="bi bi-person-lines-fill"></i> Información Personal
             </h3>
-
-            <div class="alert alert-warning mb-3">
-                <i class="bi bi-shield-exclamation fs-4"></i>
-                <div>
-                    <strong>ADVERTENCIA:</strong> Estás intentando cambiar tu documento de identidad.
-                    <p class="mb-2 mt-2">
-                        <strong>Documento actual:</strong> <code id="doc-actual-texto">{{ documento_original }}</code><br>
-                        <strong>Documento nuevo:</strong> <code id="doc-nuevo-texto"></code>
-                    </p>
-                    <p class="mb-0">Este es un cambio crítico que puede afectar tu identificación en el sistema. Para continuar, debes confirmar esta acción.</p>
-                </div>
-            </div>
-
             <div class="row g-3">
-                <div class="col-md-12">
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="check-confirmar-documento" name="check_confirmar_documento">
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.telefono.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-telephone-fill"></i> Teléfono</label>
+                        <input type="tel" name="telefono" id="id_telefono"
+                               value="{{ form.telefono.value|default:'' }}"
+                               class="field-input {% if form.telefono.errors %}field-input--error{% endif %}"
+                               maxlength="20">
+                        {% if form.telefono.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.telefono.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.fecha_nacimiento.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-calendar-event"></i> Fecha de nacimiento</label>
+                        <input type="date" name="fecha_nacimiento" id="id_fecha_nacimiento"
+                               value="{{ form.fecha_nacimiento.value|date:'Y-m-d'|default:'' }}"
+                               class="field-input {% if form.fecha_nacimiento.errors %}field-input--error{% endif %}">
+                        {% if form.fecha_nacimiento.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.fecha_nacimiento.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="field-wrapper {% if form.direccion.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-geo-alt-fill"></i> Dirección</label>
+                        <input type="text" name="direccion" id="id_direccion"
+                               value="{{ form.direccion.value|default:'' }}"
+                               class="field-input {% if form.direccion.errors %}field-input--error{% endif %}">
+                        {% if form.direccion.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.direccion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.foto_perfil.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-camera-fill"></i> Foto de perfil</label>
+                        <input type="file" name="foto_perfil" id="id_foto_perfil"
+                               class="field-input {% if form.foto_perfil.errors %}field-input--error{% endif %}"
+                               accept="image/*">
+                        {% if usuario.perfil.foto_perfil %}
+                        <div class="mt-2">
+                            <small class="field-hint">Foto actual:</small><br>
+                            <img src="{{ usuario.perfil.foto_perfil.url }}" alt="Foto actual"
+                                 style="width:72px;height:72px;object-fit:cover;border-radius:50%;border:2px solid var(--border-color);margin-top:6px;">
+                        </div>
+                        {% endif %}
+                        {% if form.foto_perfil.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.foto_perfil.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="field-wrapper {% if form.biografia.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-file-text-fill"></i> Biografía</label>
+                        <textarea name="biografia" id="id_biografia" rows="4"
+                                  class="field-input {% if form.biografia.errors %}field-input--error{% endif %}">{{ form.biografia.value|default:'' }}</textarea>
+                        {% if form.biografia.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.biografia.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── CONFIRMACIÓN CAMBIO DOCUMENTO ── -->
+        <div id="confirmacion-documento" class="form-card"
+             style="display:none; border-left:4px solid #ffc107;">
+            <h3 class="form-section-title" style="color:#f59e0b;">
+                <i class="bi bi-exclamation-triangle-fill"></i> Confirmación — Cambio de Documento
+            </h3>
+            <div class="alert alert-warning mb-3">
+                <strong>ADVERTENCIA:</strong> Vas a cambiar tu documento de identidad.<br>
+                <strong>Actual:</strong> <code id="doc-actual-texto">{{ documento_original }}</code> →
+                <strong>Nuevo:</strong> <code id="doc-nuevo-texto"></code>
+            </div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox"
+                               id="check-confirmar-documento" name="check_confirmar_documento">
                         <label class="form-check-label" for="check-confirmar-documento">
-                            <strong>He verificado que el nuevo documento es correcto y entiendo las implicaciones de este cambio</strong>
+                            <strong>He verificado que el nuevo documento es correcto</strong>
                         </label>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="confirmar_cambio_documento" class="form-label">
-                        <strong>Escribe "CONFIRMAR" para autorizar el cambio:</strong>
+                    <label for="confirmar_cambio_documento" class="field-label">
+                        Escribe <strong>CONFIRMAR</strong> para autorizar:
                     </label>
-                    <input type="text"
-                           class="form-control"
+                    <input type="text" class="field-input"
                            id="confirmar_cambio_documento"
                            name="confirmar_cambio_documento"
-                           placeholder="Escribe CONFIRMAR (en mayúsculas)"
+                           placeholder="CONFIRMAR"
                            autocomplete="off">
-                    <small class="text-muted">Debe ser exactamente: CONFIRMAR</small>
                 </div>
             </div>
         </div>
 
-        <!-- Permisos y Estado -->
+        <!-- ── PERMISOS ── -->
         <div class="form-card">
             <h3 class="form-section-title">
-                <i class="bi bi-shield-lock-fill"></i>
-                Permisos y Estado de la Cuenta
+                <i class="bi bi-shield-lock-fill"></i> Permisos y Estado
             </h3>
-
             <div class="alert-info-box mb-3">
                 <i class="bi bi-info-circle-fill fs-5"></i>
-                <div>
-                    <small><strong>Nota:</strong> Los cambios en permisos afectan tu nivel de acceso al sistema. Usa con precaución.</small>
-                </div>
+                <div><small><strong>Nota:</strong> Los cambios en permisos afectan el nivel de acceso al sistema.</small></div>
             </div>
-
             <div class="row g-3">
                 <div class="col-md-4">
                     <div class="form-check form-switch">
-                        {{ form.is_active }}
-                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                            <strong>{{ form.is_active.label }}</strong><br>
-                            <small class="text-muted">{{ form.is_active.help_text }}</small>
+                        <input class="form-check-input" type="checkbox"
+                               name="is_active" id="id_is_active"
+                               {% if form.is_active.value %}checked{% endif %}>
+                        <label class="form-check-label" for="id_is_active">
+                            <strong>Cuenta activa</strong>
                         </label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-check form-switch">
-                        {{ form.is_staff }}
-                        <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">
-                            <strong>{{ form.is_staff.label }}</strong><br>
-                            <small class="text-muted">{{ form.is_staff.help_text }}</small>
+                        <input class="form-check-input" type="checkbox"
+                               name="is_staff" id="id_is_staff"
+                               {% if form.is_staff.value %}checked{% endif %}>
+                        <label class="form-check-label" for="id_is_staff">
+                            <strong>Acceso al panel</strong>
                         </label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-check form-switch">
-                        {{ form.is_superuser }}
-                        <label class="form-check-label" for="{{ form.is_superuser.id_for_label }}">
-                            <strong>{{ form.is_superuser.label }}</strong><br>
-                            <small class="text-muted">{{ form.is_superuser.help_text }}</small>
+                        <input class="form-check-input" type="checkbox"
+                               name="is_superuser" id="id_is_superuser"
+                               {% if form.is_superuser.value %}checked{% endif %}>
+                        <label class="form-check-label" for="id_is_superuser">
+                            <strong>Superadministrador</strong>
                         </label>
                     </div>
                 </div>
@@ -187,100 +284,85 @@
         <!-- Botones -->
         <div class="d-flex gap-3">
             <button type="submit" class="btn-guardar">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                {{ boton_texto|default:"Guardar Cambios" }}
+                <i class="bi bi-check-circle-fill me-2"></i>{{ boton_texto|default:"Guardar Cambios" }}
             </button>
             <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancelar">
-                <i class="bi bi-x-circle-fill me-2"></i>
-                Cancelar
+                <i class="bi bi-x-circle-fill me-2"></i>Cancelar
             </a>
         </div>
+
     </form>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const documentoInput = document.getElementById('{{ form.documento.id_for_label }}');
-    const documentoOriginal = document.getElementById('documento-original').value;
-    const confirmacionDocumento = document.getElementById('confirmacion-documento');
-    const docNuevoTexto = document.getElementById('doc-nuevo-texto');
-    const checkConfirmar = document.getElementById('check-confirmar-documento');
-    const inputConfirmar = document.getElementById('confirmar_cambio_documento');
-    const formulario = document.getElementById('form-editar-usuario');
+document.addEventListener('DOMContentLoaded', function () {
+    const docInput      = document.getElementById('id_documento');
+    const docOriginal   = document.getElementById('documento-original')?.value || '';
+    const confirmDiv    = document.getElementById('confirmacion-documento');
+    const docNuevoEl    = document.getElementById('doc-nuevo-texto');
+    const checkBox      = document.getElementById('check-confirmar-documento');
+    const confirmInput  = document.getElementById('confirmar_cambio_documento');
+    const form          = document.getElementById('form-editar-usuario');
+    const isActiveChk   = document.getElementById('id_is_active');
+    const esAutoEdicion = {{ es_auto_edicion|lower }};
 
-    // PROTECCIÓN: Prevenir auto-desactivación
-    const isActiveCheckbox = document.getElementById('{{ form.is_active.id_for_label }}');
-    if (isActiveCheckbox) {
-        const esAutoEdicion = {{ es_auto_edicion|lower }};
-
-        if (esAutoEdicion) {
-            // Bloquear el checkbox
-            isActiveCheckbox.addEventListener('click', function(e) {
-                if (!this.checked) {
-                    e.preventDefault();
-                    alert('⚠️ ADVERTENCIA: No puedes desactivar tu propia cuenta.\n\nSi te desactivas, perderás acceso al sistema y necesitarás ayuda del administrador para reactivarte.');
-                    this.checked = true;
-                    return false;
-                }
-            });
-
-            // Asegurar que siempre esté marcado
-            isActiveCheckbox.checked = true;
-        }
+    // Proteger auto-desactivación
+    if (isActiveChk && esAutoEdicion) {
+        isActiveChk.checked = true;
+        isActiveChk.addEventListener('change', function () {
+            if (!this.checked) {
+                this.checked = true;
+                window._dashboard?.showAdminNotification('warning', 'No puedes desactivar tu propia cuenta.');
+            }
+        });
     }
 
-    // Detectar cambio en el campo documento
-    documentoInput.addEventListener('input', function() {
-        const valorNuevo = documentoInput.value.trim();
-
-        if (valorNuevo !== documentoOriginal && valorNuevo !== '') {
-            // Mostrar sección de confirmación
-            confirmacionDocumento.style.display = 'block';
-            docNuevoTexto.textContent = valorNuevo;
-
-            // Scroll suave a la sección de confirmación
-            confirmacionDocumento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Cambio de documento → mostrar confirmación
+    docInput?.addEventListener('input', function () {
+        const val = this.value.trim();
+        if (val && val !== docOriginal) {
+            confirmDiv.style.display = 'block';
+            docNuevoEl.textContent = val;
+            confirmDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-            // Ocultar sección de confirmación
-            confirmacionDocumento.style.display = 'none';
-            checkConfirmar.checked = false;
-            inputConfirmar.value = '';
+            confirmDiv.style.display = 'none';
+            if (checkBox) checkBox.checked = false;
+            if (confirmInput) confirmInput.value = '';
         }
     });
 
-    // Validar antes de enviar el formulario
-    formulario.addEventListener('submit', function(e) {
-        // Validación de documento
-        const valorNuevo = documentoInput.value.trim();
-
-        if (valorNuevo !== documentoOriginal && valorNuevo !== '') {
-            // Si el documento cambió, validar confirmación
-            if (!checkConfirmar.checked) {
+    // Validar al enviar
+    form?.addEventListener('submit', function (e) {
+        const val = docInput?.value.trim() || '';
+        if (val && val !== docOriginal) {
+            if (!checkBox?.checked) {
                 e.preventDefault();
-                alert('⚠️ Debes marcar la casilla de confirmación para cambiar el documento.');
-                checkConfirmar.focus();
-                return false;
+                window._dashboard?.showAdminNotification('warning', 'Marca la casilla de confirmación para cambiar el documento.');
+                checkBox?.focus();
+                return;
             }
-
-            if (inputConfirmar.value !== 'CONFIRMAR') {
+            if (confirmInput?.value !== 'CONFIRMAR') {
                 e.preventDefault();
-                alert('⚠️ Debes escribir "CONFIRMAR" exactamente para autorizar el cambio de documento.');
-                inputConfirmar.focus();
-                return false;
+                window._dashboard?.showAdminNotification('warning', 'Escribe exactamente "CONFIRMAR" para autorizar el cambio.');
+                confirmInput?.focus();
+                return;
             }
         }
-
-        // PROTECCIÓN ADICIONAL: Verificar is_active
-        if (isActiveCheckbox && !isActiveCheckbox.checked) {
+        if (esAutoEdicion && isActiveChk && !isActiveChk.checked) {
             e.preventDefault();
-            alert('⚠️ ERROR CRÍTICO: Intentaste desactivar tu propia cuenta.\n\nEsto está bloqueado por seguridad. Si necesitas desactivarte, contacta a otro administrador.');
-            isActiveCheckbox.checked = true;
-            return false;
+            isActiveChk.checked = true;
+            window._dashboard?.showAdminNotification('error', 'No puedes desactivar tu propia cuenta.');
         }
     });
+
+    // Scroll al primer error al cargar
+    const firstError = document.querySelector('.field-input--error');
+    if (firstError) {
+        setTimeout(() => firstError.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+        firstError.focus();
+    }
 });
 </script>
 {% endblock %}
-{% endblock %}
-

@@ -46,11 +46,15 @@ class LoginForm(AuthenticationForm):
 class RegistroForm(UserCreationForm):
 
     # Campos del Perfil
-    telefono = forms.CharField(required=False)
-    direccion = forms.CharField(required=False)
-    fecha_nacimiento = forms.DateField(required=False)
-    biografia = forms.CharField(widget=forms.Textarea, required=False)
-    foto_perfil = forms.ImageField(required=False)
+    telefono         = forms.CharField(required=False, label="Teléfono")
+    direccion        = forms.CharField(required=False, label="Dirección")
+    fecha_nacimiento = forms.DateField(
+        required=False,
+        label="Fecha de nacimiento",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    biografia   = forms.CharField(widget=forms.Textarea(attrs={"rows": 3}), required=False, label="Biografía")
+    foto_perfil = forms.ImageField(required=False, label="Foto de perfil")
 
     class Meta:
         model = User
@@ -64,78 +68,104 @@ class RegistroForm(UserCreationForm):
             "password2",
         )
 
-    # ---------------- VALIDACIONES ---------------- #
-
     def clean_username(self):
         username = self.cleaned_data.get("username")
-        qs = User.objects.filter(username=username)
-        if qs.exists():
+        if User.objects.filter(username=username).exists():
             raise ValidationError("Este nombre de usuario ya está en uso.")
         return username
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        qs = User.objects.filter(email=email)
-        if qs.exists():
+        if User.objects.filter(email=email).exists():
             raise ValidationError("Este correo ya está registrado.")
         return email
 
     def clean_documento(self):
-        documento = self.cleaned_data.get("documento")
-
-        if not documento.isdigit() or len(documento) != 10:
+        documento = self.cleaned_data.get("documento", "")
+        if not documento or not documento.isdigit() or len(documento) != 10:
             raise ValidationError("El documento debe tener exactamente 10 dígitos.")
-
-        qs = User.objects.filter(documento=documento)
-        if qs.exists():
+        if User.objects.filter(documento=documento).exists():
             raise ValidationError("Este documento ya está registrado.")
         return documento
 
 
 # =====================================================
-# ✏️ EDITAR PERFIL FORM (Usuario + Perfil)
+# ✏️ EDITAR PERFIL / USUARIO FORM
 # =====================================================
 
 class EditarPerfilForm(forms.ModelForm):
+    """
+    Formulario unificado para editar Usuario + Perfil.
 
-    # Campos del Perfil
-    telefono = forms.CharField(required=False)
-    direccion = forms.CharField(required=False)
-    fecha_nacimiento = forms.DateField(required=False)
-    biografia = forms.CharField(widget=forms.Textarea, required=False)
-    foto_perfil = forms.ImageField(required=False)
+    Campos del modelo Usuario: first_name, last_name, username,
+        email, documento, is_active, is_staff, is_superuser.
+
+    Campos del modelo Perfil (inyectados como extra fields):
+        telefono, direccion, fecha_nacimiento, biografia, foto_perfil.
+    """
+
+    # ── Campos extra del Perfil (no están en User) ──────────────────────
+    telefono = forms.CharField(
+        required=False,
+        label="Teléfono",
+        widget=forms.TextInput(attrs={"placeholder": "Ej: 3001234567"}),
+    )
+    direccion = forms.CharField(
+        required=False,
+        label="Dirección",
+        widget=forms.TextInput(attrs={"placeholder": "Dirección completa"}),
+    )
+    fecha_nacimiento = forms.DateField(
+        required=False,
+        label="Fecha de nacimiento",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    biografia = forms.CharField(
+        required=False,
+        label="Biografía",
+        widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Cuéntanos algo sobre ti..."}),
+    )
+    foto_perfil = forms.ImageField(
+        required=False,
+        label="Foto de perfil",
+    )
 
     class Meta:
         model = User
         fields = [
-            "username",
             "first_name",
             "last_name",
+            "username",
             "email",
+            "documento",      # ← campo del modelo Usuario — era la causa del error
+            "is_active",      # ← necesario porque el template usa {{ form.is_active }}
+            "is_staff",
+            "is_superuser",
         ]
 
     def __init__(self, *args, **kwargs):
         self.editing_user = kwargs.pop("editing_user", None)
         super().__init__(*args, **kwargs)
 
-        # Cargar datos iniciales del perfil
+        # Cargar valores actuales del Perfil relacionado
         if self.instance.pk:
-            perfil = self.instance.perfil
-            self.fields["telefono"].initial = perfil.telefono
-            self.fields["direccion"].initial = perfil.direccion
-            self.fields["fecha_nacimiento"].initial = perfil.fecha_nacimiento
-            self.fields["biografia"].initial = perfil.biografia
-            self.fields["foto_perfil"].initial = perfil.foto_perfil
+            try:
+                perfil = self.instance.perfil
+                self.fields["telefono"].initial          = perfil.telefono
+                self.fields["direccion"].initial          = perfil.direccion
+                self.fields["fecha_nacimiento"].initial   = perfil.fecha_nacimiento
+                self.fields["biografia"].initial          = perfil.biografia
+                self.fields["foto_perfil"].initial        = perfil.foto_perfil
+            except Perfil.DoesNotExist:
+                pass
 
-    # ---------------- VALIDACIONES ---------------- #
+    # ── Validaciones ─────────────────────────────────────────────────────
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
         qs = User.objects.filter(username=username)
-
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
-
         if qs.exists():
             raise ValidationError("Este nombre de usuario ya está en uso.")
         return username
@@ -143,43 +173,38 @@ class EditarPerfilForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get("email")
         qs = User.objects.filter(email=email)
-
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
-
         if qs.exists():
             raise ValidationError("Este correo ya está registrado.")
         return email
 
     def clean_documento(self):
-        documento = self.cleaned_data.get("documento")
-
-        if not documento.isdigit() or len(documento) != 10:
+        documento = self.cleaned_data.get("documento", "")
+        if not documento or not documento.isdigit() or len(documento) != 10:
             raise ValidationError("El documento debe tener exactamente 10 dígitos.")
-
         qs = User.objects.filter(documento=documento)
-
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
-
         if qs.exists():
             raise ValidationError("Este documento ya está registrado.")
         return documento
 
-    # ---------------- SAVE PROFESIONAL ---------------- #
+    # ── Guardado atómico: User + Perfil ──────────────────────────────────
 
     def save(self, commit=True):
         with transaction.atomic():
             user = super().save(commit=commit)
 
             perfil = user.perfil
-            perfil.telefono = self.cleaned_data.get("telefono")
-            perfil.direccion = self.cleaned_data.get("direccion")
-            perfil.fecha_nacimiento = self.cleaned_data.get("fecha_nacimiento")
-            perfil.biografia = self.cleaned_data.get("biografia")
+            perfil.telefono          = self.cleaned_data.get("telefono", "")
+            perfil.direccion          = self.cleaned_data.get("direccion", "")
+            perfil.fecha_nacimiento   = self.cleaned_data.get("fecha_nacimiento")
+            perfil.biografia          = self.cleaned_data.get("biografia", "")
 
             foto = self.cleaned_data.get("foto_perfil")
-            if foto:
+            # Solo actualizar si es un archivo subido nuevo (no el string del initial)
+            if foto and hasattr(foto, "name"):
                 perfil.foto_perfil = foto
 
             if commit:

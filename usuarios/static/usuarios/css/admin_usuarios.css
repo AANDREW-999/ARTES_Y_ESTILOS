@@ -2011,3 +2011,261 @@ html[data-theme="dark"] .toggle-password {
                 transform 0.1s ease;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   PATCH admin_usuarios.css
+   Añadir al FINAL del archivo, reemplaza los bloques viejos
+   de "CAMPOS DE FORMULARIO" y "MODO OSCURO - CAMPOS"
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── 1. RESETEAR EL BUG QUE OCULTABA invalid-feedback ─── */
+
+/* El bug original era: .form-text.text-muted { display: none !important }
+   Esa regla oculta también el div.invalid-feedback porque Bootstrap le pone
+   class="invalid-feedback" que hereda display de reglas anteriores.
+   Lo reemplazamos por una regla que solo oculta el helptext real de Django: */
+
+/* Ocultar SOLO el helptext de Django (viene siempre después de .form-control) */
+.form-control + small.helptext,
+.form-control ~ .helptext,
+span.helptext {
+    display: none !important;
+}
+
+/* NUNCA ocultar invalid-feedback ni valid-feedback */
+.invalid-feedback,
+.valid-feedback {
+    display: none; /* Bootstrap lo controla con .is-invalid/.is-valid en el input */
+}
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.form-control.is-invalid ~ .invalid-feedback {
+    display: block !important;
+}
+.was-validated .form-control:valid ~ .valid-feedback,
+.form-control.is-valid ~ .valid-feedback {
+    display: block !important;
+}
+
+/* ─── 2. SISTEMA PROPIO DE CAMPOS (ambos templates) ─── */
+
+/* Wrapper del campo */
+.field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.field-wrapper--error .field-input {
+    border-color: #ef4444 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ef4444' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Label */
+.field-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 0;
+}
+
+.field-label i {
+    color: #BF5486;
+    margin-right: 0.375rem;
+}
+
+/* Input base */
+.field-input {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--bg-secondary, rgba(20, 24, 51, 0.5));
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.field-input:focus {
+    border-color: #BF5486;
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18);
+    background: var(--bg-card);
+}
+
+.field-input--error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+textarea.field-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+input[type="file"].field-input {
+    padding: 0.5rem 0.9rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+input[type="file"].field-input::file-selector-button {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    margin-right: 0.75rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+input[type="file"].field-input::file-selector-button:hover {
+    background: #BF5486;
+    color: white;
+    border-color: #BF5486;
+}
+
+/* Mensaje de error debajo del campo */
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #ef4444;
+    margin-top: 0.125rem;
+    animation: fadeInDown 0.2s ease;
+}
+
+.field-error i {
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    color: #ef4444;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hint/help text visible (no es error) */
+.field-hint {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* Banner de errores globales (non_field_errors) */
+.field-non-field-errors {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1.5px solid rgba(239, 68, 68, 0.35);
+    border-left: 4px solid #ef4444;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    color: #ef4444;
+    font-size: 0.9rem;
+}
+
+.field-non-field-errors i {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+/* Sección de formulario sin card (para editar_perfil) */
+.form-section {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+/* ─── 3. MODO CLARO — ajustes de campo ─── */
+
+html[data-theme="light"] .field-input {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #1a202c;
+}
+
+html[data-theme="light"] .field-input:focus {
+    background: #ffffff;
+    border-color: #BF5486;
+}
+
+html[data-theme="light"] .field-input--error {
+    border-color: #ef4444 !important;
+    background: #fff;
+}
+
+html[data-theme="light"] .field-label {
+    color: #6b7280;
+}
+
+html[data-theme="light"] .field-error {
+    color: #dc2626;
+}
+
+html[data-theme="light"] .field-error i {
+    color: #dc2626;
+}
+
+html[data-theme="light"] .field-non-field-errors {
+    background: rgba(220, 38, 38, 0.06);
+    border-color: rgba(220, 38, 38, 0.3);
+    border-left-color: #dc2626;
+    color: #dc2626;
+}
+
+html[data-theme="light"] .form-section {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.08);
+}
+
+html[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: none;
+}
+
+/* ─── 4. MODO OSCURO — invalid-feedback de Bootstrap visible ─── */
+
+html[data-theme="dark"] .invalid-feedback {
+    color: #f87171 !important;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+html[data-theme="dark"] .valid-feedback {
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .form-control.is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    /* NO usar background-image: none — dejar el ícono */
+    background-color: rgba(20, 24, 51, 0.8) !important;
+}
+
+/* Eliminar el !important que borraba el ícono del campo inválido */
+html[data-theme="dark"] .form-control:placeholder-shown.is-invalid {
+    /* No poner background-image: none aquí */
+    border-color: #ef4444 !important;
+}
+
+html[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+

@@ -14,10 +14,10 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
-                <a href="{% url 'core:dashboard' %}"><i class="bi bi-house-door-fill"></i> <span>Inicio</span></a>
+                <a href="{% url 'core:dashboard' %}"><i class="bi bi-house-door-fill"></i> Inicio</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'usuarios:perfil' %}"><i class="bi bi-person-circle"></i> <span>Mi Perfil</span></a>
+                <a href="{% url 'usuarios:perfil' %}"><i class="bi bi-person-circle"></i> Mi Perfil</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">Editar</li>
         </ol>
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <!-- Errores globales -->
+            <!-- Errores globales del form -->
             {% if form.non_field_errors %}
             <div class="field-non-field-errors mb-4">
                 <i class="bi bi-exclamation-triangle-fill"></i>
@@ -73,27 +73,30 @@
 
             <div class="profile-tabs-card">
                 <div class="profile-tab-content">
-                    <form method="post" enctype="multipart/form-data" id="perfilForm" novalidate>
+
+                    <!-- BUG 9 FIX: action explícito -->
+                    <form method="post"
+                          action="{% url 'usuarios:editar_perfil' %}"
+                          enctype="multipart/form-data"
+                          id="perfilForm"
+                          novalidate>
                         {% csrf_token %}
 
-                        <!-- ── DATOS DE CUENTA (tabla Usuario) ── -->
+                        <!-- ══ DATOS DE CUENTA ══════════════════════════════ -->
                         <div class="form-section mb-4">
                             <h3 class="form-section-title">
                                 <i class="bi bi-person-badge-fill"></i> Datos de Cuenta
                             </h3>
                             <div class="row g-4">
 
+                                <!-- Nombre -->
                                 <div class="col-md-6">
                                     <div class="field-wrapper {% if form.first_name.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_first_name" class="field-label">
                                             <i class="bi bi-person-fill"></i> Nombre
                                         </label>
-                                        <input type="text"
-                                               name="first_name"
-                                               id="id_first_name"
-                                               value="{{ form.first_name.value|default:'' }}"
-                                               class="field-input {% if form.first_name.errors %}field-input--error{% endif %}"
-                                               required>
+                                        {# FIX BUG 6: usamos el widget del form, no value manual #}
+                                        {{ form.first_name }}
                                         {% if form.first_name.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -103,17 +106,13 @@
                                     </div>
                                 </div>
 
+                                <!-- Apellido -->
                                 <div class="col-md-6">
                                     <div class="field-wrapper {% if form.last_name.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_last_name" class="field-label">
                                             <i class="bi bi-person-fill"></i> Apellido
                                         </label>
-                                        <input type="text"
-                                               name="last_name"
-                                               id="id_last_name"
-                                               value="{{ form.last_name.value|default:'' }}"
-                                               class="field-input {% if form.last_name.errors %}field-input--error{% endif %}"
-                                               required>
+                                        {{ form.last_name }}
                                         {% if form.last_name.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -123,17 +122,13 @@
                                     </div>
                                 </div>
 
+                                <!-- Username -->
                                 <div class="col-md-6">
                                     <div class="field-wrapper {% if form.username.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_username" class="field-label">
                                             <i class="bi bi-at"></i> Nombre de usuario
                                         </label>
-                                        <input type="text"
-                                               name="username"
-                                               id="id_username"
-                                               value="{{ form.username.value|default:'' }}"
-                                               class="field-input {% if form.username.errors %}field-input--error{% endif %}"
-                                               required minlength="4" maxlength="150">
+                                        {{ form.username }}
                                         {% if form.username.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -143,17 +138,13 @@
                                     </div>
                                 </div>
 
+                                <!-- Email -->
                                 <div class="col-md-6">
                                     <div class="field-wrapper {% if form.email.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_email" class="field-label">
                                             <i class="bi bi-envelope-fill"></i> Correo electrónico
                                         </label>
-                                        <input type="email"
-                                               name="email"
-                                               id="id_email"
-                                               value="{{ form.email.value|default:'' }}"
-                                               class="field-input {% if form.email.errors %}field-input--error{% endif %}"
-                                               required>
+                                        {{ form.email }}
                                         {% if form.email.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -166,24 +157,20 @@
                             </div>
                         </div>
 
-                        <!-- ── INFORMACIÓN PERSONAL (tabla Perfil) ── -->
+                        <!-- ══ INFORMACIÓN PERSONAL ═════════════════════════ -->
                         <div class="form-section mb-4">
                             <h3 class="form-section-title">
                                 <i class="bi bi-person-lines-fill"></i> Información Personal
                             </h3>
                             <div class="row g-4">
 
+                                <!-- Teléfono -->
                                 <div class="col-md-6">
                                     <div class="field-wrapper {% if form.telefono.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_telefono" class="field-label">
                                             <i class="bi bi-telephone-fill"></i> Teléfono
                                         </label>
-                                        <input type="tel"
-                                               name="telefono"
-                                               id="id_telefono"
-                                               value="{{ form.telefono.value|default:'' }}"
-                                               class="field-input {% if form.telefono.errors %}field-input--error{% endif %}"
-                                               maxlength="20">
+                                        {{ form.telefono }}
                                         {% if form.telefono.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -193,16 +180,17 @@
                                     </div>
                                 </div>
 
+                                <!-- Fecha de nacimiento -->
                                 <div class="col-md-6">
                                     <div class="field-wrapper {% if form.fecha_nacimiento.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_fecha_nacimiento" class="field-label">
                                             <i class="bi bi-calendar-event"></i> Fecha de nacimiento
                                         </label>
-                                        <input type="date"
-                                               name="fecha_nacimiento"
-                                               id="id_fecha_nacimiento"
-                                               value="{{ form.fecha_nacimiento.value|date:'Y-m-d'|default:'' }}"
-                                               class="field-input {% if form.fecha_nacimiento.errors %}field-input--error{% endif %}">
+                                        {# FIX BUG 6: el widget DateInput con type=date
+                                           renderiza correctamente con el valor del form.
+                                           No usar |date:'Y-m-d' porque en POST fallido
+                                           devuelve el valor enviado por el usuario. #}
+                                        {{ form.fecha_nacimiento }}
                                         {% if form.fecha_nacimiento.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -212,16 +200,13 @@
                                     </div>
                                 </div>
 
+                                <!-- Dirección -->
                                 <div class="col-12">
                                     <div class="field-wrapper {% if form.direccion.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_direccion" class="field-label">
                                             <i class="bi bi-geo-alt-fill"></i> Dirección
                                         </label>
-                                        <input type="text"
-                                               name="direccion"
-                                               id="id_direccion"
-                                               value="{{ form.direccion.value|default:'' }}"
-                                               class="field-input {% if form.direccion.errors %}field-input--error{% endif %}">
+                                        {{ form.direccion }}
                                         {% if form.direccion.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -231,15 +216,13 @@
                                     </div>
                                 </div>
 
+                                <!-- Biografía -->
                                 <div class="col-12">
                                     <div class="field-wrapper {% if form.biografia.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_biografia" class="field-label">
                                             <i class="bi bi-file-text-fill"></i> Biografía
                                         </label>
-                                        <textarea name="biografia"
-                                                  id="id_biografia"
-                                                  class="field-input {% if form.biografia.errors %}field-input--error{% endif %}"
-                                                  rows="4">{{ form.biografia.value|default:'' }}</textarea>
+                                        {{ form.biografia }}
                                         {% if form.biografia.errors %}
                                         <div class="field-error">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -249,16 +232,13 @@
                                     </div>
                                 </div>
 
+                                <!-- Foto de perfil -->
                                 <div class="col-12">
                                     <div class="field-wrapper {% if form.foto_perfil.errors %}field-wrapper--error{% endif %}">
                                         <label for="id_foto_perfil" class="field-label">
                                             <i class="bi bi-camera-fill"></i> Foto de Perfil
                                         </label>
-                                        <input type="file"
-                                               name="foto_perfil"
-                                               id="id_foto_perfil"
-                                               class="field-input {% if form.foto_perfil.errors %}field-input--error{% endif %}"
-                                               accept="image/*">
+                                        {{ form.foto_perfil }}
                                         <small class="field-hint">
                                             <i class="bi bi-info-circle"></i>
                                             JPG, PNG, GIF · Máx. 5 MB
@@ -299,37 +279,42 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Preview avatar
+    // ── Preview de avatar ──────────────────────────────────────
     document.getElementById('id_foto_perfil')?.addEventListener('change', function (e) {
         const file = e.target.files[0];
         if (!file || !file.type.startsWith('image/')) return;
+
         if (file.size > 5 * 1024 * 1024) {
-            window._dashboard?.showAdminNotification('warning', 'La imagen no debe superar 5MB.');
+            window._dashboard?.showAdminNotification('warning', 'La imagen no debe superar 5 MB.');
             this.value = '';
             return;
         }
+
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function (ev) {
             const preview = document.getElementById('avatarPreview');
             if (!preview) return;
             if (preview.tagName === 'IMG') {
-                preview.src = e.target.result;
+                preview.src = ev.target.result;
             } else {
-                const img = document.createElement('img');
-                img.src = e.target.result;
+                const img    = document.createElement('img');
+                img.src      = ev.target.result;
                 img.className = 'profile-avatar';
-                img.id = 'avatarPreview';
+                img.id        = 'avatarPreview';
+                img.alt       = 'Vista previa';
                 preview.replaceWith(img);
             }
         };
         reader.readAsDataURL(file);
     });
 
-    // Scroll al primer error al cargar
-    const firstError = document.querySelector('.field-input--error');
+    // ── Scroll al primer campo con error al cargar ─────────────
+    const firstError = document.querySelector('.field-input--error, .field-wrapper--error .field-input');
     if (firstError) {
-        setTimeout(() => firstError.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
-        firstError.focus();
+        setTimeout(() => {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstError.focus();
+        }, 150);
     }
 
 });

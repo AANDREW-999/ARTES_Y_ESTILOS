@@ -813,3 +813,61 @@ input[type="file"].form-control:hover {
     display: none !important;
   }
 }
+/* ── Shake via clase (BUG 4) ──────────────────────────────────
+   El JS añade ._is-shaking con getBoundingClientRect() reflow.
+   Esto funciona en todos los browsers incluyendo Safari iOS.    */
+@keyframes _shake {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-5px); }
+  30%, 60%, 90% { transform: translateX(5px); }
+}
+
+.form-control._is-shaking {
+  animation: _shake 0.42s ease !important;
+}
+
+/* ── Feedbacks dentro de form-floating (BUG selector CSS) ─────
+   Bootstrap 5 usa el selector "~" para hermanos generales.
+   Dentro de .form-floating el orden DOM es:
+     input → label → .invalid-feedback
+   El selector ~ alcanza elementos hermanos posteriores, por lo
+   que SÍ funciona. Pero si otro CSS tiene display:none !important
+   esto lo sobreescribe con mayor especificidad.                 */
+.form-floating > .form-control.is-valid  ~ .valid-feedback,
+.form-floating > .form-control.is-valid  ~ .valid-feedback,
+.col-md-6 .form-control.is-valid         ~ .valid-feedback,
+.col-12   .form-control.is-valid         ~ .valid-feedback {
+  display: block !important;
+}
+
+.form-floating > .form-control.is-invalid ~ .invalid-feedback,
+.col-md-6 .form-control.is-invalid        ~ .invalid-feedback,
+.col-12   .form-control.is-invalid        ~ .invalid-feedback {
+  display: block !important;
+}
+
+/* Asegurar que cuando NO hay clase de validación, el feedback
+   quede oculto (no dejar residuos al limpiar con JS)           */
+.form-floating > .form-control:not(.is-valid):not(.is-invalid) ~ .valid-feedback,
+.form-floating > .form-control:not(.is-valid):not(.is-invalid) ~ .invalid-feedback {
+  display: none !important;
+}
+
+/* ── Contraseña: ícono de validación NO tape el ojito ─────────
+   Aumentamos el padding-right cuando hay ojito Y estado         */
+.position-relative.form-floating .form-control.is-valid,
+.position-relative.form-floating .form-control.is-invalid {
+  background-position: right 2.8rem center !important;
+  padding-right: 4.5rem !important;
+}
+
+/* ── Feedback colores — compatibles con el CSS v2.0 blanco ─── */
+.invalid-feedback {
+  color: #b42318;  /* rojo más oscuro, legible sobre fondo claro */
+  font-weight: 500;
+}
+
+.valid-feedback {
+  color: #1f7a1f;  /* verde oscuro, legible sobre fondo claro */
+  font-weight: 500;
+}

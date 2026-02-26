@@ -9,257 +9,541 @@
 /* ============================================================================ */
 /* VARIABLES CSS */
 /* ============================================================================ */
-:root {
-  --vino-oscuro: #59282C;
-  --rosa-intenso: #BF5486;
-  --rosa-suave: #D9A7C2;
-  --verde-claro: #D6D97E;
-  --beige-claro: #F2E7DC;
-
-  /* Colores de validación mejorados */
-  --color-success: #28a745;
-  --color-success-light: rgba(40, 167, 69, 0.15);
-  --color-error: #dc3545;
-  --color-error-light: rgba(220, 53, 69, 0.15);
-  --color-warning: #ffc107;
-  --color-warning-light: rgba(255, 193, 7, 0.15);
-
-  /* Sombras y efectos */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
-  --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ============================================================================ */
-/* FONDO SLIDESHOW - MEJORADO PARA NO AFECTAR EL FOOTER */
-/* ============================================================================ */
+/* Fondo slideshow a pantalla completa */
 #bg-slideshow {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
+  inset: 0;
+  z-index: -1; /* detrás del contenido */
   overflow: hidden;
-  pointer-events: auto; /* Permitir click en el fondo */
-  cursor: pointer;
-  /* Degradado inferior para que el footer se vea mejor */
-  -webkit-mask-image: linear-gradient(to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 70%,
-    rgba(0, 0, 0, 0.3) 95%,
-    rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 70%,
-    rgba(0, 0, 0, 0.3) 95%,
-    rgba(0, 0, 0, 0) 100%);
 }
-
 #bg-slideshow .slide {
   position: absolute;
   inset: 0;
   background-image: var(--img);
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  filter: brightness(0.88) saturate(1.1) contrast(1.02);
+  filter: brightness(0.85) saturate(1.1);
   opacity: 0;
-  transform: scale(1.05);
-  /* Transiciones más suaves y duraderas */
-  transition: opacity 3s ease-in-out, transform 30s ease-in-out;
-  will-change: opacity, transform;
+  transform: scale(1.04); /* ligero zoom para elegancia */
+  transition: opacity 10000ms ease, transform 10000ms ease;
 }
-
 #bg-slideshow .slide.active {
   opacity: 1;
   transform: scale(1);
 }
 
-/* ============================================================================ */
-/* BODY Y LAYOUT GENERAL - MEJORADO PARA FOOTER */
-/* ============================================================================ */
 body {
-  background: transparent;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* Asegurar que el main ocupe el espacio disponible */
-main {
-  flex: 1 0 auto;
-  position: relative;
-  z-index: 10;
-}
-
-/* Footer con z-index alto para estar sobre el fondo */
-footer {
-  position: relative;
-  z-index: 100;
-  margin-top: auto;
-  flex-shrink: 0;
+    background: transparent; /* el fondo lo pone el slideshow */
+    min-height: auto;
+    display: block;
+    overflow-x: hidden;
 }
 
 .login-page {
-  padding: 3rem 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  z-index: 10;
-  min-height: calc(100vh - 200px); /* Ajuste para que no se solape con header/footer */
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
 }
 
 .login-page .row {
-  display: flex;
-  justify-content: center;
-  margin-left: 0;
-  margin-right: 0;
-  width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .login-page .row > [class*='col-'] {
-  flex: 0 1 600px;
-  max-width: 600px;
+    flex: 0 1 600px;
+    max-width: 600px;
 }
 
 @media (max-width: 620px) {
-  .login-page {
-    padding: 2rem 0;
-    min-height: calc(100vh - 150px);
-  }
-
-  .login-page .row > [class*='col-'] {
-    flex-basis: 100%;
-    max-width: 100%;
-  }
+    .login-page .row > [class*='col-'] {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
 }
 
 .login-container {
-  width: 100%;
-  max-width: 600px;
-  padding: 0 16px;
+    width: 100%;
+    max-width: 600px;
+    padding: 0 16px;
 }
 
-/* ============================================================================ */
-/* TARJETA DE LOGIN/REGISTRO - MEJORADA CON ROSITA SUAVE */
-/* ============================================================================ */
 .login-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
-  padding: 32px 28px;
-  position: relative;
-  animation: fadeSlideUp 0.8s ease-out both;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  margin: 1rem 0;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    padding: 28px 24px;
+    position: relative;
+    animation: fadeSlide .45s ease both;
 }
 
 .login-card.glassy {
-  /* Rosita muy suave y más transparente */
-  background: linear-gradient(135deg,
-    rgba(255, 245, 250, 0.75) 0%,
-    rgba(255, 250, 253, 0.80) 50%,
-    rgba(254, 242, 248, 0.75) 100%);
-  backdrop-filter: blur(16px) saturate(110%);
-  -webkit-backdrop-filter: blur(16px) saturate(110%);
-  box-shadow: 0 15px 40px rgba(191, 84, 134, 0.12),
-              0 5px 12px rgba(217, 167, 194, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.6);
 }
 
-@keyframes fadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* ============================================================================ */
-/* HEADER DEL FORMULARIO */
-/* ============================================================================ */
 .login-header {
-  text-align: center;
-  margin-bottom: 20px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .login-header i {
-  font-size: 48px;
-  color: var(--rosa-intenso);
-  margin-bottom: 12px;
+    font-size: 48px;
+    color: var(--rosa-intenso);
+    margin-bottom: 12px;
 }
 
 .login-header h2 {
-  color: var(--vino-oscuro);
-  font-weight: 700;
+    color: var(--vino-oscuro);
+    font-weight: 700;
 }
 
-/* ============================================================================ */
-/* CAMPOS DE FORMULARIO - MEJORADOS */
-/* ============================================================================ */
 .form-floating {
-  margin-bottom: 18px;
-  position: relative;
+    margin-bottom: 16px;
 }
 
 .form-floating .form-control {
-  border-radius: 10px;
-  border: 2px solid #dee2e6;
-  transition: var(--transition-base);
-  font-size: 1rem;
-  padding: 1rem 0.75rem;
-  height: calc(3.5rem + 2px);
-}
-
-.form-floating .form-control:hover:not(:focus):not(.is-invalid):not(.is-valid) {
-  border-color: #b8bec4;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
 }
 
 .form-floating .form-control:focus {
-  border-color: var(--rosa-intenso);
-  box-shadow: 0 0 0 0.25rem rgba(191, 84, 134, 0.25),
-              0 4px 8px rgba(0, 0, 0, 0.08);
-  outline: none;
+    border-color: var(--rosa-intenso);
+    box-shadow: 0 0 0 .2rem rgba(191,84,134,.25);
 }
 
-.form-floating label {
-  padding: 1rem 0.75rem;
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: var(--rosa-intenso);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 10px;
+    transition: transform .2s ease, box-shadow .25s ease, background-color .2s ease;
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(191,84,134,.35); background: #a94372; }
+.btn-login i { margin-right: 6px; }
+
+/* Espaciados más cómodos en móvil */
+@media (max-width: 575.98px) {
+  .login-card { padding: 20px 14px; }
+  .section-title { margin-top: 6px; }
+}
+
+/* Títulos de sección para el registro */
+.section-title {
+  font-weight: 700;
+  color: var(--vino-oscuro);
+  margin: 8px 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Barra de fortaleza de contraseña */
+.password-meter {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.password-strength-bar {
+  height: 100%;
+  width: 0;
+  transition: width .25s ease;
+}
+
+.login-card .alert { margin-bottom: 12px; }
+
+/* Ajustes finos para 14" (aprox 1366px de ancho): asegurar centrado visual */
+@media (min-width: 1200px) and (max-width: 1500px) {
+  .login-container { max-width: 560px; }
+}
+
+/* Gutter neutralization para que no se desplace al borde derecho */
+.login-page .container { padding-left: 12px; padding-right: 12px; }
+
+.invalid-feedback {
+  margin-top: 6px;
+}
+
+.field-feedback {
+  margin-top: 6px;
+  font-size: 0.86rem;
+  min-height: 1rem;
+}
+
+.field-feedback.is-valid-text {
+  color: #1f7a1f;
+}
+
+.field-feedback.is-invalid-text {
+  color: #b42318;
+}
+
+.field-example {
+  margin-top: 4px;
+  font-size: 0.8rem;
   color: #6c757d;
-  transition: var(--transition-base);
 }
 
-.form-floating .form-control:focus ~ label,
-.form-floating .form-control:not(:placeholder-shown) ~ label {
-  opacity: 0.75;
-  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+.alert-semaforo {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 600;
+  border-left: 6px solid transparent;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
 }
 
-/* Campos con toggle password - más espacio a la derecha */
-.form-floating.position-relative .form-control {
-  padding-right: 3rem;
+.alert-semaforo--success {
+  background: linear-gradient(90deg, rgba(31,122,31,0.12), rgba(31,122,31,0.03));
+  color: #1f7a1f;
+  border-left-color: #1f7a1f;
 }
 
-.form-floating.position-relative .form-control.is-valid,
-.form-floating.position-relative .form-control.is-invalid {
-  /* Mover icono de validación más a la izquierda para no chocar con el ojito */
-  background-position: right calc(2.5em + 0.1875rem) center;
-  padding-right: 3rem;
+.alert-semaforo--warning {
+  background: linear-gradient(90deg, rgba(210,140,0,0.14), rgba(210,140,0,0.03));
+  color: #9a6b00;
+  border-left-color: #d28c00;
 }
 
-/* ============================================================================ */
-/* BOTONES */
-/* ============================================================================ */
-.btn-login,
-.btn-registrarme {
+.alert-semaforo--error {
+  background: linear-gradient(90deg, rgba(180,35,24,0.12), rgba(180,35,24,0.03));
+  color: #b42318;
+  border-left-color: #b42318;
+}
+
+/* Nuevos estilos para checklist de contraseña, progress bar y toasts */
+.password-requirements {
+  background: rgba(248, 249, 250, 0.8);
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.password-requirements ul li {
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+  transition: color 0.2s ease;
+}
+
+.password-requirements ul li i {
+  margin-right: 8px;
+  transition: all 0.2s ease;
+}
+
+.password-requirements ul li.text-success {
+  font-weight: 600;
+}
+
+/* Toasts personalizados (ya usa clases de Bootstrap) */
+.toast-container .toast {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Ajuste para el progreso de contraseña */
+.progress {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.progress-bar {
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* ============================================ */
+/* ESTILOS DE VALIDACIÓN PROFESIONALES */
+/* ============================================ */
+
+/* Animación de shake para campos inválidos */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Campos válidos con borde verde y sombra suave */
+.form-control.is-valid {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+  padding-right: calc(1.5em + 0.75rem);
+}
+
+/* Campos inválidos con borde rojo y sombra suave */
+.form-control.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+  padding-right: calc(1.5em + 0.75rem);
+}
+
+/* ============================================ */
+/* CAMPOS DE CONTRASEÑA CON TOGGLE OJITO */
+/* ============================================ */
+
+/* El contenedor de los campos de contraseña debe mantener altura fija para el input */
+.position-relative {
+  position: relative;
+  display: block;
+}
+
+/* Los form-floating dentro de position-relative mantienen altura consistente */
+.position-relative.form-floating {
+  min-height: 58px; /* Altura estándar del form-floating de Bootstrap */
+}
+
+/* Todos los campos de contraseña siempre tienen espacio para el ojito */
+.position-relative .form-control[type="password"],
+.position-relative .form-control[type="text"][id*="password"] {
+  padding-right: 3.2rem !important;
+}
+
+/* Cuando tienen validación (válida o inválida), el icono de check/x se mueve a la izquierda del ojito */
+.position-relative .form-control[type="password"].is-valid,
+.position-relative .form-control[type="password"].is-invalid,
+.position-relative .form-control[type="text"][id*="password"].is-valid,
+.position-relative .form-control[type="text"][id*="password"].is-invalid {
+  padding-right: 3.2rem !important;
+  background-position: right 2.5rem center !important;
+}
+
+/* Feedback mensajes con estilos mejorados */
+.valid-feedback {
+  display: none;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.invalid-feedback {
+  display: none;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.form-control.is-valid ~ .valid-feedback {
+  display: block;
+}
+
+.form-control.is-invalid ~ .invalid-feedback {
+  display: block;
+}
+
+/* Animación para el focus de los campos */
+.form-control:focus {
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Efecto hover suave en los campos */
+.form-control:hover:not(:focus) {
+  border-color: rgba(0, 123, 255, 0.4);
+  transition: border-color 0.2s ease;
+}
+
+/* ============================================ */
+/* BOTÓN TOGGLE CONTRASEÑA (OJITO) */
+/* ============================================ */
+.toggle-password {
+  position: absolute;
+  right: 6px;
+  top: 13px;
+  background: transparent;
+  border: none;
+  color: var(--vino-oscuro, #6c757d);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  line-height: 1;
+}
+
+.toggle-password:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--rosa-intenso, #bf5486);
+}
+
+.toggle-password:active {
+  background-color: rgba(0, 0, 0, 0.12);
+  transform: scale(0.95);
+}
+
+.toggle-password:focus {
+  outline: 2px solid var(--rosa-intenso, #bf5486);
+  outline-offset: 2px;
+}
+
+.toggle-password i {
+  font-size: 1.05rem;
+  pointer-events: none;
+  transition: none;
+  line-height: 1;
+}
+
+/* Checklist de requisitos de contraseña mejorado */
+.password-requirements {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.95), rgba(255, 255, 255, 0.95));
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 8px;
+}
+
+.password-requirements ul {
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.password-requirements ul li {
+  font-size: 0.90rem;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  padding: 4px 0;
+}
+
+.password-requirements ul li:last-child {
+  margin-bottom: 0;
+}
+
+.password-requirements ul li i {
+  margin-right: 10px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.password-requirements ul li.text-success {
+  font-weight: 600;
+  color: #28a745 !important;
+}
+
+.password-requirements ul li.text-muted {
+  color: #6c757d !important;
+}
+
+/* Barra de progreso de contraseña con gradientes */
+.progress {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
+}
+
+.progress-bar.bg-danger {
+  background: linear-gradient(90deg, #dc3545, #ff4757) !important;
+}
+
+.progress-bar.bg-warning {
+  background: linear-gradient(90deg, #ffc107, #ffa502) !important;
+}
+
+.progress-bar.bg-info {
+  background: linear-gradient(90deg, #17a2b8, #00b894) !important;
+}
+
+.progress-bar.bg-primary {
+  background: linear-gradient(90deg, #007bff, #0984e3) !important;
+}
+
+.progress-bar.bg-success {
+  background: linear-gradient(90deg, #28a745, #00b894) !important;
+}
+
+/* Toasts con sombras profesionales */
+.toast-container .toast {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.toast.text-bg-success {
+  background-color: #28a745 !important;
+}
+
+.toast.text-bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.toast.text-bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.toast .toast-body {
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 12px 16px;
+}
+
+.toast .toast-body i {
+  font-size: 1.1rem;
+}
+
+/* Animaciones de entrada para los toasts */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast.show {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Botón de registro/login con efectos mejorados */
+.btn-registrarme,
+.btn-login {
   width: 100%;
   padding: 14px;
   background: linear-gradient(135deg, var(--rosa-intenso, #bf5486), #a94372);
@@ -273,261 +557,26 @@ footer {
   cursor: pointer;
 }
 
-.btn-login:hover,
-.btn-registrarme:hover {
+.btn-registrarme:hover,
+.btn-login:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(191, 84, 134, 0.4);
   background: linear-gradient(135deg, #a94372, #8f3860);
 }
 
-.btn-login:active,
-.btn-registrarme:active {
+.btn-registrarme:active,
+.btn-login:active {
   transform: translateY(0);
   box-shadow: 0 4px 12px rgba(191, 84, 134, 0.3);
 }
 
-.btn-login i,
-.btn-registrarme i {
+.btn-registrarme i,
+.btn-login i {
   margin-right: 8px;
   font-size: 1.1rem;
 }
 
-/* ============================================================================ */
-/* BOTÓN TOGGLE CONTRASEÑA (OJITO) */
-/* ============================================================================ */
-.toggle-password {
-  position: absolute;
-  right: 0.5rem;
-  top: 13px;
-  background: transparent;
-  border: none;
-  color: var(--vino-oscuro, #6c757d);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-}
-
-.toggle-password:hover {
-  background-color: rgba(0, 0, 0, 0.08);
-  color: var(--rosa-intenso, #bf5486);
-}
-
-.toggle-password:focus {
-  outline: 2px solid var(--rosa-intenso, #bf5486);
-  outline-offset: 2px;
-}
-
-.toggle-password i {
-  font-size: 1.05rem;
-}
-
-/* ============================================================================ */
-/* VALIDACIONES DE CONTRASEÑA - MEJORADAS */
-/* ============================================================================ */
-.password-requirements {
-  background: linear-gradient(135deg, rgba(248, 249, 250, 0.98), rgba(255, 255, 255, 0.98));
-  border-radius: 12px;
-  padding: 16px 18px;
-  border: 2px solid rgba(0, 0, 0, 0.08);
-  box-shadow: var(--shadow-sm);
-  margin-top: 10px;
-  transition: var(--transition-base);
-}
-
-.password-requirements:hover {
-  border-color: rgba(191, 84, 134, 0.2);
-  box-shadow: var(--shadow-md);
-}
-
-.password-requirements ul {
-  margin-bottom: 0;
-  padding-left: 0;
-  list-style: none;
-}
-
-.password-requirements ul li {
-  font-size: 0.90rem;
-  margin-bottom: 10px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 5px 8px;
-  border-radius: 6px;
-  background: transparent;
-}
-
-.password-requirements ul li:last-child {
-  margin-bottom: 0;
-}
-
-.password-requirements ul li i {
-  margin-right: 12px;
-  transition: all 0.3s ease;
-  font-size: 1.1rem;
-  display: inline-block;
-  width: 18px;
-  text-align: center;
-}
-
-/* Estados de validación mejorados */
-.password-requirements ul li.text-success {
-  font-weight: 700;
-  color: var(--color-success) !important;
-  background-color: var(--color-success-light);
-  animation: successPulse 0.4s ease-out;
-}
-
-.password-requirements ul li.text-success i {
-  transform: scale(1.1);
-}
-
-.password-requirements ul li.text-muted {
-  color: #6c757d !important;
-  font-weight: 500;
-}
-
-@keyframes successPulse {
-  0% {
-    transform: scale(1);
-    background-color: transparent;
-  }
-  50% {
-    transform: scale(1.02);
-    background-color: rgba(40, 167, 69, 0.25);
-  }
-  100% {
-    transform: scale(1);
-    background-color: var(--color-success-light);
-  }
-}
-
-/* ============================================================================ */
-/* BARRA DE PROGRESO DE CONTRASEÑA - MEJORADA */
-/* ============================================================================ */
-.progress {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  height: 12px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.progress-bar {
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 10px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Efecto de brillo animado */
-.progress-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 200%; }
-}
-
-/* Colores mejorados para diferentes niveles */
-.progress-bar.bg-danger {
-  background: linear-gradient(90deg, #dc3545 0%, #ff4757 100%) !important;
-}
-
-.progress-bar.bg-warning {
-  background: linear-gradient(90deg, #ffc107 0%, #ffb302 100%) !important;
-}
-
-.progress-bar.bg-info {
-  background: linear-gradient(90deg, #17a2b8 0%, #00d2ff 100%) !important;
-}
-
-.progress-bar.bg-primary {
-  background: linear-gradient(90deg, var(--rosa-intenso) 0%, #a94372 100%) !important;
-}
-
-.progress-bar.bg-success {
-  background: linear-gradient(90deg, #28a745 0%, #00e676 100%) !important;
-}
-
-/* Texto de fortaleza mejorado */
-#password-strength-text {
-  font-weight: 600;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-/* ============================================================================ */
-/* MENSAJES DE AYUDA */
-/* ============================================================================ */
-#username-help {
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  background: rgba(108, 117, 125, 0.05);
-  border-left: 3px solid #6c757d;
-  font-weight: 500;
-  animation: slideDown 0.3s ease;
-  margin-bottom: 0.95rem !important;
-}
-
-#username-help.text-success {
-  background: rgba(40, 167, 69, 0.1);
-  border-left-color: #28a745;
-  color: #155724 !important;
-  margin-bottom: 0.95rem !important;
-}
-
-#username-help.text-primary {
-  background: rgba(191, 84, 134, 0.1);
-  border-left-color: #BF5486;
-  color: #59282C !important;
-  margin-bottom: 0.95rem !important;
-}
-
-#username-help.text-warning {
-  background: rgba(255, 193, 7, 0.1);
-  border-left-color: #ffc107;
-  color: #856404 !important;
-  margin-bottom: 0.95rem !important;
-}
-
-#username-help.text-muted {
-  background: rgba(108, 117, 125, 0.05);
-  border-left-color: #6c757d;
-  color: #6c757d !important;
-  margin-bottom: 0.95rem !important;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* ============================================================================ */
-/* LINKS DE REGISTRO/LOGIN */
-/* ============================================================================ */
+/* Link de registro/login mejorado */
 .register-link,
 .login-link {
   margin-top: 1rem;
@@ -548,167 +597,121 @@ footer {
   text-decoration: underline;
 }
 
-/* ============================================================================ */
-/* TOASTS DE NOTIFICACIÓN - MEJORADOS */
-/* ============================================================================ */
-.toast-container .toast {
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25),
-              0 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 14px;
-  overflow: hidden;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  min-width: 300px;
+/* Mejoras para dispositivos móviles */
+@media (max-width: 575.98px) {
+  .form-control {
+    font-size: 16px; /* Evitar zoom en iOS */
+  }
+
+  .password-requirements ul li {
+    font-size: 0.85rem;
+  }
+
+  .toast {
+    max-width: 90vw;
+  }
 }
 
-.toast.text-bg-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+/* Animación de carga suave para elementos del formulario */
+.form-floating,
+.password-requirements,
+.progress {
+  animation: fadeIn 0.4s ease-out;
 }
 
-.toast.text-bg-danger {
-  background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
-}
-
-.toast.text-bg-warning {
-  background: linear-gradient(135deg, #ffc107 0%, #ffb302 100%) !important;
-  color: #212529 !important;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.toast .toast-body {
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.toast .toast-body i {
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-/* Animaciones suavizadas para toasts */
-@keyframes slideInRight {
+@keyframes fadeIn {
   from {
-    transform: translateX(100%) scale(0.95);
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
-    transform: translateX(0) scale(1);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@keyframes slideOutRight {
-  from {
-    transform: translateX(0) scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%) scale(0.95);
-    opacity: 0;
-  }
+/* Sección colapsable con animación suave */
+.collapse {
+  transition: height 0.35s ease;
 }
 
-.toast.show {
-  animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+/* Estilo para el botón de colapsar campos opcionales */
+.btn-outline-secondary {
+  border-color: rgba(108, 117, 125, 0.3);
+  transition: all 0.2s ease;
 }
 
-.toast.hide {
-  animation: slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.btn-outline-secondary:hover {
+  background-color: rgba(108, 117, 125, 0.1);
+  border-color: rgba(108, 117, 125, 0.5);
 }
 
-/* Botón de cerrar mejorado con transición suave */
-.toast .btn-close {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+/* Animación del icono de chevron en botón colapsable */
+.btn[data-bs-toggle="collapse"] .bi-chevron-down {
+  transition: transform 0.3s ease;
 }
 
-.toast .btn-close:hover {
-  transform: scale(1.15);
-  opacity: 1;
+.btn[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
+  transform: rotate(180deg);
 }
 
-/* ============================================================================ */
-/* VALIDACIÓN DE CAMPOS - MEJORADA CON MEJOR VISIBILIDAD */
-/* ============================================================================ */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
+/* Card de campos opcionales */
+.card-body.bg-light {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.95), rgba(255, 255, 255, 0.95)) !important;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-@keyframes pulseGreen {
-  0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.5); }
-  50% { box-shadow: 0 0 0 8px rgba(40, 167, 69, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-}
-
-.form-control.is-valid {
-  border-color: var(--color-success) !important;
-  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
-  background-color: var(--color-success-light) !important;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right calc(0.375em + 0.1875rem) center;
-  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  padding-right: calc(1.5em + 0.75rem);
-  animation: pulseGreen 0.8s ease-out;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.form-control.is-invalid {
-  border-color: var(--color-error) !important;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-  background-color: var(--color-error-light) !important;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right calc(0.375em + 0.1875rem) center;
-  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-  padding-right: calc(1.5em + 0.75rem);
-  animation: shake 0.6s ease-in-out;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.valid-feedback {
-  display: none;
-  width: 100%;
-  margin-top: 0.35rem;
-  font-size: 0.875rem;
-  color: var(--color-success);
-  font-weight: 600;
-  animation: slideDown 0.4s ease-out;
-}
-
-.invalid-feedback {
-  display: none;
-  width: 100%;
-  margin-top: 0.35rem;
-  font-size: 0.875rem;
-  color: var(--color-error);
-  font-weight: 600;
-  animation: slideDown 0.4s ease-out;
-}
-
-.form-control.is-valid ~ .valid-feedback {
+/* Mejora de textos de ayuda */
+.form-text {
+  font-size: 0.825rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
   display: block;
 }
 
-.form-control.is-invalid ~ .invalid-feedback {
-  display: block;
+.form-text i {
+  opacity: 0.7;
 }
 
-/* Mejora visual para los iconos en feedback */
-.valid-feedback i,
-.invalid-feedback i {
-  font-size: 1rem;
-  vertical-align: middle;
+/* Labels mejorados */
+.form-floating > label {
+  font-weight: 500;
+  color: #495057;
 }
 
-/* ============================================================================ */
-/* SECCIÓN DE TÍTULOS */
-/* ============================================================================ */
+.form-floating > label i {
+  opacity: 0.7;
+}
+
+/* Mejora del input file para foto de perfil */
+input[type="file"].form-control {
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+input[type="file"].form-control:hover {
+  border-color: var(--rosa-intenso, #bf5486);
+}
+
+/* Asterisco obligatorio */
+.text-danger {
+  color: #dc3545 !important;
+}
+
+/* Border-top del footer */
+.border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Texto del indicador de fortaleza de contraseña */
+#password-strength-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+/* Mejora de separación entre secciones */
 .section-title {
   font-weight: 700;
   color: var(--vino-oscuro, #6c2c3e);
@@ -724,178 +727,13 @@ footer {
   color: var(--rosa-intenso, #bf5486);
 }
 
-/* ============================================================================ */
-/* RESPONSIVE - OPTIMIZADO PARA MÓVILES Y TABLETS */
-/* ============================================================================ */
-@media (max-width: 575.98px) {
-  .login-card {
-    padding: 24px 18px;
-    border-radius: 14px;
-  }
-
-  .section-title {
-    margin-top: 8px;
-    font-size: 1rem;
-  }
-
-  .form-control {
-    font-size: 16px; /* Evita zoom en iOS */
-  }
-
-  .password-requirements {
-    padding: 12px 14px;
-  }
-
-  .password-requirements ul li {
-    font-size: 0.82rem;
-    margin-bottom: 8px;
-    padding: 4px 6px;
-  }
-
-  .password-requirements ul li i {
-    font-size: 1rem;
-    margin-right: 8px;
-  }
-
-  .toast {
-    max-width: 92vw;
-    min-width: 280px;
-  }
-
-  .toast .toast-body {
-    font-size: 0.88rem;
-    padding: 12px 14px;
-  }
-
-  .login-header i {
-    font-size: 40px;
-    margin-bottom: 10px;
-  }
-
-  .login-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .btn-login,
-  .btn-registrarme {
-    padding: 12px;
-    font-size: 0.95rem;
-  }
-
-  .toggle-password {
-    top: 11px;
-    right: 0.4rem;
-    width: 30px;
-    height: 30px;
-  }
-}
-
-/* Tablets en landscape */
-@media (min-width: 576px) and (max-width: 991.98px) {
-  .login-container {
-    max-width: 540px;
-  }
-
-  .login-card {
-    padding: 28px 24px;
-  }
-}
-
-/* Pantallas grandes */
-@media (min-width: 1200px) and (max-width: 1500px) {
-  .login-container {
-    max-width: 580px;
-  }
-}
-
-/* Pantallas extra grandes */
-@media (min-width: 1500px) {
-  .login-container {
-    max-width: 620px;
-  }
-
-  .login-card {
-    padding: 36px 32px;
-  }
-}
-
-/* Optimización para modo oscuro del sistema */
-@media (prefers-color-scheme: dark) {
-  .login-card.glassy {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(255, 255, 255, 0.8);
-  }
-}
-
-/* Optimización para reducir movimiento (accesibilidad) */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  #bg-slideshow .slide {
-    transition: opacity 0.5s ease !important;
-  }
-}
-
-/* ============================================================================ */
-/* ANIMACIONES Y EFECTOS - OPTIMIZADOS */
-/* ============================================================================ */
-.form-floating,
-.password-requirements,
-.progress {
-  animation: fadeInUp 0.4s ease-out both;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Transiciones optimizadas y suavizadas para mejor UX */
-.form-control {
-  transition: border-color 0.35s ease-in-out,
-              box-shadow 0.35s ease-in-out,
-              background-color 0.35s ease-in-out;
-  will-change: border-color, box-shadow;
-}
-
-.form-control:focus {
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Efecto hover mejorado en botones con transición suave */
-.btn-login,
-.btn-registrarme {
+/* Botón de envío mejorado */
+#btnSubmit {
   position: relative;
   overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-login::before,
-.btn-registrarme::before {
+#btnSubmit::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -903,187 +741,133 @@ footer {
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
   transform: translate(-50%, -50%);
-  transition: width 0.8s ease-out, height 0.8s ease-out;
+  transition: width 0.6s, height 0.6s;
 }
 
-.btn-login:hover::before,
-.btn-registrarme:hover::before {
-  width: 320px;
-  height: 320px;
+#btnSubmit:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
-/* Efecto de entrada escalonada suave para elementos del formulario */
-.form-floating:nth-child(1) { animation-delay: 0.08s; }
-.form-floating:nth-child(2) { animation-delay: 0.16s; }
-.form-floating:nth-child(3) { animation-delay: 0.24s; }
-.form-floating:nth-child(4) { animation-delay: 0.32s; }
-.form-floating:nth-child(5) { animation-delay: 0.40s; }
-
-/* Optimización de rendimiento */
-#bg-slideshow,
-#bg-slideshow .slide {
-  will-change: opacity;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* Focus visible mejorado para accesibilidad */
-*:focus-visible {
-  outline: 3px solid var(--rosa-intenso);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* Eliminar outline para mouse pero mantener para teclado */
-*:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* ============================================================================ */
-/* ESTADOS DE CARGA Y DESHABILITADO */
-/* ============================================================================ */
-.form-control:disabled,
-.form-control[readonly] {
-  background-color: #f8f9fa;
-  border-color: #dee2e6;
+#btnSubmit:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-login:disabled,
-.btn-registrarme:disabled {
-  opacity: 0.65;
   cursor: not-allowed;
   transform: none !important;
 }
 
-.btn-login:disabled:hover,
-.btn-registrarme:disabled:hover {
-  box-shadow: 0 4px 12px rgba(191, 84, 134, 0.3);
+/* Mejora de accesibilidad - focus visible */
+.form-control:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--rosa-intenso, #bf5486);
+  outline-offset: 2px;
 }
 
-/* Estado de carga con spinner */
-.btn-loading {
-  position: relative;
-  color: transparent !important;
-  pointer-events: none;
+/* Animación de entrada para el formulario */
+@keyframes formFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.btn-loading::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  top: 50%;
-  left: 50%;
-  margin-left: -10px;
-  margin-top: -10px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 0.8s linear infinite;
+#registroForm {
+  animation: formFadeIn 0.5s ease-out;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+/* Mejora del header */
+.login-header {
+  animation: fadeSlide 0.6s ease both;
+  animation-delay: 0.1s;
 }
 
-/* ============================================================================ */
-/* MENSAJES DE AYUDA Y TOOLTIPS */
-/* ============================================================================ */
-.form-text {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #6c757d;
-  font-weight: 500;
+/* Responsive mejoras adicionales */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1rem;
+  }
+
+  .login-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .password-requirements {
+    padding: 10px 12px;
+  }
+
+  .password-requirements ul li {
+    font-size: 0.8rem;
+  }
 }
 
-.form-text i {
-  margin-right: 6px;
-}
-
-/* Mejora de tooltips de Bootstrap */
-.tooltip-inner {
-  background-color: var(--vino-oscuro);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.tooltip.bs-tooltip-top .tooltip-arrow::before,
-.tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
-  border-top-color: var(--vino-oscuro);
-}
-
-/* ============================================================================ */
-/* MEJORAS DE ACCESIBILIDAD */
-/* ============================================================================ */
-.visually-hidden-focusable:not(:focus):not(:focus-within) {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-/* Indicador de campo requerido mejorado */
-label .text-danger,
-label span.text-danger {
-  font-weight: 700;
-  font-size: 1.1em;
-  margin-left: 2px;
-}
-
-/* ============================================================================ */
-/* MEJORAS PARA IMPRESIÓN */
-/* ============================================================================ */
+/* Print styles - ocultar elementos innecesarios al imprimir */
 @media print {
-  #bg-slideshow,
   .toast-container,
+  #bg-slideshow,
   .toggle-password {
     display: none !important;
   }
-
-  .login-card {
-    box-shadow: none;
-    border: 1px solid #dee2e6;
-  }
-
-  body {
-    background: white !important;
-  }
+}
+/* ── Shake via clase (BUG 4) ──────────────────────────────────
+   El JS añade ._is-shaking con getBoundingClientRect() reflow.
+   Esto funciona en todos los browsers incluyendo Safari iOS.    */
+@keyframes _shake {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-5px); }
+  30%, 60%, 90% { transform: translateX(5px); }
 }
 
-/* ============================================================================ */
-/* SCROLLBAR PERSONALIZADO (NAVEGADORES WEBKIT) */
-/* ============================================================================ */
-.login-card::-webkit-scrollbar {
-  width: 8px;
+.form-control._is-shaking {
+  animation: _shake 0.42s ease !important;
 }
 
-.login-card::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
+/* ── Feedbacks dentro de form-floating (BUG selector CSS) ─────
+   Bootstrap 5 usa el selector "~" para hermanos generales.
+   Dentro de .form-floating el orden DOM es:
+     input → label → .invalid-feedback
+   El selector ~ alcanza elementos hermanos posteriores, por lo
+   que SÍ funciona. Pero si otro CSS tiene display:none !important
+   esto lo sobreescribe con mayor especificidad.                 */
+.form-floating > .form-control.is-valid  ~ .valid-feedback,
+.form-floating > .form-control.is-valid  ~ .valid-feedback,
+.col-md-6 .form-control.is-valid         ~ .valid-feedback,
+.col-12   .form-control.is-valid         ~ .valid-feedback {
+  display: block !important;
 }
 
-.login-card::-webkit-scrollbar-thumb {
-  background: var(--rosa-suave);
-  border-radius: 10px;
-  transition: background 0.3s ease;
+.form-floating > .form-control.is-invalid ~ .invalid-feedback,
+.col-md-6 .form-control.is-invalid        ~ .invalid-feedback,
+.col-12   .form-control.is-invalid        ~ .invalid-feedback {
+  display: block !important;
 }
 
-.login-card::-webkit-scrollbar-thumb:hover {
-  background: var(--rosa-intenso);
+/* Asegurar que cuando NO hay clase de validación, el feedback
+   quede oculto (no dejar residuos al limpiar con JS)           */
+.form-floating > .form-control:not(.is-valid):not(.is-invalid) ~ .valid-feedback,
+.form-floating > .form-control:not(.is-valid):not(.is-invalid) ~ .invalid-feedback {
+  display: none !important;
 }
 
-/* ============================================================================ */
-/* FIN DEL ARCHIVO AUTH.CSS */
-/* ============================================================================ */
+/* ── Contraseña: ícono de validación NO tape el ojito ─────────
+   Aumentamos el padding-right cuando hay ojito Y estado         */
+.position-relative.form-floating .form-control.is-valid,
+.position-relative.form-floating .form-control.is-invalid {
+  background-position: right 2.8rem center !important;
+  padding-right: 4.5rem !important;
+}
+
+/* ── Feedback colores — compatibles con el CSS v2.0 blanco ─── */
+.invalid-feedback {
+  color: #b42318;  /* rojo más oscuro, legible sobre fondo claro */
+  font-weight: 500;
+}
+
+.valid-feedback {
+  color: #1f7a1f;  /* verde oscuro, legible sobre fondo claro */
+  font-weight: 500;
+}

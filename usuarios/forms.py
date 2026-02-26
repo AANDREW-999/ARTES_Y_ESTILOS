@@ -102,6 +102,30 @@ class EditarPerfilForm(forms.ModelForm):
 
     Campos del modelo Perfil (inyectados como extra fields):
         telefono, direccion, fecha_nacimiento, biografia, foto_perfil.
+
+    ─────────────────────────────────────────────────────────────
+    FIX BUG CRÍTICO: auto-desactivación del usuario
+    ─────────────────────────────────────────────────────────────
+    PROBLEMA:
+        Meta.fields incluía is_active, is_staff, is_superuser.
+        editar_perfil.html NO renderiza esos campos en el <form>.
+        Los campos BooleanField ausentes en un POST son procesados
+        como False por Django → usuario.is_active = False →
+        el usuario pierde acceso al sistema al guardar su perfil.
+
+        editar_usuario.html SÍ los renderiza, por lo que allí
+        el bug no se manifiesta.
+
+    SOLUCIÓN:
+        En __init__, cuando editing_user == instance (el usuario
+        edita su propio perfil), eliminamos is_active, is_staff e
+        is_superuser del formulario con self.fields.pop().
+        Django nunca los toca al procesar el POST, y los valores
+        del usuario en la BD se preservan intactos.
+
+        Cuando editing_user != instance (superadmin edita a otro),
+        los campos permanecen disponibles para que editar_usuario.html
+        los renderice con normalidad.
     """
 
     # ── Campos extra del Perfil (no están en User) ──────────────────────
@@ -137,25 +161,38 @@ class EditarPerfilForm(forms.ModelForm):
             "last_name",
             "username",
             "email",
-            "documento",      # ← campo del modelo Usuario — era la causa del error
-            "is_active",      # ← necesario porque el template usa {{ form.is_active }}
-            "is_staff",
-            "is_superuser",
+            "documento",
+            "is_active",      # renderizado en editar_usuario.html (vista admin)
+            "is_staff",       # renderizado en editar_usuario.html (vista admin)
+            "is_superuser",   # renderizado en editar_usuario.html (vista admin)
         ]
 
     def __init__(self, *args, **kwargs):
         self.editing_user = kwargs.pop("editing_user", None)
         super().__init__(*args, **kwargs)
 
+        # ── FIX: cuando el usuario edita su propio perfil,
+        #    eliminar is_active / is_staff / is_superuser del form.
+        #    editar_perfil.html no los renderiza → el POST los envía
+        #    vacíos → Django los lee como False → is_active = False.
+        es_auto_edicion = (
+            self.editing_user is not None
+            and self.instance.pk is not None
+            and self.editing_user.pk == self.instance.pk
+        )
+        if es_auto_edicion:
+            for campo in ("is_active", "is_staff", "is_superuser"):
+                self.fields.pop(campo, None)
+
         # Cargar valores actuales del Perfil relacionado
         if self.instance.pk:
             try:
                 perfil = self.instance.perfil
-                self.fields["telefono"].initial          = perfil.telefono
-                self.fields["direccion"].initial          = perfil.direccion
-                self.fields["fecha_nacimiento"].initial   = perfil.fecha_nacimiento
-                self.fields["biografia"].initial          = perfil.biografia
-                self.fields["foto_perfil"].initial        = perfil.foto_perfil
+                self.fields["telefono"].initial         = perfil.telefono
+                self.fields["direccion"].initial        = perfil.direccion
+                self.fields["fecha_nacimiento"].initial = perfil.fecha_nacimiento
+                self.fields["biografia"].initial        = perfil.biografia
+                self.fields["foto_perfil"].initial      = perfil.foto_perfil
             except Perfil.DoesNotExist:
                 pass
 
@@ -197,10 +234,10 @@ class EditarPerfilForm(forms.ModelForm):
             user = super().save(commit=commit)
 
             perfil = user.perfil
-            perfil.telefono          = self.cleaned_data.get("telefono", "")
-            perfil.direccion          = self.cleaned_data.get("direccion", "")
-            perfil.fecha_nacimiento   = self.cleaned_data.get("fecha_nacimiento")
-            perfil.biografia          = self.cleaned_data.get("biografia", "")
+            perfil.telefono         = self.cleaned_data.get("telefono", "")
+            perfil.direccion        = self.cleaned_data.get("direccion", "")
+            perfil.fecha_nacimiento = self.cleaned_data.get("fecha_nacimiento")
+            perfil.biografia        = self.cleaned_data.get("biografia", "")
 
             foto = self.cleaned_data.get("foto_perfil")
             # Solo actualizar si es un archivo subido nuevo (no el string del initial)

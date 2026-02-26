@@ -288,3 +288,17 @@ hr {
     max-width: calc(100vw - 2rem);
   }
 }
+
+/* Estilos Boton de WhatsApp flotante */
+.whatsapp-float {
+    position: fixed;
+    right: 20px;
+    bottom: 90px;
+    background: #25D366;
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 20px;
+    z-index: 999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}

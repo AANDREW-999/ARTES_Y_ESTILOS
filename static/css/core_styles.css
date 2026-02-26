@@ -1,4 +1,4 @@
-.hero-section {
+. {
     background: radial-gradient(1200px 400px at 10% 0%, rgba(217,167,194,.45) 0%, rgba(217,167,194,0) 55%),
                 linear-gradient(135deg, #FDF9F6 0%, var(--beige-claro) 100%);
     color: var(--vino-oscuro);
@@ -222,20 +222,20 @@ footer a:hover {
 .title-petal { width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); }
 
 /* Ajuste fino del espacio inferior en portada */
-.hero-section .container { padding-bottom: 0; }
-.hero-section .row:last-child { margin-bottom: 0; }
+.hero .container { padding-bottom: 0; }
+.hero .row:last-child { margin-bottom: 0; }
 /* evita recorte en móviles pero elimina banda blanca */
-@media (max-width: 575.98px) { .hero-section { margin-bottom: -1.5rem; } }
+@media (max-width: 575.98px) { .hero { margin-bottom: -1.5rem; } }
 
 /* Botones de la portada: centrados y ligeramente superpuestos al carrusel */
-.hero-section .mt-3.d-flex.gap-2 {
+.hero .mt-3.d-flex.gap-2 {
   justify-content: center;
   position: relative;
   margin-top: -28px; /* sube los botones para que queden en la mitad inferior del carrusel */
   z-index: 2;
 }
 @media (max-width: 575.98px) {
-  .hero-section .mt-3.d-flex.gap-2 { margin-top: -18px; }
+  .hero .mt-3.d-flex.gap-2 { margin-top: -18px; }
 }
 
 /* Animación profesional en todos los botones */

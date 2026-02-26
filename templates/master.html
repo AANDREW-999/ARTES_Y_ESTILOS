@@ -38,10 +38,21 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto align-items-lg-center fw-semibold">
-            <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'core:index' %}"><i class="bi bi-house-door"></i> <strong>Inicio</strong></a></li>
-            <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'nosotros' %}active{% endif %}" href="{% url 'core:nosotros' %}"><i class="bi bi-people"></i> <strong>Nosotros</strong></a></li>
-            <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'productos' %}active{% endif %}" href="{% url 'core:productos' %}"><i class="bi bi-bag-heart"></i> <strong>Productos</strong></a></li>
-            <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'contactanos' %}active{% endif %}" href="{% url 'core:contactanos' %}"><i class="bi bi-envelope-heart"></i> <strong>Contáctanos</strong></a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#hero"><i class="bi bi-house-door"></i><strong>Inicio</strong></a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#sobre"><i class="bi bi-people"></i><strong>Nosotros</strong></a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#productos"><i class="bi bi-bag-heart"></i> <strong>Catálogo de Productos</strong></a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#contacto"><i class="bi bi-envelope-heart"></i> <strong>Contáctanos</strong></a>
+            </li>
             {% if user.is_authenticated %}
               {% if user.is_staff %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}"><i class="bi bi-speedometer2"></i> <strong>Panel Admin</strong></a></li>
@@ -173,5 +184,10 @@
       });
     });
   </script>
+    <a href="https://wa.me/573105844207" 
+    class="whatsapp-float" 
+    target="_blank">
+    <i class="bi bi-whatsapp"></i>
+  </a>
 </body>
 </html>

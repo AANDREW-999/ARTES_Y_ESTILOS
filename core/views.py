@@ -62,8 +62,13 @@ def contactanos(request):
 
 def productos(request):
     # Traemos todos los productos guardados
-    productos_db = Producto.objects.all() 
-    return render(request, 'catalogo.html', {'productos': productos_db})
+    productos_db = Producto.objects.all()
+    
+    context = {
+        'productos': productos_db,
+    }
+    
+    return render(request, 'master.html', context)
 
 
 from django.shortcuts import render

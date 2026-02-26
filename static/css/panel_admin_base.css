@@ -15,6 +15,7 @@
     --bg-primary: #0a0e27;
     --bg-secondary: #141833;
     --bg-card: #1a1f3a;
+    --bg-hover: #252a4a;
     --text-primary: #ffffff;
     --text-secondary: #8b92b0;
     --border-color: rgba(139, 146, 176, 0.1);
@@ -741,6 +742,7 @@ html[data-theme="light"] {
     --bg-primary: #f5f7fa;
     --bg-secondary: #ffffff;
     --bg-card: #ffffff;
+    --bg-hover: #f8f9fa;
     --text-primary: #1a202c;
     --text-secondary: #64748b;
     --border-color: rgba(203, 213, 225, 0.5);
@@ -1045,3 +1047,311 @@ body.light-mode .sidebar .collapse .nav-link.fw-bold:hover {
     transform: translateX(2px);
 }
 
+/* ═══════════════════════════════════════════════════
+   🔔 ADMIN NOTIFICATIONS + LOGOUT MODAL
+   Añadir al FINAL de panel_admin_base.css
+   ═══════════════════════════════════════════════════ */
+
+/* ─── Overlay compartido (notificación + logout) ─── */
+.admin-notification-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 22, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    animation: overlayFadeIn 0.25s ease forwards;
+}
+
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── Tarjeta ─── */
+.admin-notification-card {
+    background: var(--bg-card);
+    padding: 2.5rem 2.75rem 2rem;
+    border-radius: 22px;
+    text-align: center;
+    min-width: 340px;
+    max-width: 460px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    animation: cardPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cardPop {
+    from { transform: scale(0.75) translateY(20px); opacity: 0; }
+    to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+
+/* ─── Círculo de ícono ─── */
+.admin-notification-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.admin-notification-icon-circle {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    position: relative;
+    /* Ícono siempre encima del pulso */
+    z-index: 1;
+}
+
+/* Pulso exterior — detrás del ícono con z-index negativo */
+.admin-notification-icon-circle::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    z-index: -1;          /* detrás del círculo, nunca tapa el ícono */
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* El ícono (i) siempre visible encima */
+.admin-notification-icon-circle i {
+    position: relative;
+    z-index: 2;
+    line-height: 1;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1);    opacity: 0.2; }
+    50%       { transform: scale(1.15); opacity: 0.1; }
+}
+
+/* ── SUCCESS — verde vibrante ── */
+.circle-success {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border: 2px solid rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.25) inset;
+}
+.circle-success::after {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1.5px solid rgba(34, 197, 94, 0.3);
+}
+
+.admin-notification-card.success {
+    box-shadow:
+        0 0 0 1px rgba(34, 197, 94, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(34, 197, 94, 0.12);
+}
+
+/* ── ERROR — rojo intenso ── */
+.circle-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.25) inset;
+}
+.circle-error::after {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1.5px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-notification-card.error {
+    box-shadow:
+        0 0 0 1px rgba(239, 68, 68, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(239, 68, 68, 0.12);
+}
+
+/* ── WARNING — amarillo ── */
+.circle-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 2px solid rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.25) inset;
+}
+.circle-warning::after {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1.5px solid rgba(245, 158, 11, 0.3);
+}
+
+.admin-notification-card.warning {
+    box-shadow:
+        0 0 0 1px rgba(245, 158, 11, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(245, 158, 11, 0.12);
+}
+
+/* ── INFO — azul ── */
+.circle-info {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    border: 2px solid rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.25) inset;
+}
+.circle-info::after {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1.5px solid rgba(59, 130, 246, 0.3);
+}
+
+.admin-notification-card.info {
+    box-shadow:
+        0 0 0 1px rgba(59, 130, 246, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(59, 130, 246, 0.12);
+}
+
+/* ─── Textos ─── */
+.admin-notification-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.3px;
+}
+
+.admin-notification-message {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* ─── Botón principal (Entendido) ─── */
+.admin-notification-btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.6rem 2rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--rosa-intenso);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 14px rgba(191, 84, 134, 0.35);
+}
+
+.admin-notification-btn:hover {
+    background: #d4619a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(191, 84, 134, 0.45);
+    color: #fff;
+}
+
+/* ─── Barra de progreso ─── */
+.admin-notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    border-radius: 0 0 22px 22px;
+    animation: progressShrink 5s linear forwards;
+    transform-origin: left;
+}
+
+@keyframes progressShrink {
+    from { width: 100%; }
+    to   { width: 0%;   }
+}
+
+/* ═══════════════════════════════════════════════════
+   🚪 LOGOUT MODAL
+   ═══════════════════════════════════════════════════ */
+
+.logout-modal-card {
+    padding-bottom: 2rem;
+}
+
+.logout-circle {
+    background: rgba(191, 84, 134, 0.15);
+    color: var(--rosa-intenso);
+    border: 2px solid rgba(191, 84, 134, 0.5);
+    box-shadow: 0 0 20px rgba(191, 84, 134, 0.2) inset;
+}
+
+.logout-circle::after {
+    background: rgba(191, 84, 134, 0.2);
+    border: 1.5px solid rgba(191, 84, 134, 0.3);
+}
+
+.logout-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+    box-shadow: none;
+    margin-top: 0;
+}
+
+.btn-cancel:hover {
+    background: rgba(139, 146, 176, 0.1);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: none;
+}
+
+.btn-logout {
+    background: #ef4444;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    margin-top: 0;
+}
+
+.btn-logout:hover {
+    background: #dc2626;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+    color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════
+   🌞 MODO CLARO
+   ═══════════════════════════════════════════════════ */
+
+html[data-theme="light"] .admin-notification-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="light"] .admin-notification-card {
+    background: #ffffff;
+    border-color: rgba(203, 213, 225, 0.7);
+}
+
+html[data-theme="light"] .admin-notification-title  { color: #1a202c; }
+html[data-theme="light"] .admin-notification-message { color: #64748b; }
+
+html[data-theme="light"] .btn-cancel {
+    border-color: #cbd5e1;
+    color: #64748b;
+}
+
+html[data-theme="light"] .btn-cancel:hover {
+    background: #f1f5f9;
+    color: #1a202c;
+}
+
+/* ═══════════════════════════════════════════════════
+   🚫 OCULTAR TOASTS COMPLETAMENTE EN EL PANEL ADMIN
+   ═══════════════════════════════════════════════════ */
+.dashboard-body .toast-container {
+    display: none !important;
+}

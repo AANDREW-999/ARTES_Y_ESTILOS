@@ -3,7 +3,7 @@
 {% block title %}Iniciar Sesión · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/auth.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
 <!-- FONDO ANIMADO DE 4 IMÁGENES (SLIDESHOW) -->
 <!-- ========================================================================== -->
 <div id="bg-slideshow" aria-hidden="true">
-  <div class="slide" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoLogin.png' %}');"></div>
+  <div class="slide active" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoLogin.png' %}');"></div>
   <div class="slide" style="--i:1; --img: url('{% static 'usuarios/img/2_FondoLogin.png' %}');"></div>
   <div class="slide" style="--i:2; --img: url('{% static 'usuarios/img/3_FondoLogin.png' %}');"></div>
   <div class="slide" style="--i:3; --img: url('{% static 'usuarios/img/4_FondoLogin.png' %}');"></div>
@@ -45,16 +45,6 @@
 
   <!-- Toast de Advertencia (Amarillo) - 10 segundos -->
   <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="true" data-bs-delay="10000" style="background-color: #ffc107; color: #000;">
-    <div class="d-flex">
-      <div class="toast-body d-flex align-items-center fw-semibold">
-        <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
-        <span id="warningToastMessage">Completa todos los campos.</span>
-      </div>
-      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar notificación"></button>
-    </div>
-  </div>
-</div>
-  <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="polite" aria-atomic="true" data-bs-autohide="true" data-bs-delay="8000" style="background-color: #ffc107; color: #000;">
     <div class="d-flex">
       <div class="toast-body d-flex align-items-center fw-semibold">
         <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
@@ -101,26 +91,45 @@
             {% csrf_token %}
 
             <!-- Usuario o Documento -->
-            <div class="form-floating mb-3">
-              {{ form.username }}
-              <label for="id_username">
-                <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
-                Usuario o Documento
-              </label>
-              <div class="invalid-feedback">Este campo es obligatorio</div>
+            <div class="mb-3">
+              <div class="form-floating">
+                {{ form.username }}
+                <label for="id_username">
+                  <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                  Usuario o Documento <span class="text-danger" aria-label="campo requerido">*</span>
+                </label>
+                <div class="invalid-feedback">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Este campo es obligatorio
+                </div>
+                <div class="valid-feedback">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Campo válido
+                </div>
+              </div>
+              <!-- El mensaje de ayuda se insertará aquí dinámicamente por JS -->
             </div>
 
             <!-- Contraseña -->
-            <div class="form-floating mb-3 position-relative">
-              {{ form.password }}
-              <label for="id_password">
-                <i class="bi bi-key-fill me-1" aria-hidden="true"></i>
-                Contraseña
-              </label>
-              <button type="button" class="toggle-password btn btn-sm" data-target="id_password" aria-label="Mostrar/Ocultar contraseña" title="Mostrar/Ocultar">
-                <i class="bi bi-eye"></i>
-              </button>
-              <div class="invalid-feedback">Este campo es obligatorio</div>
+            <div class="mb-3">
+              <div class="form-floating position-relative">
+                {{ form.password }}
+                <label for="id_password">
+                  <i class="bi bi-key-fill me-1" aria-hidden="true"></i>
+                  Contraseña <span class="text-danger" aria-label="campo requerido">*</span>
+                </label>
+                <button type="button" class="toggle-password btn btn-sm" data-target="id_password" aria-label="Mostrar/Ocultar contraseña" title="Mostrar/Ocultar">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <div class="invalid-feedback">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Este campo es obligatorio
+                </div>
+                <div class="valid-feedback">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Campo válido
+                </div>
+              </div>
             </div>
 
             <!-- Botón de envío -->

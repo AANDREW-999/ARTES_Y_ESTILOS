@@ -1,4 +1,4 @@
-{% extends 'core/panel_admin_base.html' %}
+{% extends 'panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}Mi Perfil{% endblock %}
@@ -105,7 +105,7 @@
                     </div>
 
                     <div class="profile-header-actions">
-                        <a href="{% url 'usuarios:editar_perfil' %}" class="btn-edit-profile">
+                        <a href="{% url 'usuarios:editar_usuario' usuario.id %}" class="profile-action-btn btn-edit">
                             <i class="bi bi-pencil-square"></i>
                             <span>Editar Perfil</span>
                         </a>

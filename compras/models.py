@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from proveedores.models import Proveedor
 
 # --- Definiciones de Choices para Compra ---
@@ -15,15 +16,16 @@ MEDIO_PAGO_CHOICES = [
     ('TARJETA', 'Tarjeta Debito/Credito'),
 ]
 
+TIPO_PRODUCTO_CHOICES = [
+    ('FLOR', 'Flor'),
+    ('PRODUCTO', 'Producto'),
+]
+
 # --- Modelo Compra ---
 
 class Compra(models.Model):
-    # id BIGINT se crea automáticamente como Primary Key si no se define, 
-    # pero si quieres usar explícitamente BigAutoField:
     id = models.BigAutoField(primary_key=True)
     
-    # Datos numéricos y financieros (agregados)
-    descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Descuento")
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Subtotal")
     total_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Total Compra")
     
@@ -39,9 +41,15 @@ class Compra(models.Model):
     # Relación con Proveedor (ForeignKey real)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT, verbose_name="Proveedor")
     
+    # Usuario que creó la compra
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Usuario")
+    
     # Ubicación y Proceso
     departamento = models.CharField(max_length=45, verbose_name="Departamento", blank=True)
     ciudad = models.CharField(max_length=45, verbose_name="Ciudad", blank=True)
+    
+    # Tipo de producto
+    tipo_producto = models.CharField(max_length=20, choices=TIPO_PRODUCTO_CHOICES, verbose_name="Tipo de Producto", blank=True)
     
     # Metadata
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -56,10 +64,9 @@ class Compra(models.Model):
 
     def calcular_totales(self):
         """Calcula automáticamente los totales de la compra"""
-        detalles = self.detallecompra_set.all()
+        detalles = self.detalles.all()
         self.subtotal = sum(d.cantidad * d.precio for d in detalles)
-        total_descuento = self.subtotal * (self.descuento / 100) if self.descuento > 0 else 0
-        self.total_compra = self.subtotal - total_descuento
+        self.total_compra = self.subtotal
         self.save()
 
 
@@ -89,3 +96,6 @@ class DetalleCompra(models.Model):
     def save(self, *args, **kwargs):
         self.subtotal = self.cantidad * self.precio
         super().save(*args, **kwargs)
+
+
+

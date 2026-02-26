@@ -2,9 +2,7 @@
 {% load static %}
 
 {% block title %}Lista de compras{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'compras/css/lista_compra.css' %}">
-{% endblock %}
+
 
 {% block content %}
 <div class="container-fluid">
@@ -28,27 +26,22 @@
                     <form method="GET" id="filtroForm">
                         <div class="row align-items-end">
                             <div class="col-md-3">
-                                <label for="estado">Estado</label>
-                                <select name="estado" id="estado" class="form-control">
-                                    <option value="">Todos los estados</option>
-                                    <option value="pendiente">Pendiente</option>
-                                    <option value="aprobada">Aprobada</option>
-                                    <option value="rechazada">Rechazada</option>
-                                    <option value="completada">Completada</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="proveedor">Proveedor</label>
-                                <select name="proveedor" id="proveedor" class="form-control">
-                                    <option value="">Todos los proveedores</option>
+                                <label for="proveedor_nombre">Proveedor</label>
+                                <input type="text" name="proveedor_nombre" id="proveedor_nombre" 
+                                       class="form-control filtro-campo" 
+                                       placeholder="Escribe el nombre del proveedor..."
+                                       value="{{ proveedor_nombre_filtro }}"
+                                       list="lista_proveedores"
+                                       autocomplete="off">
+                                <datalist id="lista_proveedores">
                                     {% for proveedor in proveedores %}
-                                    <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                                    <option value="{{ proveedor.nombre_proveedor }}">{{ proveedor.nombre_proveedor }}</option>
                                     {% endfor %}
-                                </select>
+                                </datalist>
                             </div>
                             <div class="col-md-3">
                                 <label for="fecha_desde">Fecha desde</label>
-                                <input type="date" name="fecha_desde" id="fecha_desde" class="form-control">
+                                <input type="date" name="fecha_desde" id="fecha_desde" class="form-control filtro-campo" value="{{ fecha_desde_filtro }}">
                             </div>
                             <div class="col-md-3">
                                 <button type="submit" class="btn btn-info w-100">
@@ -67,17 +60,15 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Fecha</th>
                                     <th>Descripción</th>
                                     <th>Proveedor</th>
-                                    <th>Usuario</th>
                                     <th>Total</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
+                                    <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -85,30 +76,19 @@
                                 <tr>
                                     <td>{{ compra.id }}</td>
                                     <td>{{ compra.fecha_emision|date:"d/m/Y " }}</td>
-                                    <td>{{ compra.descripcion|truncatewords:5 }}</td>
-                                    <td>{{ compra.proveedor.nombre }}</td>
-                                    <td>{{ compra.usuario.get_full_name }}</td>
+                                    <td>{{ compra.descripcion|default:"Sin descripción"|truncatewords:5 }}</td>
+                                    <td>{{ compra.proveedor.nombre_proveedor|default:"N/A" }}</td>
                                     <td>${{ compra.total_compra|floatformat:2 }}</td>
-                                    <td>
-                                        {% if compra.estado == 'pendiente' %}
-                                        <span class="badge badge-warning">Pendiente</span>
-                                        {% elif compra.estado == 'aprobada' %}
-                                        <span class="badge badge-info">Aprobada</span>
-                                        {% elif compra.estado == 'completada' %}
-                                        <span class="badge badge-success">Completada</span>
-                                        {% elif compra.estado == 'rechazada' %}
-                                        <span class="badge badge-danger">Rechazada</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detalle{{ compra.id }}" title="Ver detalle">
-                                            <i class="fas fa-eye"></i>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#detalle{{ compra.id }}" title="Ver detalle">
+                                            <i class="bi bi-eye"></i>
                                         </button>
-                                        <a href="{% url 'compras:editar_compra' compra.id %}" class="btn btn-sm btn-warning" title="Editar">
-                                            <i class="fas fa-edit"></i>
+                                        <a href="{% url 'compras:editar_compra' compra.id %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#eliminar{{ compra.id }}" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#eliminar{{ compra.id }}" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -135,7 +115,7 @@
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
                 <h5 class="modal-title" id="detalleLabel{{ compra.id }}">
-                    <i class="fas fa-info-circle"></i> Detalle de Compra #{{ compra.id }}
+                    <i class="bi bi-info-circle"></i> Detalle de Compra #{{ compra.id }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -143,31 +123,51 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>ID:</strong> {{ compra.id }}</p>
-                        <p><strong>Descripción:</strong> {{ compra.descripcion }}</p>
-                        <p><strong>Proveedor:</strong> {{ compra.proveedor.nombre }}</p>
-                        <p><strong>Usuario:</strong> {{ compra.usuario.get_full_name }}</p>
+                        <p><strong>Descripción:</strong> {{ compra.descripcion|default:"N/A" }}</p>
+                        <p><strong>Proveedor:</strong> {{ compra.proveedor.nombre_proveedor|default:"N/A" }}</p>
+                        <p><strong>Usuario:</strong> {{ compra.usuario.get_full_name|default:"Sin usuario" }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Total:</strong> ${{ compra.total_compra|floatformat:2 }}</p>
-                        <p><strong>Fecha:</strong> {{ compra.fecha_emision|date:"d/m/Y " }}</p>
-                        <p><strong>Estado:</strong> 
-                            {% if compra.estado == 'pendiente' %}
-                            <span class="badge badge-warning">Pendiente</span>
-                            {% elif compra.estado == 'aprobada' %}
-                            <span class="badge badge-info">Aprobada</span>
-                            {% elif compra.estado == 'completada' %}
-                            <span class="badge badge-success">Completada</span>
-                            {% elif compra.estado == 'rechazada' %}
-                            <span class="badge badge-danger">Rechazada</span>
-                            {% endif %}
-                        </p>
+                        <p><strong>Fecha:</strong> {{ compra.fecha_emision|date:"d/m/Y" }}</p>
+                        <p><strong>Subtotal:</strong> ${{ compra.subtotal|floatformat:2 }}</p>
+                        <p><strong>Total:</strong> <span class="badge bg-success">${{ compra.total_compra|floatformat:2 }}</span></p>
                     </div>
+                </div>
+                
+                <hr>
+                
+                <h6><strong>Artículos de la Compra</strong></h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>RIF</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in compra.detalles.all %}
+                            <tr>
+                                <td>{{ detalle.rif|default:"N/A" }}</td>
+                                <td>${{ detalle.precio|floatformat:2 }}</td>
+                                <td>{{ detalle.cantidad }}</td>
+                                <td>${{ detalle.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">Sin artículos</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <a href="{% url 'compras:editar_compra' compra.id %}" class="btn btn-warning">
-                    <i class="fas fa-edit"></i> Editar
+                <a href="{% url 'compras:editar_compra' compra.id %}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Editar
                 </a>
             </div>
         </div>
@@ -180,12 +180,12 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="eliminarLabel{{ compra.id }}">
-                    <i class="fas fa-exclamation-triangle"></i> ¿Eliminar registro?
+                    <i class="bi bi-exclamation-triangle"></i> ¿Eliminar registro?
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>¿Estás seguro de eliminar la compra?</p>
+                <p>¿Estás seguro de eliminar esta compra?</p>
                 <div class="alert alert-warning">
                     <strong>ID:</strong> {{ compra.id }}<br>
                     <strong>Descripción:</strong> {{ compra.descripcion }}<br>
@@ -194,13 +194,13 @@
                 <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
             </div>
             <div class="modal-footer">
-                <form method="post" action="{% url 'compras:eliminar_compra' compra.id %}">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <form method="post" action="{% url 'compras:eliminar_compra' compra.id %}" style="display: inline;">
                     {% csrf_token %}
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
                     <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Confirmar Eliminación
+                        <i class="bi bi-trash"></i> Confirmar Eliminación
                     </button>
                 </form>
             </div>
@@ -210,3 +210,41 @@
 {% endfor %}
 
 {% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener elementos
+    const filtroForm = document.getElementById('filtroForm');
+    const proveedorInput = document.getElementById('proveedor_nombre');
+    const fechaInput = document.getElementById('fecha_desde');
+    
+    // Debounce para búsqueda de proveedor
+    let timeoutProveedor;
+    if (proveedorInput) {
+        proveedorInput.addEventListener('input', function() {
+            clearTimeout(timeoutProveedor);
+            timeoutProveedor = setTimeout(() => {
+                if (filtroForm) {
+                    filtroForm.submit();
+                }
+            }, 500); // Espera 500ms después de dejar de escribir
+        });
+        
+        // Enviar inmediatamente cuando selecciona del datalist
+        proveedorInput.addEventListener('change', function() {
+            if (filtroForm) {
+                filtroForm.submit();
+            }
+        });
+    }
+    
+    // Cambio de fecha envía inmediatamente
+    if (fechaInput) {
+        fechaInput.addEventListener('change', function() {
+            if (filtroForm) {
+                filtroForm.submit();
+            }
+        });
+    }
+});
+</script>

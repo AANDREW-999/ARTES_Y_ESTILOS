@@ -80,10 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
             subtotal += precio * cantidad;
         });
 
-        const descuentoInput = document.getElementById('descuento');
-        const descuento = parsearNumero(descuentoInput ? descuentoInput.value : '0');
-        const totalDescuento = subtotal * (descuento / 100);
-        const total = subtotal - totalDescuento;
+        const total = subtotal;
 
         document.getElementById('subtotal').textContent = '$' + formatearMiles(subtotal.toFixed(2));
         document.getElementById('total').textContent = '$' + formatearMiles(total.toFixed(2));
@@ -147,14 +144,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Descuento
-    const descuentoInput = document.getElementById('descuento');
-    if (descuentoInput) {
-        descuentoInput.type = 'text';
-        descuentoInput.inputMode = 'decimal';
-        aplicarFormatoMiles(descuentoInput);
-    }
-
     // Inicializar productos existentes
     document.querySelectorAll('.producto-item').forEach(item => {
         configurarProductoItem(item);
@@ -185,18 +174,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
             
-            // Limpiar descuento
-            if (descuentoInput && descuentoInput.value) {
-                const descuentoOriginal = descuentoInput.value;
-                const descuentoLimpio = parsearNumero(descuentoInput.value);
-                descuentoInput.type = 'number';
-                descuentoInput.value = descuentoLimpio;
-                console.log(`   Descuento: "${descuentoOriginal}" → ${descuentoInput.value}`);
-            }
-            
-            // Validar cantidades
+            // Validar y limpiar cantidades - remover cualquier no numérico
             document.querySelectorAll('.cantidad-input').forEach((input, idx) => {
                 const cantidad = parseInt(input.value) || 0;
+                input.value = cantidad > 0 ? cantidad : '';
                 console.log(`   Cantidad[${idx}]: ${cantidad}`);
             });
             
@@ -206,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return false;
             }
             
-            console.log(` Validación OK - ${productosValidos} producto(s) válido(s)`);
+            console.log(`✅ Validación OK - ${productosValidos} producto(s) válido(s)`);
         });
     }
 

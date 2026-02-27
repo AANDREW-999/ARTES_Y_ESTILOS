@@ -1,138 +1,388 @@
-{% extends 'core/panel_admin_base.html' %}
+{% extends 'panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Editar Usuario{% endblock %}
+{% block title %}{{ titulo|default:"Editar Usuario" }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/perfil.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="perfil-container panel-fade-in">
-    <div class="panel-card">
-        <div class="panel-card-header">
-            <h1 class="panel-card-title">
-                <i class="fas fa-user-edit"></i> Editar Usuario
-            </h1>
-            <p class="panel-card-subtitle">
-                Editando: <strong>@{{ usuario.username }}</strong>
-            </p>
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}"><i class="bi bi-house-door-fill"></i> <span>Inicio</span></a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}"><i class="bi bi-people-fill"></i> <span>Usuarios</span></a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ titulo|default:"Editar Usuario" }}</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="profile-header-content">
+            <div class="profile-avatar-wrapper">
+                {% if usuario.perfil.foto_perfil %}
+                    <img src="{{ usuario.perfil.foto_perfil.url }}"
+                         alt="{{ usuario.get_full_name }}"
+                         class="profile-avatar"
+                         id="avatarPreview">
+                {% else %}
+                    <div class="profile-avatar-placeholder" id="avatarPreview">
+                        <span>{{ usuario.first_name.0 }}{{ usuario.last_name.0 }}</span>
+                    </div>
+                {% endif %}
+                <div class="profile-status-indicator"></div>
+            </div>
+            <div class="profile-header-info">
+                <h1 class="profile-name">Editar Mi Perfil</h1>
+                <p class="profile-username">@{{ usuario.username }}</p>
+                <div class="profile-badges">
+                    <span class="profile-badge badge-active">
+                        <i class="bi bi-pencil-square"></i> Modo Edición
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Errores globales -->
+    {% if form.non_field_errors %}
+    <div class="field-non-field-errors mb-4">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+            <strong>Corrige los siguientes errores:</strong>
+            <ul class="mb-0 mt-1 ps-3">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="form-editar-usuario" novalidate>
+        {% csrf_token %}
+
+        <!-- ── DATOS DE CUENTA (tabla Usuario) ── -->
+        <div class="form-card">
+            <h3 class="form-section-title">
+                <i class="bi bi-person-badge-fill"></i> Datos de Cuenta
+            </h3>
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.first_name.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-person-fill"></i> Nombre</label>
+                        <input type="text" name="first_name" id="id_first_name"
+                               value="{{ form.first_name.value|default:'' }}"
+                               class="field-input {% if form.first_name.errors %}field-input--error{% endif %}"
+                               required>
+                        {% if form.first_name.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.last_name.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-person-fill"></i> Apellido</label>
+                        <input type="text" name="last_name" id="id_last_name"
+                               value="{{ form.last_name.value|default:'' }}"
+                               class="field-input {% if form.last_name.errors %}field-input--error{% endif %}"
+                               required>
+                        {% if form.last_name.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.username.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-at"></i> Nombre de usuario</label>
+                        <input type="text" name="username" id="id_username"
+                               value="{{ form.username.value|default:'' }}"
+                               class="field-input {% if form.username.errors %}field-input--error{% endif %}"
+                               required minlength="4" maxlength="150">
+                        {% if form.username.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.email.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-envelope-fill"></i> Correo electrónico</label>
+                        <input type="email" name="email" id="id_email"
+                               value="{{ form.email.value|default:'' }}"
+                               class="field-input {% if form.email.errors %}field-input--error{% endif %}"
+                               required>
+                        {% if form.email.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.documento.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-card-text"></i> Documento</label>
+                        <input type="text" name="documento" id="id_documento"
+                               value="{{ form.documento.value|default:'' }}"
+                               class="field-input {% if form.documento.errors %}field-input--error{% endif %}"
+                               maxlength="10" inputmode="numeric">
+                        <input type="hidden" id="documento-original" value="{{ documento_original }}">
+                        {% if form.documento.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.documento.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
         </div>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
+        <!-- ── INFORMACIÓN PERSONAL (tabla Perfil) ── -->
+        <div class="form-card">
+            <h3 class="form-section-title">
+                <i class="bi bi-person-lines-fill"></i> Información Personal
+            </h3>
+            <div class="row g-3">
 
-            <div class="perfil-form-grid">
-                <!-- Usuario -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.username.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-user"></i> {{ form.username.label }}
-                    </label>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                        <div class="perfil-form-error">{{ form.username.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.telefono.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-telephone-fill"></i> Teléfono</label>
+                        <input type="tel" name="telefono" id="id_telefono"
+                               value="{{ form.telefono.value|default:'' }}"
+                               class="field-input {% if form.telefono.errors %}field-input--error{% endif %}"
+                               maxlength="20">
+                        {% if form.telefono.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.telefono.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Email -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.email.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-envelope"></i> {{ form.email.label }}
-                    </label>
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                        <div class="perfil-form-error">{{ form.email.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.fecha_nacimiento.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-calendar-event"></i> Fecha de nacimiento</label>
+                        <input type="date" name="fecha_nacimiento" id="id_fecha_nacimiento"
+                               value="{{ form.fecha_nacimiento.value|date:'Y-m-d'|default:'' }}"
+                               class="field-input {% if form.fecha_nacimiento.errors %}field-input--error{% endif %}">
+                        {% if form.fecha_nacimiento.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.fecha_nacimiento.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Nombre -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.first_name.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-signature"></i> {{ form.first_name.label }}
-                    </label>
-                    {{ form.first_name }}
-                    {% if form.first_name.errors %}
-                        <div class="perfil-form-error">{{ form.first_name.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-12">
+                    <div class="field-wrapper {% if form.direccion.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-geo-alt-fill"></i> Dirección</label>
+                        <input type="text" name="direccion" id="id_direccion"
+                               value="{{ form.direccion.value|default:'' }}"
+                               class="field-input {% if form.direccion.errors %}field-input--error{% endif %}">
+                        {% if form.direccion.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.direccion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Apellido -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.last_name.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-signature"></i> {{ form.last_name.label }}
-                    </label>
-                    {{ form.last_name }}
-                    {% if form.last_name.errors %}
-                        <div class="perfil-form-error">{{ form.last_name.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-md-6">
+                    <div class="field-wrapper {% if form.foto_perfil.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-camera-fill"></i> Foto de perfil</label>
+                        <input type="file" name="foto_perfil" id="id_foto_perfil"
+                               class="field-input {% if form.foto_perfil.errors %}field-input--error{% endif %}"
+                               accept="image/*">
+                        {% if usuario.perfil.foto_perfil %}
+                        <div class="mt-2">
+                            <small class="field-hint">Foto actual:</small><br>
+                            <img src="{{ usuario.perfil.foto_perfil.url }}" alt="Foto actual"
+                                 style="width:72px;height:72px;object-fit:cover;border-radius:50%;border:2px solid var(--border-color);margin-top:6px;">
+                        </div>
+                        {% endif %}
+                        {% if form.foto_perfil.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.foto_perfil.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Teléfono -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.telefono.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-phone"></i> {{ form.telefono.label }}
-                    </label>
-                    {{ form.telefono }}
-                    {% if form.telefono.errors %}
-                        <div class="perfil-form-error">{{ form.telefono.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-12">
+                    <div class="field-wrapper {% if form.biografia.errors %}field-wrapper--error{% endif %}">
+                        <label class="field-label"><i class="bi bi-file-text-fill"></i> Biografía</label>
+                        <textarea name="biografia" id="id_biografia" rows="4"
+                                  class="field-input {% if form.biografia.errors %}field-input--error{% endif %}">{{ form.biografia.value|default:'' }}</textarea>
+                        {% if form.biografia.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.biografia.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <!-- Fecha de Nacimiento -->
-                <div class="perfil-form-group">
-                    <label for="{{ form.fecha_nacimiento.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-birthday-cake"></i> {{ form.fecha_nacimiento.label }}
-                    </label>
-                    {{ form.fecha_nacimiento }}
-                    {% if form.fecha_nacimiento.errors %}
-                        <div class="perfil-form-error">{{ form.fecha_nacimiento.errors.0 }}</div>
-                    {% endif %}
-                </div>
+            </div>
+        </div>
 
-                <!-- Dirección -->
-                <div class="perfil-form-group full-width">
-                    <label for="{{ form.direccion.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-map-marker-alt"></i> {{ form.direccion.label }}
-                    </label>
-                    {{ form.direccion }}
-                    {% if form.direccion.errors %}
-                        <div class="perfil-form-error">{{ form.direccion.errors.0 }}</div>
-                    {% endif %}
+        <!-- ── CONFIRMACIÓN CAMBIO DOCUMENTO ── -->
+        <div id="confirmacion-documento" class="form-card"
+             style="display:none; border-left:4px solid #ffc107;">
+            <h3 class="form-section-title" style="color:#f59e0b;">
+                <i class="bi bi-exclamation-triangle-fill"></i> Confirmación — Cambio de Documento
+            </h3>
+            <div class="alert alert-warning mb-3">
+                <strong>ADVERTENCIA:</strong> Vas a cambiar tu documento de identidad.<br>
+                <strong>Actual:</strong> <code id="doc-actual-texto">{{ documento_original }}</code> →
+                <strong>Nuevo:</strong> <code id="doc-nuevo-texto"></code>
+            </div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox"
+                               id="check-confirmar-documento" name="check_confirmar_documento">
+                        <label class="form-check-label" for="check-confirmar-documento">
+                            <strong>He verificado que el nuevo documento es correcto</strong>
+                        </label>
+                    </div>
                 </div>
-
-                <!-- Biografía -->
-                <div class="perfil-form-group full-width">
-                    <label for="{{ form.biografia.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-pen"></i> {{ form.biografia.label }}
+                <div class="col-md-6">
+                    <label for="confirmar_cambio_documento" class="field-label">
+                        Escribe <strong>CONFIRMAR</strong> para autorizar:
                     </label>
-                    {{ form.biografia }}
-                    {% if form.biografia.errors %}
-                        <div class="perfil-form-error">{{ form.biografia.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Foto de Perfil -->
-                <div class="perfil-form-group full-width">
-                    <label for="{{ form.foto_perfil.id_for_label }}" class="perfil-form-label">
-                        <i class="fas fa-camera"></i> {{ form.foto_perfil.label }}
-                    </label>
-                    {{ form.foto_perfil }}
-                    {% if form.foto_perfil.errors %}
-                        <div class="perfil-form-error">{{ form.foto_perfil.errors.0 }}</div>
-                    {% endif %}
+                    <input type="text" class="field-input"
+                           id="confirmar_cambio_documento"
+                           name="confirmar_cambio_documento"
+                           placeholder="CONFIRMAR"
+                           autocomplete="off">
                 </div>
             </div>
+        </div>
 
-            <div class="perfil-form-actions">
-                <a href="{% url 'usuarios:lista_usuarios' %}" class="panel-btn panel-btn-secondary">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
-                <button type="submit" class="panel-btn panel-btn-primary">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
+        <!-- ── PERMISOS ── -->
+        <div class="form-card">
+            <h3 class="form-section-title">
+                <i class="bi bi-shield-lock-fill"></i> Permisos y Estado
+            </h3>
+            <div class="alert-info-box mb-3">
+                <i class="bi bi-info-circle-fill fs-5"></i>
+                <div><small><strong>Nota:</strong> Los cambios en permisos afectan el nivel de acceso al sistema.</small></div>
             </div>
-        </form>
-    </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox"
+                               name="is_active" id="id_is_active"
+                               {% if form.is_active.value %}checked{% endif %}>
+                        <label class="form-check-label" for="id_is_active">
+                            <strong>Cuenta activa</strong>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox"
+                               name="is_staff" id="id_is_staff"
+                               {% if form.is_staff.value %}checked{% endif %}>
+                        <label class="form-check-label" for="id_is_staff">
+                            <strong>Acceso al panel</strong>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox"
+                               name="is_superuser" id="id_is_superuser"
+                               {% if form.is_superuser.value %}checked{% endif %}>
+                        <label class="form-check-label" for="id_is_superuser">
+                            <strong>Superadministrador</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn-guardar">
+                <i class="bi bi-check-circle-fill me-2"></i>{{ boton_texto|default:"Guardar Cambios" }}
+            </button>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancelar">
+                <i class="bi bi-x-circle-fill me-2"></i>Cancelar
+            </a>
+        </div>
+
+    </form>
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const docInput      = document.getElementById('id_documento');
+    const docOriginal   = document.getElementById('documento-original')?.value || '';
+    const confirmDiv    = document.getElementById('confirmacion-documento');
+    const docNuevoEl    = document.getElementById('doc-nuevo-texto');
+    const checkBox      = document.getElementById('check-confirmar-documento');
+    const confirmInput  = document.getElementById('confirmar_cambio_documento');
+    const form          = document.getElementById('form-editar-usuario');
+    const isActiveChk   = document.getElementById('id_is_active');
+    const esAutoEdicion = {{ es_auto_edicion|lower }};
+
+    // Proteger auto-desactivación
+    if (isActiveChk && esAutoEdicion) {
+        isActiveChk.checked = true;
+        isActiveChk.addEventListener('change', function () {
+            if (!this.checked) {
+                this.checked = true;
+                window._dashboard?.showAdminNotification('warning', 'No puedes desactivar tu propia cuenta.');
+            }
+        });
+    }
+
+    // Cambio de documento → mostrar confirmación
+    docInput?.addEventListener('input', function () {
+        const val = this.value.trim();
+        if (val && val !== docOriginal) {
+            confirmDiv.style.display = 'block';
+            docNuevoEl.textContent = val;
+            confirmDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            confirmDiv.style.display = 'none';
+            if (checkBox) checkBox.checked = false;
+            if (confirmInput) confirmInput.value = '';
+        }
+    });
+
+    // Validar al enviar
+    form?.addEventListener('submit', function (e) {
+        const val = docInput?.value.trim() || '';
+        if (val && val !== docOriginal) {
+            if (!checkBox?.checked) {
+                e.preventDefault();
+                window._dashboard?.showAdminNotification('warning', 'Marca la casilla de confirmación para cambiar el documento.');
+                checkBox?.focus();
+                return;
+            }
+            if (confirmInput?.value !== 'CONFIRMAR') {
+                e.preventDefault();
+                window._dashboard?.showAdminNotification('warning', 'Escribe exactamente "CONFIRMAR" para autorizar el cambio.');
+                confirmInput?.focus();
+                return;
+            }
+        }
+        if (esAutoEdicion && isActiveChk && !isActiveChk.checked) {
+            e.preventDefault();
+            isActiveChk.checked = true;
+            window._dashboard?.showAdminNotification('error', 'No puedes desactivar tu propia cuenta.');
+        }
+    });
+
+    // Scroll al primer error al cargar
+    const firstError = document.querySelector('.field-input--error');
+    if (firstError) {
+        setTimeout(() => firstError.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+        firstError.focus();
+    }
+});
+</script>
+{% endblock %}

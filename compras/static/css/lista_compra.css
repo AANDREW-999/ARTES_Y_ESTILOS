@@ -1,0 +1,233 @@
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.page-header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary, #1e293b);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0 0 .25rem;
+}
+.page-header p {
+    color: var(--text-secondary, #64748b);
+    margin: 0;
+    font-size: .9rem;
+}
+.page-header-actions { display: flex; gap: .75rem; align-items: center; }
+
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+.stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    border: 1px solid #f1f5f9;
+}
+.stat-icon {
+    width: 46px; height: 46px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+}
+.stat-icon-primary  { background: #eff6ff; color: #3b82f6; }
+.stat-icon-success  { background: #f0fdf4; color: #22c55e; }
+.stat-icon-warning  { background: #fffbeb; color: #f59e0b; }
+.stat-icon-info     { background: #f0f9ff; color: #0ea5e9; }
+.stat-value { font-size: 1.5rem; font-weight: 700; color: #1e293b; line-height: 1; }
+.stat-label { font-size: .78rem; color: #64748b; margin-top: .2rem; }
+
+/* Breadcrumb */
+.page-breadcrumb { margin-bottom: 1.25rem; }
+.page-breadcrumb .breadcrumb { background: none; padding: 0; margin: 0; font-size: .85rem; }
+.page-breadcrumb .breadcrumb-item a { color: #3b82f6; text-decoration: none; }
+.page-breadcrumb .breadcrumb-item a:hover { text-decoration: underline; }
+
+/* Section */
+.seccion-compras {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+.seccion-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    margin: 0;
+    background: #fafbfc;
+}
+
+/* Filter card */
+.filtro-card {
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    background: #fff;
+}
+.filtro-card label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: .3rem;
+    display: block;
+}
+.filtro-card .form-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: .875rem;
+    padding: .45rem .75rem;
+    color: #1e293b;
+    transition: border .2s, box-shadow .2s;
+}
+.filtro-card .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+    outline: none;
+}
+
+/* Table */
+.compras-table { width: 100%; border-collapse: collapse; }
+.compras-table thead tr {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+.compras-table th {
+    padding: .75rem 1.25rem;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #64748b;
+    white-space: nowrap;
+}
+.compras-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background .15s;
+}
+.compras-table tbody tr:hover { background: #f8fafc; }
+.compras-table td {
+    padding: .85rem 1.25rem;
+    font-size: .875rem;
+    color: #334155;
+    vertical-align: middle;
+}
+.compras-table td:last-child { text-align: center; }
+
+/* ID badge */
+.compra-id {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #3b82f6;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .2rem .55rem;
+    min-width: 32px;
+}
+
+/* Total badge */
+.badge-total {
+    display: inline-block;
+    background: #f0fdf4;
+    color: #16a34a;
+    border-radius: 20px;
+    font-size: .8rem;
+    font-weight: 700;
+    padding: .25rem .75rem;
+}
+
+/* Actions */
+.acciones-wrapper { display: flex; gap: .4rem; justify-content: center; flex-wrap: wrap; }
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .3rem .7rem;
+    border-radius: 7px;
+    font-size: .78rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    white-space: nowrap;
+}
+.btn-action:hover { opacity: .85; transform: translateY(-1px); }
+.btn-ver    { background: #eff6ff; color: #3b82f6; }
+.btn-editar { background: #fffbeb; color: #d97706; }
+.btn-eliminar { background: #fef2f2; color: #ef4444; }
+
+/* Primary button */
+.btn-primary-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .55rem 1.2rem;
+    background: #3b82f6;
+    color: #fff;
+    border-radius: 9px;
+    font-size: .875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .2s, transform .1s;
+}
+.btn-primary-custom:hover { background: #2563eb; transform: translateY(-1px); color:#fff; }
+
+/* Filter button */
+.btn-filtro {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    padding: .45rem 1.1rem;
+    background: #0ea5e9;
+    color: #fff;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background .2s;
+    height: 38px;
+    width: 100%;
+    white-space: nowrap;
+}
+.btn-filtro:hover { background: #0284c7; }
+.btn-filtro:active { background: #0369a1; }
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #94a3b8;
+}
+.empty-state i { font-size: 2.5rem; display: block; margin-bottom: .75rem; }
+.empty-state p { margin: 0; font-size: .9rem; }
+
+/* Modal adjustments */
+.modal-header.bg-info-custom { background: #0ea5e9 !important; }

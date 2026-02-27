@@ -45,7 +45,7 @@ body {
   text-decoration: none;
 }
 .brand-logo {
-  height: 42px;
+  height: 60px;
   width: auto;
   object-fit: contain;
 }
@@ -55,7 +55,7 @@ body {
 .brand-logo-xl { height: 64px; }
 
 /* Branding tamaños ampliados (solicitud del usuario) */
-.brand-logo-xxl { height: 84px; }
+.brand-logo-xxl { height: 100px; }
 .footer-logo-xxl { height: 68px; }
 
 /* Ajuste del spacing para navbar con logo grande */
@@ -287,4 +287,54 @@ hr {
     min-width: 280px;
     max-width: calc(100vw - 2rem);
   }
+}
+
+/* WhatsApp FAB */
+.whatsapp-fab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1.25rem;
+  z-index: 1050;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,#25D366,#128C7E);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms, opacity 200ms;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.whatsapp-fab .icon { font-size: 1.35rem; line-height:1; }
+.whatsapp-fab:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+}
+
+/* Cuando el footer esté visible, subimos ligeramente el FAB para no taparlo */
+.whatsapp-fab.fab-near-footer {
+  transform: translateY(-56px);
+}
+
+/* Hover state suave adicional (clase añadida por JS si se desea) */
+.whatsapp-fab.fab-hover { transform: translateY(-8px) scale(1.03); }
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .whatsapp-fab { right: 0.75rem; bottom: 0.9rem; width: 48px; height: 48px; }
+  .whatsapp-fab.fab-near-footer { transform: translateY(-42px); }
+}
+
+/* Reveal animations (landing) */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 520ms ease, transform 520ms cubic-bezier(.2,.8,.2,1);
+}
+[data-reveal].revealed {
+  opacity: 1;
+  transform: translateY(0);
 }

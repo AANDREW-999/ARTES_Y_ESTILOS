@@ -3,7 +3,7 @@
 {% block title %}Registro de Usuario · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/auth.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
 <!-- FONDO ANIMADO DE 4 IMÁGENES (SLIDESHOW) -->
 <!-- ========================================================================== -->
 <div id="bg-slideshow" aria-hidden="true">
-  <div class="slide" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoRegistro.png' %}');"></div>
+  <div class="slide active" style="--i:0; --img: url('{% static 'usuarios/img/1_FondoRegistro.png' %}');"></div>
   <div class="slide" style="--i:1; --img: url('{% static 'usuarios/img/2_FondoRegistro.png' %}');"></div>
   <div class="slide" style="--i:2; --img: url('{% static 'usuarios/img/3_FondoRegistro.png' %}');"></div>
   <div class="slide" style="--i:3; --img: url('{% static 'usuarios/img/4_FondoRegistro.png' %}');"></div>
@@ -117,10 +117,6 @@
                       Documento válido
                     </div>
                   </div>
-                  <small class="form-text text-muted ms-2">
-                    <i class="bi bi-info-circle me-1"></i>
-                    10 dígitos numéricos
-                  </small>
                 </div>
 
                 <!-- Correo electrónico -->
@@ -140,10 +136,6 @@
                       Correo válido
                     </div>
                   </div>
-                  <small class="form-text text-muted ms-2">
-                    <i class="bi bi-info-circle me-1"></i>
-                    ejemplo@correo.com
-                  </small>
                 </div>
 
                 <!-- Nombre -->
@@ -213,10 +205,6 @@
                       Usuario válido
                     </div>
                   </div>
-                  <small class="form-text text-muted ms-2">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Mínimo 4 caracteres: letras, números, guiones (-) y guiones bajos (_)
-                  </small>
                 </div>
 
                 <!-- Contraseña -->
@@ -295,7 +283,7 @@
 
                     <!-- Barra de Progreso de Fortaleza -->
                     <div class="progress mt-2" style="height: 10px;" role="progressbar" aria-label="Fortaleza de contraseña">
-                      <div id="password-progress" class="progress-bar bg-secondary" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                      <div id="password-progress" class="progress-bar bg-secondary" style="width: 0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                         <span class="visually-hidden">0% completado</span>
                       </div>
                     </div>
@@ -319,7 +307,7 @@
                         aria-expanded="false"
                         aria-controls="opcionalesCollapse">
                   <i class="bi bi-sliders me-2" aria-hidden="true"></i>
-                  <span>Información adicional (opcional)</span>
+                  <span>Información adicional (Perfil de Usuario)</span>
                   <i class="bi bi-chevron-down ms-auto" aria-hidden="true"></i>
                 </button>
               </div>
@@ -344,10 +332,6 @@
                           Teléfono válido
                         </div>
                       </div>
-                      <small class="form-text text-muted ms-2">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Formato: 10 dígitos
-                      </small>
                     </div>
 
                     <!-- Fecha de Nacimiento -->
@@ -367,10 +351,6 @@
                           Fecha válida
                         </div>
                       </div>
-                      <small class="form-text text-muted ms-2">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Formato: DD/MM/AAAA
-                      </small>
                     </div>
 
                     <!-- Dirección -->
@@ -390,10 +370,6 @@
                           Dirección válida
                         </div>
                       </div>
-                      <small class="form-text text-muted ms-2">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Calle, número, ciudad, código postal
-                      </small>
                     </div>
 
                     <!-- Foto de Perfil -->

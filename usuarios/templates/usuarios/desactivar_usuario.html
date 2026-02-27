@@ -1,80 +1,99 @@
-{% extends 'core/panel_admin_base.html' %}
+{% extends 'panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}Desactivar Usuario{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="panel-fade-in">
-    <div class="panel-card" style="max-width: 600px; margin: 0 auto;">
-        <div class="panel-card-header">
-            <h1 class="panel-card-title" style="color: #dc3545;">
-                <i class="fas fa-exclamation-triangle"></i> Desactivar Usuario
-            </h1>
-            <p class="panel-card-subtitle">Esta acción no eliminará el usuario de la base de datos</p>
+<div class="container-fluid py-5">
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Desactivar Usuario
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-warning">
+            <i class="bi bi-person-slash"></i>
         </div>
 
-        <!-- Información del usuario -->
-        <div style="background: rgba(220, 53, 69, 0.05); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #dc3545; margin-bottom: 2rem;">
-            <h3 style="color: #721c24; margin-bottom: 1rem;">
-                <i class="fas fa-user"></i> Información del Usuario
-            </h3>
+        <h1 class="confirmation-title">¿Desactivar Usuario?</h1>
 
-            <div style="display: grid; gap: 0.75rem;">
-                <p style="margin: 0; color: #721c24;">
-                    <strong>Nombre completo:</strong> {{ usuario.get_full_name|default:usuario.username }}
-                </p>
-                <p style="margin: 0; color: #721c24;">
-                    <strong>Usuario:</strong> @{{ usuario.username }}
-                </p>
-                <p style="margin: 0; color: #721c24;">
-                    <strong>Email:</strong> {{ usuario.email }}
-                </p>
-                <p style="margin: 0; color: #721c24;">
-                    <strong>Documento:</strong> {{ usuario.documento }}
-                </p>
-                <p style="margin: 0; color: #721c24;">
-                    <strong>Rol:</strong>
-                    {% if usuario.is_superuser %}
-                        <span class="panel-badge panel-badge-danger">SuperAdministrador</span>
+        <p class="confirmation-message">
+            Estás a punto de desactivar el siguiente usuario. Esta acción no eliminará el usuario de la base de datos.
+        </p>
+
+        <div class="user-info-box">
+            {% if usuario.perfil.foto_perfil %}
+                <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="user-info-avatar">
+            {% else %}
+                <div class="user-info-avatar-placeholder">
+                    {% if usuario.first_name and usuario.last_name %}
+                        {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
                     {% else %}
-                        <span class="panel-badge panel-badge-info">Administrador</span>
+                        {{ usuario.username.0|upper }}
                     {% endif %}
-                </p>
+                </div>
+            {% endif %}
+            <div class="user-info-content">
+                <h4>{{ usuario.get_full_name|default:usuario.username }}</h4>
+                <p>@{{ usuario.username }} • {{ usuario.email }}</p>
             </div>
         </div>
 
-        <!-- Advertencia -->
-        <div style="background: rgba(255, 193, 7, 0.1); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #ffc107; margin-bottom: 2rem;">
-            <h4 style="color: #856404; margin-bottom: 1rem;">
-                <i class="fas fa-info-circle"></i> ¿Qué sucederá al desactivar este usuario?
-            </h4>
-            <ul style="color: #856404; margin: 0; padding-left: 1.5rem; line-height: 1.8;">
-                <li>El usuario <strong>NO será eliminado</strong> de la base de datos</li>
-                <li>Se marcará como <strong>inactivo (is_active=False)</strong></li>
-                <li>No podrá iniciar sesión en el sistema</li>
-                <li>Todos sus datos se mantendrán intactos</li>
-                <li>Un superadministrador puede reactivarlo cuando lo desee</li>
-            </ul>
-        </div>
+        <ul class="info-list info-list-warning">
+            <li>
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>El usuario NO será eliminado de la base de datos</span>
+            </li>
+            <li>
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Se marcará como inactivo (is_active=False)</span>
+            </li>
+            <li>
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>No podrá iniciar sesión en el sistema</span>
+            </li>
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Todos sus datos se mantendrán intactos</span>
+            </li>
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Puede ser reactivado por un administrador</span>
+            </li>
+        </ul>
 
-        <!-- Confirmación -->
-        <form method="post">
+        <form method="post" class="d-flex justify-content-center gap-3 flex-wrap">
             {% csrf_token %}
-
-            <div style="background: rgba(89, 40, 44, 0.05); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
-                <p style="color: #59282C; font-weight: 600; text-align: center; margin: 0;">
-                    ¿Estás seguro de que deseas desactivar a <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>?
-                </p>
-            </div>
-
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <a href="{% url 'usuarios:lista_usuarios' %}" class="panel-btn panel-btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Cancelar
-                </a>
-                <button type="submit" class="panel-btn panel-btn-danger">
-                    <i class="fas fa-user-slash"></i> Confirmar Desactivación
-                </button>
-            </div>
+            <button type="submit" class="btn-confirm btn-confirm-danger">
+                <i class="bi bi-person-slash"></i>
+                Confirmar Desactivación
+            </button>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancel">
+                <i class="bi bi-x-circle-fill"></i>
+                Cancelar
+            </a>
         </form>
     </div>
 </div>

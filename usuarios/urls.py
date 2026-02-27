@@ -21,8 +21,11 @@ urlpatterns = [
     # ========================================
     path('panel/usuarios/', views.lista_usuarios_view, name='lista_usuarios'),
     path('panel/usuarios/crear/', views.crear_usuario_view, name='crear_usuario'),
+    path('panel/usuarios/<int:user_id>/ver/', views.visualizar_usuario_view, name='visualizar_usuario'),
     path('panel/usuarios/<int:user_id>/editar/', views.editar_usuario_view, name='editar_usuario'),
     path('panel/usuarios/<int:user_id>/desactivar/', views.desactivar_usuario_view, name='desactivar_usuario'),
+    path('panel/usuarios/<int:user_id>/activar/', views.activar_usuario_view, name='activar_usuario'),
+    path('panel/usuarios/<int:user_id>/eliminar/', views.eliminar_usuario_view, name='eliminar_usuario'),
 
     # ========================================
     # 🔧 RECUPERACIÓN DE CONTRASEÑA

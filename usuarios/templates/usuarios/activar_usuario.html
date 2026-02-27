@@ -1,0 +1,147 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Activar Usuario{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+{% endblock %}
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    font-size: 1rem;
+}
+
+.btn-confirm:hover {
+    background: linear-gradient(135deg, #20c997, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    color: white;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.875rem 2.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    border: 2px solid var(--border-color);
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn-cancel:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.info-list li {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.info-list li i {
+    color: #28a745;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Activar Usuario
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+        <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-success">
+            <i class="bi bi-person-check"></i>
+        </div>
+
+        <h1 class="confirmation-title">¿Activar Usuario?</h1>
+
+        <p class="confirmation-message">
+            Estás a punto de activar el siguiente usuario. Una vez activado, podrá iniciar sesión nuevamente en el sistema.
+        </p>
+
+        <div class="user-info-box">
+            {% if usuario.perfil.foto_perfil %}
+                <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="user-info-avatar">
+            {% else %}
+                <div class="user-info-avatar-placeholder">
+                    {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
+                </div>
+            {% endif %}
+            <div class="user-info-content">
+                <h4>{{ usuario.get_full_name|default:usuario.username }}</h4>
+                <p>@{{ usuario.username }} • {{ usuario.email }}</p>
+            </div>
+        </div>
+
+        <ul class="info-list info-list-success">
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>El usuario podrá iniciar sesión en el sistema</span>
+            </li>
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Recuperará acceso a todas sus funcionalidades</span>
+            </li>
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Se restaurará su estado activo</span>
+            </li>
+        </ul>
+
+        <form method="post" class="d-flex justify-content-center gap-3 flex-wrap">
+            {% csrf_token %}
+            <button type="submit" class="btn-confirm btn-confirm-success">
+                <i class="bi bi-check-circle-fill"></i>
+                Sí, Activar Usuario
+            </button>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancel">
+                <i class="bi bi-x-circle-fill"></i>
+                Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,71 @@
+{% comment %}admin_notification.html — mensajes Django + overlay notificación + modal logout{% endcomment %}
+
+{% comment %}Datos ocultos de mensajes Django para el JS{% endcomment %}
+<div id="django-messages" class="d-none" aria-hidden="true">
+    {% for message in messages %}
+        <span
+            data-message-level="{{ message.tags }}"
+            data-message-text="{{ message|escape }}">
+        </span>
+    {% endfor %}
+</div>
+
+{% comment %}Overlay notificación centrada — siempre en DOM, oculto por JS{% endcomment %}
+<div id="adminNotificationOverlay"
+     class="admin-notification-overlay"
+     style="display:none;"
+     role="dialog"
+     aria-modal="true"
+     aria-live="assertive"
+     aria-labelledby="adminNotificationTitle">
+
+    <div class="admin-notification-card" id="adminNotificationCard">
+
+        <div class="admin-notification-icon-wrap">
+            <div class="admin-notification-icon-circle" id="adminNotificationCircle">
+                <i id="adminNotificationIcon" class="bi"></i>
+            </div>
+        </div>
+
+        <h4 id="adminNotificationTitle" class="admin-notification-title"></h4>
+        <p id="adminNotificationText" class="admin-notification-message"></p>
+
+        <button id="adminNotificationClose" class="admin-notification-btn" type="button">
+            Entendido
+        </button>
+
+        <div class="admin-notification-progress" id="adminNotificationProgress"></div>
+    </div>
+</div>
+
+{% comment %}Modal logout — reemplaza el confirm() nativo del navegador{% endcomment %}
+<div id="logoutModal"
+     class="admin-notification-overlay"
+     style="display:none;"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="logoutModalTitle">
+
+    <div class="admin-notification-card logout-modal-card">
+
+        <div class="admin-notification-icon-wrap">
+            <div class="admin-notification-icon-circle logout-circle">
+                <i class="bi bi-box-arrow-right"></i>
+            </div>
+        </div>
+
+        <h4 id="logoutModalTitle" class="admin-notification-title">¿Cerrar sesión?</h4>
+        <p class="admin-notification-message">
+            ¿Estás seguro de que deseas salir del panel administrativo?
+        </p>
+
+        <div class="logout-modal-actions">
+            <button id="logoutModalCancel" class="admin-notification-btn btn-cancel" type="button">
+                Cancelar
+            </button>
+            <a id="logoutModalConfirm" href="#" class="admin-notification-btn btn-logout">
+                Sí, cerrar sesión
+            </a>
+        </div>
+    </div>
+</div>

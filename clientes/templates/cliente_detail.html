@@ -3,90 +3,135 @@
 
 {% block page_title %}Detalle Cliente{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="mb-0 fw-semibold">Detalle de Cliente</h5>
+<!-- ======================================== -->
+<!-- HEADER DE PERFIL (IGUAL QUE USUARIO)     -->
+<!-- ======================================== -->
+<div class="profile-header-card">
+    <div class="profile-header-content">
+        <div class="profile-avatar-wrapper">
+            <div class="profile-avatar-placeholder">
+                {{ cliente.nombre|first|upper }}{{ cliente.apellido|first|upper }}
+            </div>
+            <span class="profile-status-indicator"></span>
+        </div>
 
-    <div class="d-flex gap-2">
-        <a href="{% url 'clientes:editar_cliente' cliente.pk %}" class="btn btn-sm btn-primary shadow-sm">
-            <i class="bi bi-pencil-square"></i> Editar
-        </a>
+        <div class="profile-header-info">
+            <h1 class="profile-name">{{ cliente.nombre }} {{ cliente.apellido }}</h1>
+            <div class="profile-badges">
+                <span class="profile-badge badge-user">
+                    <i class="bi bi-person-badge"></i> Cliente
+                </span>
+                <span class="profile-badge badge-active">
+                    <i class="bi bi-check-circle-fill"></i> Activo
+                </span>
+            </div>
+        </div>
 
-        <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-sm btn-light border shadow-sm">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
+        <div class="profile-header-actions">
+            <a href="{% url 'clientes:editar_cliente' cliente.pk %}" class="profile-action-btn btn-edit">
+                <i class="bi bi-pencil-square"></i> Editar
+            </a>
+            <a href="{% url 'clientes:lista_clientes' %}" class="btn-secondary-custom ms-2">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-body p-4">
+<!-- ======================================== -->
+<!-- TARJETAS DE INFORMACIÓN                   -->
+<!-- ======================================== -->
 
-        <div class="d-flex align-items-center mb-4">
-            <div class="bg-light rounded-circle p-3 me-3">
-                <i class="bi bi-person fs-4"></i>
-            </div>
+<!-- Información de Contacto -->
+<div class="profile-info-card">
+    <h3 class="profile-info-title">
+        <i class="bi bi-envelope-fill"></i> Información de Contacto
+    </h3>
 
-            <div>
-                <div class="text-muted small">Cliente</div>
-                <div class="fw-bold fs-5">
-                    {{ cliente.nombre }} {{ cliente.apellido }}
-                </div>
-            </div>
+    <div class="profile-info-grid">
+        <!-- Correo electrónico -->
+        <div class="profile-info-item">
+            <span class="profile-info-label">
+                <i class="bi bi-envelope"></i> CORREO ELECTRÓNICO
+            </span>
+            <span class="profile-info-value">
+                {{ cliente.correo_electronico|default:'No registrado' }}
+            </span>
         </div>
 
-        <div class="row g-4">
-
-            <div class="col-md-6">
-                <div class="small text-muted">Documento</div>
-                <div class="fw-semibold">
-                    {{ cliente.tipo_documento }} - {{ cliente.documento }}
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="small text-muted">Teléfono</div>
-                <div class="fw-semibold">
-                    {{ cliente.telefono|default:'No registrado' }}
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="small text-muted">Correo electrónico</div>
-                <div class="fw-semibold">
-                    {{ cliente.correo_electronico|default:'No registrado' }}
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="small text-muted">Dirección</div>
-                <div class="fw-semibold">
-                    {{ cliente.direccion|default:'No registrada' }}
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="small text-muted">Ciudad</div>
-                <div class="fw-semibold">
-                    {{ cliente.ciudad|default:'-' }}
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="small text-muted">Departamento</div>
-                <div class="fw-semibold">
-                    {{ cliente.departamento|default:'-' }}
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="small text-muted">Fecha de registro</div>
-                <div class="fw-semibold">
-                    {{ cliente.created_at }}
-                </div>
-            </div>
-
+        <!-- Teléfono -->
+        <div class="profile-info-item">
+            <span class="profile-info-label">
+                <i class="bi bi-telephone"></i> TELÉFONO
+            </span>
+            <span class="profile-info-value">
+                {{ cliente.telefono|default:'No registrado' }}
+            </span>
         </div>
 
+        <!-- Dirección -->
+        <div class="profile-info-item">
+            <span class="profile-info-label">
+                <i class="bi bi-house-door"></i> DIRECCIÓN
+            </span>
+            <span class="profile-info-value">
+                {{ cliente.direccion|default:'No registrada' }}
+            </span>
+        </div>
+
+        <!-- Ciudad / Departamento -->
+        <div class="profile-info-item">
+            <span class="profile-info-label">
+                <i class="bi bi-geo-alt"></i> UBICACIÓN
+            </span>
+            <span class="profile-info-value">
+                {{ cliente.ciudad|default:'—' }}, {{ cliente.departamento|default:'—' }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Información Personal -->
+<div class="profile-info-card">
+    <h3 class="profile-info-title">
+        <i class="bi bi-person-fill"></i> Información Personal
+    </h3>
+
+    <div class="profile-info-grid">
+        <!-- Documento -->
+        <div class="profile-info-item">
+            <span class="profile-info-label">
+                <i class="bi bi-card-text"></i> DOCUMENTO
+            </span>
+            <span class="profile-info-value">
+                {{ cliente.tipo_documento }} {{ cliente.documento }}
+            </span>
+        </div>
+
+        <!-- Última actualización -->
+        <div class="profile-info-item">
+            <span class="profile-info-label">
+                <i class="bi bi-clock-history"></i> ÚLTIMA ACTUALIZACIÓN
+            </span>
+            <span class="profile-info-value">
+                {{ cliente.updated_at|date:"d/m/Y H:i" }}
+            </span>
+        </div>
+
+        <!-- Fecha de registro -->
+        <div class="profile-info-item">
+            <span class="profile-info-label">
+                <i class="bi bi-calendar-plus"></i> FECHA DE REGISTRO
+            </span>
+            <span class="profile-info-value">
+                {{ cliente.created_at|date:"d/m/Y H:i" }}
+            </span>
+        </div>
     </div>
 </div>
 {% endblock %}

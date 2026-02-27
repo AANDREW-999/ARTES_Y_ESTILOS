@@ -45,7 +45,7 @@ def panel_login_required(view_func):
                 '⚠️ No tienes permisos para acceder al panel administrativo.',
                 extra_tags='level-warning field-general'
             )
-            return redirect('core:index')  # Redirigir al sitio público
+            return redirect('core:landing')  # Redirigir al sitio público
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 

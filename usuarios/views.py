@@ -113,7 +113,7 @@ def login_view(request):
                 extra_tags='level-warning field-general'
             )
             auth_logout(request)
-            return redirect('core:index')
+            return redirect('core:landing')
 
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
@@ -151,7 +151,7 @@ def logout_view(request):
         'Sesión cerrada correctamente. ¡Hasta pronto!',
         extra_tags='level-success field-general'
     )
-    return redirect('core:index')
+    return redirect('core:landing')
 
 
 # =====================================================

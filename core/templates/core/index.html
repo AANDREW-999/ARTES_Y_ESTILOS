@@ -145,7 +145,7 @@
   </div>
 </section>
 
-{% comment %} <section id="catalogo" class="py-5">
+ <section id="catalogo" class="py-5">
     <div class="container">
         <div class="row mb-4">
             <div class="col">
@@ -181,7 +181,7 @@
                             <span class="fw-bold fs-4" style="color: #5d4037;">${{ p.precio }}</span>
                             
                             <a href="{% url 'catalogo:detalle_producto' p.id %}" class="btn btn-rosa shadow-sm">
-                                Ver detalle
+                                ver detalle
                             </a>
                         </div>
                     </div>
@@ -189,12 +189,12 @@
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
-                <h4 class="text-muted">Aún no hay arreglos en el catálogo.</h4>
+                <h4 class="text-muted">aún no hay arreglos en el catálogo.</h4>
             </div>
             {% endfor %}
         </div>
     </div>
-</section> {% endcomment %}
+</section>
 
 <section id="contacto" class="py-5">
   <div class="container">

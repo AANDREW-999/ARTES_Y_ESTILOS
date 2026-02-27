@@ -1,4 +1,25 @@
 // JavaScript global del proyecto
+const sections = document.querySelectorAll("section");
+const navLinks = document.querySelectorAll(".nav-link");
+
+window.addEventListener("scroll", () => {
+    let current = "";
+
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 120;
+        if (scrollY >= sectionTop) {
+            current = section.getAttribute("id");
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove("active");
+        if (link.getAttribute("href") === "#" + current) {
+            link.classList.add("active");
+        }
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Proyecto Django cargado correctamente');
     
@@ -149,12 +170,15 @@ document.addEventListener('DOMContentLoaded', function() {
     imgEl.style.height = '';
   }
 
-  document.querySelectorAll('.js-lightbox').forEach(el => {
-    el.addEventListener('click', () => {
-      const src = el.getAttribute('data-src') || el.src;
-      openLightbox(src);
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const section = document.querySelector(this.getAttribute('href'));
+        section.scrollIntoView({
+            behavior: 'smooth'
+        });
     });
-  });
+});
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLightbox(); });
   btnClose && btnClose.addEventListener('click', closeLightbox);
   window.addEventListener('resize', () => { if (overlay.classList.contains('show')) fitImageNatural(imgEl); });

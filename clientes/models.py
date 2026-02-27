@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 
 class Cliente(models.Model):
     """Modelo para clientes de la floristería."""
@@ -37,3 +37,9 @@ class Cliente(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} ({self.documento})"
+
+    def save(self, *args, **kwargs):
+        """Asegurar que updated_at siempre tenga un valor."""
+        if not self.updated_at:
+            self.updated_at = timezone.now()
+        super().save(*args, **kwargs)

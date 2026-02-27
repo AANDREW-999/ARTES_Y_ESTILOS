@@ -5,160 +5,339 @@
     {% if object %}Editar Cliente{% else %}Crear Cliente{% endif %}
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
+<style>
+    /* ======================================== */
+    /* ESTILO UNIFICADO PARA TODOS LOS CAMPOS   */
+    /* ======================================== */
+    .form-control,
+    .form-select,
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+        background: var(--bg-secondary) !important;
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        color: var(--text-primary) !important;
+        padding: 0.65rem 0.9rem !important;
+        font-size: 0.9375rem !important;
+        transition: all 0.2s ease !important;
+        width: 100% !important;
+    }
+
+    .form-control:hover,
+    .form-select:hover,
+    input[type="text"]:hover,
+    input[type="email"]:hover,
+    input[type="tel"]:hover,
+    select:hover,
+    textarea:hover {
+        border-color: #BF5486 !important;
+    }
+
+    .form-control:focus,
+    .form-select:focus,
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #BF5486 !important;
+        box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18) !important;
+        background: var(--bg-card) !important;
+        outline: none !important;
+    }
+
+    html[data-theme="dark"] .form-control,
+    html[data-theme="dark"] .form-select,
+    html[data-theme="dark"] input[type="text"],
+    html[data-theme="dark"] input[type="email"],
+    html[data-theme="dark"] input[type="tel"],
+    html[data-theme="dark"] select,
+    html[data-theme="dark"] textarea {
+        background: rgba(20, 24, 51, 0.5) !important;
+        color: #fff !important;
+    }
+
+    html[data-theme="light"] .form-control,
+    html[data-theme="light"] .form-select,
+    html[data-theme="light"] input[type="text"],
+    html[data-theme="light"] input[type="email"],
+    html[data-theme="light"] input[type="tel"],
+    html[data-theme="light"] select,
+    html[data-theme="light"] textarea {
+        background: #ffffff !important;
+        color: #212529 !important;
+        border-color: #dee2e6 !important;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 0.375rem;
+    }
+
+    .field-label i {
+        color: #BF5486;
+        margin-right: 0.375rem;
+    }
+
+    .field-wrapper {
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h5 class="mb-0 fw-semibold">
+<!-- HEADER DE PÁGINA -->
+<div class="page-header-clientes">
+    <div class="page-header-info">
+        <h1>
+            <i class="bi bi-person-plus-fill"></i>
             {% if object %}Editar Cliente{% else %}Crear Cliente{% endif %}
-        </h5>
-        <small class="text-muted">
-            Complete la información del cliente
-        </small>
+        </h1>
+        <p>Complete la información del cliente</p>
     </div>
 
-    <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-light border shadow-sm">
+    <a href="{% url 'clientes:lista_clientes' %}" class="btn-secondary-custom">
         <i class="bi bi-arrow-left"></i> Volver
     </a>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-body p-4">
-
-        <form method="post" novalidate autocomplete="off">
-            {% csrf_token %}
-
-            <!-- errores generales -->
-            {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{ form.non_field_errors }}
+<!-- TARJETA DE PERFIL -->
+<div class="profile-header-card mb-4">
+    <div class="profile-header-content">
+        <div class="profile-avatar-wrapper">
+            <div class="profile-avatar-placeholder">
+                {% if object %}
+                    {{ object.nombre|first|upper }}{{ object.apellido|first|upper }}
+                {% else %}
+                    <i class="bi bi-person-plus"></i>
+                {% endif %}
             </div>
-            {% endif %}
+        </div>
 
-            <div class="row g-3">
+        <div class="profile-header-info">
+            <h1 class="profile-name">
+                {% if object %}
+                    {{ object.nombre }} {{ object.apellido }}
+                {% else %}
+                    Nuevo Cliente
+                {% endif %}
+            </h1>
+            <div class="profile-badges">
+                <span class="profile-badge badge-user">
+                    <i class="bi bi-person-badge"></i> Cliente
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Tipo de documento</label>
+<!-- FORMULARIO -->
+<div class="form-card">
+    <form method="post" novalidate autocomplete="off">
+        {% csrf_token %}
+
+        <!-- errores generales -->
+        {% if form.non_field_errors %}
+        <div class="alert-danger-box mb-4">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>{{ form.non_field_errors }}</div>
+        </div>
+        {% endif %}
+
+        <!-- DATOS PERSONALES -->
+        <h3 class="form-section-title">
+            <i class="bi bi-person-fill"></i> Datos Personales
+        </h3>
+
+        <div class="row">
+            <!-- Tipo de documento -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-card-text"></i> TIPO DE DOCUMENTO
+                    </label>
                     {{ form.tipo_documento }}
-
                     {% if form.tipo_documento.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.tipo_documento.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.tipo_documento.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Número de documento</label>
+            <!-- Número de documento -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-123"></i> NÚMERO DE DOCUMENTO
+                    </label>
                     {{ form.documento }}
-
                     {% if form.documento.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.documento.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.documento.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Nombre</label>
+            <!-- Nombre -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-person"></i> NOMBRE
+                    </label>
                     {{ form.nombre }}
-
                     {% if form.nombre.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.nombre.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.nombre.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Apellido</label>
+            <!-- Apellido -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-person"></i> APELLIDO
+                    </label>
                     {{ form.apellido }}
-
                     {% if form.apellido.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.apellido.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.apellido.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+            </div>
+        </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Teléfono</label>
+        <!-- INFORMACIÓN DE CONTACTO -->
+        <h3 class="form-section-title mt-4">
+            <i class="bi bi-envelope-fill"></i> Información de Contacto
+        </h3>
+
+        <div class="row">
+            <!-- Teléfono -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-telephone"></i> TELÉFONO
+                    </label>
                     {{ form.telefono }}
-
                     {% if form.telefono.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.telefono.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.telefono.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Correo electrónico</label>
+            <!-- Correo electrónico -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-envelope"></i> CORREO ELECTRÓNICO
+                    </label>
                     {{ form.correo_electronico }}
-
                     {% if form.correo_electronico.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.correo_electronico.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.correo_electronico.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+            </div>
+        </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Departamento</label>
+        <!-- UBICACIÓN -->
+        <h3 class="form-section-title mt-4">
+            <i class="bi bi-geo-alt-fill"></i> Ubicación
+        </h3>
+
+        <div class="row">
+            <!-- Departamento -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-map"></i> DEPARTAMENTO
+                    </label>
                     {{ form.departamento }}
-
                     {% if form.departamento.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.departamento.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.departamento.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Ciudad / Municipio</label>
-
+            <!-- Ciudad / Municipio -->
+            <div class="col-md-6 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-building"></i> CIUDAD / MUNICIPIO
+                    </label>
                     <select name="ciudad" id="id_ciudad" class="form-select">
                         <option value="">Seleccione un departamento primero</option>
                     </select>
-
-                    <input
-                        type="hidden"
-                        name="ciudad_original"
-                        id="id_ciudad_original"
-                        value="{{ form.ciudad.value|default:'' }}"
-                    >
-
+                    <input type="hidden" name="ciudad_original" id="id_ciudad_original" value="{{ form.ciudad.value|default:'' }}">
                     {% if form.ciudad.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.ciudad.errors }}
-                    </div>
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.ciudad.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
-
-                <div class="col-12">
-                    <label class="form-label fw-semibold">Dirección completa</label>
-                    {{ form.direccion }}
-
-                    {% if form.direccion.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.direccion.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="col-12 mt-4 text-end">
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                        <i class="bi bi-save"></i>
-                        {% if object %}Actualizar cliente{% else %}Guardar cliente{% endif %}
-                    </button>
-                </div>
-
             </div>
-        </form>
-    </div>
+
+            <!-- Dirección completa -->
+            <div class="col-12 mb-3">
+                <div class="field-wrapper">
+                    <label class="field-label">
+                        <i class="bi bi-house-door"></i> DIRECCIÓN COMPLETA
+                    </label>
+                    {{ form.direccion }}
+                    {% if form.direccion.errors %}
+                        <div class="field-error">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            {{ form.direccion.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="mt-4 text-end">
+            <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-outline-secondary px-4 py-2 me-2" style="border-radius: 10px;">
+                Cancelar
+            </a>
+            <button type="submit" class="btn px-4 py-2" style="background: linear-gradient(135deg, #BF5486, #D9A7C2); color: white; border-radius: 10px; border: none;">
+                <i class="bi bi-save"></i>
+                {% if object %}Actualizar Cliente{% else %}Guardar Cliente{% endif %}
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
 <script src="/static/clientes/js/ciudades.js"></script>
+<script src="/static/clientes/js/validaciones.js"></script>
 {% endblock %}

@@ -6,17 +6,17 @@
 {% block title %}Inicio · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/core_styles.css' %}?v=20260225">
+<link rel="stylesheet" href="{% static 'css/components.css' %}?v=20260225">
 {% endblock %}
 
 {% block content %}
-<section id="hero">
+<section id="hero" class="py-5">
   <div class="container">
     <div class="row align-items-start g-4">
       <!-- Columna izquierda: encabezado + carrusel -->
       <div class="col-lg-7 reveal-left">
         <div class="mb-3">
-          <h1 class="display-6 fw-bold mb-2">Bienvenidos a <span class="acento">Arte & Estilos</span></h1>
+          <h1 class="fw-bold title-floral">Bienvenidos a <span class="acento">Arte & Estilos</span></h1>
           <p class="lead">Arreglos florales con amor, elegancia y detalles que inspiran</p>
         </div>
         <div id="carouselAye" class="carousel slide" data-bs-ride="carousel">
@@ -90,7 +90,7 @@
   </div>
 </section>
 
-<section id="sobre" class="py-4">
+<section id="sobre" class="py-5">
   <div class="container reveal">
     <!-- Encabezado descriptivo -->
     <div class="row mb-4 align-items-center">
@@ -136,7 +136,7 @@
     <!-- Mapa de Google -->
     <div class="row mt-5">
       <div class="col-12 reveal">
-        <h2 class="fw-bold mb-3">Encuéntranos</h2>
+        <h2 class="fw-bold title-floral">Encuéntranos</h2>
         <div class="section-card p-0 overflow-hidden">
           <iframe title="Mapa Floristería" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" width="100%" height="360" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
@@ -145,114 +145,62 @@
   </div>
 </section>
 
-<section id="catalogo" class="py-4">
-  <div class="container">
-    <div class="row mb-3">
-      <div class="col reveal">
-        <h1 class="fw-bold mb-2">Catálogo</h1>
-        <p class="text-muted">Elige el arreglo perfecto para tu ocasión especial.</p>
-      </div>
+{% comment %} <section id="catalogo" class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="fw-bold title-floral">Catálogo</h1>
+                <p class="text-muted">Elige el arreglo perfecto para tu ocasión especial.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12">
+                <h2 class="fw-bold mb-4" style="color: #5d4037;">Nuestros trabajos</h2>
+            </div>
+
+            {% for p in productos %}
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card card-floral border-0 shadow-sm">
+                    
+                    {% if p.imagen %}
+                        <div class="card-img-container">
+                            <img src="{{ p.imagen.url }}" class="card-img-top" alt="{{ p.nombre }}">
+                        </div>
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="bi bi-image text-muted fs-1"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="card-body p-4">
+                        <h5 class="card-title">{{ p.nombre }}</h5>
+                        <p class="card-text small mb-4">{{ p.descripcion|truncatechars:90 }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="fw-bold fs-4" style="color: #5d4037;">${{ p.precio }}</span>
+                            
+                            <a href="{% url 'catalogo:detalle_producto' p.id %}" class="btn btn-rosa shadow-sm">
+                                Ver detalle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <h4 class="text-muted">Aún no hay arreglos en el catálogo.</h4>
+            </div>
+            {% endfor %}
+        </div>
     </div>
+</section> {% endcomment %}
 
-    <!-- Nuestros trabajos (catálogo) SIN bucle -->
-    <div class="row g-4">
-      <div class="col-12"><h2 class="fw-bold mb-2">Nuestros trabajos</h2></div>
-
-      <!-- Cards con data-src para lightbox -->
-      <div class="col-12 col-sm-6 col-lg-4 reveal">
-        <div class="card card-floral h-100 border-0">
-          <img src="{% static 'core/img/ArregloRosas.png' %}" data-src="{% static 'core/img/ArregloRosas.png' %}" class="card-img-top js-lightbox" alt="Arreglo de Rosas" style="object-fit: cover; height: 220px; cursor:pointer;">
-          <div class="card-body">
-            <h5 class="card-title">Arreglo de Rosas</h5>
-            <p class="card-text">Diseño cuidadoso, flores frescas y detalles que enamoran.</p>
-            <button class="btn btn-rosa">Ver detalle</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-lg-4 reveal">
-        <div class="card card-floral h-100 border-0">
-          <img src="{% static 'core/img/ArregloRosasClaras.png' %}" data-src="{% static 'core/img/ArregloRosasClaras.png' %}" class="card-img-top js-lightbox" alt="Rosas Claras" style="object-fit: cover; height: 220px; cursor:pointer;">
-          <div class="card-body">
-            <h5 class="card-title">Rosas Claras</h5>
-            <p class="card-text">Suavidad y elegancia en tonos pastel.</p>
-            <button class="btn btn-rosa">Ver detalle</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-lg-4 reveal">
-        <div class="card card-floral h-100 border-0">
-          <img src="{% static 'core/img/ArregloFloresAmarillas.png' %}" data-src="{% static 'core/img/ArregloFloresAmarillas.png' %}" class="card-img-top js-lightbox" alt="Flores Amarillas" style="object-fit: cover; height: 220px; cursor:pointer;">
-          <div class="card-body">
-            <h5 class="card-title">Flores Amarillas</h5>
-            <p class="card-text">Alegría y calidez para iluminar momentos.</p>
-            <button class="btn btn-rosa">Ver detalle</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-lg-4 reveal">
-        <div class="card card-floral h-100 border-0">
-          <img src="{% static 'core/img/ArregloRosasGlobo.png' %}" data-src="{% static 'core/img/ArregloRosasGlobo.png' %}" class="card-img-top js-lightbox" alt="Rosas con Globo" style="object-fit: cover; height: 220px; cursor:pointer;">
-          <div class="card-body">
-            <h5 class="card-title">Rosas con Globo</h5>
-            <p class="card-text">Celebración con un toque especial.</p>
-            <button class="btn btn-rosa">Ver detalle</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-lg-4 reveal">
-        <div class="card card-floral h-100 border-0">
-          <img src="{% static 'core/img/ArregloRosasChocolate.png' %}" data-src="{% static 'core/img/ArregloRosasChocolate.png' %}" class="card-img-top js-lightbox" alt="Rosas y Chocolate" style="object-fit: cover; height: 220px; cursor:pointer;">
-          <div class="card-body">
-            <h5 class="card-title">Rosas y Chocolate</h5>
-            <p class="card-text">Dulzura y romanticismo en un detalle único.</p>
-            <button class="btn btn-rosa">Ver detalle</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-lg-4 reveal">
-        <div class="card card-floral h-100 border-0">
-          <img src="{% static 'core/img/ArregloGirasolesFlores.png' %}" data-src="{% static 'core/img/ArregloGirasolesFlores.png' %}" class="card-img-top js-lightbox" alt="Girasoles y Flores" style="object-fit: cover; height: 220px; cursor:pointer;">
-          <div class="card-body">
-            <h5 class="card-title">Girasoles y Flores</h5>
-            <p class="card-text">Energía y belleza natural que inspira.</p>
-            <button class="btn btn-rosa">Ver detalle</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-lg-4 reveal">
-        <div class="card card-floral h-100 border-0">
-          <img src="{% static 'core/img/ArregloPeluches.png' %}" data-src="{% static 'core/img/ArregloPeluches.png' %}" class="card-img-top js-lightbox" alt="Arreglo con Peluche" style="object-fit: cover; height: 220px; cursor:pointer;">
-          <div class="card-body">
-            <h5 class="card-title">Arreglo con Peluche</h5>
-            <p class="card-text">Ternura y encanto para ocasiones especiales.</p>
-            <button class="btn btn-rosa">Ver detalle</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Lightbox overlay -->
-    <div class="lightbox-overlay" id="lightboxOverlay" aria-hidden="true">
-      <div class="lightbox-content position-relative">
-        <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">✕</button>
-        <img id="lightboxImage" src="#" alt="Vista ampliada">
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<section id="contacto" class="py-4">
+<section id="contacto" class="py-5">
   <div class="container">
     <div class="row g-4 align-items-start">
       <div class="col-lg-6 reveal-left">
-        <h1 class="fw-bold mb-2">Contáctanos</h1>
+        <h1 class="fw-bold title-floral">Contáctanos</h1>
         <p class="text-muted mb-3">Estamos aquí para ayudarte a expresar emociones con flores frescas y diseños únicos.</p>
         <div class="card card-floral border-0">
           <div class="card-body">
@@ -269,11 +217,13 @@
                 <label class="form-label fw-semibold" for="c_mensaje">Mensaje</label>
                 <textarea class="form-control" id="c_mensaje" rows="4" placeholder="Cuéntanos qué necesitas" required></textarea>
               </div>
+              <hr>
               <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-rosa">Enviar</button>
-                <a class="btn btn-vino" href="https://wa.me/573105844207" target="_blank" rel="noopener">
-                  <i class="bi bi-whatsapp"></i> WhatsApp
-                </a>
+              </div>
+              <div class="mt-4">
+                <h6 class="fw-bold">También en redes</h6>
+                <p class="mb-3">Instagram, Facebook y WhatsApp, ¡te esperamos!</p>
               </div>
             </form>
           </div>
@@ -286,10 +236,14 @@
             <li><i class="bi bi-geo-alt-fill" style="color: var(--rosa-intenso);"></i> Cra 10 # 9 - 47, Sogamoso</li>
             <li><i class="bi bi-telephone-fill" style="color: var(--rosa-intenso);"></i> +57 310 584 4207</li>
             <li><i class="bi bi-envelope-fill" style="color: var(--rosa-intenso);"></i> arteyestilos.test@gmail.com</li>
+            <div class="mt-4">
+              <h6 class="fw-bold">Encuéntranos</h6>
+              <p class="mb-3">En nuestras redes sociales.</p>
+            <a href="https://api.whatsapp.com/send?phone=%2B573217195520" target="_blank" rel="noopener" class="social-link btn-social whatsapp" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+            <a href="https://www.facebook.com/ArteyEstilosFloristeria/about" target="_blank" rel="noopener" class="social-link btn-social facebook" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="https://www.instagram.com/floristeriaarteyestilos_soga" target="_blank" rel="noopener" class="social-link btn-social instagram" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
           </ul>
           <hr>
-          <h6 class="fw-bold">También en redes</h6>
-          <p class="mb-3">Instagram, Facebook y WhatsApp, ¡te esperamos!</p>
           <div class="ratio ratio-16x9">
             <iframe title="Ubicación" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
@@ -302,5 +256,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/landing.js' %}" defer></script>
 {% endblock %}

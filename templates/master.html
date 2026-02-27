@@ -39,7 +39,7 @@
     <a class="navbar-brand d-flex align-items-center gap-3 brand-animated"
        href="{% url 'core:landing' %}" aria-label="Ir al inicio">
       <img src="{% static 'img/LogoAE.png' %}" alt="Artes y Estilos" class="brand-logo brand-logo-xxl">
-          <span class="fw-bold">GESTIÓN FLORAL</span>
+          <h1 class="fw-bold">Gestión Floral</h1>
     </a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Abrir menú">
       <span class="navbar-toggler-icon"></span>
@@ -168,39 +168,40 @@
       <div class="row gy-4 align-items-center">
         <div class="col-md-5">
           <div class="d-flex align-items-center gap-3 mb-2">
-            <h1 class="footer-brand-title mb-0">Artes & Estilos ✨</h1>
+            <h1 class="footer-brand-title mb-0">Artes & Estilos 🌹✨</h1>
           </div>
-          <p class="mb-1"><strong>Floristería</strong> Cra 10 # 9 - 47</p>
-          <p class="mb-0">Sogamoso, Boyacá.</p>
+          <p class="mb-0">Sogamoso, Boyacá,<strong> Colombia 🟨🟦🟥</strong></p>
+          <hr style="border: none; background-color: transparent;">
+          <div class="d-flex gap-3 social-wrap">
+            <a href="https://api.whatsapp.com/send?phone=%2B573217195520" target="_blank" rel="noopener" class="social-link btn-social whatsapp" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+            <a href="https://www.facebook.com/ArteyEstilosFloristeria/about" target="_blank" rel="noopener" class="social-link btn-social facebook" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="https://www.instagram.com/floristeriaarteyestilos_soga" target="_blank" rel="noopener" class="social-link btn-social instagram" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          </div>
         </div>
         <div class="col-md-4">
           <h6 class="fw-bold mb-2">Enlaces rápidos</h6>
           <ul class="list-unstyled d-grid gap-2 quick-links">
             <li class="nav-item">
-              <a class="nav-link" href="#hero"><i class="bi bi-house"></i> Inicio</a>
+              <a class="footer-link" href="#hero"><i class="bi bi-house"></i> Inicio</a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" href="#sobre"><i class="bi bi-people"></i> Nosotros</a>
+              <a class="footer-link" href="#sobre"><i class="bi bi-people"></i> Nosotros</a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" href="#catalogo"><i class="bi bi-bag-heart"></i> Catálogo</a>
+              <a class="footer-link" href="#catalogo"><i class="bi bi-bag-heart"></i> Catálogo</a>
             </li>
 
             <!-- 🚫 Contactanos eliminado como página independiente -->
             <li class="nav-item">
-              <a class="nav-link" href="#contacto"><i class="bi bi-envelope"></i> Contacto</a>
+              <a class="footer-link" href="#contacto"><i class="bi bi-envelope"></i> Contacto</a>
             </li>
         </div>
         <div class="col-md-3">
-          <h6 class="fw-bold mb-2">Síguenos</h6>
-          <div class="d-flex gap-3 social-wrap">
-            <a href="https://www.instagram.com/floristeriaarteyestilos_soga" target="_blank" rel="noopener" class="social-link btn-social instagram" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-            <a href="https://www.facebook.com/ArteyEstilosFloristeria/about" target="_blank" rel="noopener" class="social-link btn-social facebook" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-            <a href="https://api.whatsapp.com/send?phone=%2B573217195520" target="_blank" rel="noopener" class="social-link btn-social whatsapp" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-          </div>
-          <div class="footer-favicon-large-wrap mt-3 text-center">
+          <h6 class="fw-bold">Síguenos</h6>
+          <p class="mb-3">En nuestras redes sociales encontrarás inspiración y la oportunidad de compartir tus momentos especiales con nosotros.</p>
+                    <div class="footer-favicon-large-wrap mt-3 text-center">
             <img src="{% static 'img/FaviconAE.png' %}" alt="Rosa grande" class="footer-favicon-large">
           </div>
         </div>
@@ -214,46 +215,11 @@
   </div>
 </footer>
 
+<script src="{% static 'js/global.js' %}" defer></script>
+
 {% block extra_js %}{% endblock %}
 
 <script src="{% static 'js/main.js' %}"></script>
-
-<!-- ================= JS ================= -->
-<script>
-
-  // 🌙 Modo oscuro persistente
-  const toggleBtn = document.getElementById("toggleTheme");
-  const html = document.documentElement;
-
-  if (localStorage.getItem("theme") === "dark") {
-      html.setAttribute("data-bs-theme", "dark");
-  }
-
-  toggleBtn.addEventListener("click", () => {
-      if (html.getAttribute("data-bs-theme") === "dark") {
-          html.setAttribute("data-bs-theme", "light");
-          localStorage.setItem("theme", "light");
-      } else {
-          html.setAttribute("data-bs-theme", "dark");
-          localStorage.setItem("theme", "dark");
-      }
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar y mostrar todos los toasts de Django messages
-    const toastElList = document.querySelectorAll('#globalToastContainer .toast');
-    toastElList.forEach(function(toastEl) {
-      const toast = new bootstrap.Toast(toastEl);
-      toast.show();
-    });
-  });
-
-</script>
-  <a href="https://wa.me/573105844207" 
-    class="whatsapp-float" 
-    target="_blank">
-    <i class="bi bi-whatsapp"></i>
-  </a>
 
 {% accesibilidad_widget %}
 

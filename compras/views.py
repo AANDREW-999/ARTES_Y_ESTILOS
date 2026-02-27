@@ -9,8 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .models import Compra, DetalleCompra
 from proveedores.models import Proveedor  # Importar el modelo Proveedor
-from django.db.models import Q
-from datetime import datetime
+from django.db.models import Q, Sum, Count
+from datetime import datetime, date
 
 def compras_list(request):
     # Optimizar queries con select_related y prefetch_related
@@ -32,18 +32,33 @@ def compras_list(request):
             lista_compras = lista_compras.filter(fecha_emision__gte=fecha)
         except:
             fecha_desde = ''
-    
     template = loader.get_template('lista_compra.html')  
     
     # Obtener proveedores para el datalist (ordenado por nombre)
     proveedores = Proveedor.objects.all().order_by('nombre_proveedor')
     
+    # Calcular estadísticas
+    total_compras = lista_compras.count()
+    monto_total = lista_compras.aggregate(Sum('total_compra'))['total_compra__sum'] or 0
+    total_proveedores = lista_compras.values('proveedor').distinct().count()
+    
+    # Compras de este mes
+    hoy = date.today()
+    inicio_mes = hoy.replace(day=1)
+    compras_mes = lista_compras.filter(
+        fecha_emision__gte=inicio_mes,
+        fecha_emision__lte=hoy
+    ).count()
+    
     context = {
         'compras': lista_compras,
-        'total_compras': lista_compras.count(),
+        'total_compras': total_compras,
+        'monto_total': monto_total,
+        'total_proveedores': total_proveedores,
+        'compras_mes': compras_mes,
         'proveedores': proveedores,
         'proveedor_nombre_filtro': proveedor_nombre,
-        'fecha_desde_filtro': fecha_desde
+        'fecha_desde_filtro': fecha_desde,
     }
     return HttpResponse(template.render(context, request))
 

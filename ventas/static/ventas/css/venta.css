@@ -1,0 +1,73 @@
+.autocomplete {
+    top: 100%;
+    left: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0 0 .375rem .375rem;
+    box-shadow: 0 .25rem .75rem rgba(0,0,0,.12);
+    background: #fff;
+}
+
+.autocomplete .list-group-item {
+    font-size: .88rem;
+    padding: .45rem .85rem;
+    border-left: none;
+    border-right: none;
+}
+
+.autocomplete .list-group-item:first-child { border-top: none; }
+.autocomplete .list-group-item:hover { background: #f0f7ff; }
+
+#itemsTable {
+    width: 100% !important;
+    table-layout: auto;
+}
+
+#itemsTable thead th {
+    font-size: .8rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+#itemsTable .subtotal {
+    font-variant-numeric: tabular-nums;
+    color: #198754;
+    font-weight: 600;
+}
+
+#itemsTable tbody tr td{
+    vertical-align: middle;
+}
+
+#resumenVenta {
+    border-left: 4px solid #198754 !important;
+    font-size: .95rem;
+}
+
+#totalVenta {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #198754;
+}
+
+#campos_domicilio {
+    transition: opacity .25s ease;
+}
+
+.eliminar {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-group-text {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #198754;
+}

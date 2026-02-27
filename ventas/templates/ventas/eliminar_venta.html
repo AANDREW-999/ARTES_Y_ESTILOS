@@ -1,0 +1,46 @@
+{% extends "core/panel_admin_base.html" %}
+
+{% block title %}Eliminar Venta{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow col-md-6">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Eliminar Venta</h4>
+        </div>
+
+        <div class="card-body">
+            <p class="fs-5">
+                ¿Estás seguro de que deseas eliminar esta venta?
+            </p>
+
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <strong>ID:</strong> {{ venta.id }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Cliente:</strong> {{ venta.cliente.nombre }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Arreglo:</strong> {{ venta.arreglo.nombre }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Total:</strong> ${{ venta.total }}
+                </li>
+            </ul>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        Sí, eliminar
+                    </button>
+                    <a href="{% url 'ventas:listar_venta' %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -8,12 +8,11 @@ class CompraForm(forms.ModelForm):
         model = Compra
         fields = [
             'proveedor', 'forma_pago', 'medio_pago',
-            'fecha_emision', 'fecha_vencimiento', 
+            'fecha_emision', 
             'departamento', 'ciudad', 'descripcion'
         ]
         widgets = {
             'fecha_emision': forms.DateInput(attrs={'type': 'date'}),
-            'fecha_vencimiento': forms.DateInput(attrs={'type': 'date'}),
             'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
         }
 

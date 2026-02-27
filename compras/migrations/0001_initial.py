@@ -26,8 +26,6 @@ class Migration(migrations.Migration):
                 ('forma_pago', models.CharField(blank=True, choices=[('EFECTIVO', 'Efectivo'), ('TRANSFERENCIA', 'Transferencia'), ('TARJETA', 'Tarjeta Debito/Credito')], max_length=20, verbose_name='Forma de Pago')),
                 ('medio_pago', models.CharField(blank=True, choices=[('EFECTIVO', 'Efectivo'), ('TRANSFERENCIA', 'Transferencia'), ('TARJETA', 'Tarjeta Debito/Credito')], max_length=20, verbose_name='Medio de Pago')),
                 ('fecha_emision', models.DateField(verbose_name='Fecha de Emisión')),
-                ('fecha_vencimiento', models.DateField(blank=True, null=True, verbose_name='Fecha de Vencimiento')),
-                ('departamento', models.CharField(blank=True, max_length=45, verbose_name='Departamento')),
                 ('ciudad', models.CharField(blank=True, max_length=45, verbose_name='Ciudad')),
                 ('fecha_creacion', models.DateTimeField(auto_now_add=True)),
                 ('fecha_actualizacion', models.DateTimeField(auto_now=True)),

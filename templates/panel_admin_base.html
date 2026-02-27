@@ -21,6 +21,9 @@
 
     <link rel="stylesheet" href="{% static 'css/panel_admin_base.css' %}?v=20260225">
 
+    <!-- ESTILOS DEL MÓDULO DE USUARIOS (para unificar apariencia en clientes) -->
+    <link rel="stylesheet" href="{% static 'css/admin_usuarios.css' %}?v=20260227">
+
     {% block extra_css %}{% endblock %}
 </head>
 <body class="dashboard-body">
@@ -125,7 +128,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{% url 'ventas:listar_venta' %}">
                         <i class="bi bi-cart3"></i><span>Ventas</span>
                     </a>
                 </li>

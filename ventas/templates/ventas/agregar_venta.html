@@ -1,0 +1,166 @@
+{% extends 'core/panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Agregar Venta{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ventas/css/venta.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-cart-plus"></i> Agregar Venta
+    </h2>
+
+    <div class="card shadow col-md-11">
+        <div class="card-body">
+
+            <form method="post" id="formVenta">
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">{{ form.tipo_venta.label }}</label>
+                        {{ form.tipo_venta }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">{{ form.forma_pago.label }}</label>
+                        {{ form.forma_pago }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Fecha</label>
+                        <input type="date" class="form-control" name="fecha"
+                               value="{% now 'Y-m-d' %}">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-flower1 me-2 text-success"></i>Items de la venta</h5>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="addItem">
+                        <i class="bi bi-plus-circle me-1"></i> Agregar arreglo
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="itemsTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Arreglo / Producto</th>
+                                <th width="120">Cantidad</th>
+                                <th width="160">Precio Unit.</th>
+                                <th width="160">Subtotal</th>
+                                <th width="60"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr class="my-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-tools me-1"></i>Mano de obra
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="manoObra"
+                                   name="mano_obra" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-percent me-1"></i>IVA aplicable
+                        </label>
+                        <select class="form-select" id="ivaSelect" name="iva_pct">
+                            <option value="0">Sin IVA (0%)</option>
+                            <option value="5">5%</option>
+                            <option value="19" selected>19%</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-person me-1"></i>{{ form.cliente.label }}
+                    </label>
+                    {{ form.cliente }}
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="id_con_domicilio" name="con_domicilio">
+                    <label class="form-check-label fw-semibold" for="id_con_domicilio">
+                        <i class="bi bi-truck me-1 text-warning"></i>¿Con domicilio?
+                    </label>
+                </div>
+
+                <div id="campos_domicilio" class="row g-3" style="display:none;">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-geo-alt me-1"></i>Dirección de entrega
+                        </label>
+                        {{ form.direccion }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-currency-dollar me-1"></i>Costo de envío
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.precio_envio }}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div id="resumenVenta" class="card border-0 bg-light rounded-3 p-4 mb-4">
+                    <h6 class="fw-bold mb-3 text-uppercase text-muted small tracking-wide">
+                        <i class="bi bi-receipt me-1"></i>Resumen de la venta
+                    </h6>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Subtotal (arreglos + mano obra + envío)</span>
+                        <span class="fw-semibold" id="subtotalVenta">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">IVA</span>
+                        <span class="fw-semibold text-warning" id="ivaVenta">$0.00 (0%)</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 mt-1">
+                        <span class="fw-bold fs-5">TOTAL</span>
+                        <span class="fw-bold fs-4 text-success" id="totalVenta">$0.00</span>
+                    </div>
+                </div>
+
+                <input type="hidden" id="hiddenTotal" name="total">
+
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-save me-1"></i> Guardar venta
+                    </button>
+                    <a href="{% url 'ventas:listar_venta' %}" class="btn btn-secondary px-4">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const BUSCAR_ARREGLO_URL = "{% url 'ventas:buscar_arreglo' %}";
+</script>
+<script src="{% static 'ventas/js/venta.js' %}"></script>
+{% endblock %}
+

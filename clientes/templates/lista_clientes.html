@@ -18,10 +18,14 @@
     </div>
 
     <div class="page-header-actions">
+        <!-- BUSCADOR DESTACADO (CON HOVER Y FOCUS) -->
         <form method="get" class="d-flex" role="search">
-            <input name="q" value="{{ query }}" class="form-control form-control-sm"
-                   placeholder="Buscar cliente..." style="width: 250px;">
-            <button type="submit" class="btn btn-outline-secondary btn-sm ms-1">
+            <input name="q" value="{{ query }}"
+                   class="form-control form-control-sm"
+                   placeholder="Buscar cliente..."
+                   style="width: 250px; background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-primary); border-radius: 8px; transition: all 0.2s ease;">
+            <button type="submit" class="btn btn-sm ms-1"
+                    style="background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-secondary); border-radius: 8px; padding: 0.25rem 0.75rem; transition: all 0.2s ease;">
                 <i class="bi bi-search"></i>
             </button>
         </form>
@@ -31,6 +35,48 @@
         </a>
     </div>
 </div>
+
+<!-- ESTILOS PARA EL BUSCADOR -->
+<style>
+    /* Hover para el input */
+    .page-header-actions input.form-control:hover {
+        border-color: #BF5486 !important;
+    }
+
+    /* Focus para el input */
+    .page-header-actions input.form-control:focus {
+        border-color: #BF5486 !important;
+        box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18) !important;
+        outline: none !important;
+        background: var(--bg-card) !important;
+    }
+
+    /* Hover para el botón */
+    .page-header-actions button.btn:hover {
+        background: #BF5486 !important;
+        border-color: #BF5486 !important;
+        color: white !important;
+    }
+
+    /* Modo claro */
+    html[data-theme="light"] .page-header-actions input.form-control {
+        background: #ffffff !important;
+        color: #212529 !important;
+        border-color: #dee2e6 !important;
+    }
+
+    html[data-theme="light"] .page-header-actions button.btn {
+        background: #f8f9fa !important;
+        color: #6c757d !important;
+        border-color: #dee2e6 !important;
+    }
+
+    html[data-theme="light"] .page-header-actions button.btn:hover {
+        background: #BF5486 !important;
+        color: white !important;
+        border-color: #BF5486 !important;
+    }
+</style>
 
 <!-- ESTADÍSTICAS CON ANIMACIÓN -->
 <div class="stats-grid">
@@ -163,4 +209,5 @@
 
 {% block extra_js %}
 <script src="{% static 'clientes/js/clientes.js' %}"></script>
+<script src="{% static 'clientes/js/validaciones.js' %}"></script>
 {% endblock %}

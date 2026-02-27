@@ -1,6 +1,6 @@
 /**
  * VALIDACIONES EN TIEMPO REAL PARA CLIENTES
- * Con validación de documento existente vía AJAX
+ * Con bloqueo de caracteres inválidos
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const validaciones = {
         documento: {
             selector: '#id_documento',
+            soloNumeros: true,
             validarLocal: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El documento es obligatorio' };
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         nombre: {
             selector: '#id_nombre',
+            soloLetras: true,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El nombre es obligatorio' };
@@ -45,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         apellido: {
             selector: '#id_apellido',
+            soloLetras: true,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El apellido es obligatorio' };
@@ -60,6 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         telefono: {
             selector: '#id_telefono',
+            soloNumeros: true,
+            permitirEspacios: true,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: true, mensaje: 'Opcional' };
@@ -89,8 +94,122 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 return { valido: true, mensaje: 'Correo válido' };
             }
+        },
+        ciudad: {
+            selector: '#id_ciudad',
+            soloLetras: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: true, mensaje: 'Opcional' };
+                }
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
+                    return { valido: false, mensaje: 'Solo letras permitidas' };
+                }
+                return { valido: true, mensaje: 'Ciudad válida' };
+            }
+        },
+        direccion: {
+            selector: '#id_direccion',
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: true, mensaje: 'Opcional' };
+                }
+                return { valido: true, mensaje: 'Dirección válida' };
+            }
         }
     };
+
+    // ========================================
+    // BLOQUEO DE TECLADO EN TIEMPO REAL
+    // ========================================
+
+    function bloquearCaracteresInvalidos(event) {
+        const input = event.target;
+
+        // Encontrar configuración del campo
+        let config = null;
+        for (let key in validaciones) {
+            if (input.id === validaciones[key].selector.replace('#', '')) {
+                config = validaciones[key];
+                break;
+            }
+        }
+
+        if (!config) return;
+
+        // Teclas siempre permitidas (navegación, borrar, etc)
+        const teclasPermitidas = [
+            'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+            'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+            'Home', 'End', 'PageUp', 'PageDown',
+            'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+            'Control', 'Alt', 'Shift', 'Meta', 'CapsLock', 'NumLock', 'ScrollLock'
+        ];
+
+        // Permitir combinaciones con Ctrl (Ctrl+C, Ctrl+V, Ctrl+X, etc)
+        if (event.ctrlKey || event.metaKey) return;
+
+        // Permitir teclas de control
+        if (teclasPermitidas.includes(event.key)) return;
+
+        // BLOQUEO PARA CAMPOS DE SOLO NÚMEROS
+        if (config.soloNumeros) {
+            // Si es número, permitir
+            if (/^\d$/.test(event.key)) return;
+
+            // Si permite espacios y es espacio, permitir
+            if (config.permitirEspacios && event.key === ' ') return;
+
+            // Bloquear cualquier otra tecla
+            event.preventDefault();
+            mostrarNotificacionTemporal(input, 'Solo números permitidos');
+            return;
+        }
+
+        // BLOQUEO PARA CAMPOS DE SOLO LETRAS
+        if (config.soloLetras) {
+            // Permitir letras con acentos y ñ
+            if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/.test(event.key)) return;
+
+            // Permitir espacio
+            if (event.key === ' ') return;
+
+            // Bloquear cualquier otra tecla
+            event.preventDefault();
+            mostrarNotificacionTemporal(input, 'Solo letras permitidas');
+            return;
+        }
+    }
+
+    // ========================================
+    // NOTIFICACIÓN TEMPORAL
+    // ========================================
+
+    function mostrarNotificacionTemporal(input, mensaje) {
+        const fieldWrapper = input.closest('.field-wrapper');
+        if (!fieldWrapper) return;
+
+        // Crear notificación
+        const notificacion = document.createElement('div');
+        notificacion.className = 'field-error temporal';
+        notificacion.style.opacity = '0.7';
+        notificacion.style.fontSize = '0.75rem';
+        notificacion.style.marginTop = '2px';
+        notificacion.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${mensaje}`;
+
+        // Eliminar notificaciones temporales anteriores
+        const anteriores = fieldWrapper.querySelectorAll('.temporal');
+        anteriores.forEach(el => el.remove());
+
+        fieldWrapper.appendChild(notificacion);
+
+        // Eliminar después de 1.5 segundos
+        setTimeout(() => {
+            if (notificacion.parentNode) {
+                notificacion.remove();
+            }
+        }, 1500);
+    }
 
     // ========================================
     // FUNCIONES DE FEEDBACK VISUAL
@@ -100,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const fieldWrapper = input.closest('.field-wrapper');
         if (!fieldWrapper) return;
 
-        const mensajesAnteriores = fieldWrapper.querySelectorAll('.field-error, .field-success, .field-warning');
+        const mensajesAnteriores = fieldWrapper.querySelectorAll('.field-error:not(.temporal), .field-success, .field-warning');
         mensajesAnteriores.forEach(el => el.remove());
 
         input.classList.remove('is-valid', 'is-invalid', 'is-warning');
@@ -147,7 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let timeoutId;
     function validarDocumentoServidor(input, documentoId) {
-        // Obtener el ID del cliente actual (si es edición)
         const currentId = document.querySelector('[name="cliente_id"]')?.value || '';
 
         fetch(`/clientes/verificar-documento/?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
@@ -178,93 +296,69 @@ document.addEventListener('DOMContentLoaded', function() {
     // INICIALIZAR VALIDACIONES
     // ========================================
 
-    // Campo documento con validación especial
-    const docInput = document.querySelector('#id_documento');
-    if (docInput) {
-        // Agregar hidden con el ID si es edición
-        const isEditing = document.querySelector('[name="cliente_id"]') ||
-                         document.querySelector('.profile-name')?.textContent.includes('Editar');
-
-        if (!document.querySelector('[name="cliente_id"]')) {
-            const hiddenId = document.createElement('input');
-            hiddenId.type = 'hidden';
-            hiddenId.name = 'cliente_id';
-            // Intentar obtener el ID de la URL
-            const matches = window.location.pathname.match(/\/(\d+)\/editar/);
-            if (matches) {
-                hiddenId.value = matches[1];
-            }
-            document.querySelector('form')?.appendChild(hiddenId);
-        }
-
-        docInput.addEventListener('input', function() {
-            const valor = this.value;
-            const resultadoLocal = validaciones.documento.validarLocal(valor);
-
-            if (!resultadoLocal.valido) {
-                // Error local (formato, longitud, etc)
-                mostrarFeedback(this, resultadoLocal);
-            } else {
-                // Formato válido, ahora verificar en servidor
-                mostrarCargando(this);
-
-                // Limpiar timeout anterior
-                if (timeoutId) clearTimeout(timeoutId);
-
-                // Esperar 500ms después de dejar de escribir
-                timeoutId = setTimeout(() => {
-                    validarDocumentoServidor(this, valor);
-                }, 500);
-            }
-        });
-
-        docInput.addEventListener('blur', function() {
-            if (this.value && this.classList.contains('is-warning')) {
-                // Si quedó en estado warning, forzar verificación
-                const valor = this.value;
-                const resultadoLocal = validaciones.documento.validarLocal(valor);
-                if (resultadoLocal.valido) {
-                    validarDocumentoServidor(this, valor);
-                }
-            }
-        });
-
-        // Validar al cargar si tiene valor
-        if (docInput.value) {
-            setTimeout(() => {
-                const resultadoLocal = validaciones.documento.validarLocal(docInput.value);
-                if (resultadoLocal.valido) {
-                    mostrarCargando(docInput, 'Verificando documento existente...');
-                    validarDocumentoServidor(docInput, docInput.value);
-                } else {
-                    mostrarFeedback(docInput, resultadoLocal);
-                }
-            }, 100);
-        }
-    }
-
-    // Resto de campos
+    // AGREGAR EVENTO DE TECLADO A TODOS LOS CAMPOS
     for (let key in validaciones) {
-        if (key === 'documento') continue;
-
         const config = validaciones[key];
         const input = document.querySelector(config.selector);
 
         if (input) {
-            input.addEventListener('input', function() {
-                const resultado = config.validar(this.value);
-                mostrarFeedback(this, resultado);
-            });
+            // Bloqueo de teclado en tiempo real
+            input.addEventListener('keydown', bloquearCaracteresInvalidos);
+
+            // Validación al escribir
+            if (key === 'documento') {
+                input.addEventListener('input', function() {
+                    const valor = this.value;
+                    const resultadoLocal = validaciones.documento.validarLocal(valor);
+
+                    if (!resultadoLocal.valido) {
+                        mostrarFeedback(this, resultadoLocal);
+                    } else {
+                        mostrarCargando(this);
+
+                        if (timeoutId) clearTimeout(timeoutId);
+
+                        timeoutId = setTimeout(() => {
+                            validarDocumentoServidor(this, valor);
+                        }, 500);
+                    }
+                });
+            } else {
+                input.addEventListener('input', function() {
+                    const resultado = config.validar(this.value);
+                    mostrarFeedback(this, resultado);
+                });
+            }
 
             input.addEventListener('blur', function() {
-                const resultado = config.validar(this.value);
-                mostrarFeedback(this, resultado);
+                if (key === 'documento') {
+                    if (this.value && this.classList.contains('is-warning')) {
+                        const valor = this.value;
+                        const resultadoLocal = validaciones.documento.validarLocal(valor);
+                        if (resultadoLocal.valido) {
+                            validarDocumentoServidor(this, valor);
+                        }
+                    }
+                } else {
+                    const resultado = config.validar(this.value);
+                    mostrarFeedback(this, resultado);
+                }
             });
 
             if (input.value) {
                 setTimeout(() => {
-                    const resultado = config.validar(input.value);
-                    mostrarFeedback(input, resultado);
+                    if (key === 'documento') {
+                        const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                        if (resultadoLocal.valido) {
+                            mostrarCargando(input, 'Verificando documento existente...');
+                            validarDocumentoServidor(input, input.value);
+                        } else {
+                            mostrarFeedback(input, resultadoLocal);
+                        }
+                    } else {
+                        const resultado = config.validar(input.value);
+                        mostrarFeedback(input, resultado);
+                    }
                 }, 100);
             }
         }
@@ -279,35 +373,31 @@ document.addEventListener('DOMContentLoaded', function() {
         formulario.addEventListener('submit', function(e) {
             let formularioValido = true;
 
-            // Validar documento de forma especial
-            if (docInput && docInput.value) {
-                const resultadoLocal = validaciones.documento.validarLocal(docInput.value);
-                if (!resultadoLocal.valido) {
-                    formularioValido = false;
-                    mostrarFeedback(docInput, resultadoLocal);
-                } else if (docInput.classList.contains('is-warning')) {
-                    // Si aún está verificando, esperar
-                    e.preventDefault();
-                    mostrarCargando(docInput, 'Esperando verificación del documento...');
-                    setTimeout(() => {
-                        alert('Por favor espere a que se verifique el documento.');
-                    }, 100);
-                    return;
-                }
-            }
-
-            // Validar otros campos
+            // Validar todos los campos
             for (let key in validaciones) {
-                if (key === 'documento') continue;
-
                 const config = validaciones[key];
                 const input = document.querySelector(config.selector);
 
                 if (input) {
-                    const resultado = config.validar(input.value);
-                    mostrarFeedback(input, resultado);
-                    if (!resultado.valido) {
-                        formularioValido = false;
+                    if (key === 'documento') {
+                        const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                        if (!resultadoLocal.valido) {
+                            formularioValido = false;
+                            mostrarFeedback(input, resultadoLocal);
+                        } else if (input.classList.contains('is-warning')) {
+                            e.preventDefault();
+                            mostrarCargando(input, 'Esperando verificación del documento...');
+                            setTimeout(() => {
+                                alert('Por favor espere a que se verifique el documento.');
+                            }, 100);
+                            return;
+                        }
+                    } else {
+                        const resultado = config.validar(input.value);
+                        mostrarFeedback(input, resultado);
+                        if (!resultado.valido) {
+                            formularioValido = false;
+                        }
                     }
                 }
             }

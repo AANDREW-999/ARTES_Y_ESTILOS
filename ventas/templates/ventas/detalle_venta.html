@@ -1,0 +1,40 @@
+{% extends 'core/panel_admin_base.html' %}
+
+{% block title %}Detalle de Venta{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+<h2 class="fw-bold mb-4">
+    <i class="bi bi-receipt"></i> Detalle de Venta
+</h2>
+
+<div class="card shadow col-md-8">
+    <div class="card-body">
+
+        <p><strong>ID:</strong> {{ venta.id }}</p>
+        <p><strong>Cliente:</strong> {{ venta.cliente.nombre }}</p>
+        <p><strong>Arreglo:</strong> {{ venta.arreglo.nombre }}</p>
+        <p><strong>Tipo de Venta:</strong> {{ venta.get_tipo_venta_display }}</p>
+        <p><strong>Cantidad:</strong> {{ venta.cantidad }}</p>
+        <p><strong>Precio Unitario:</strong> ${{ venta.precio }}</p>
+        <p><strong>Total:</strong> ${{ venta.total }}</p>
+        <p><strong>Forma de Pago:</strong> {{ venta.get_forma_pago_display }}</p>
+        <p><strong>Descripción:</strong> {{ venta.descripcion }}</p>
+        <p><strong>Fecha:</strong> {{ venta.fecha }}</p>
+
+        {% if venta.con_domicilio %}
+            <hr>
+            <p><strong>Dirección:</strong> {{ venta.direccion }}</p>
+            <p><strong>Precio de Envío:</strong> ${{ venta.precio_envio }}</p>
+        {% endif %}
+
+        <a href="{% url 'ventas:listar' %}" class="btn btn-secondary mt-3">
+            Volver
+        </a>
+
+    </div>
+</div>
+
+</div>
+{% endblock %}

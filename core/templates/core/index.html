@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="hero">
+<section id="hero">
   <div class="container">
     <div class="row align-items-start g-4">
       <!-- Columna izquierda: encabezado + carrusel -->
@@ -48,8 +48,8 @@
           </button>
         </div>
         <div class="mt-3 d-flex gap-2">
-          <a href="{% url 'core:productos' %}" class="btn btn-rosa">Ver productos</a>
-          <a href="{% url 'core:contactanos' %}" class="btn btn-vino">Contáctanos</a>
+          <a href="#catalogo" class="btn btn-rosa">Ver productos</a>
+          <a href="#contacto" class="btn btn-vino">Contáctanos</a>
         </div>
       </div>
 
@@ -90,16 +90,217 @@
   </div>
 </section>
 
-<section id="Nosotros">Nosotros</section>
+<section id="sobre" class="py-4">
+  <div class="container reveal">
+    <!-- Encabezado descriptivo -->
+    <div class="row mb-4 align-items-center">
+      <div class="col-12">
+        <h1 class="fw-bold title-floral">Sobre <span class="acento">Nosotros</span>
+          <img src="{% static 'img/FaviconAE.png' %}" alt="pétalo" class="title-petal" aria-hidden="true">
+        </h1>
+        <p class="text-muted mb-0">En <strong>Floristería Arte & Estilos</strong> tenemos <strong>25 años de experiencia</strong> creando arreglos florales para toda ocasión. Es nuestro <strong>emblema</strong>: trabajar con amor por lo que hacemos, la <strong>dedicación</strong> en cada detalle y el <strong>buen gusto</strong> en cada diseño. Aquí encontrarás <strong>flores</strong>, <strong>chocolates</strong> y detalles especiales que acompañan tus momentos importantes. Estamos ubicados en <strong>Cra 10 # 9 - 47, Sogamoso</strong>, transformando sentimientos en diseños que <strong>enamoran</strong>.</p>
+      </div>
+    </div>
 
-<section id="Catalogo"> Catalogo de Nuestros Productos</section>
+    <!-- Misión y Visión sin imágenes internas -->
+    <div class="row g-4">
+      <div class="col-lg-6 reveal-left">
+        <div class="ribbon-card h-100">
+          <div class="ribbon r-vision">
+            <h3 class="ribbon-title">Visión</h3>
+          </div>
+          <div class="ribbon-body">
+            <p>
+              Ser una floristería reconocida por la calidad de su trabajo, el buen gusto en cada diseño y la confianza construida con nuestros clientes,
+              creciendo como una empresa sólida y familiar, y convirtiéndonos en una opción preferida para celebrar y expresar emociones a través de las flores.
+            </p>
+          </div>
+        </div>
+      </div>
 
-<section id="proceso">Proceso de creación</section>
+      <div class="col-lg-6 reveal-right">
+        <div class="ribbon-card h-100">
+          <div class="ribbon r-mision">
+            <h3 class="ribbon-title">Misión</h3>
+          </div>
+          <div class="ribbon-body">
+            <p>
+              En Floristería Arte & Estilos creamos arreglos florales que comunican sentimientos y acompañan momentos importantes. Trabajamos con flores frescas,
+              diseño cuidadoso y dedicación en cada detalle, brindando una atención cercana y responsable, comprometida con la calidad y la satisfacción de nuestros clientes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<section id="contacto">Contacto</section>
+    <!-- Mapa de Google -->
+    <div class="row mt-5">
+      <div class="col-12 reveal">
+        <h2 class="fw-bold mb-3">Encuéntranos</h2>
+        <div class="section-card p-0 overflow-hidden">
+          <iframe title="Mapa Floristería" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" width="100%" height="360" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="catalogo" class="py-4">
+  <div class="container">
+    <div class="row mb-3">
+      <div class="col reveal">
+        <h1 class="fw-bold mb-2">Catálogo</h1>
+        <p class="text-muted">Elige el arreglo perfecto para tu ocasión especial.</p>
+      </div>
+    </div>
+
+    <!-- Nuestros trabajos (catálogo) SIN bucle -->
+    <div class="row g-4">
+      <div class="col-12"><h2 class="fw-bold mb-2">Nuestros trabajos</h2></div>
+
+      <!-- Cards con data-src para lightbox -->
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosas.png' %}" data-src="{% static 'core/img/ArregloRosas.png' %}" class="card-img-top js-lightbox" alt="Arreglo de Rosas" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Arreglo de Rosas</h5>
+            <p class="card-text">Diseño cuidadoso, flores frescas y detalles que enamoran.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosasClaras.png' %}" data-src="{% static 'core/img/ArregloRosasClaras.png' %}" class="card-img-top js-lightbox" alt="Rosas Claras" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Rosas Claras</h5>
+            <p class="card-text">Suavidad y elegancia en tonos pastel.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloFloresAmarillas.png' %}" data-src="{% static 'core/img/ArregloFloresAmarillas.png' %}" class="card-img-top js-lightbox" alt="Flores Amarillas" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Flores Amarillas</h5>
+            <p class="card-text">Alegría y calidez para iluminar momentos.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosasGlobo.png' %}" data-src="{% static 'core/img/ArregloRosasGlobo.png' %}" class="card-img-top js-lightbox" alt="Rosas con Globo" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Rosas con Globo</h5>
+            <p class="card-text">Celebración con un toque especial.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloRosasChocolate.png' %}" data-src="{% static 'core/img/ArregloRosasChocolate.png' %}" class="card-img-top js-lightbox" alt="Rosas y Chocolate" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Rosas y Chocolate</h5>
+            <p class="card-text">Dulzura y romanticismo en un detalle único.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloGirasolesFlores.png' %}" data-src="{% static 'core/img/ArregloGirasolesFlores.png' %}" class="card-img-top js-lightbox" alt="Girasoles y Flores" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Girasoles y Flores</h5>
+            <p class="card-text">Energía y belleza natural que inspira.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-4 reveal">
+        <div class="card card-floral h-100 border-0">
+          <img src="{% static 'core/img/ArregloPeluches.png' %}" data-src="{% static 'core/img/ArregloPeluches.png' %}" class="card-img-top js-lightbox" alt="Arreglo con Peluche" style="object-fit: cover; height: 220px; cursor:pointer;">
+          <div class="card-body">
+            <h5 class="card-title">Arreglo con Peluche</h5>
+            <p class="card-text">Ternura y encanto para ocasiones especiales.</p>
+            <button class="btn btn-rosa">Ver detalle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lightbox overlay -->
+    <div class="lightbox-overlay" id="lightboxOverlay" aria-hidden="true">
+      <div class="lightbox-content position-relative">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">✕</button>
+        <img id="lightboxImage" src="#" alt="Vista ampliada">
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="contacto" class="py-4">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-6 reveal-left">
+        <h1 class="fw-bold mb-2">Contáctanos</h1>
+        <p class="text-muted mb-3">Estamos aquí para ayudarte a expresar emociones con flores frescas y diseños únicos.</p>
+        <div class="card card-floral border-0">
+          <div class="card-body">
+            <form>
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="c_nombre">Nombre</label>
+                <input type="text" class="form-control" id="c_nombre" placeholder="Tu nombre" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="c_email">Email</label>
+                <input type="email" class="form-control" id="c_email" placeholder="tucorreo@ejemplo.com" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="c_mensaje">Mensaje</label>
+                <textarea class="form-control" id="c_mensaje" rows="4" placeholder="Cuéntanos qué necesitas" required></textarea>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-rosa">Enviar</button>
+                <a class="btn btn-vino" href="https://wa.me/573105844207" target="_blank" rel="noopener">
+                  <i class="bi bi-whatsapp"></i> WhatsApp
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal-right">
+        <div class="section-card">
+          <h5 class="fw-bold mb-3">Información</h5>
+          <ul class="list-unstyled d-grid gap-2">
+            <li><i class="bi bi-geo-alt-fill" style="color: var(--rosa-intenso);"></i> Cra 10 # 9 - 47, Sogamoso</li>
+            <li><i class="bi bi-telephone-fill" style="color: var(--rosa-intenso);"></i> +57 310 584 4207</li>
+            <li><i class="bi bi-envelope-fill" style="color: var(--rosa-intenso);"></i> arteyestilos.test@gmail.com</li>
+          </ul>
+          <hr>
+          <h6 class="fw-bold">También en redes</h6>
+          <p class="mb-3">Instagram, Facebook y WhatsApp, ¡te esperamos!</p>
+          <div class="ratio ratio-16x9">
+            <iframe title="Ubicación" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/main.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
 {% endblock %}

@@ -9,7 +9,19 @@ from django.shortcuts import render
 # Create your views here.
 
 def index(request):
-    return render(request, 'core/index.html')
+    busqueda = request.GET.get('busqueda', '')
+
+    if busqueda:
+        productos = Producto.objects.filter(nombre__icontains=busqueda)
+    else:
+        productos = Producto.objects.all()
+
+    context = {
+        'productos': productos,
+        'busqueda': busqueda,
+    }
+
+    return render(request, 'core/index.html', context)
 
 
 def PanelAdmin_base(request):
@@ -43,39 +55,17 @@ def dashboard_view(request):
         'nuevos_usuarios_mes': nuevos_usuarios_mes,
         'ultimos_usuarios': ultimos_usuarios,
     }
-    return render(request, 'core/dashboard.html', context)
+    return render(request, 'admin/dashboard.html', context)
 
 
 # Nuevas vistas de páginas públicas
-
-def nosotros(request):
-    return render(request, 'core/nosotros.html')
-
-
-def productos(request):
-    return render(request, 'core/productos.html')
-
-
-def contactanos(request):
-    return render(request, 'core/contactanos.html')
-
-
-def productos(request):
-    # Traemos todos los productos guardados
-    productos_db = Producto.objects.all()
-    
-    context = {
-        'productos': productos_db,
-    }
-    
-    return render(request, 'master.html', context)
 
 
 from django.shortcuts import render
 
 def error_404(request, exception):
     if request.path.startswith("/admin"):
-        return render(request, "core/404_admin.html", status=404)
+        return render(request, "admin/404_admin.html", status=404)
     return render(request, "core/404_index.html", status=404)
 
 

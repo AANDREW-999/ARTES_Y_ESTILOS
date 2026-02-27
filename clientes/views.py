@@ -6,6 +6,7 @@ from django.views import generic
 
 from .forms import ClienteForm
 from .models import Cliente
+from django.http import JsonResponse
 
 
 # -------------------------
@@ -97,3 +98,20 @@ class ClienteDeleteView(DBSafeMixin, generic.DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, 'Cliente eliminado correctamente.')
         return super().delete(request, *args, **kwargs)
+
+
+def verificar_documento(request):
+    """Vista AJAX para verificar si un documento ya existe"""
+    documento = request.GET.get('documento', '')
+    exclude_id = request.GET.get('exclude_id', '')
+
+    if not documento:
+        return JsonResponse({'existe': False})
+
+    queryset = Cliente.objects.filter(documento=documento)
+
+    if exclude_id and exclude_id.isdigit():
+        queryset = queryset.exclude(pk=int(exclude_id))
+
+    existe = queryset.exists()
+    return JsonResponse({'existe': existe})

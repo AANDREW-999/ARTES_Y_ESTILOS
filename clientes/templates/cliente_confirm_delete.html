@@ -3,185 +3,85 @@
 
 {% block page_title %}Eliminar Cliente{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-3">
-
-    <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h5 class="fw-semibold mb-0">Eliminar Cliente</h5>
-            <small class="text-muted">Revise la información antes de eliminar el registro</small>
-        </div>
-
-        <a href="{% url 'clientes:lista_clientes' %}"
-           class="btn btn-light border rounded-pill px-3 shadow-sm">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
+<!-- HEADER CON ANIMACIÓN -->
+<div class="page-header-clientes fadeInUp">
+    <div class="page-header-info">
+        <h1>
+            <i class="bi bi-exclamation-triangle-fill"></i> Eliminar Cliente
+        </h1>
+        <p>Confirme que desea eliminar este cliente</p>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-body p-4">
+    <a href="{% url 'clientes:lista_clientes' %}" class="btn-secondary-custom">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+</div>
 
-            <!-- Información completa del cliente -->
-            <div class="border rounded-4 p-4 mb-4 bg-light">
+<!-- TARJETA DE CONFIRMACIÓN CON ANIMACIONES -->
+<div class="confirmation-card scaleIn">
+    <div class="confirmation-icon confirmation-icon-danger float">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+    </div>
 
-                <div class="d-flex align-items-center mb-4">
-                    <div class="bg-white shadow-sm rounded-3 p-3 me-3">
-                        <i class="bi bi-person fs-3 text-secondary"></i>
-                    </div>
+    <h2 class="confirmation-title fadeInDown">¿Eliminar Cliente?</h2>
 
-                    <div>
-                        <div class="text-muted small">Cliente seleccionado</div>
-                        <div class="fw-bold fs-5">
-                            {{ object.nombre }} {{ object.apellido }}
-                        </div>
-                        <small class="text-muted">
-                            ID del cliente: {{ object.id }}
-                        </small>
-                    </div>
-                </div>
-
-                <!-- Datos -->
-                <div class="row g-3">
-
-                    <div class="col-md-6">
-                        <small class="text-muted">Documento</small>
-                        <div class="fw-semibold">
-                            {{ object.tipo_documento }} - {{ object.documento }}
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <small class="text-muted">Teléfono</small>
-                        <div class="fw-semibold">
-                            {{ object.telefono|default:"No registrado" }}
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <small class="text-muted">Correo</small>
-                        <div class="fw-semibold">
-                            {{ object.correo_electronico|default:"No registrado" }}
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <small class="text-muted">Ciudad</small>
-                        <div class="fw-semibold">
-                            {{ object.ciudad|default:"No registrada" }}
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <small class="text-muted">Departamento</small>
-                        <div class="fw-semibold">
-                            {{ object.departamento|default:"No registrado" }}
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <small class="text-muted">Dirección</small>
-                        <div class="fw-semibold">
-                            {{ object.direccion|default:"No registrada" }}
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <small class="text-muted">Fecha de registro</small>
-                        <div class="fw-semibold">
-                            {{ object.created_at }}
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Advertencia -->
-            <div class="alert alert-danger border-0 rounded-4 d-flex align-items-center">
-                <i class="bi bi-exclamation-triangle fs-4 me-3"></i>
-                <div>
-                    Esta acción eliminará permanentemente el cliente del sistema.
-                    <br>
-                    <small>Verifique que los datos correspondan al registro correcto.</small>
-                </div>
-            </div>
-
-            <!-- Formulario -->
-            <form method="post">
-                {% csrf_token %}
-
-                <div class="d-flex justify-content-end gap-2 mt-4">
-
-                    <a href="{% url 'clientes:lista_clientes' %}"
-                       class="btn btn-light border rounded-pill px-4">
-                        Cancelar
-                    </a>
-
-                    <button type="button"
-                            class="btn btn-danger rounded-pill px-4 shadow-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmDeleteModal">
-                        Eliminar cliente
-                    </button>
-
-                </div>
-
-                <!-- Modal -->
-                <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow rounded-4">
-
-                            <div class="modal-header border-0">
-                                <h5 class="modal-title fw-semibold">
-                                    Confirmar eliminación
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-
-                            <div class="modal-body">
-
-                                <p class="mb-2">
-                                    Está a punto de eliminar al cliente:
-                                </p>
-
-                                <div class="fw-semibold">
-                                    {{ object.nombre }} {{ object.apellido }}
-                                </div>
-
-                                <small class="text-muted">
-                                    Documento: {{ object.documento }}
-                                </small>
-
-                                <div class="alert alert-warning mt-3 mb-0">
-                                    Esta acción no se puede deshacer.
-                                </div>
-
-                            </div>
-
-                            <div class="modal-footer border-0">
-
-                                <button type="button"
-                                        class="btn btn-light border rounded-pill px-4"
-                                        data-bs-dismiss="modal">
-                                    Cancelar
-                                </button>
-
-                                <button type="submit"
-                                        class="btn btn-danger rounded-pill px-4">
-                                    Sí, eliminar cliente
-                                </button>
-
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </form>
-
+    <div class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-4 shake" style="background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.2); border-radius: 12px;">
+        <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+        <div class="text-danger">
+            <strong>¡ATENCIÓN!</strong> Esta acción es <strong>PERMANENTE</strong> y no se puede deshacer.
         </div>
     </div>
 
+    <!-- Información del cliente -->
+    <div class="d-flex align-items-center gap-3 p-3 mb-4 slideInLeft" style="background: var(--bg-hover); border-radius: 12px;">
+        <div class="user-info-avatar-placeholder scaleIn" style="width: 50px; height: 50px; font-size: 1.2rem;">
+            {{ object.nombre|first|upper }}{{ object.apellido|first|upper }}
+        </div>
+        <div class="text-start">
+            <h5 class="mb-1 fadeIn" style="color: var(--text-primary);">{{ object.nombre }} {{ object.apellido }}</h5>
+            <p class="mb-0 small fadeIn" style="color: var(--text-secondary); animation-delay: 0.2s;">{{ object.tipo_documento }} • {{ object.documento }}</p>
+            <p class="mb-0 small fadeIn" style="color: var(--text-secondary); animation-delay: 0.3s;">{{ object.correo_electronico|default:'Sin correo' }}</p>
+        </div>
+    </div>
+
+    <!-- Advertencias -->
+    <div class="row g-2 mb-4">
+        <div class="col-4">
+            <div class="p-2 text-center fadeIn" style="animation-delay: 0.4s; background: rgba(220,53,69,0.05); border-radius: 8px;">
+                <i class="bi bi-x-circle-fill text-danger mb-1"></i>
+                <p class="mb-0 small">Eliminación<br>permanente</p>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="p-2 text-center fadeIn" style="animation-delay: 0.5s; background: rgba(255,193,7,0.05); border-radius: 8px;">
+                <i class="bi bi-database text-warning mb-1"></i>
+                <p class="mb-0 small">Datos<br>borrados</p>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="p-2 text-center fadeIn" style="animation-delay: 0.6s; background: rgba(108,117,125,0.05); border-radius: 8px;">
+                <i class="bi bi-arrow-counterclockwise text-secondary mb-1"></i>
+                <p class="mb-0 small">No se puede<br>deshacer</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="d-flex justify-content-center gap-3 fadeIn" style="animation-delay: 0.7s;">
+            <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 10px;">
+                Cancelar
+            </a>
+            <button type="submit" class="btn px-4 py-2" style="background: #dc3545; color: white; border-radius: 10px; border: none;">
+                <i class="bi bi-trash"></i> Eliminar
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}

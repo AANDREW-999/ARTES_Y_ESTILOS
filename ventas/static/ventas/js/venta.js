@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ── Elementos del DOM ─────────────────────────────────────────────────
     const addItemBtn        = document.getElementById("addItem");
     const tableBody         = document.querySelector("#itemsTable tbody");
     const totalSpan         = document.getElementById("totalVenta");
@@ -17,12 +16,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    // ── URL del endpoint (inyectada desde Django en el HTML) ──────────────
     const AJAX_URL = (typeof BUSCAR_ARREGLO_URL !== "undefined")
         ? BUSCAR_ARREGLO_URL
         : "/ventas/ajax/arreglos/";
 
-    // ── Eventos globales ──────────────────────────────────────────────────
     addItemBtn.addEventListener("click", agregarFila);
     manoObraInput && manoObraInput.addEventListener("input", calcularTotal);
     ivaSelect     && ivaSelect.addEventListener("change", calcularTotal);
@@ -35,10 +32,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Primera fila automática
     agregarFila();
 
-    // ── Agregar fila ──────────────────────────────────────────────────────
     function agregarFila() {
         const emptyRow = document.getElementById("emptyRow");
         if (emptyRow) emptyRow.remove();
@@ -80,7 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
         calcularTotal();
     }
 
-    // ── Autocomplete ──────────────────────────────────────────────────────
     function activarAutocomplete(row) {
         const input      = row.querySelector(".buscar-arreglo");
         const hiddenId   = row.querySelector(".arreglo-id");
@@ -105,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         return res.json();
                     })
                     .then(data => {
-                        // Mostrar error de Django si viene en la respuesta
+    
                         if (data.error) {
                             console.error("Error del servidor:", data.error);
                             mostrarEnBox(box, `<div class="list-group-item text-danger small py-2">
@@ -114,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             return;
                         }
 
-                        // Soporte para clave 'arreglos' (nuevo) y 'arreglo' (legado)
+                        
                         const lista = Array.isArray(data.arreglos) ? data.arreglos
                                     : Array.isArray(data.arreglo)  ? data.arreglo
                                     : [];
@@ -135,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <span class="badge bg-success rounded-pill ms-2">$${parseFloat(item.precio).toLocaleString("es-CO")}</span>
                             `;
                             a.style.cursor = "pointer";
-                            // mousedown para no perder el foco antes del click
+                           
                             a.addEventListener("mousedown", (e) => {
                                 e.preventDefault();
                                 input.value      = item.nombre_flor;
@@ -154,10 +148,10 @@ document.addEventListener("DOMContentLoaded", function () {
                             No se pudo conectar. Revisa la consola (F12).
                         </div>`);
                     });
-            }, 300); // debounce 300ms
+            }, 300); // 
         });
 
-        // Cerrar al perder foco
+  
         input.addEventListener("blur", () => {
             setTimeout(() => cerrarBox(box), 250);
         });
@@ -173,7 +167,6 @@ document.addEventListener("DOMContentLoaded", function () {
         box.style.display = "block";
     }
 
-    // ── Calcular total ────────────────────────────────────────────────────
     function calcularTotal() {
         let subtotal = 0;
 
@@ -204,7 +197,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (hiddenTotal) hiddenTotal.value = total.toFixed(2);
     }
 
-    // ── Fila vacía ────────────────────────────────────────────────────────
     function mostrarFilaVacia() {
         if (tableBody.querySelectorAll("tr:not(#emptyRow)").length === 0) {
             const tr = document.createElement("tr");
@@ -218,7 +210,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ── Formato moneda ────────────────────────────────────────────────────
     function fmt(n) {
         return "$" + n.toLocaleString("es-CO", {
             minimumFractionDigits: 2,

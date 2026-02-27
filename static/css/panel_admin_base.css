@@ -1355,3 +1355,35 @@ html[data-theme="light"] .btn-cancel:hover {
 .dashboard-body .toast-container {
     display: none !important;
 }
+
+/* ==========================================
+   🃏 FIX BOOTSTRAP - DARK MODE
+   ========================================== */
+
+/* Neutralizar bg-light en dark mode */
+html:not([data-theme="light"]) .bg-light {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Fix card en dark mode */
+html:not([data-theme="light"]) .card {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+html:not([data-theme="light"]) .card p,
+html:not([data-theme="light"]) .card strong,
+html:not([data-theme="light"]) .card span:not(.badge),
+html:not([data-theme="light"]) .card label {
+    color: var(--text-primary) !important;
+}
+
+html:not([data-theme="light"]) .card .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+html:not([data-theme="light"]) .card hr {
+    border-color: var(--border-color) !important;
+}

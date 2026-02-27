@@ -115,4 +115,4 @@ def buscar_arreglo(request):
         for a in qs
     ]
 
-    return JsonResponse({'arreglos': data})
+    return JsonResponse({'arreglo': True})

@@ -69,19 +69,20 @@ class ClienteForm(forms.ModelForm):
             'tipo_documento': forms.Select(attrs={'class': 'form-select'}),
             'documento': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Número de documento'
+                'placeholder': 'Ingrese número de documento',
+                'maxlength': '15'
             }),
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nombre'
+                'placeholder': 'Ingrese nombre completo'
             }),
             'apellido': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Apellido'
+                'placeholder': 'Ingrese apellido completo'
             }),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Teléfono'
+                'placeholder': 'Ingrese teléfono'
             }),
             'correo_electronico': forms.EmailInput(attrs={
                 'class': 'form-control',
@@ -89,11 +90,11 @@ class ClienteForm(forms.ModelForm):
             }),
             'direccion': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Dirección completa'
+                'placeholder': 'Ingrese dirección completa'
             }),
             'ciudad': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ciudad'
+                'placeholder': 'Ingrese ciudad'
             }),
         }
 
@@ -112,6 +113,14 @@ class ClienteForm(forms.ModelForm):
     # -------------------------
     # VALIDACIONES PROFESIONALES
     # -------------------------
+
+    def clean_tipo_documento(self):
+        tipo_documento = self.cleaned_data.get("tipo_documento")
+
+        if not tipo_documento or tipo_documento == '':
+            raise forms.ValidationError("Debe seleccionar un tipo de documento.")
+
+        return tipo_documento
 
     def clean_documento(self):
         documento = self.cleaned_data.get("documento")
@@ -182,3 +191,26 @@ class ClienteForm(forms.ModelForm):
             correo = correo.lower().strip()
 
         return correo
+
+    # ========================================
+    # NUEVAS VALIDACIONES DE DEPARTAMENTO Y CIUDAD
+    # ========================================
+
+    def clean_departamento(self):
+        departamento = self.cleaned_data.get("departamento")
+
+        if not departamento or departamento == '':
+            raise forms.ValidationError("Debe seleccionar un departamento.")
+
+        return departamento
+
+    def clean_ciudad(self):
+        ciudad = self.cleaned_data.get("ciudad")
+        departamento = self.cleaned_data.get("departamento")
+
+        # Solo validar ciudad si hay departamento seleccionado
+        if departamento and departamento != '':
+            if not ciudad or ciudad == '':
+                raise forms.ValidationError("Debe seleccionar una ciudad.")
+
+        return ciudad

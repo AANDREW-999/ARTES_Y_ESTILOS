@@ -1,5 +1,5 @@
 /**
- * VALIDACIONES EN TIEMPO REAL PARA CLIENTES
+ * VALIDACIONES EN TIEMPO REAL
  * Con bloqueo de caracteres inválidos y caracteres especiales
  */
 

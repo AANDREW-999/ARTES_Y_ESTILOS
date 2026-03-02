@@ -5,6 +5,7 @@ class Cliente(models.Model):
     """Modelo para clientes de la floristería."""
 
     TIPO_DOCUMENTO_CHOICES = [
+        ('', 'Seleccione Documento...'),
         ('CC', 'Cédula de ciudadanía'),
         ('TI', 'Tarjeta de identidad'),
         ('CE', 'Cédula de extranjería'),

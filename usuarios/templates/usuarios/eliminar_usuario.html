@@ -4,103 +4,449 @@
 {% block title %}Eliminar Usuario{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<style>
+    /* ======================================== */
+    /* ANIMACIONES ORIGINALES (SE MANTIENEN)    */
+    /* ======================================== */
+
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        25% { transform: scale(1.15); }
+        50% { transform: scale(1); }
+        75% { transform: scale(1.08); }
+    }
+
+    @keyframes shakeWarning {
+        0%, 100% { transform: translateX(0); }
+        15%, 45%, 75% { transform: translateX(-8px); }
+        30%, 60%, 90% { transform: translateX(8px); }
+    }
+
+    @keyframes pulseIcon {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    @keyframes glowText {
+        0%, 100% { text-shadow: 0 0 5px rgba(220, 53, 69, 0.3); }
+        50% { text-shadow: 0 0 20px rgba(220, 53, 69, 0.6); }
+    }
+
+    @keyframes slideUpScale {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes floatIcon {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+
+    @keyframes pulseAvatar {
+        0%, 100% { box-shadow: 0 0 10px rgba(191, 84, 134, 0.3); }
+        50% { box-shadow: 0 0 25px rgba(191, 84, 134, 0.7); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Clases de animación */
+    .heartbeat { animation: heartbeat 2s ease infinite; }
+    .shakeWarning { animation: shakeWarning 0.6s ease; }
+    .pulseIcon { animation: pulseIcon 1.5s ease infinite; }
+    .glowText { animation: glowText 2s ease infinite; }
+    .slideUpScale { animation: slideUpScale 0.5s ease; }
+    .floatIcon { animation: floatIcon 3s ease infinite; }
+    .pulseAvatar { animation: pulseAvatar 2s ease infinite; }
+    .fadeIn { animation: fadeIn 0.5s ease; }
+    .fadeInUp { animation: fadeInUp 0.5s ease; }
+    .slideInLeft { animation: slideInLeft 0.5s ease; }
+    .scaleIn { animation: scaleIn 0.3s ease; }
+    .shake { animation: shake 0.5s ease; }
+    .float { animation: float 3s ease infinite; }
+
+    /* Estilos para tarjetas */
+    .tarjetaAnimada {
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: default;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tarjetaDanger {
+        background: rgba(220,53,69,0.05);
+        border: 1px solid rgba(220,53,69,0.1);
+    }
+
+    .tarjetaWarning {
+        background: rgba(255,193,7,0.05);
+        border: 1px solid rgba(255,193,7,0.1);
+    }
+
+    .tarjetaSecondary {
+        background: rgba(108,117,125,0.05);
+        border: 1px solid rgba(108,117,125,0.1);
+    }
+
+    .tarjetaAnimada:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .tarjetaDanger:hover {
+        background: rgba(220,53,69,0.12);
+        border-color: #dc3545;
+    }
+
+    .tarjetaWarning:hover {
+        background: rgba(255,193,7,0.12);
+        border-color: #ffc107;
+    }
+
+    .tarjetaSecondary:hover {
+        background: rgba(108,117,125,0.12);
+        border-color: #6c757d;
+    }
+
+    .iconoAnimado {
+        font-size: 2rem;
+        transition: all 0.3s ease;
+        animation: floatIcon 3s ease infinite;
+    }
+
+    .tarjetaAnimada:hover .iconoAnimado {
+        transform: scale(1.2) rotate(5deg);
+        animation: none;
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .tarjetaDanger:hover .iconoAnimado { color: #dc3545 !important; }
+    .tarjetaWarning:hover .iconoAnimado { color: #ffc107 !important; }
+    .tarjetaSecondary:hover .iconoAnimado { color: #6c757d !important; }
+
+    /* Botones mejorados */
+    .botonCancelar {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .botonCancelar:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+        border-color: #BF5486;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .botonEliminar {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+    }
+
+    .botonEliminar:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(220,53,69,0.5);
+        background: #c82333;
+    }
+
+    .botonEliminar i { transition: all 0.3s ease; }
+    .botonEliminar:hover i { animation: heartbeat 1s ease infinite; }
+
+    /* ======================================== */
+    /* ESTILO MINIMALISTA PARA CONFIRMACIÓN     */
+    /* ======================================== */
+
+    .confirm-field-container {
+        margin: 2rem 0 1.5rem;
+        text-align: center;
+    }
+
+    .confirm-input {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-bottom: 2px solid var(--border-color);
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .confirm-input:focus {
+        border-bottom-color: #dc3545;
+    }
+
+    .confirm-input.warning-shake {
+        animation: shakeInput 0.5s ease;
+        border-bottom-color: #dc3545;
+    }
+
+    @keyframes shakeInput {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-8px); }
+        40% { transform: translateX(8px); }
+        60% { transform: translateX(-4px); }
+        80% { transform: translateX(4px); }
+    }
+
+    .confirm-field-error {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: rgba(220,53,69,0.1);
+        border: 1px solid rgba(220,53,69,0.3);
+        border-radius: 8px;
+        color: #dc3545;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-5">
-    <!-- Breadcrumb -->
-    <div class="page-breadcrumb mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'core:dashboard' %}">
-                        <i class="bi bi-house-door-fill"></i>
-                        <span>Inicio</span>
-                    </a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'usuarios:lista_usuarios' %}">
-                        <i class="bi bi-people-fill"></i>
-                        <span>Usuarios</span>
-                    </a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    Eliminar Usuario
-                </li>
-            </ol>
-        </nav>
+<!-- HEADER CON ANIMACIÓN -->
+<div class="page-header-clientes fadeInUp">
+    <div class="page-header-info">
+        <h1>
+            <i class="bi bi-exclamation-triangle-fill"></i> Eliminar Usuario
+        </h1>
+        <p>Confirme que desea eliminar este usuario permanentemente</p>
     </div>
 
-    <div class="confirmation-card">
-        <div class="confirmation-icon confirmation-icon-danger">
-            <i class="bi bi-trash-fill"></i>
-        </div>
-
-        <h1 class="confirmation-title">⚠️ ¿Eliminar Usuario?</h1>
-
-        <p class="confirmation-message">
-            <strong>¡ATENCIÓN!</strong> Esta acción es <strong>PERMANENTE</strong> y no se puede deshacer.
-            Todos los datos del usuario serán eliminados de la base de datos.
-        </p>
-
-        <div class="user-info-box">
-            {% if usuario.perfil.foto_perfil %}
-                <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="user-info-avatar">
-            {% else %}
-                <div class="user-info-avatar-placeholder">
-                    {% if usuario.first_name and usuario.last_name %}
-                        {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
-                    {% else %}
-                        {{ usuario.username.0|upper }}
-                    {% endif %}
-                </div>
-            {% endif %}
-            <div class="user-info-content">
-                <h4>{{ usuario.get_full_name|default:usuario.username }}</h4>
-                <p>@{{ usuario.username }} • {{ usuario.email }}</p>
-            </div>
-        </div>
-
-        <ul class="info-list info-list-danger">
-            <li>
-                <i class="bi bi-x-circle-fill"></i>
-                <span>El usuario será <strong>eliminado permanentemente</strong></span>
-            </li>
-            <li>
-                <i class="bi bi-x-circle-fill"></i>
-                <span>Todos sus datos personales serán borrados</span>
-            </li>
-            <li>
-                <i class="bi bi-x-circle-fill"></i>
-                <span>Esta acción <strong>NO se puede deshacer</strong></span>
-            </li>
-            <li>
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span>Si solo quieres suspender acceso, considera <strong>Desactivar</strong> en lugar de eliminar</span>
-            </li>
-        </ul>
-
-        <div class="alert-danger-box">
-            <i class="bi bi-exclamation-octagon-fill fs-4"></i>
-            <div>
-                <strong>Recomendación:</strong>
-                <p class="mb-0">En lugar de eliminar, considera desactivar el usuario para mantener el historial y poder reactivarlo en el futuro.</p>
-            </div>
-        </div>
-
-        <form method="post" class="d-flex justify-content-center gap-3 flex-wrap">
-            {% csrf_token %}
-            <button type="submit" class="btn-confirm btn-confirm-danger">
-                <i class="bi bi-trash-fill"></i>
-                Eliminar Permanentemente
-            </button>
-            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancel">
-                <i class="bi bi-arrow-left"></i>
-                Cancelar y Volver
-            </a>
-        </form>
-    </div>
+    <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-secondary-custom">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
 </div>
-{% endblock %}
 
+<!-- TARJETA DE CONFIRMACIÓN -->
+<div class="confirmation-card scaleIn">
+    <!-- Icono con animación de latido -->
+    <div class="confirmation-icon confirmation-icon-danger heartbeat">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+    </div>
+
+    <h2 class="confirmation-title glowText">¿Eliminar Usuario?</h2>
+
+    <!-- Alerta de advertencia -->
+    <div class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-4 shakeWarning"
+         style="background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.2); border-radius: 12px;">
+        <i class="bi bi-exclamation-triangle-fill text-danger fs-4 pulseIcon"></i>
+        <div class="text-danger">
+            <strong>¡ATENCIÓN!</strong> Esta acción es <strong>PERMANENTE</strong> y no se puede deshacer.
+        </div>
+    </div>
+
+    <!-- Información del usuario -->
+    <div class="d-flex align-items-center gap-3 p-3 mb-4 slideInUp"
+         style="background: var(--bg-hover); border-radius: 12px; border: 1px solid var(--border-color);">
+
+        {% if usuario.perfil.foto_perfil %}
+            <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}"
+                 class="user-info-avatar pulseAvatar"
+                 style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+        {% else %}
+            <div class="user-info-avatar-placeholder pulseAvatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                {% if usuario.first_name and usuario.last_name %}
+                    {{ usuario.first_name|first|upper }}{{ usuario.last_name|first|upper }}
+                {% else %}
+                    {{ usuario.username|first|upper }}
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="text-start">
+            <h5 class="mb-1 fadeIn" style="color: var(--text-primary);">{{ usuario.get_full_name|default:usuario.username }}</h5>
+            <p class="mb-0 small fadeIn" style="color: var(--text-secondary);">@{{ usuario.username }}</p>
+            <p class="mb-0 small fadeIn" style="color: var(--text-secondary);">{{ usuario.email|default:'Sin correo' }}</p>
+        </div>
+    </div>
+
+    <!-- Tarjetas de advertencia -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="p-3 text-center tarjetaAnimada tarjetaDanger" style="animation: slideUpScale 0.5s ease 0.2s both;">
+                <i class="bi bi-x-circle-fill text-danger mb-2 iconoAnimado"></i>
+                <p class="mb-0 fw-bold">Eliminación</p>
+                <p class="mb-0 small text-danger">permanente</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 text-center tarjetaAnimada tarjetaWarning" style="animation: slideUpScale 0.5s ease 0.3s both;">
+                <i class="bi bi-database text-warning mb-2 iconoAnimado"></i>
+                <p class="mb-0 fw-bold">Datos</p>
+                <p class="mb-0 small text-warning">borrados</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 text-center tarjetaAnimada tarjetaSecondary" style="animation: slideUpScale 0.5s ease 0.4s both;">
+                <i class="bi bi-arrow-counterclockwise text-secondary mb-2 iconoAnimado"></i>
+                <p class="mb-0 fw-bold">No se puede</p>
+                <p class="mb-0 small text-secondary">deshacer</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================== -->
+    <!-- CAMPO DE CONFIRMACIÓN MINIMALISTA        -->
+    <!-- ======================================== -->
+    <form method="post" id="deleteForm">
+        {% csrf_token %}
+
+        <div class="confirm-field-container">
+            <input type="text"
+                   class="confirm-input"
+                   name="confirmar_eliminacion"
+                   id="confirmar_eliminacion"
+                   placeholder="Escribe ELIMINAR para confirmar"
+                   autocomplete="off"
+                   required>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="d-flex justify-content-center gap-3 fadeIn" style="animation: fadeIn 0.5s ease 0.5s both;">
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn botonCancelar px-4 py-2">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="btn botonEliminar px-4 py-2" id="submitBtn">
+                <i class="bi bi-trash"></i> Eliminar Permanentemente
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript para validación (solo muestra errores, sin textos adicionales) -->
+<script>
+(function() {
+    'use strict';
+
+    const form = document.getElementById('deleteForm');
+    const confirmInput = document.getElementById('confirmar_eliminacion');
+
+    if (form && confirmInput) {
+        form.addEventListener('submit', function(e) {
+            const value = confirmInput.value.trim();
+
+            if (value.toLowerCase() !== 'eliminar') {
+                e.preventDefault();
+
+                // Efecto de shake
+                confirmInput.classList.add('warning-shake');
+
+                // Mostrar error simple
+                const existingError = document.querySelector('.confirm-field-error');
+                if (existingError) existingError.remove();
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'confirm-field-error';
+                errorDiv.innerHTML = `
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                    <span>Debes escribir ELIMINAR para confirmar</span>
+                `;
+
+                document.querySelector('.confirm-field-container').appendChild(errorDiv);
+
+                // Remover error después de 3 segundos
+                setTimeout(() => {
+                    errorDiv.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => errorDiv.remove(), 300);
+                }, 3000);
+
+                // Remover shake
+                setTimeout(() => {
+                    confirmInput.classList.remove('warning-shake');
+                }, 500);
+            }
+        });
+
+        // Limpiar error al escribir
+        confirmInput.addEventListener('input', function() {
+            this.classList.remove('warning-shake');
+            const error = document.querySelector('.confirm-field-error');
+            if (error) {
+                error.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => error.remove(), 300);
+            }
+        });
+    }
+})();
+</script>
+
+<style>
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}

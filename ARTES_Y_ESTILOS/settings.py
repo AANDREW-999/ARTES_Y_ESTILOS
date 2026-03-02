@@ -150,9 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Para ver correos en la terminal
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-"""
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ============================================================================
 # CONFIGURACIÓN DE EMAIL PARA RECUPERACIÓN DE CONTRASEÑA
@@ -199,5 +197,5 @@ else:
     DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
     SERVER_EMAIL = 'noreply@arteyestilos.local'
 
-"""
+
 

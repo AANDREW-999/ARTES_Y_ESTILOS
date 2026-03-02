@@ -36,7 +36,6 @@ class Compra(models.Model):
     
     # Fechas
     fecha_emision = models.DateField(verbose_name="Fecha de Emisión")
-    fecha_vencimiento = models.DateField(verbose_name="Fecha de Vencimiento", blank=True, null=True)
     
     # Relación con Proveedor (ForeignKey real)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT, verbose_name="Proveedor")

@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Arreglo
 from .forms import ArregloForm
 
-# 1. LISTAR: Solo muestra la tabla o tarjetas
 def gestion_arreglo(request):
     # Traemos todos los arreglos, los más nuevos primero
     arreglos = Arreglo.objects.all().order_by('-id')

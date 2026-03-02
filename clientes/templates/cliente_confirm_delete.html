@@ -24,64 +24,136 @@
 
 <!-- TARJETA DE CONFIRMACIÓN CON ANIMACIONES -->
 <div class="confirmation-card scaleIn">
+    <!-- Icono con animación de pulso -->
     <div class="confirmation-icon confirmation-icon-danger float">
         <i class="bi bi-exclamation-triangle-fill"></i>
     </div>
 
     <h2 class="confirmation-title fadeInDown">¿Eliminar Cliente?</h2>
 
-    <div class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-4 shake" style="background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.2); border-radius: 12px;">
+    <!-- Alerta con animación shake -->
+    <div class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-4 shake"
+         style="background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.2); border-radius: 12px; animation: shake 0.5s ease;">
         <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
         <div class="text-danger">
             <strong>¡ATENCIÓN!</strong> Esta acción es <strong>PERMANENTE</strong> y no se puede deshacer.
         </div>
     </div>
 
-    <!-- Información del cliente -->
-    <div class="d-flex align-items-center gap-3 p-3 mb-4 slideInLeft" style="background: var(--bg-hover); border-radius: 12px;">
-        <div class="user-info-avatar-placeholder scaleIn" style="width: 50px; height: 50px; font-size: 1.2rem;">
+    <!-- Información del cliente con animación slide -->
+    <div class="d-flex align-items-center gap-3 p-3 mb-4 slideInLeft"
+         style="background: var(--bg-hover); border-radius: 12px; border: 1px solid var(--border-color);">
+        <div class="user-info-avatar-placeholder scaleIn" style="width: 60px; height: 60px; font-size: 1.5rem; animation: scaleIn 0.3s ease;">
             {{ object.nombre|first|upper }}{{ object.apellido|first|upper }}
         </div>
         <div class="text-start">
-            <h5 class="mb-1 fadeIn" style="color: var(--text-primary);">{{ object.nombre }} {{ object.apellido }}</h5>
-            <p class="mb-0 small fadeIn" style="color: var(--text-secondary); animation-delay: 0.2s;">{{ object.tipo_documento }} • {{ object.documento }}</p>
-            <p class="mb-0 small fadeIn" style="color: var(--text-secondary); animation-delay: 0.3s;">{{ object.correo_electronico|default:'Sin correo' }}</p>
+            <h5 class="mb-1 fadeIn" style="color: var(--text-primary); animation: fadeIn 0.5s ease;">{{ object.nombre }} {{ object.apellido }}</h5>
+            <p class="mb-0 small fadeIn" style="color: var(--text-secondary); animation: fadeIn 0.6s ease;">{{ object.tipo_documento }} • {{ object.documento }}</p>
+            <p class="mb-0 small fadeIn" style="color: var(--text-secondary); animation: fadeIn 0.7s ease;">{{ object.correo_electronico|default:'Sin correo' }}</p>
         </div>
     </div>
 
-    <!-- Advertencias -->
-    <div class="row g-2 mb-4">
-        <div class="col-4">
-            <div class="p-2 text-center fadeIn" style="animation-delay: 0.4s; background: rgba(220,53,69,0.05); border-radius: 8px;">
-                <i class="bi bi-x-circle-fill text-danger mb-1"></i>
-                <p class="mb-0 small">Eliminación<br>permanente</p>
+    <!-- Tarjetas de advertencia con animaciones escalonadas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="p-3 text-center fadeInUp" style="animation: fadeInUp 0.5s ease 0.2s both; background: rgba(220,53,69,0.05); border-radius: 10px; border: 1px solid rgba(220,53,69,0.1); transition: all 0.3s ease;">
+                <i class="bi bi-x-circle-fill text-danger mb-2" style="font-size: 2rem;"></i>
+                <p class="mb-0 fw-bold">Eliminación</p>
+                <p class="mb-0 small text-danger">permanente</p>
             </div>
         </div>
-        <div class="col-4">
-            <div class="p-2 text-center fadeIn" style="animation-delay: 0.5s; background: rgba(255,193,7,0.05); border-radius: 8px;">
-                <i class="bi bi-database text-warning mb-1"></i>
-                <p class="mb-0 small">Datos<br>borrados</p>
+        <div class="col-md-4">
+            <div class="p-3 text-center fadeInUp" style="animation: fadeInUp 0.5s ease 0.3s both; background: rgba(255,193,7,0.05); border-radius: 10px; border: 1px solid rgba(255,193,7,0.1); transition: all 0.3s ease;">
+                <i class="bi bi-database text-warning mb-2" style="font-size: 2rem;"></i>
+                <p class="mb-0 fw-bold">Datos</p>
+                <p class="mb-0 small text-warning">borrados</p>
             </div>
         </div>
-        <div class="col-4">
-            <div class="p-2 text-center fadeIn" style="animation-delay: 0.6s; background: rgba(108,117,125,0.05); border-radius: 8px;">
-                <i class="bi bi-arrow-counterclockwise text-secondary mb-1"></i>
-                <p class="mb-0 small">No se puede<br>deshacer</p>
+        <div class="col-md-4">
+            <div class="p-3 text-center fadeInUp" style="animation: fadeInUp 0.5s ease 0.4s both; background: rgba(108,117,125,0.05); border-radius: 10px; border: 1px solid rgba(108,117,125,0.1); transition: all 0.3s ease;">
+                <i class="bi bi-arrow-counterclockwise text-secondary mb-2" style="font-size: 2rem;"></i>
+                <p class="mb-0 fw-bold">No se puede</p>
+                <p class="mb-0 small text-secondary">deshacer</p>
             </div>
         </div>
     </div>
 
-    <!-- Botones -->
+    <!-- Botones con animación -->
     <form method="post">
         {% csrf_token %}
-        <div class="d-flex justify-content-center gap-3 fadeIn" style="animation-delay: 0.7s;">
-            <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 10px;">
+        <div class="d-flex justify-content-center gap-3 fadeIn" style="animation: fadeIn 0.5s ease 0.5s both;">
+            <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-outline-secondary px-4 py-2"
+               style="border-radius: 10px; transition: all 0.3s ease;">
                 Cancelar
             </a>
-            <button type="submit" class="btn px-4 py-2" style="background: #dc3545; color: white; border-radius: 10px; border: none;">
-                <i class="bi bi-trash"></i> Eliminar
+            <button type="submit" class="btn px-4 py-2"
+                    style="background: #dc3545; color: white; border-radius: 10px; border: none; transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(220,53,69,0.4)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                <i class="bi bi-trash"></i> Eliminar Permanentemente
             </button>
         </div>
     </form>
 </div>
+
+<!-- CSS ADICIONAL PARA ANIMACIONES -->
+<style>
+    /* Animaciones personalizadas */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Clases de animación */
+    .fadeIn { animation: fadeIn 0.5s ease; }
+    .fadeInUp { animation: fadeInUp 0.5s ease; }
+    .slideInLeft { animation: slideInLeft 0.5s ease; }
+    .scaleIn { animation: scaleIn 0.3s ease; }
+    .shake { animation: shake 0.5s ease; }
+    .float { animation: float 3s ease infinite; }
+
+    /* Hover effects para tarjetas */
+    .col-md-4 > div:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+</style>
 {% endblock %}

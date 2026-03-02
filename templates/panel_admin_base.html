@@ -174,7 +174,7 @@
                 <li class="nav-header"><span>CONFIGURACIÓN</span></li>
 
                 <li class="nav-item">
-                    <a href="{% url 'core:index' %}" class="nav-link">
+                    <a href="{% url 'core:landing' %}" class="nav-link">
                         <i class="bi bi-house-door"></i><span>Ir al Sitio</span>
                     </a>
                 </li>
@@ -197,7 +197,7 @@
     <div class="main-content" id="main-content">
 
         <!-- Notificación modal + logout modal + datos Django messages -->
-        {% include "core/admin_notification.html" %}
+        {% include "admin/admin_notification.html" %}
 
         <!-- Toasts Bootstrap — ocultos en admin (CSS los esconde), solo fallback JS -->
         <div class="toast-container position-fixed top-0 end-0 p-3"

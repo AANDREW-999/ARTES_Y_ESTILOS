@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from catalogo.models import Producto
 from usuarios.decorators import panel_login_required
-
-from django.shortcuts import render
+from django.core.mail import send_mail
+from django.contrib import messages
+from .forms import ContactoForm
 
 # Create your views here.
 
@@ -16,9 +17,29 @@ def index(request):
     else:
         productos = Producto.objects.all()
 
+    if request.method == "POST":
+        form = ContactoForm(request.POST)
+        if form.is_valid():
+            nombre = form.cleaned_data['nombre']
+            email = form.cleaned_data['email']
+            mensaje = form.cleaned_data['mensaje']
+
+            send_mail(
+                subject=f"Nuevo mensaje de {nombre}",
+                message=f"Nombre: {nombre}\nEmail: {email}\n\nMensaje:\n{mensaje}",
+                from_email=None,
+                recipient_list=['arteyestilos.test@gmail.com'],
+            )
+
+            messages.success(request, "Tu mensaje fue enviado correctamente 💌")
+            return redirect('core:landing')
+    else:
+        form = ContactoForm()
+
     context = {
         'productos': productos,
         'busqueda': busqueda,
+        'form': form
     }
 
     return render(request, 'core/index.html', context)
@@ -60,8 +81,6 @@ def dashboard_view(request):
 
 # Nuevas vistas de páginas públicas
 
-
-from django.shortcuts import render
 
 def error_404(request, exception):
     if request.path.startswith("/admin"):

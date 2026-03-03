@@ -204,25 +204,44 @@
         <p class="text-muted mb-3">Estamos aquí para ayudarte a expresar emociones con flores frescas y diseños únicos.</p>
         <div class="card card-floral border-0">
           <div class="card-body">
-            <form>
+            <form method="POST">
+              {% csrf_token %}
+
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+              {% endif %}
+
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="c_nombre">Nombre</label>
-                <input type="text" class="form-control" id="c_nombre" placeholder="Tu nombre" required>
+                <label class="form-label fw-semibold" for="{{ form.nombre.id_for_label }}">Nombre</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                  <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                {% endif %}
               </div>
+
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="c_email">Email</label>
-                <input type="email" class="form-control" id="c_email" placeholder="tucorreo@ejemplo.com" required>
+                <label class="form-label fw-semibold" for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                {% endif %}
               </div>
+
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="c_mensaje">Mensaje</label>
-                <textarea class="form-control" id="c_mensaje" rows="4" placeholder="Cuéntanos qué necesitas" required></textarea>
+                <label class="form-label fw-semibold" for="{{ form.mensaje.id_for_label }}">Mensaje</label>
+                {{ form.mensaje }}
+                {% if form.mensaje.errors %}
+                  <div class="text-danger small mt-1">{{ form.mensaje.errors }}</div>
+                {% endif %}
               </div>
+
               <hr>
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-rosa">Enviar</button>
-              </div>
-              <div class="mt-4">
-                <h6 class="fw-bold">También en redes</h6>
+
+              <button type="submit" class="btn btn-rosa w-100">
+                Enviar mensaje 💌
+              </button>
+                <div class="mt-4">
+                  <h6 class="fw-bold">También en redes</h6>
                 <p class="mb-3">Instagram, Facebook y WhatsApp, ¡te esperamos!</p>
               </div>
             </form>

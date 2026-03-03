@@ -40,6 +40,10 @@
             this.adminOverlay  = document.getElementById('adminNotificationOverlay');
             this.adminCard     = document.getElementById('adminNotificationCard');
             this.logoutModal   = document.getElementById('logoutModal');
+            this.adminCloseBtn = document.getElementById('adminNotificationClose');
+            this.adminActions  = document.getElementById('adminNotificationActions');
+            this.adminCancel   = document.getElementById('adminNotificationCancel');
+            this.adminConfirm  = document.getElementById('adminNotificationConfirm');
         }
 
         // ─────────────────────────────────────────
@@ -166,13 +170,17 @@
                 progress.style.background = cfg.progressColor;
                 void progress.offsetWidth; // reflow
                 progress.style.animation = '';
+                progress.style.display = '';
             }
+
+            if (this.adminActions) this.adminActions.style.display = 'none';
+            if (closeBtn) closeBtn.style.display = '';
 
             // Mostrar
             this.adminOverlay.style.display = 'flex';
 
-            // Auto-close 5s
-            this._autoCloseTimer = setTimeout(() => this._clearNotification(true), 5000);
+            // Auto-close 10s
+            this._autoCloseTimer = setTimeout(() => this._clearNotification(true), 10000);
 
             // Botón cerrar
             if (closeBtn) closeBtn.onclick = () => this._clearNotification(true);
@@ -186,6 +194,73 @@
             // ESC
             this._escHandler = (e) => {
                 if (e.key === 'Escape') this._clearNotification(true);
+            };
+            document.addEventListener('keydown', this._escHandler);
+        }
+
+        showAdminConfirm(type, message, onConfirm, onCancel) {
+            if (!this.adminOverlay || !this.adminCard) return;
+
+            this._clearNotification(false);
+
+            const icon     = document.getElementById('adminNotificationIcon');
+            const circle   = document.getElementById('adminNotificationCircle');
+            const title    = document.getElementById('adminNotificationTitle');
+            const text     = document.getElementById('adminNotificationText');
+            const progress = document.getElementById('adminNotificationProgress');
+
+            const config = {
+                success: { icon: 'bi-check-circle-fill', title: 'Confirmacion', type: 'success', progressColor: '#22c55e' },
+                error:   { icon: 'bi-x-circle-fill', title: 'Confirmacion', type: 'error', progressColor: '#ef4444' },
+                warning: { icon: 'bi-exclamation-triangle-fill', title: 'Advertencia', type: 'warning', progressColor: '#f59e0b' },
+                info:    { icon: 'bi-info-circle-fill', title: 'Confirmacion', type: 'info', progressColor: '#3b82f6' },
+            };
+
+            const cfg = config[type] || config.warning;
+
+            this.adminCard.className = 'admin-notification-card';
+            this.adminCard.classList.add(cfg.type);
+            if (circle) {
+                circle.className = 'admin-notification-icon-circle';
+                circle.classList.add(`circle-${cfg.type}`);
+            }
+            if (icon)  icon.className  = `bi ${cfg.icon}`;
+            if (title) title.textContent = cfg.title;
+            if (text)  text.textContent  = message;
+
+            if (progress) progress.style.display = 'none';
+            if (this.adminActions) this.adminActions.style.display = 'flex';
+            if (this.adminCloseBtn) this.adminCloseBtn.style.display = 'none';
+
+            this.adminOverlay.style.display = 'flex';
+
+            if (this.adminConfirm) {
+                this.adminConfirm.onclick = () => {
+                    this._clearNotification(true);
+                    if (typeof onConfirm === 'function') onConfirm();
+                };
+            }
+
+            if (this.adminCancel) {
+                this.adminCancel.onclick = () => {
+                    this._clearNotification(true);
+                    if (typeof onCancel === 'function') onCancel();
+                };
+            }
+
+            this._outsideHandler = (e) => {
+                if (e.target === this.adminOverlay) {
+                    this._clearNotification(true);
+                    if (typeof onCancel === 'function') onCancel();
+                }
+            };
+            this.adminOverlay.addEventListener('click', this._outsideHandler);
+
+            this._escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    this._clearNotification(true);
+                    if (typeof onCancel === 'function') onCancel();
+                }
             };
             document.addEventListener('keydown', this._escHandler);
         }
@@ -206,6 +281,8 @@
             if (hide && this.adminOverlay) {
                 this.adminOverlay.style.display = 'none';
             }
+            if (this.adminActions) this.adminActions.style.display = 'none';
+            if (this.adminCloseBtn) this.adminCloseBtn.style.display = '';
         }
 
         // ─────────────────────────────────────────

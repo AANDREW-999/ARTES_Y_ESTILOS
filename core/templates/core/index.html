@@ -149,14 +149,14 @@
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h1 class="fw-bold title-floral">Catálogo</h1>
-                <p class="text-muted">Elige el arreglo perfecto para tu ocasión especial.</p>
+                <h1 class="fw-bold title-floral">Nuestro <span class="acento">Catálogo Floral 🌸</span></h1>
+                <p class="text-muted">Descubre arreglos diseñados para enamorar, sorprender y emocionar 💖</p>
             </div>
         </div>
 
         <div class="row g-4">
             <div class="col-12">
-                <h2 class="fw-bold mb-4" style="color: #5d4037;">Nuestros trabajos</h2>
+                <h2 class="fw-bold title-floral mb-4" style="color: #5d4037;">Cada arreglo cuenta una historia… ¿Cuál quieres regalar hoy? 🌹✨</h2>
             </div>
 
             {% for p in productos %}
@@ -181,7 +181,7 @@
                             <span class="fw-bold fs-4" style="color: #5d4037;">${{ p.precio }}</span>
                             
                             <a href="{% url 'catalogo:detalle_producto' p.id %}" class="btn btn-rosa shadow-sm">
-                                ver detalle
+                                Ver detalles 🔍
                             </a>
                         </div>
                     </div>

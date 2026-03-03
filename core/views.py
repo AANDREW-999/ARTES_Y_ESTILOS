@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from catalogo.models import Producto
 from usuarios.decorators import panel_login_required
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.contrib import messages
 from .forms import ContactoForm
+from django.template.loader import render_to_string
 
 # Create your views here.
 
@@ -24,12 +26,26 @@ def index(request):
             email = form.cleaned_data['email']
             mensaje = form.cleaned_data['mensaje']
 
-            send_mail(
-                subject=f"Nuevo mensaje de {nombre}",
-                message=f"Nombre: {nombre}\nEmail: {email}\n\nMensaje:\n{mensaje}",
-                from_email=None,
-                recipient_list=['arteyestilos.test@gmail.com'],
+            subject = f"Nuevo mensaje de {nombre}"
+            from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", None)
+            recipient_list = ["arteyestilos.test@gmail.com"]
+            context = {
+                "nombre": nombre,
+                "email": email,
+                "mensaje": mensaje,
+            }
+            body_text = render_to_string("core/email_contacto.txt", context)
+            body_html = render_to_string("core/email_contacto.html", context)
+
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=body_text,
+                from_email=from_email,
+                to=recipient_list,
+                reply_to=[email],
             )
+            email_message.attach_alternative(body_html, "text/html")
+            email_message.send(fail_silently=False)
 
             messages.success(request, "Tu mensaje fue enviado correctamente 💌")
             return redirect('core:landing')

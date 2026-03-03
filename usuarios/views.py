@@ -489,16 +489,16 @@ def desactivar_usuario_view(request, user_id):
 
         if usuario.email:
             subject = 'Cuenta desactivada - Panel Administrativo Artes y Estilos'
-            body = (
-                f'Hola {usuario.get_full_name() or usuario.username},\n\n'
-                'Tu cuenta ha sido desactivada en el panel administrativo de Artes y Estilos.\n'
-                'No podras iniciar sesion hasta que un superadministrador reactive tu cuenta.\n\n'
-                'Si consideras que esto es un error, contacta al equipo de administracion.\n\n'
-                'Artes y Estilos'
-            )
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
             try:
-                email = EmailMultiAlternatives(subject=subject, body=body, from_email=from_email, to=[usuario.email])
+                context = {
+                    'nombre': usuario.get_full_name() or usuario.username,
+                    'email': usuario.email,
+                }
+                body_text = render_to_string('usuarios/email_cuenta_desactivada.txt', context)
+                body_html = render_to_string('usuarios/email_cuenta_desactivada.html', context)
+                email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario.email])
+                email.attach_alternative(body_html, 'text/html')
                 email.send(fail_silently=True)
             except Exception:
                 pass

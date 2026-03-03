@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (valor.length < 6) {
                     return { valido: false, mensaje: 'Debe tener al menos 6 dígitos' };
                 }
-                if (valor.length > 15) {
-                    return { valido: false, mensaje: 'Debe tener máximo 15 dígitos' };
+                if (valor.length > 10) {
+                    return { valido: false, mensaje: 'Debe tener máximo 10 dígitos' };
                 }
                 return { valido: true, mensaje: 'Verificando...' };
             }

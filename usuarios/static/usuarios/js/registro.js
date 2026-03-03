@@ -185,8 +185,8 @@
     getValidators() {
       return {
         id_documento: v => {
-          const ok = /^\d{10}$/.test(v.trim());
-          return { valid: ok, message: ok ? 'Documento válido' : 'Exactamente 10 dígitos numéricos' };
+          const ok = /^\d{6,10}$/.test(v.trim());
+          return { valid: ok, message: ok ? 'Documento válido' : 'Debe tener entre 6 y 10 dígitos numéricos' };
         },
         id_email: v => {
           const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());

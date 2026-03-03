@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 from django.utils import timezone
 
 class Cliente(models.Model):
@@ -14,7 +15,13 @@ class Cliente(models.Model):
     ]
 
     id = models.BigAutoField(primary_key=True)
-    documento = models.CharField('Documento', max_length=20, unique=True)
+    documento = models.CharField(
+        'Documento',
+        max_length=10,
+        unique=True,
+        validators=[RegexValidator(r"^\d{6,10}$", message="El documento debe tener entre 6 y 10 dígitos.")],
+        help_text="Documento (6-10 dígitos)"
+    )
     tipo_documento = models.CharField(
         'Tipo de documento',
         max_length=10,

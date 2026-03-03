@@ -22,7 +22,7 @@ class LoginForm(AuthenticationForm):
         if not username_or_doc or not password:
             raise ValidationError("Usuario/documento y contraseña son obligatorios.")
 
-        if username_or_doc.isdigit() and len(username_or_doc) == 10:
+        if username_or_doc.isdigit() and 6 <= len(username_or_doc) <= 10:
             try:
                 user_obj = User.objects.get(documento=username_or_doc)
                 user = authenticate(self.request, username=user_obj.username, password=password)
@@ -68,6 +68,33 @@ class RegistroForm(UserCreationForm):
             "password2",
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            widget = field.widget
+            classes = widget.attrs.get('class', '')
+
+            if name == 'foto_perfil':
+                widget.attrs['class'] = f"{classes} form-control".strip()
+                continue
+
+            widget.attrs['class'] = f"{classes} form-control".strip()
+
+            if name in {
+                'username', 'documento', 'first_name', 'last_name',
+                'email', 'password1', 'password2', 'fecha_nacimiento',
+                'telefono', 'direccion'
+            }:
+                widget.attrs.setdefault('placeholder', ' ')
+
+        self.fields['documento'].widget.attrs.update({
+            'maxlength': '10',
+            'inputmode': 'numeric',
+            'pattern': '[0-9]{6,10}',
+            'data-verificar-url': '',
+        })
+
     def clean_username(self):
         username = self.cleaned_data.get("username")
         if User.objects.filter(username=username).exists():
@@ -82,8 +109,8 @@ class RegistroForm(UserCreationForm):
 
     def clean_documento(self):
         documento = self.cleaned_data.get("documento", "")
-        if not documento or not documento.isdigit() or len(documento) != 10:
-            raise ValidationError("El documento debe tener exactamente 10 dígitos.")
+        if not documento or not documento.isdigit() or not (6 <= len(documento) <= 10):
+            raise ValidationError("El documento debe tener entre 6 y 10 dígitos.")
         if User.objects.filter(documento=documento).exists():
             raise ValidationError("Este documento ya está registrado.")
         return documento
@@ -218,8 +245,8 @@ class EditarPerfilForm(forms.ModelForm):
 
     def clean_documento(self):
         documento = self.cleaned_data.get("documento", "")
-        if not documento or not documento.isdigit() or len(documento) != 10:
-            raise ValidationError("El documento debe tener exactamente 10 dígitos.")
+        if not documento or not documento.isdigit() or not (6 <= len(documento) <= 10):
+            raise ValidationError("El documento debe tener entre 6 y 10 dígitos.")
         qs = User.objects.filter(documento=documento)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)

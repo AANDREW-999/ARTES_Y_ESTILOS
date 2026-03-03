@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 from django.template.loader import render_to_string
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
@@ -265,7 +266,7 @@ class RestablecerPasswordCompletoView(PasswordResetCompleteView):
 # 👥 GESTIÓN DE USUARIOS
 # =====================================================
 
-@login_required
+@panel_login_required
 def lista_usuarios_view(request):
     """
     Lista todos los usuarios del sistema.
@@ -323,7 +324,7 @@ def crear_usuario_view(request):
 
                 messages.success(
                     request,
-                    f'✅ Usuario <strong>{usuario.username}</strong> creado correctamente.',
+                    f'✅ Usuario {usuario.username} creado correctamente.',
                     extra_tags='level-success field-general'
                 )
                 return redirect('usuarios:lista_usuarios')
@@ -377,7 +378,7 @@ def crear_usuario_view(request):
     return render(request, 'usuarios/crear_usuario.html', context)
 
 
-@login_required
+@panel_login_required
 def editar_usuario_view(request, user_id):
     """
     Edita un usuario existente.
@@ -397,22 +398,23 @@ def editar_usuario_view(request, user_id):
         documento_original = usuario.documento
         documento_nuevo    = request.POST.get('documento', '')
 
-        if documento_original != documento_nuevo:
-            confirmar = request.POST.get('confirmar_cambio_documento', '')
-            if confirmar != 'CONFIRMAR':
-                messages.error(
-                    request,
-                    '⚠️ Para cambiar el documento debes marcar la casilla de confirmación y escribir "CONFIRMAR" en el campo.',
-                    extra_tags='level-error field-documento'
-                )
-                form = EditarPerfilForm(request.POST, request.FILES, instance=usuario, editing_user=request.user)
-                return render(request, 'usuarios/editar_usuario.html', {
-                    'form': form, 'usuario': usuario,
-                    'es_auto_edicion': True,
-                    'titulo': 'Editar Mi Perfil',
-                    'boton_texto': 'Guardar Cambios',
-                    'documento_original': documento_original,
-                })
+        # Nota: Validacion de confirmacion de cambio de documento desactivada a pedido.
+        # if documento_original != documento_nuevo:
+        #     confirmar = request.POST.get('confirmar_cambio_documento', '')
+        #     if confirmar != 'CONFIRMAR':
+        #         messages.error(
+        #             request,
+        #             '⚠️ Para cambiar el documento debes marcar la casilla de confirmación y escribir "CONFIRMAR" en el campo.',
+        #             extra_tags='level-error field-documento'
+        #         )
+        #         form = EditarPerfilForm(request.POST, request.FILES, instance=usuario, editing_user=request.user)
+        #         return render(request, 'usuarios/editar_usuario.html', {
+        #             'form': form, 'usuario': usuario,
+        #             'es_auto_edicion': True,
+        #             'titulo': 'Editar Mi Perfil',
+        #             'boton_texto': 'Guardar Cambios',
+        #             'documento_original': documento_original,
+        #         })
 
         form = EditarPerfilForm(
             request.POST,
@@ -475,18 +477,41 @@ def desactivar_usuario_view(request, user_id):
             extra_tags='level-error field-general')
         return redirect('usuarios:lista_usuarios')
 
+    if not usuario.is_staff:
+        messages.error(request,
+            '⛔ Solo puedes desactivar administradores desde esta sección.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
     if request.method == 'POST':
         usuario.is_active = False
         usuario.save()
+
+        if usuario.email:
+            subject = 'Cuenta desactivada - Panel Administrativo Artes y Estilos'
+            body = (
+                f'Hola {usuario.get_full_name() or usuario.username},\n\n'
+                'Tu cuenta ha sido desactivada en el panel administrativo de Artes y Estilos.\n'
+                'No podras iniciar sesion hasta que un superadministrador reactive tu cuenta.\n\n'
+                'Si consideras que esto es un error, contacta al equipo de administracion.\n\n'
+                'Artes y Estilos'
+            )
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+            try:
+                email = EmailMultiAlternatives(subject=subject, body=body, from_email=from_email, to=[usuario.email])
+                email.send(fail_silently=True)
+            except Exception:
+                pass
+
         messages.success(request,
-            f'✅ Usuario <strong>{usuario.username}</strong> desactivado correctamente.',
+            f'✅ Usuario {usuario.username} desactivado correctamente.',
             extra_tags='level-success field-general')
         return redirect('usuarios:lista_usuarios')
 
     return render(request, 'usuarios/desactivar_usuario.html', {'usuario': usuario})
 
 
-@login_required
+@panel_login_required
 def visualizar_usuario_view(request, user_id):
     usuario = get_object_or_404(User.objects.select_related('perfil'), id=user_id)
     return render(request, 'usuarios/visualizar_usuario.html', {
@@ -500,18 +525,30 @@ def visualizar_usuario_view(request, user_id):
 def activar_usuario_view(request, user_id):
     usuario = get_object_or_404(User, id=user_id)
 
+    if usuario.is_superuser:
+        messages.error(request,
+            '⛔ No puedes activar a un superadministrador desde esta sección.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if not usuario.is_staff:
+        messages.error(request,
+            '⛔ Solo puedes activar administradores desde esta sección.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
     if request.method == 'POST':
         usuario.is_active = True
         usuario.save()
         messages.success(request,
-            f'✅ Usuario <strong>{usuario.username}</strong> activado correctamente.',
+            f'✅ Usuario {usuario.username} activado correctamente.',
             extra_tags='level-success field-general')
         return redirect('usuarios:lista_usuarios')
 
     return render(request, 'usuarios/activar_usuario.html', {'usuario': usuario})
 
 
-@login_required
+@panel_login_required
 def eliminar_usuario_view(request, user_id):
     """
     Elimina PERMANENTEMENTE una cuenta.
@@ -531,7 +568,7 @@ def eliminar_usuario_view(request, user_id):
             auth_logout(request)
             usuario.delete()
             messages.warning(request,
-                f'⚠️ Tu cuenta <strong>{username}</strong> ha sido eliminada permanentemente.',
+                f'⚠️ Tu cuenta {username} ha sido eliminada permanentemente.',
                 extra_tags='level-warning field-general')
             return redirect('core:index')
         else:

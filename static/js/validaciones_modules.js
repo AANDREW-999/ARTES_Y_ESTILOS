@@ -1,5 +1,5 @@
 /**
- * VALIDACIONES EN TIEMPO REAL PARA CLIENTES
+ * VALIDACIONES EN TIEMPO REAL
  * Con bloqueo de caracteres inválidos y caracteres especiales
  */
 
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========================================
     const validaciones = {
         documento: {
-            selector: '#id_documento',
+            selector: ['#id_documento'],
             soloNumeros: true,
             permitirCaracteresEspeciales: false,
             validarLocal: function(valor) {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         nombre: {
-            selector: '#id_nombre',
+            selector: ['#id_nombre', '#id_first_name'],
             soloLetras: true,
             permitirCaracteresEspeciales: false,
             validar: function(valor) {
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         apellido: {
-            selector: '#id_apellido',
+            selector: ['#id_apellido', '#id_last_name'],
             soloLetras: true,
             permitirCaracteresEspeciales: false,
             validar: function(valor) {
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         telefono: {
-            selector: '#id_telefono',
+            selector: ['#id_telefono'],
             soloNumeros: true,
             permitirEspacios: true,
             permitirCaracteresEspeciales: false,
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         correo_electronico: {
-            selector: '#id_correo_electronico',
+            selector: ['#id_correo_electronico', '#id_email'],
             permitirCaracteresEspeciales: true,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
@@ -100,11 +100,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { valido: true, mensaje: 'Correo válido' };
             }
         },
+        nombre_usuario: {
+            selector: ['#id_username'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El nombre de usuario es obligatorio' };
+                }
+                const trimmed = valor.trim();
+                if (trimmed.length < 4) {
+                    return { valido: false, mensaje: 'Debe tener al menos 4 caracteres' };
+                }
+                if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Solo letras, números, guiones (-) y guiones bajos (_)' };
+                }
+                return { valido: true, mensaje: 'Nombre de usuario válido' };
+            }
+        },
+        fecha_nacimiento: {
+            selector: ['#id_fecha_nacimiento'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: true, mensaje: 'Opcional' };
+                }
+                const fecha = new Date(valor);
+                if (Number.isNaN(fecha.getTime())) {
+                    return { valido: false, mensaje: 'Fecha inválida' };
+                }
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                if (fecha > hoy) {
+                    return { valido: false, mensaje: 'La fecha no puede ser futura' };
+                }
+                const limite = new Date('1900-01-01');
+                if (fecha < limite) {
+                    return { valido: false, mensaje: 'La fecha es demasiado antigua' };
+                }
+                return { valido: true, mensaje: 'Fecha válida' };
+            }
+        },
         // ========================================
         // NUEVAS VALIDACIONES
         // ========================================
         departamento: {
-            selector: '#id_departamento',
+            selector: ['#id_departamento'],
             validar: function(valor) {
                 if (!valor || valor === '') {
                     return { valido: false, mensaje: 'Debe seleccionar un departamento' };
@@ -113,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         ciudad: {
-            selector: '#id_ciudad',
+            selector: ['#id_ciudad'],
             soloLetras: true,
             permitirCaracteresEspeciales: false,
             validar: function(valor) {
@@ -140,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         direccion: {
-            selector: '#id_direccion',
+            selector: ['#id_direccion'],
             permitirCaracteresEspeciales: false,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
@@ -158,16 +198,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // BLOQUEO DE TECLADO EN TIEMPO REAL
     // ========================================
 
+    function getSelectors(config) {
+        if (Array.isArray(config.selector)) {
+            return config.selector;
+        }
+        return [config.selector];
+    }
+
+    function getFieldWrapper(input) {
+        return input.closest('.field-wrapper') || input.closest('.form-floating') || input.closest('.mb-3') || input.parentElement;
+    }
+
     function bloquearCaracteresInvalidos(event) {
         const input = event.target;
 
         // Encontrar configuración del campo
         let config = null;
         for (let key in validaciones) {
-            if (input.id === validaciones[key].selector.replace('#', '')) {
-                config = validaciones[key];
-                break;
+            const selectors = getSelectors(validaciones[key]);
+            for (let i = 0; i < selectors.length; i++) {
+                if (input.id === selectors[i].replace('#', '')) {
+                    config = validaciones[key];
+                    break;
+                }
             }
+            if (config) break;
         }
 
         if (!config) return;
@@ -220,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========================================
 
     function mostrarNotificacionTemporal(input, mensaje) {
-        const fieldWrapper = input.closest('.field-wrapper');
+        const fieldWrapper = getFieldWrapper(input);
         if (!fieldWrapper) return;
 
         const notificacion = document.createElement('div');
@@ -247,38 +302,62 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========================================
 
     function limpiarFeedback(input) {
-        const fieldWrapper = input.closest('.field-wrapper');
+        const fieldWrapper = getFieldWrapper(input);
         if (!fieldWrapper) return;
 
         const mensajesAnteriores = fieldWrapper.querySelectorAll('.field-error:not(.temporal), .field-success, .field-warning');
         mensajesAnteriores.forEach(el => el.remove());
 
+        const invalidFeedback = fieldWrapper.querySelector('.invalid-feedback');
+        const validFeedback = fieldWrapper.querySelector('.valid-feedback');
+        if (invalidFeedback) {
+            invalidFeedback.textContent = '';
+            invalidFeedback.style.display = 'none';
+        }
+        if (validFeedback) {
+            validFeedback.textContent = '';
+            validFeedback.style.display = 'none';
+        }
+
         input.classList.remove('is-valid', 'is-invalid', 'is-warning');
     }
 
     function mostrarFeedback(input, resultado) {
-        const fieldWrapper = input.closest('.field-wrapper');
+        const fieldWrapper = getFieldWrapper(input);
         if (!fieldWrapper) return;
 
         limpiarFeedback(input);
 
-        const div = document.createElement('div');
+        const invalidFeedback = fieldWrapper.querySelector('.invalid-feedback');
+        const validFeedback = fieldWrapper.querySelector('.valid-feedback');
 
         if (resultado.valido) {
-            div.className = 'field-success';
-            div.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${resultado.mensaje}`;
             input.classList.add('is-valid');
+            if (validFeedback) {
+                validFeedback.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${resultado.mensaje}`;
+                validFeedback.style.display = 'block';
+            } else {
+                const div = document.createElement('div');
+                div.className = 'field-success';
+                div.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${resultado.mensaje}`;
+                fieldWrapper.appendChild(div);
+            }
         } else {
-            div.className = 'field-error';
-            div.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${resultado.mensaje}`;
             input.classList.add('is-invalid');
+            if (invalidFeedback) {
+                invalidFeedback.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${resultado.mensaje}`;
+                invalidFeedback.style.display = 'block';
+            } else {
+                const div = document.createElement('div');
+                div.className = 'field-error';
+                div.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${resultado.mensaje}`;
+                fieldWrapper.appendChild(div);
+            }
         }
-
-        fieldWrapper.appendChild(div);
     }
 
     function mostrarCargando(input, mensaje = 'Verificando documento...') {
-        const fieldWrapper = input.closest('.field-wrapper');
+        const fieldWrapper = getFieldWrapper(input);
         if (!fieldWrapper) return;
 
         limpiarFeedback(input);
@@ -296,10 +375,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========================================
 
     let timeoutId;
-    function validarDocumentoServidor(input, documentoId) {
+    function validarDocumentoServidor(input, documentoId, verifyUrl) {
         const currentId = document.querySelector('[name="cliente_id"]')?.value || '';
+        const url = verifyUrl || '/clientes/verificar-documento/';
 
-        fetch(`/clientes/verificar-documento/?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
+        fetch(`${url}?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.existe) {
@@ -330,67 +410,78 @@ document.addEventListener('DOMContentLoaded', function() {
     // AGREGAR EVENTO DE TECLADO A TODOS LOS CAMPOS
     for (let key in validaciones) {
         const config = validaciones[key];
-        const input = document.querySelector(config.selector);
+        const selectors = getSelectors(config);
 
-        if (input) {
-            input.addEventListener('keydown', bloquearCaracteresInvalidos);
+        selectors.forEach(selector => {
+            const input = document.querySelector(selector);
 
-            if (key === 'documento') {
-                input.addEventListener('input', function() {
-                    const valor = this.value;
-                    const resultadoLocal = validaciones.documento.validarLocal(valor);
+            if (input) {
+                input.addEventListener('keydown', bloquearCaracteresInvalidos);
 
-                    if (!resultadoLocal.valido) {
-                        mostrarFeedback(this, resultadoLocal);
-                    } else {
-                        mostrarCargando(this);
-
-                        if (timeoutId) clearTimeout(timeoutId);
-
-                        timeoutId = setTimeout(() => {
-                            validarDocumentoServidor(this, valor);
-                        }, 500);
-                    }
-                });
-            } else {
-                input.addEventListener('input', function() {
-                    const resultado = config.validar(this.value);
-                    mostrarFeedback(this, resultado);
-                });
-            }
-
-            input.addEventListener('blur', function() {
                 if (key === 'documento') {
-                    if (this.value && this.classList.contains('is-warning')) {
+                    input.addEventListener('input', function() {
                         const valor = this.value;
                         const resultadoLocal = validaciones.documento.validarLocal(valor);
-                        if (resultadoLocal.valido) {
-                            validarDocumentoServidor(this, valor);
-                        }
-                    }
-                } else {
-                    const resultado = config.validar(this.value);
-                    mostrarFeedback(this, resultado);
-                }
-            });
+                        const verifyUrl = this.dataset.verificarUrl;
 
-            if (input.value) {
-                setTimeout(() => {
-                    if (key === 'documento') {
-                        const resultadoLocal = validaciones.documento.validarLocal(input.value);
-                        if (resultadoLocal.valido) {
-                            mostrarCargando(input, 'Verificando documento existente...');
-                            validarDocumentoServidor(input, input.value);
+                        if (!resultadoLocal.valido) {
+                            mostrarFeedback(this, resultadoLocal);
+                        } else if (!verifyUrl) {
+                            mostrarFeedback(this, { valido: true, mensaje: 'Documento válido' });
                         } else {
-                            mostrarFeedback(input, resultadoLocal);
+                            mostrarCargando(this);
+
+                            if (timeoutId) clearTimeout(timeoutId);
+
+                            timeoutId = setTimeout(() => {
+                                validarDocumentoServidor(this, valor, verifyUrl);
+                            }, 500);
+                        }
+                    });
+                } else {
+                    input.addEventListener('input', function() {
+                        const resultado = config.validar(this.value);
+                        mostrarFeedback(this, resultado);
+                    });
+                }
+
+                input.addEventListener('blur', function() {
+                    if (key === 'documento') {
+                        if (this.value && this.classList.contains('is-warning')) {
+                            const valor = this.value;
+                            const resultadoLocal = validaciones.documento.validarLocal(valor);
+                            const verifyUrl = this.dataset.verificarUrl;
+                            if (resultadoLocal.valido && verifyUrl) {
+                                validarDocumentoServidor(this, valor, verifyUrl);
+                            }
                         }
                     } else {
-                        const resultado = config.validar(input.value);
-                        mostrarFeedback(input, resultado);
+                        const resultado = config.validar(this.value);
+                        mostrarFeedback(this, resultado);
                     }
-                }, 100);
+                });
+
+                if (input.value) {
+                    setTimeout(() => {
+                        if (key === 'documento') {
+                            const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                            const verifyUrl = input.dataset.verificarUrl;
+                            if (resultadoLocal.valido && verifyUrl) {
+                                mostrarCargando(input, 'Verificando documento existente...');
+                                validarDocumentoServidor(input, input.value, verifyUrl);
+                            } else if (resultadoLocal.valido) {
+                                mostrarFeedback(input, { valido: true, mensaje: 'Documento válido' });
+                            } else {
+                                mostrarFeedback(input, resultadoLocal);
+                            }
+                        } else {
+                            const resultado = config.validar(input.value);
+                            mostrarFeedback(input, resultado);
+                        }
+                    }, 100);
+                }
             }
-        }
+        });
     }
 
     // ========================================
@@ -404,30 +495,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
             for (let key in validaciones) {
                 const config = validaciones[key];
-                const input = document.querySelector(config.selector);
+                const selectors = getSelectors(config);
 
-                if (input) {
-                    if (key === 'documento') {
-                        const resultadoLocal = validaciones.documento.validarLocal(input.value);
-                        if (!resultadoLocal.valido) {
-                            formularioValido = false;
-                            mostrarFeedback(input, resultadoLocal);
-                        } else if (input.classList.contains('is-warning')) {
-                            e.preventDefault();
-                            mostrarCargando(input, 'Esperando verificación del documento...');
-                            setTimeout(() => {
-                                alert('Por favor espere a que se verifique el documento.');
-                            }, 100);
-                            return;
-                        }
-                    } else {
-                        const resultado = config.validar(input.value);
-                        mostrarFeedback(input, resultado);
-                        if (!resultado.valido) {
-                            formularioValido = false;
+                selectors.forEach(selector => {
+                    const input = document.querySelector(selector);
+
+                    if (input) {
+                        if (key === 'documento') {
+                            const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                            const verifyUrl = input.dataset.verificarUrl;
+                            if (!resultadoLocal.valido) {
+                                formularioValido = false;
+                                mostrarFeedback(input, resultadoLocal);
+                            } else if (input.classList.contains('is-warning') && verifyUrl) {
+                                e.preventDefault();
+                                mostrarCargando(input, 'Esperando verificación del documento...');
+                                setTimeout(() => {
+                                    alert('Por favor espere a que se verifique el documento.');
+                                }, 100);
+                                return;
+                            }
+                        } else {
+                            const resultado = config.validar(input.value);
+                            mostrarFeedback(input, resultado);
+                            if (!resultado.valido) {
+                                formularioValido = false;
+                            }
                         }
                     }
-                }
+                });
             }
 
             if (!formularioValido) {

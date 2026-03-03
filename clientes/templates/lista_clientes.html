@@ -4,39 +4,75 @@
 {% block page_title %}Clientes{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
 {% endblock %}
 
 {% block content %}
-<!-- HEADER CON ANIMACIÓN -->
-<div class="page-header-clientes fadeInUp">
-    <div class="page-header-info">
-        <h1>
-            <i class="bi bi-people-fill"></i> Lista de Clientes
-        </h1>
-        <p>Gestiona los clientes de la floristería.</p>
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Gestión de Clientes
+                </li>
+            </ol>
+        </nav>
     </div>
 
-    <div class="page-header-actions">
-        <!-- BUSCADOR DESTACADO (CON HOVER Y FOCUS) -->
-        <form method="get" class="d-flex" role="search">
-            <input name="q" value="{{ query }}"
-                   class="form-control form-control-sm"
-                   placeholder="Buscar cliente..."
-                   style="width: 250px; background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-primary); border-radius: 8px; transition: all 0.2s ease;">
-            <button type="submit" class="btn btn-sm ms-1"
-                    style="background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-secondary); border-radius: 8px; padding: 0.25rem 0.75rem; transition: all 0.2s ease;">
-                <i class="bi bi-search"></i>
-            </button>
-        </form>
+    <!-- HEADER CON ANIMACIÓN Y TOTAL CLIENTES ANIMADO -->
+    <div class="page-header-clientes fadeInUp">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-people-fill"></i> Lista de Clientes
+            </h1>
+            <p>Gestiona los clientes de la floristería.</p>
+        </div>
 
-        <a href="{% url 'clientes:crear_cliente' %}" class="btn-cliente-nuevo">
-            <i class="bi bi-plus-lg"></i> Nuevo cliente
-        </a>
+        <div class="page-header-actions">
+            <!-- TOTAL CLIENTES CON ANIMACIONES -->
+            <div class="d-flex align-items-center me-2 px-3 py-1 rounded-3 total-clientes-animado"
+                style="background: linear-gradient(135deg, rgba(191, 84, 134, 0.1), rgba(217, 167, 194, 0.1)); border: 1px solid rgba(191, 84, 134, 0.2); height: 38px; position: relative; overflow: hidden;">
+
+                <!-- Fondo animado con pulso -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 30% 50%, rgba(191, 84, 134, 0.2), transparent 70%); animation: pulseBackground 2s ease-in-out infinite; pointer-events: none;"></div>
+
+                <!-- Icono con rebote -->
+                <i class="bi bi-people-fill me-2" style="color: #BF5486; font-size: 1rem; animation: bounce 2s ease infinite; position: relative; z-index: 2;"></i>
+
+                <!-- Texto "Total:" -->
+                <span class="fw-semibold me-1 small" style="color: var(--text-secondary); position: relative; z-index: 2;">Total:</span>
+
+                <!-- Badge del número con pulso -->
+                <span class="badge rounded-pill" style="background: linear-gradient(135deg, #BF5486, #D9A7C2); color: white; padding: 0.25rem 0.6rem; font-size: 0.8rem; animation: pulse 2s ease infinite; box-shadow: 0 0 10px rgba(191, 84, 134, 0.3); position: relative; z-index: 2;">{{ clientes|length }}</span>
+            </div>
+
+            <!-- BUSCADOR DESTACADO -->
+            <form method="get" class="d-flex" role="search">
+                <input name="q" value="{{ query }}"
+                    class="form-control form-control-sm"
+                    placeholder="Buscar cliente..."
+                    style="width: 250px; background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-primary); border-radius: 8px; transition: all 0.2s ease;">
+                <button type="submit" class="btn btn-sm ms-1"
+                        style="background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-secondary); border-radius: 8px; padding: 0.25rem 0.75rem; transition: all 0.2s ease;">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <a href="{% url 'clientes:crear_cliente' %}" class="btn-cliente-nuevo">
+                <i class="bi bi-plus-lg"></i> Nuevo cliente
+            </a>
+        </div>
     </div>
 </div>
 
-<!-- ESTILOS PARA EL BUSCADOR -->
+<!-- ESTILOS PARA EL BUSCADOR Y ANIMACIONES -->
 <style>
     /* Hover para el input */
     .page-header-actions input.form-control:hover {
@@ -76,20 +112,39 @@
         color: white !important;
         border-color: #BF5486 !important;
     }
-</style>
 
-<!-- ESTADÍSTICAS CON ANIMACIÓN -->
-<div class="stats-grid">
-    <div class="stat-card fadeInUp" style="animation-delay: 0.1s;">
-        <div class="stat-icon stat-icon-primary">
-            <i class="bi bi-people"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ clientes|length }}</div>
-            <div class="stat-label">Total clientes</div>
-        </div>
-    </div>
-</div>
+    /* ANIMACIONES PARA EL TOTAL CLIENTES */
+    @keyframes pulseBackground {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(191, 84, 134, 0.3); }
+        50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(191, 84, 134, 0.6); }
+    }
+
+    .total-clientes-animado {
+        transition: all 0.3s ease;
+        cursor: default;
+    }
+
+    .total-clientes-animado:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(191, 84, 134, 0.3);
+    }
+
+    .total-clientes-animado:hover .badge {
+        animation: none;
+        transform: scale(1.15);
+        transition: transform 0.2s ease;
+    }
+</style>
 
 <!-- TABLA CON ANIMACIÓN -->
 <div class="clientes-table-container fadeInUp" style="animation-delay: 0.2s;">
@@ -97,7 +152,7 @@
         <table class="clientes-table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    {% comment %} <th>ID</th> {% endcomment %}
                     <th>DOCUMENTO</th>
                     <th>CLIENTE</th>
                     <th>TELÉFONO</th>
@@ -111,7 +166,7 @@
             <tbody>
                 {% for cliente in clientes %}
                 <tr class="slideIn">
-                    <td class="fw-semibold">{{ cliente.id }}</td>
+                    {% comment %} <td class="fw-semibold">{{ cliente.id }}</td> {% endcomment %}
 
                     <td>
                         <span class="badge-cliente">
@@ -208,6 +263,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'clientes/js/clientes.js' %}"></script>
-<script src="{% static 'clientes/js/validaciones.js' %}"></script>
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
 {% endblock %}

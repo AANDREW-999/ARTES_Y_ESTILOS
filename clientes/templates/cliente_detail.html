@@ -1,137 +1,175 @@
-{% extends 'core/../../templates/panel_admin_base.html' %}
+{% extends 'panel_admin_base.html' %}
 {% load static %}
 
 {% block page_title %}Detalle Cliente{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
+<link rel="stylesheet" href="{% static 'css/detalle_modules.css' %}">
 {% endblock %}
 
 {% block content %}
+
+<!-- Breadcrumb -->
+<div class="page-breadcrumb">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'core:dashboard' %}">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'clientes:lista_clientes' %}">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Gestión de Clientes</span>
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Detalle Cliente
+            </li>
+        </ol>
+    </nav>
+</div>
+
+
 <!-- ======================================== -->
 <!-- HEADER DE PERFIL (IGUAL QUE USUARIO)     -->
 <!-- ======================================== -->
-<div class="profile-header-card">
-    <div class="profile-header-content">
-        <div class="profile-avatar-wrapper">
-            <div class="profile-avatar-placeholder">
-                {{ cliente.nombre|first|upper }}{{ cliente.apellido|first|upper }}
+ <div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="profile-header-card">
+                <div class="profile-header-content">
+                    <div class="profile-avatar-wrapper">
+                        <div class="profile-avatar-placeholder">
+                            {{ cliente.nombre|first|upper }}{{ cliente.apellido|first|upper }}
+                        </div>
+                        <span class="profile-status-indicator"></span>
+                    </div>
+
+                    <div class="profile-header-info">
+                        <h1 class="profile-name">{{ cliente.nombre }} {{ cliente.apellido }}</h1>
+                        <div class="profile-badges">
+                            <span class="profile-badge badge-user">
+                                <i class="bi bi-person-badge"></i> Cliente
+                            </span>
+                            <span class="profile-badge badge-active">
+                                <i class="bi bi-check-circle-fill"></i> Activo
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="profile-header-actions">
+                        <a href="{% url 'clientes:editar_cliente' cliente.pk %}" class="profile-action-btn btn-edit">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </a>
+                        <a href="{% url 'clientes:lista_clientes' %}" class="btn-secondary-custom ms-2">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
             </div>
-            <span class="profile-status-indicator"></span>
-        </div>
 
-        <div class="profile-header-info">
-            <h1 class="profile-name">{{ cliente.nombre }} {{ cliente.apellido }}</h1>
-            <div class="profile-badges">
-                <span class="profile-badge badge-user">
-                    <i class="bi bi-person-badge"></i> Cliente
-                </span>
-                <span class="profile-badge badge-active">
-                    <i class="bi bi-check-circle-fill"></i> Activo
-                </span>
+            <!-- ======================================== -->
+            <!-- TARJETAS DE INFORMACIÓN                   -->
+            <!-- ======================================== -->
+
+            <!-- Información de Contacto -->
+            <div class="profile-tabs-card">
+                <div class="tab-content profile-tab-content" id="profileTabsContent">
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <div class="profile-info-card">
+                            <h3 class="profile-info-title">
+                                <i class="bi bi-envelope-fill"></i> Información de Contacto
+                            </h3>
+
+                            <div class="profile-info-grid">
+                                <!-- Correo electrónico -->
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">
+                                        <i class="bi bi-envelope"></i> CORREO ELECTRÓNICO
+                                    </span>
+                                    <span class="profile-info-value">
+                                        {{ cliente.correo_electronico|default:'No registrado' }}
+                                    </span>
+                                </div>
+
+                                <!-- Teléfono -->
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">
+                                        <i class="bi bi-telephone"></i> TELÉFONO
+                                    </span>
+                                    <span class="profile-info-value">
+                                        {{ cliente.telefono|default:'No registrado' }}
+                                    </span>
+                                </div>
+
+                                <!-- Dirección -->
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">
+                                        <i class="bi bi-house-door"></i> DIRECCIÓN
+                                    </span>
+                                    <span class="profile-info-value">
+                                        {{ cliente.direccion|default:'No registrada' }}
+                                    </span>
+                                </div>
+
+                                <!-- Ciudad / Departamento -->
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">
+                                        <i class="bi bi-geo-alt"></i> UBICACIÓN
+                                    </span>
+                                    <span class="profile-info-value">
+                                        {{ cliente.ciudad|default:'—' }}, {{ cliente.departamento|default:'—' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Personal -->
+                        <div class="profile-info-card">
+                            <h3 class="profile-info-title">
+                                <i class="bi bi-person-fill"></i> Información Personal
+                            </h3>
+
+                            <div class="profile-info-grid">
+                                <!-- Documento -->
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">
+                                        <i class="bi bi-card-text"></i> DOCUMENTO
+                                    </span>
+                                    <span class="profile-info-value">
+                                        {{ cliente.tipo_documento }} {{ cliente.documento }}
+                                    </span>
+                                </div>
+
+                                <!-- Última actualización -->
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">
+                                        <i class="bi bi-clock-history"></i> ÚLTIMA ACTUALIZACIÓN
+                                    </span>
+                                    <span class="profile-info-value">
+                                        {{ cliente.updated_at|date:"d/m/Y H:i" }}
+                                    </span>
+                                </div>
+
+                                <!-- Fecha de registro -->
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">
+                                        <i class="bi bi-calendar-plus"></i> FECHA DE REGISTRO
+                                    </span>
+                                    <span class="profile-info-value">
+                                        {{ cliente.created_at|date:"d/m/Y H:i" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div class="profile-header-actions">
-            <a href="{% url 'clientes:editar_cliente' cliente.pk %}" class="profile-action-btn btn-edit">
-                <i class="bi bi-pencil-square"></i> Editar
-            </a>
-            <a href="{% url 'clientes:lista_clientes' %}" class="btn-secondary-custom ms-2">
-                <i class="bi bi-arrow-left"></i> Volver
-            </a>
-        </div>
+        </div>  
     </div>
 </div>
-
-<!-- ======================================== -->
-<!-- TARJETAS DE INFORMACIÓN                   -->
-<!-- ======================================== -->
-
-<!-- Información de Contacto -->
-<div class="profile-info-card">
-    <h3 class="profile-info-title">
-        <i class="bi bi-envelope-fill"></i> Información de Contacto
-    </h3>
-
-    <div class="profile-info-grid">
-        <!-- Correo electrónico -->
-        <div class="profile-info-item">
-            <span class="profile-info-label">
-                <i class="bi bi-envelope"></i> CORREO ELECTRÓNICO
-            </span>
-            <span class="profile-info-value">
-                {{ cliente.correo_electronico|default:'No registrado' }}
-            </span>
-        </div>
-
-        <!-- Teléfono -->
-        <div class="profile-info-item">
-            <span class="profile-info-label">
-                <i class="bi bi-telephone"></i> TELÉFONO
-            </span>
-            <span class="profile-info-value">
-                {{ cliente.telefono|default:'No registrado' }}
-            </span>
-        </div>
-
-        <!-- Dirección -->
-        <div class="profile-info-item">
-            <span class="profile-info-label">
-                <i class="bi bi-house-door"></i> DIRECCIÓN
-            </span>
-            <span class="profile-info-value">
-                {{ cliente.direccion|default:'No registrada' }}
-            </span>
-        </div>
-
-        <!-- Ciudad / Departamento -->
-        <div class="profile-info-item">
-            <span class="profile-info-label">
-                <i class="bi bi-geo-alt"></i> UBICACIÓN
-            </span>
-            <span class="profile-info-value">
-                {{ cliente.ciudad|default:'—' }}, {{ cliente.departamento|default:'—' }}
-            </span>
-        </div>
-    </div>
-</div>
-
-<!-- Información Personal -->
-<div class="profile-info-card">
-    <h3 class="profile-info-title">
-        <i class="bi bi-person-fill"></i> Información Personal
-    </h3>
-
-    <div class="profile-info-grid">
-        <!-- Documento -->
-        <div class="profile-info-item">
-            <span class="profile-info-label">
-                <i class="bi bi-card-text"></i> DOCUMENTO
-            </span>
-            <span class="profile-info-value">
-                {{ cliente.tipo_documento }} {{ cliente.documento }}
-            </span>
-        </div>
-
-        <!-- Última actualización -->
-        <div class="profile-info-item">
-            <span class="profile-info-label">
-                <i class="bi bi-clock-history"></i> ÚLTIMA ACTUALIZACIÓN
-            </span>
-            <span class="profile-info-value">
-                {{ cliente.updated_at|date:"d/m/Y H:i" }}
-            </span>
-        </div>
-
-        <!-- Fecha de registro -->
-        <div class="profile-info-item">
-            <span class="profile-info-label">
-                <i class="bi bi-calendar-plus"></i> FECHA DE REGISTRO
-            </span>
-            <span class="profile-info-value">
-                {{ cliente.created_at|date:"d/m/Y H:i" }}
-            </span>
-        </div>
-    </div>
-</div>
+    
 {% endblock %}

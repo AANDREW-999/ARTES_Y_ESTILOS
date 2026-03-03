@@ -4,8 +4,7 @@
 {% block title %}Crear Usuario{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
-<link rel="stylesheet" href="{% static 'usuarios/css/crear_usuario.css' %}">
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -130,7 +129,7 @@
                 <!-- Documento -->
                 <div class="col-md-6">
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="id_documento" name="documento" maxlength="10" required pattern="[0-9]{10}" inputmode="numeric" placeholder=" ">
+                        <input type="text" class="form-control" id="id_documento" name="documento" maxlength="10" required pattern="[0-9]{6,10}" inputmode="numeric" placeholder=" " data-verificar-url="">
                         <label for="id_documento">
                             <i class="bi bi-person-vcard me-1"></i>
                             Documento <span class="text-danger">*</span>
@@ -470,6 +469,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'usuarios/js/crear_usuario.js' %}"></script>
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
 {% endblock %}
 

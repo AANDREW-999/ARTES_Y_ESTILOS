@@ -276,10 +276,10 @@
       return {
         id_documento: (value) => {
           const trimmed = value.trim();
-          const valid = /^\d{10}$/.test(trimmed);
+          const valid = /^\d{6,10}$/.test(trimmed);
           return {
             valid: valid,
-            message: valid ? 'Documento válido' : 'El documento debe tener exactamente 10 dígitos numéricos'
+            message: valid ? 'Documento válido' : 'El documento debe tener entre 6 y 10 dígitos numéricos'
           };
         },
 

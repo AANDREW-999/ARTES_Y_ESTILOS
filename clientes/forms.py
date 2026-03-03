@@ -70,7 +70,9 @@ class ClienteForm(forms.ModelForm):
             'documento': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese número de documento',
-                'maxlength': '15'
+                'maxlength': '10',
+                'inputmode': 'numeric',
+                'pattern': '[0-9]{6,10}'
             }),
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -134,7 +136,7 @@ class ClienteForm(forms.ModelForm):
         if len(documento) < 6:
             raise forms.ValidationError("El documento es demasiado corto.")
 
-        if len(documento) > 15:
+        if len(documento) > 10:
             raise forms.ValidationError("El documento es demasiado largo.")
 
         # Validación para evitar documentos duplicados

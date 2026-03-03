@@ -75,7 +75,7 @@ def build_login_message(form, usuario_o_documento=None):
     for err in non_field:
         if getattr(err, 'code', None) == 'inactive':
             return {
-                'text': 'Tu cuenta está inactiva. Por favor, contacta al administrador.',
+                'text': 'Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.',
                 'tags': 'level-error field-general'
             }
 
@@ -84,7 +84,7 @@ def build_login_message(form, usuario_o_documento=None):
         User = get_user_model()
         exists = False
 
-        if usuario_o_documento.isdigit() and len(usuario_o_documento) == 10:
+        if usuario_o_documento.isdigit() and 6 <= len(usuario_o_documento) <= 10:
             # Es un documento
             exists = User.objects.filter(documento=usuario_o_documento).exists()
         else:

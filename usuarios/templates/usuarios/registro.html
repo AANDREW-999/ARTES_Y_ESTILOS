@@ -110,7 +110,7 @@
                     </label>
                     <div class="invalid-feedback">
                       <i class="bi bi-exclamation-circle me-1"></i>
-                      El documento debe tener exactamente 10 dígitos
+                      El documento debe tener entre 6 y 10 dígitos
                     </div>
                     <div class="valid-feedback">
                       <i class="bi bi-check-circle me-1"></i>
@@ -432,5 +432,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'usuarios/js/registro.js' %}"></script>
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
+<script src="{% static 'usuarios/js/registro.js' %}?v=20260302c"></script>
 {% endblock %}

@@ -180,7 +180,7 @@
     // ========================================================================
     addFormControls() {
       const inputs = [
-        { id: 'id_username', placeholder: 'Usuario o documento (10 dígitos)' },
+        { id: 'id_username', placeholder: 'Usuario o documento (6-10 dígitos)' },
         { id: 'id_password', placeholder: 'Ingrese su contraseña' }
       ];
 
@@ -216,7 +216,7 @@
         helpBadge.id = 'username-help';
         helpBadge.className = 'form-text text-muted mb-3';
         helpBadge.style.marginBottom = '1rem';
-        helpBadge.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (10 dígitos)';
+        helpBadge.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (6-10 dígitos)';
       }
 
       const formFloating = usernameInput.closest('.form-floating');
@@ -234,21 +234,21 @@
         if (!helpBadgeElement) return;
 
         if (isNumeric) {
-          if (value.length === 10) {
+          if (value.length >= 6 && value.length <= 10) {
             helpBadgeElement.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Documento válido detectado';
             helpBadgeElement.className = 'form-text text-success mb-3';
-          } else if (value.length > 0 && value.length < 10) {
-            helpBadgeElement.innerHTML = `<i class="bi bi-hash me-1"></i>Documento: ${value.length}/10 dígitos`;
+          } else if (value.length > 0 && value.length < 6) {
+            helpBadgeElement.innerHTML = `<i class="bi bi-hash me-1"></i>Documento: ${value.length}/6-10 dígitos`;
             helpBadgeElement.className = 'form-text text-primary mb-3';
           } else if (value.length > 10) {
-            helpBadgeElement.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>El documento debe tener exactamente 10 dígitos';
+            helpBadgeElement.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>El documento debe tener entre 6 y 10 dígitos';
             helpBadgeElement.className = 'form-text text-warning mb-3';
           }
         } else if (value.length > 0) {
           helpBadgeElement.innerHTML = '<i class="bi bi-person-circle text-primary me-1"></i>Usuario detectado';
           helpBadgeElement.className = 'form-text text-primary mb-3';
         } else {
-          helpBadgeElement.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (10 dígitos)';
+          helpBadgeElement.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (6-10 dígitos)';
           helpBadgeElement.className = 'form-text text-muted mb-3';
         }
       });
@@ -322,23 +322,23 @@
               const isNumeric = /^\d+$/.test(value);
               
               if (isNumeric) {
-                // Es un documento - debe tener exactamente 10 dígitos
-                if (value.length !== 10) {
+                // Es un documento - debe tener entre 6 y 10 dígitos
+                if (value.length < 6 || value.length > 10) {
                   hasErrors = true;
                   input.classList.add('is-invalid');
                   input.classList.remove('is-valid');
                   errors.push(`${input.id}-formato`);
-                  console.log(`❌ ${input.id}: Documento debe tener 10 dígitos (tiene ${value.length})`);
+                  console.log(`❌ ${input.id}: Documento debe tener entre 6 y 10 dígitos (tiene ${value.length})`);
                   
                   // Actualizar mensaje de error
                   const feedback = input.parentElement.querySelector('.invalid-feedback');
                   if (feedback) {
-                    feedback.textContent = `El documento debe tener exactamente 10 dígitos (tienes ${value.length})`;
+                    feedback.textContent = `El documento debe tener entre 6 y 10 dígitos (tienes ${value.length})`;
                   }
                 } else {
                   input.classList.remove('is-invalid');
                   input.classList.add('is-valid');
-                  console.log(`✅ ${input.id}: Documento válido (10 dígitos)`);
+                  console.log(`✅ ${input.id}: Documento válido (${value.length} dígitos)`);
                 }
               } else {
                 // Es un username
@@ -361,7 +361,7 @@
           // Mensaje específico según el error
           const hasFormatoError = errors.some(err => err.includes('formato'));
           const message = hasFormatoError 
-            ? '⚠️ El documento debe tener exactamente 10 dígitos numéricos.'
+            ? '⚠️ El documento debe tener entre 6 y 10 dígitos numéricos.'
             : '⚠️ Por favor, completa todos los campos para iniciar sesión.';
           
           this.showToast('warning', message);
@@ -398,16 +398,16 @@
         
         if (isNumeric) {
           // Es un documento
-          if (value.length === 10) {
+          if (value.length >= 6 && value.length <= 10) {
             input.classList.add('is-valid');
           } else if (value.length > 10) {
             input.classList.add('is-invalid');
             const feedback = input.parentElement.querySelector('.invalid-feedback');
             if (feedback) {
-              feedback.textContent = 'El documento debe tener exactamente 10 dígitos';
+              feedback.textContent = 'El documento debe tener entre 6 y 10 dígitos';
             }
           }
-          // Si tiene menos de 10, no marcamos como inválido aún (están escribiendo)
+          // Si tiene menos de 6, no marcamos como inválido aún (están escribiendo)
         } else {
           // Es un username - validar longitud mínima
           if (value.length >= 3) {

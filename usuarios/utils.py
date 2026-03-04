@@ -76,7 +76,7 @@ def build_login_message(form, usuario_o_documento=None):
         if getattr(err, 'code', None) == 'inactive':
             return {
                 'text': 'Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.',
-                'tags': 'level-error field-general'
+                'tags': 'level-error field-inactive'
             }
 
     # Verificar si el usuario/documento existe para dar feedback específico

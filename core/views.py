@@ -47,7 +47,7 @@ def index(request):
             email_message.attach_alternative(body_html, "text/html")
             email_message.send(fail_silently=False)
 
-            messages.success(request, "Tu mensaje fue enviado correctamente 💌")
+            messages.success(request, "Tu mensaje fue enviado correctamente", extra_tags="contacto")
             return redirect('core:landing')
     else:
         form = ContactoForm()

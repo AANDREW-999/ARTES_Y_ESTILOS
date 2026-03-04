@@ -66,6 +66,7 @@
 </div>
 {% endif %}
 
+
 <!-- ========================================================================== -->
 <!-- SECCIÓN PRINCIPAL DE LOGIN -->
 <!-- ========================================================================== -->
@@ -102,10 +103,6 @@
                   <i class="bi bi-exclamation-circle me-1"></i>
                   Este campo es obligatorio
                 </div>
-                <div class="valid-feedback">
-                  <i class="bi bi-check-circle me-1"></i>
-                  Campo válido
-                </div>
               </div>
               <!-- El mensaje de ayuda se insertará aquí dinámicamente por JS -->
             </div>
@@ -124,10 +121,6 @@
                 <div class="invalid-feedback">
                   <i class="bi bi-exclamation-circle me-1"></i>
                   Este campo es obligatorio
-                </div>
-                <div class="valid-feedback">
-                  <i class="bi bi-check-circle me-1"></i>
-                  Campo válido
                 </div>
               </div>
             </div>
@@ -167,5 +160,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'usuarios/js/login.js' %}"></script>
+<script>
+  window.LOGIN_VALIDATE_URL = "{% url 'usuarios:validar_usuario_documento' %}";
+</script>
+<script src="{% static 'usuarios/js/login.js' %}?v=20260303-2"></script>
 {% endblock %}

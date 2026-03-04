@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -137,11 +138,56 @@ def login_view(request):
         else:
             usuario_o_documento = request.POST.get('username')
             msg = build_login_message(form, usuario_o_documento=usuario_o_documento)
+            if 'field-inactive' in msg.get('tags', ''):
+                auth_logout(request)
+                return redirect('usuarios:panel_inactivo')
             messages.error(request, msg['text'], extra_tags=msg['tags'])
     else:
         form = LoginForm()
 
     return render(request, 'usuarios/login.html', {'form': form})
+
+
+def panel_inactivo_view(request):
+    if not request.user.is_authenticated:
+        messages.warning(
+            request,
+            'Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.',
+            extra_tags='level-warning field-inactive'
+        )
+    return render(request, 'usuarios/panel_inactivo.html')
+
+
+def validar_usuario_documento_view(request):
+    valor = (request.GET.get('q') or '').strip()
+
+    if not valor:
+        return JsonResponse({
+            'exists': False,
+            'type': 'empty',
+            'message': 'Ingresa un usuario o documento.'
+        })
+
+    if valor.isdigit():
+        if not (6 <= len(valor) <= 10):
+            return JsonResponse({
+                'exists': False,
+                'type': 'documento',
+                'message': 'El documento debe tener entre 6 y 10 digitos.'
+            })
+        exists = User.objects.filter(documento=valor).exists()
+        return JsonResponse({
+            'exists': exists,
+            'type': 'documento',
+            'message': 'Documento registrado.' if exists else 'Documento no encontrado.'
+        })
+
+    exists = User.objects.filter(username=valor).exists()
+    return JsonResponse({
+        'exists': exists,
+        'type': 'usuario',
+        'message': 'Usuario registrado.' if exists else 'Usuario no encontrado.'
+    })
 
 
 def logout_view(request):
@@ -540,6 +586,23 @@ def activar_usuario_view(request, user_id):
     if request.method == 'POST':
         usuario.is_active = True
         usuario.save()
+
+        if usuario.email:
+            subject = 'Cuenta activada - Panel Administrativo Artes y Estilos'
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+            try:
+                context = {
+                    'nombre': usuario.get_full_name() or usuario.username,
+                    'email': usuario.email,
+                }
+                body_text = render_to_string('usuarios/email_cuenta_activada.txt', context)
+                body_html = render_to_string('usuarios/email_cuenta_activada.html', context)
+                email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario.email])
+                email.attach_alternative(body_html, 'text/html')
+                email.send(fail_silently=True)
+            except Exception:
+                pass
+
         messages.success(request,
             f'✅ Usuario {usuario.username} activado correctamente.',
             extra_tags='level-success field-general')

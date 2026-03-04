@@ -318,11 +318,31 @@
             else if (level.includes('info'))                           type = 'info';
 
             setTimeout(() => {
-                if (this.adminOverlay) {
-                    this.showAdminNotification(type, text);
-                } else {
+                if (!this.adminOverlay) {
                     this.showToast(type, text);
+                    return;
                 }
+
+                if (level.includes('field-inactive')) {
+                    this.showAdminNotification('warning', text);
+                    const closeBtn = document.getElementById('adminNotificationClose');
+                    const overlay = document.getElementById('adminNotificationOverlay');
+                    const indexUrl = overlay?.dataset?.indexUrl;
+                    if (closeBtn) {
+                        closeBtn.textContent = 'Volver al inicio';
+                        closeBtn.onclick = () => {
+                            if (indexUrl) window.location.href = indexUrl;
+                        };
+                    }
+                    if (indexUrl) {
+                        setTimeout(() => {
+                            window.location.href = indexUrl;
+                        }, 3500);
+                    }
+                    return;
+                }
+
+                this.showAdminNotification(type, text);
             }, 350);
         }
 

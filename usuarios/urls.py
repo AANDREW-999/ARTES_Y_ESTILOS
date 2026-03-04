@@ -9,6 +9,8 @@ urlpatterns = [
     # ========================================
     path('panel/login/', views.login_view, name='login'),
     path('panel/logout/', views.logout_view, name='logout'),
+    path('panel/validar-usuario/', views.validar_usuario_documento_view, name='validar_usuario_documento'),
+    path('panel/cuenta-inactiva/', views.panel_inactivo_view, name='panel_inactivo'),
 
     # ========================================
     # 👤 PERFIL DE USUARIO

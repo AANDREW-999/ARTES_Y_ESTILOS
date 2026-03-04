@@ -21,7 +21,9 @@
     --border-color: rgba(139, 146, 176, 0.1);
 
     /* Dimensiones */
-    --sidebar-width: 240px;
+    /* Desktop (expandido/colapsado) */
+    --sidebar-width: 260px;
+    --sidebar-width-collapsed: 70px;
     --topbar-height: 70px;
 
     /* Sombras */
@@ -65,6 +67,265 @@
     z-index: 1000;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* Resizer (arrastrar para ajustar ancho) */
+.sidebar-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    background: transparent;
+    z-index: 1100;
+}
+
+.sidebar-resizer::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    right: 3px;
+    width: 2px;
+    border-radius: 2px;
+    background: rgba(139, 146, 176, 0.15);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.sidebar:hover .sidebar-resizer::after {
+    opacity: 1;
+}
+
+.sidebar.collapsed .sidebar-resizer {
+    display: none;
+}
+
+/* Durante el drag: sin transiciones y evitar selección de texto */
+body.sidebar-resizing {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body.sidebar-resizing .sidebar,
+body.sidebar-resizing .main-content {
+    transition: none !important;
+}
+
+/* ==========================================
+   🧩 SIDEBAR COLAPSABLE (SaaS / VSCode-like)
+   - `.sidebar.collapsed`
+   - `.main-content.collapsed`
+   ========================================== */
+.sidebar.collapsed {
+    width: var(--sidebar-width-collapsed);
+}
+
+.sidebar.collapsed .sidebar-header {
+    padding: 1rem 0.5rem;
+}
+
+.sidebar.collapsed .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.sidebar.collapsed .user-name,
+.sidebar.collapsed .user-role,
+.sidebar.collapsed .divider {
+    display: none;
+}
+
+.sidebar.collapsed .nav-header {
+    display: none;
+}
+
+.sidebar.collapsed .nav-item {
+    margin: 0.25rem 0.5rem;
+}
+
+.sidebar.collapsed .nav-link {
+    /* Bootstrap `.justify-content-between` usa `!important`, por eso aquí también */
+    justify-content: center !important;
+    gap: 0 !important;
+    padding: 0.75rem 0.5rem;
+}
+
+.sidebar.collapsed .nav-link > i:not(.bi-chevron-down):not(.bi-chevron-right) {
+    margin-right: 0 !important;
+    width: 24px;
+}
+
+.sidebar.collapsed .nav-link span {
+    display: none;
+}
+
+.sidebar.collapsed .nav-link .bi-chevron-down,
+.sidebar.collapsed .nav-link .bi-chevron-right {
+    display: none;
+}
+
+.sidebar.collapsed .collapse {
+    display: none !important;
+}
+
+/* Desktop: los submenús del sidebar NO se renderizan abajo (solo flyout a la derecha) */
+@media (min-width: 769px) {
+    .sidebar .collapse {
+        display: none !important;
+    }
+}
+
+/* Quitar la línea vertical de submenús (Bootstrap `border-start`) */
+.sidebar .border-start {
+    border-left: 0 !important;
+}
+
+/* Flyout: quitar línea/indentación heredada del `<ul class="ms-3 border-start ps-2 mt-1">` */
+.sidebar-flyout .border-start {
+    border-left: 0 !important;
+}
+
+.sidebar-flyout .ms-3 {
+    margin-left: 0 !important;
+}
+
+.sidebar-flyout .ps-2 {
+    padding-left: 0 !important;
+}
+
+.sidebar-flyout .mt-1 {
+    margin-top: 0 !important;
+}
+
+/* ==========================================
+   🌸 SUBMENÚS: animación + activo con indicador
+   ========================================== */
+.sidebar .collapse,
+.sidebar .collapsing {
+    overflow: hidden;
+    will-change: height;
+}
+
+.sidebar .collapse.show > .nav {
+    animation: submenuIn 0.18s ease both;
+}
+
+@keyframes submenuIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Activo dentro de submenú: mismo lenguaje visual (rosado + barrita) */
+.sidebar .collapse .nav-link,
+.sidebar-flyout .nav-link {
+    position: relative;
+}
+
+.sidebar .collapse .nav-link.active,
+.sidebar-flyout .nav-link.active {
+    background: linear-gradient(90deg,
+        rgba(191, 84, 134, 0.15) 0%,
+        rgba(191, 84, 134, 0.05) 100%
+    );
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Submenús: sin indicador inferior */
+.sidebar .collapse .nav-link.active::after,
+.sidebar-flyout .nav-link.active::after {
+    content: none;
+}
+
+.sidebar .collapse .nav-link.active > i:not(.bi-chevron-down):not(.bi-chevron-right),
+.sidebar-flyout .nav-link.active > i:not(.bi-chevron-down):not(.bi-chevron-right) {
+    color: var(--rosa-intenso);
+}
+
+/* Texto de submenús en blanco */
+.sidebar .collapse .nav-link,
+.sidebar-flyout .nav-link {
+    color: var(--text-primary);
+}
+
+.main-content.collapsed {
+    margin-left: var(--sidebar-width-collapsed);
+}
+
+/* Flyout flotante para submenús cuando el sidebar está colapsado */
+.sidebar-flyout {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2000;
+    min-width: 220px;
+    max-width: 280px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.sidebar-flyout.show {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.sidebar-flyout .nav-item {
+    margin: 0.125rem 0;
+}
+
+.sidebar-flyout .nav-link {
+    padding: 0.625rem 0.75rem;
+    border-radius: 10px;
+}
+
+.sidebar-flyout .nav-link i {
+    margin-right: 0.5rem;
+}
+
+/* Tooltip bonito (Bootstrap Tooltip con customClass) */
+.sidebar-tooltip .tooltip-inner {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    padding: 0.4rem 0.6rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.sidebar-tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: var(--bg-card);
+}
+
+.sidebar-tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: var(--bg-card);
+}
+
+.sidebar-tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--bg-card);
+}
+
+.sidebar-tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--bg-card);
 }
 
 /* Scrollbar minimalista */
@@ -164,7 +425,7 @@
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--text-secondary);
+    color: var(--rosa-intenso);
 }
 
 /* Items de navegación */
@@ -185,7 +446,7 @@
     position: relative;
 }
 
-.nav-link i {
+.nav-link > i:not(.bi-chevron-down):not(.bi-chevron-right) {
     font-size: 1.125rem;
     margin-right: 0.75rem;
     width: 20px;
@@ -201,6 +462,26 @@
 .nav-link:hover {
     background: rgba(191, 84, 134, 0.08);
     color: var(--text-primary);
+}
+
+/* Evitar el azul por :focus/:active en el SIDEBAR (Bootstrap/UA) */
+.sidebar .nav-link:focus,
+.sidebar .nav-link:active,
+.sidebar-flyout .nav-link:focus,
+.sidebar-flyout .nav-link:active {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.sidebar .nav-link:focus-visible,
+.sidebar-flyout .nav-link:focus-visible {
+    outline: 2px solid rgba(191, 84, 134, 0.35);
+    outline-offset: 2px;
+}
+
+.sidebar .nav-link:focus:not(:focus-visible),
+.sidebar-flyout .nav-link:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* ==========================================
@@ -241,11 +522,30 @@
 .nav-link[data-bs-toggle="collapse"] .bi-chevron-down {
     transition: transform 0.3s ease;
     margin-left: auto;
+    margin-right: 0;
+    width: auto;
     font-size: 0.75rem;
 }
 
-.nav-link[data-bs-toggle="collapse"]:not(.collapsed) .bi-chevron-down {
-    transform: rotate(180deg);
+.nav-link[data-bs-toggle="collapse"] .bi-chevron-right {
+    transition: transform 0.3s ease;
+    margin-left: auto;
+    margin-right: 0;
+    width: auto;
+    font-size: 0.75rem;
+}
+
+/* Desktop: el submenú se muestra como flyout; micro feedback sin cambiar dirección */
+.nav-link.flyout-open .bi-chevron-right {
+    transform: translateX(2px);
+    color: var(--rosa-intenso);
+}
+
+/* Mobile: mantiene comportamiento nativo de Bootstrap collapse */
+@media (max-width: 768px) {
+    .nav-link[data-bs-toggle="collapse"]:not(.collapsed) .bi-chevron-right {
+        transform: rotate(90deg);
+    }
 }
 
 .collapse {
@@ -268,8 +568,14 @@
 }
 
 .collapse .nav-link.fw-bold {
-    color: var(--rosa-intenso);
+    color: var(--text-primary);
     background: rgba(191, 84, 134, 0.08);
+}
+
+/* En submenús, no queremos que `text-primary` ponga el texto rosado */
+.sidebar .collapse .nav-link.text-primary,
+.sidebar-flyout .nav-link.text-primary {
+    color: var(--text-primary) !important;
 }
 
 /* ==========================================
@@ -339,14 +645,14 @@
     border-bottom: 1px solid rgba(139, 146, 176, 0.08);
     padding: 0.875rem 2rem;
     margin: 0;
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
 }
 
 html[data-theme="light"] .page-breadcrumb {
     background: rgba(248, 249, 250, 0.5);
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
 }
 
 .breadcrumb {
@@ -657,7 +963,8 @@ html[data-theme="light"] .breadcrumb-item.active {
 
 @media (max-width: 768px) {
     :root {
-        --sidebar-width: 0px;
+        /* En móvil el sidebar funciona como off-canvas; mantiene ancho real cuando está visible */
+        --sidebar-width: 260px;
     }
 
     .sidebar {
@@ -671,6 +978,19 @@ html[data-theme="light"] .breadcrumb-item.active {
 
     .main-content {
         margin-left: 0;
+    }
+
+    /* En móvil ignoramos el modo colapsado: el toggle actúa como show/hide */
+    .main-content.collapsed {
+        margin-left: 0;
+    }
+
+    .sidebar.collapsed {
+        width: var(--sidebar-width);
+    }
+
+    .sidebar-resizer {
+        display: none;
     }
 
     .search-box {
@@ -777,7 +1097,7 @@ html[data-theme="light"] .divider {
 
 /* Navegación en modo claro */
 html[data-theme="light"] .nav-header {
-    color: var(--text-secondary);
+    color: var(--rosa-intenso);
 }
 
 html[data-theme="light"] .nav-link {
@@ -1057,8 +1377,8 @@ body.light-mode .sidebar .collapse .nav-link.fw-bold:hover {
     position: fixed;
     inset: 0;
     background: rgba(5, 8, 22, 0.72);
-    backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;

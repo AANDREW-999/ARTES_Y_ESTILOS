@@ -31,10 +31,11 @@
     <!-- ════════════════════════════════════
          SIDEBAR
     ════════════════════════════════════ -->
+    {% if user.is_authenticated %}
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="user-avatar">
-                {% if user.perfil.foto_perfil %}
+                {% if user.perfil and user.perfil.foto_perfil %}
                     <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="avatar-img">
                 {% else %}
                     <div class="avatar-placeholder">
@@ -189,6 +190,7 @@
             </ul>
         </nav>
     </div>
+    {% endif %}
 
 
     <!-- ════════════════════════════════════
@@ -240,6 +242,7 @@
 
 
         <!-- ─── Top Bar ─── -->
+        {% if user.is_authenticated %}
         <div class="topbar">
             <div class="topbar-left">
                 <button class="btn btn-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
@@ -266,6 +269,7 @@
                 </div>  
             </div>
         </div>
+        {% endif %}
 
 
         <!-- ─── Contenido Principal ─── -->

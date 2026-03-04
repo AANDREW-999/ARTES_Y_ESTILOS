@@ -9,6 +9,8 @@ urlpatterns = [
     # ========================================
     path('panel/login/', views.login_view, name='login'),
     path('panel/logout/', views.logout_view, name='logout'),
+    path('panel/validar-usuario/', views.validar_usuario_documento_view, name='validar_usuario_documento'),
+    path('panel/cuenta-inactiva/', views.panel_inactivo_view, name='panel_inactivo'),
 
     # ========================================
     # 👤 PERFIL DE USUARIO
@@ -25,6 +27,7 @@ urlpatterns = [
     path('panel/usuarios/<int:user_id>/editar/', views.editar_usuario_view, name='editar_usuario'),
     path('panel/usuarios/<int:user_id>/desactivar/', views.desactivar_usuario_view, name='desactivar_usuario'),
     path('panel/usuarios/<int:user_id>/activar/', views.activar_usuario_view, name='activar_usuario'),
+    path('panel/usuarios/<int:user_id>/convertir-superadmin/', views.convertir_superadmin_view, name='convertir_superadmin'),
     path('panel/usuarios/<int:user_id>/eliminar/', views.eliminar_usuario_view, name='eliminar_usuario'),
 
     # ========================================

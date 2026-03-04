@@ -1,10 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from catalogo.models import Producto
 from usuarios.decorators import panel_login_required
-
-from django.shortcuts import render
+from django.core.mail import EmailMultiAlternatives
+from django.contrib import messages
+from .forms import ContactoForm
+from django.template.loader import render_to_string
 
 # Create your views here.
 
@@ -16,9 +19,43 @@ def index(request):
     else:
         productos = Producto.objects.all()
 
+    if request.method == "POST":
+        form = ContactoForm(request.POST)
+        if form.is_valid():
+            nombre = form.cleaned_data['nombre']
+            email = form.cleaned_data['email']
+            mensaje = form.cleaned_data['mensaje']
+
+            subject = f"Nuevo mensaje de {nombre}"
+            from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", None)
+            recipient_list = ["arteyestilos.test@gmail.com"]
+            context = {
+                "nombre": nombre,
+                "email": email,
+                "mensaje": mensaje,
+            }
+            body_text = render_to_string("core/email_contacto.txt", context)
+            body_html = render_to_string("core/email_contacto.html", context)
+
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=body_text,
+                from_email=from_email,
+                to=recipient_list,
+                reply_to=[email],
+            )
+            email_message.attach_alternative(body_html, "text/html")
+            email_message.send(fail_silently=False)
+
+            messages.success(request, "Tu mensaje fue enviado correctamente", extra_tags="contacto")
+            return redirect('core:landing')
+    else:
+        form = ContactoForm()
+
     context = {
         'productos': productos,
         'busqueda': busqueda,
+        'form': form
     }
 
     return render(request, 'core/index.html', context)
@@ -60,8 +97,6 @@ def dashboard_view(request):
 
 # Nuevas vistas de páginas públicas
 
-
-from django.shortcuts import render
 
 def error_404(request, exception):
     if request.path.startswith("/admin"):

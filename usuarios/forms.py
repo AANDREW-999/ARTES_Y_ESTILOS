@@ -15,6 +15,11 @@ User = get_user_model()
 
 class LoginForm(AuthenticationForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'username' in self.fields:
+            self.fields['username'].widget.attrs.setdefault('data-validate-url', '')
+
     def clean(self):
         username_or_doc = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
@@ -25,10 +30,21 @@ class LoginForm(AuthenticationForm):
         if username_or_doc.isdigit() and 6 <= len(username_or_doc) <= 10:
             try:
                 user_obj = User.objects.get(documento=username_or_doc)
+                if not user_obj.is_active:
+                    raise ValidationError(
+                        "Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.",
+                        code="inactive",
+                    )
                 user = authenticate(self.request, username=user_obj.username, password=password)
             except User.DoesNotExist:
                 user = None
         else:
+            user_obj = User.objects.filter(username=username_or_doc).first()
+            if user_obj and not user_obj.is_active:
+                raise ValidationError(
+                    "Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.",
+                    code="inactive",
+                )
             user = authenticate(self.request, username=username_or_doc, password=password)
 
         if user is None:

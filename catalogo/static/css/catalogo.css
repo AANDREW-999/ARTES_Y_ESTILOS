@@ -22,28 +22,26 @@
    VARIABLES — DARK / LIGHT
    ======================================== */
 
-html[data-theme="dark"] {
-    --bg-primary:   #0a0e27;
-    --bg-secondary: #141833;
-    --bg-card:      #1a1f3a;
-    --bg-hover:     #252a4a;
-    --text-primary: #ffffff;
-    --text-secondary: #8b92b0;
-    --border-color: rgba(139, 146, 176, 0.1);
-    --shadow-sm:    0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.3);
-}
+/*
+  Este módulo se apoya en la paleta global (styles.css) y en tokens de Bootstrap 5.
+  - Paleta global: --rosa-intenso, --rosa-suave, --vino-oscuro, --shadow-soft, etc.
+  - Tema Bootstrap: atributo html[data-bs-theme="dark|light"]
+*/
+:root {
+    --catalogo-accent: var(--rosa-intenso);
+    --catalogo-accent-soft: var(--rosa-suave);
 
-html[data-theme="light"] {
-    --bg-primary:   #f8f9fa;
-    --bg-secondary: #ffffff;
-    --bg-card:      #ffffff;
-    --bg-hover:     #f1f3f5;
-    --text-primary: #212529;
-    --text-secondary: #6c757d;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --shadow-sm:    0 2px 8px rgba(0, 0, 0, 0.05);
-    --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.1);
+    --bg-primary: var(--bs-body-bg, #fff);
+    --bg-secondary: var(--bs-tertiary-bg, var(--bs-secondary-bg, #fff));
+    --bg-card: var(--bs-body-bg, #fff);
+    --bg-hover: var(--bs-tertiary-bg, rgba(0,0,0,.03));
+
+    --text-primary: var(--bs-body-color, var(--vino-oscuro));
+    --text-secondary: var(--bs-secondary-color, rgba(0,0,0,.65));
+    --border-color: var(--bs-border-color-translucent, rgba(0, 0, 0, 0.12));
+
+    --shadow-sm: var(--shadow-soft, 0 10px 25px rgba(0,0,0,.08));
+    --shadow-md: 0 18px 36px rgba(0,0,0,.12);
 }
 
 /* ========================================
@@ -76,7 +74,7 @@ html[data-theme="light"] {
     gap: 0.75rem;
 }
 
-.page-header-info h1 i { color: #BF5486; }
+.page-header-info h1 i { color: var(--catalogo-accent); }
 
 .page-header-info p {
     color: var(--text-secondary);
@@ -96,7 +94,7 @@ html[data-theme="light"] {
    ======================================== */
 
 .btn-catalogo-nuevo {
-    background: linear-gradient(135deg, #BF5486, #D9A7C2);
+    background: linear-gradient(135deg, var(--catalogo-accent), var(--catalogo-accent-soft));
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 12px;
@@ -113,7 +111,7 @@ html[data-theme="light"] {
 }
 
 .btn-catalogo-nuevo:hover {
-    background: linear-gradient(135deg, #A64372, #BF5486);
+    background: linear-gradient(135deg, var(--catalogo-accent-soft), var(--catalogo-accent));
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(191, 84, 134, 0.4);
     color: white;
@@ -162,7 +160,7 @@ html[data-theme="light"] {
 }
 
 .search-wrapper:focus-within {
-    border-color: #BF5486;
+    border-color: var(--catalogo-accent);
     box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.15);
 }
 
@@ -184,7 +182,7 @@ html[data-theme="light"] {
     border: none;
     border-left: 1.5px solid var(--border-color);
     padding: 0.65rem 1.1rem;
-    color: #BF5486;
+    color: var(--catalogo-accent);
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -196,7 +194,7 @@ html[data-theme="light"] {
 
 .search-btn:hover {
     background: rgba(191, 84, 134, 0.08);
-    color: #A64372;
+    color: var(--vino-oscuro);
 }
 
 /* ========================================
@@ -222,7 +220,7 @@ html[data-theme="light"] {
 }
 
 .catalogo-table thead {
-    background: linear-gradient(135deg, #BF5486 0%, #D9A7C2 100%);
+    background: linear-gradient(135deg, var(--catalogo-accent) 0%, var(--catalogo-accent-soft) 100%);
 }
 
 .catalogo-table thead th {
@@ -264,13 +262,13 @@ html[data-theme="light"] {
     font-weight: 600;
     white-space: nowrap;
     background: linear-gradient(135deg, rgba(191,84,134,0.1), rgba(217,167,194,0.08));
-    color: #BF5486;
+    color: var(--catalogo-accent);
     border: 1px solid rgba(191, 84, 134, 0.2);
 }
 
-html[data-theme="dark"] .badge-catalogo {
+html[data-bs-theme="dark"] .badge-catalogo {
     background: linear-gradient(135deg, rgba(191,84,134,0.2), rgba(191,84,134,0.1));
-    color: #D9A7C2;
+    color: var(--catalogo-accent-soft);
     border-color: rgba(191, 84, 134, 0.3);
 }
 
@@ -311,11 +309,11 @@ html[data-theme="dark"] .badge-catalogo {
 }
 
 .btn-action-editar {
-    background: linear-gradient(135deg, #BF5486, #D9A7C2);
+    background: linear-gradient(135deg, var(--catalogo-accent), var(--catalogo-accent-soft));
     color: white;
 }
 .btn-action-editar:hover {
-    background: linear-gradient(135deg, #A64372, #BF5486);
+    background: linear-gradient(135deg, var(--catalogo-accent-soft), var(--catalogo-accent));
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(191,84,134,0.3);
     color: white;
@@ -371,7 +369,7 @@ html[data-theme="dark"] .badge-catalogo {
     flex-shrink: 0;
 }
 .stat-icon-primary {
-    background: linear-gradient(135deg, #BF5486, #D9A7C2);
+    background: linear-gradient(135deg, var(--catalogo-accent), var(--catalogo-accent-soft));
     color: white;
 }
 
@@ -425,10 +423,10 @@ html[data-theme="dark"] .badge-catalogo {
     left: 0;
     width: 80px;
     height: 2px;
-    background: linear-gradient(90deg, #BF5486, transparent);
+    background: linear-gradient(90deg, var(--catalogo-accent), transparent);
 }
 
-.form-section-title i { color: #BF5486; }
+.form-section-title i { color: var(--catalogo-accent); }
 
 .field-wrapper {
     display: flex;
@@ -445,7 +443,7 @@ html[data-theme="dark"] .badge-catalogo {
     letter-spacing: 0.4px;
     margin-bottom: 0;
 }
-.field-label i { color: #BF5486; margin-right: 0.375rem; }
+.field-label i { color: var(--catalogo-accent); margin-right: 0.375rem; }
 
 .field-input,
 .field-input-select,
@@ -466,7 +464,7 @@ html[data-theme="dark"] .badge-catalogo {
 .field-input:focus,
 .field-input-select:focus,
 .field-input-textarea:focus {
-    border-color: #BF5486;
+    border-color: var(--catalogo-accent);
     box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18);
     background: var(--bg-card);
 }
@@ -500,7 +498,7 @@ html[data-theme="dark"] .badge-catalogo {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #BF5486, #D9A7C2);
+    background: linear-gradient(135deg, var(--catalogo-accent), var(--catalogo-accent-soft));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -536,7 +534,7 @@ html[data-theme="dark"] .badge-catalogo {
 
 /* Botón Volver dentro del header */
 .btn-volver {
-    background: #4b5563;
+    background: linear-gradient(180deg, var(--vino-oscuro) 0%, #421c20 100%);
     color: white;
     padding: 0.65rem 1.4rem;
     border-radius: 10px;
@@ -551,7 +549,7 @@ html[data-theme="dark"] .badge-catalogo {
     cursor: pointer;
 }
 .btn-volver:hover {
-    background: #374151;
+    background: linear-gradient(180deg, #6d2f35 0%, var(--vino-oscuro) 100%);
     transform: translateY(-2px);
     color: white;
     text-decoration: none;
@@ -615,7 +613,7 @@ html[data-theme="dark"] .badge-catalogo {
 .detail-product-price {
     font-size: 2rem;
     font-weight: 800;
-    color: #BF5486;
+    color: var(--catalogo-accent);
     margin-bottom: 1.5rem;
 }
 
@@ -635,7 +633,7 @@ html[data-theme="dark"] .badge-catalogo {
 .detail-info-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border-color: #BF5486;
+    border-color: var(--catalogo-accent);
 }
 
 .detail-info-label {
@@ -655,11 +653,92 @@ html[data-theme="dark"] .badge-catalogo {
 }
 
 /* ========================================
+   DETALLE (público desde landing)
+   ======================================== */
+
+.catalogo-detail {
+    --accent: var(--catalogo-accent);
+}
+
+.catalogo-detail .row.g-4 > [class^="col-"] {
+    animation: fadeInUp 0.6s ease both;
+}
+.catalogo-detail .row.g-4 > [class^="col-"]:nth-child(2) {
+    animation-delay: 90ms;
+}
+
+.catalogo-detail .btn-volver {
+    background: linear-gradient(180deg, var(--vino-oscuro) 0%, #421c20 100%);
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+}
+
+.catalogo-detail .img-panel {
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transform: translateZ(0);
+}
+.catalogo-detail .img-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(700px 240px at 20% 10%, rgba(191, 84, 134, 0.18) 0%, rgba(191, 84, 134, 0) 55%);
+    opacity: 0.85;
+    pointer-events: none;
+}
+.catalogo-detail .img-panel img {
+    transition: transform 520ms cubic-bezier(.2,.8,.2,1), filter 520ms ease;
+    will-change: transform;
+}
+.catalogo-detail .img-panel:hover img {
+    transform: scale(1.02);
+    filter: saturate(1.05);
+}
+
+.catalogo-detail .detail-info-card {
+    box-shadow: var(--shadow-md);
+}
+
+.catalogo-detail .detail-product-price {
+    background: linear-gradient(90deg, var(--accent), rgba(217, 167, 194, 0.85));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.catalogo-detail .detail-info-item {
+    position: relative;
+    overflow: hidden;
+}
+.catalogo-detail .detail-info-item::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(420px 140px at 15% 0%, rgba(191, 84, 134, 0.12) 0%, rgba(191, 84, 134, 0) 62%);
+    opacity: 0;
+    transition: opacity 320ms ease;
+    pointer-events: none;
+}
+.catalogo-detail .detail-info-item:hover::before {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .catalogo-detail .row.g-4 > [class^="col-"] {
+        animation: none !important;
+    }
+    .catalogo-detail .img-panel img,
+    .catalogo-detail .detail-info-item::before {
+        transition: none !important;
+    }
+}
+
+/* ========================================
    BOTONES GUARDAR / CANCELAR
    ======================================== */
 
 .btn-guardar {
-    background: linear-gradient(135deg, #BF5486, #D9A7C2);
+    background: linear-gradient(135deg, var(--catalogo-accent), var(--catalogo-accent-soft));
     color: white;
     padding: 0.75rem 2rem;
     border-radius: 12px;
@@ -674,7 +753,7 @@ html[data-theme="dark"] .badge-catalogo {
     font-size: 0.9375rem;
 }
 .btn-guardar:hover {
-    background: linear-gradient(135deg, #A64372, #BF5486);
+    background: linear-gradient(135deg, var(--catalogo-accent-soft), var(--catalogo-accent));
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(191, 84, 134, 0.4);
     color: white;
@@ -728,7 +807,7 @@ html[data-theme="dark"] .badge-catalogo {
 }
 .empty-state i {
     font-size: 4rem;
-    color: #D9A7C2;
+    color: var(--catalogo-accent-soft);
     margin-bottom: 1rem;
     display: block;
 }

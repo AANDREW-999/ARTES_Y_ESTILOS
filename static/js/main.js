@@ -170,15 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
     imgEl.style.height = '';
   }
 
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const section = document.querySelector(this.getAttribute('href'));
-        section.scrollIntoView({
-            behavior: 'smooth'
-        });
-    });
-});
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLightbox(); });
   btnClose && btnClose.addEventListener('click', closeLightbox);
   window.addEventListener('resize', () => { if (overlay.classList.contains('show')) fitImageNatural(imgEl); });

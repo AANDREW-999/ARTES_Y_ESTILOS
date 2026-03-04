@@ -500,6 +500,7 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   border-radius: 12px;
   overflow: hidden;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 

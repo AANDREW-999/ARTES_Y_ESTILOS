@@ -74,13 +74,18 @@
 
             <!-- Usuario -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 nav-user" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   {% if user.perfil.foto_perfil %}
-                    <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="rounded-circle" width="32" height="32">
+                    <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="rounded-circle user-avatar-nav" width="32" height="32">
                   {% else %}
                     <i class="bi bi-person-circle fs-5"></i>
                   {% endif %}
                   <strong>{{ user.get_full_name|default:user.username }}</strong>
+                  {% if user.is_superuser %}
+                    <span class="user-role-pill role-super">Superadmin</span>
+                  {% elif user.is_staff %}
+                    <span class="user-role-pill role-admin">Admin</span>
+                  {% endif %}
               </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person"></i> Mi Perfil</a></li>
@@ -97,12 +102,6 @@
             </li>
         {% endif %}
 
-        <!-- 🌙 BOTÓN MODO OSCURO -->
-        <li class="nav-item ms-2">
-          <button class="btn btn-outline-dark btn-sm" id="toggleTheme">
-            <i class="bi bi-moon-stars"></i>
-          </button>
-        </li>
 
       </ul>
     </div>

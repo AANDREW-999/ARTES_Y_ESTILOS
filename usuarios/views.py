@@ -611,6 +611,57 @@ def activar_usuario_view(request, user_id):
     return render(request, 'usuarios/activar_usuario.html', {'usuario': usuario})
 
 
+@superadmin_required
+def convertir_superadmin_view(request, user_id):
+    usuario = get_object_or_404(User, id=user_id)
+
+    if usuario.id == request.user.id:
+        messages.error(request,
+            '⛔ No puedes modificar tu propio rol a superadmin desde esta seccion.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if usuario.is_superuser:
+        messages.error(request,
+            '⛔ Este usuario ya es superadministrador.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if not usuario.is_staff:
+        messages.error(request,
+            '⛔ Solo puedes convertir administradores a superadmin.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if request.method == 'POST':
+        usuario.is_superuser = True
+        usuario.is_staff = True
+        usuario.save()
+
+        if usuario.email:
+            subject = 'Ahora eres SuperAdmin - Panel Administrativo Artes y Estilos'
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+            try:
+                context = {
+                    'nombre': usuario.get_full_name() or usuario.username,
+                    'email': usuario.email,
+                }
+                body_text = render_to_string('usuarios/email_superadmin.txt', context)
+                body_html = render_to_string('usuarios/email_superadmin.html', context)
+                email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario.email])
+                email.attach_alternative(body_html, 'text/html')
+                email.send(fail_silently=True)
+            except Exception:
+                pass
+
+        messages.success(request,
+            f'✅ Usuario {usuario.username} convertido a SuperAdmin.',
+            extra_tags='level-success field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    return render(request, 'usuarios/convertir_superadmin.html', {'usuario': usuario})
+
+
 @panel_login_required
 def eliminar_usuario_view(request, user_id):
     """

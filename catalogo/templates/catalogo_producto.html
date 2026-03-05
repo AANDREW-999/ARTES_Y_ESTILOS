@@ -8,6 +8,23 @@
 
 {% block content %}
 
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Catálogo</li>
+            </ol>
+        </nav>
+    </div>
+
 <div class="page-header-catalogo">
     <div class="page-header-info">
         <h1><i class="bi bi-box-seam"></i> Gestión de Catálogo</h1>
@@ -37,6 +54,7 @@
                 <th>Categoría</th>
                 <th>Tamaño</th>
                 <th>Precio</th>
+                <th>Estado</th>
                 <th class="text-center">Imagen</th>
                 <th>Descripción</th>
                 <th class="text-end pe-4">Acciones</th>
@@ -49,6 +67,13 @@
                 <td><span class="badge-catalogo">{{ p.get_categoria_display }}</span></td>
                 <td>{{ p.tamano }}</td>
                 <td><strong style="color:#BF5486">${{ p.precio|intcomma }}</strong></td>
+                <td>
+                    {% if p.activo %}
+                        <span class="badge bg-success">Activo</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactivo</span>
+                    {% endif %}
+                </td>
                 <td class="text-center">
                     {% if p.imagen %}
                         <img src="{{ p.imagen.url }}"
@@ -70,46 +95,17 @@
                            class="btn-action btn-action-ver" title="Ver">
                             <i class="bi bi-eye-fill"></i>
                         </a>
-                        <button type="button"
-                                class="btn-action btn-action-eliminar"
-                                data-bs-toggle="modal"
-                                data-bs-target="#confirmar{{ p.id }}" title="Eliminar">
+                        <a href="{% url 'catalogo:eliminar_producto' p.id %}"
+                           class="btn-action btn-action-eliminar" title="Eliminar">
                             <i class="bi bi-trash-fill"></i>
-                        </button>
+                        </a>
                     </div>
                 </td>
             </tr>
 
-            <!-- Modal eliminar -->
-            <div class="modal fade" id="confirmar{{ p.id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
-                    <div class="modal-content">
-                        <div class="modal-header bg-danger text-white justify-content-center py-3 border-0">
-                            <h5 class="modal-title fw-bold">Confirmar Eliminación</h5>
-                        </div>
-                        <div class="modal-body text-center py-4 px-4">
-                            <p class="mb-0" style="color:var(--text-primary)">
-                                ¿Estás seguro que deseas eliminar <strong>{{ p.nombre }}</strong>?
-                            </p>
-                        </div>
-                        <div class="modal-footer border-0 justify-content-center pb-4 pt-0 gap-3">
-                            <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
-                                Cancelar
-                            </button>
-                            <form action="{% url 'catalogo:eliminar_producto' p.id %}" method="POST" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-action btn-action-eliminar px-4 py-2">
-                                    <i class="bi bi-trash-fill"></i> Sí, Eliminar
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {% empty %}
             <tr>
-                <td colspan="7">
+                <td colspan="8">
                     <div class="empty-state">
                         <i class="bi bi-search"></i>
                         <p>No se encontraron productos{% if busqueda %} que coincidan con "{{ busqueda }}"{% endif %}.</p>
@@ -122,6 +118,7 @@
 </div>
 
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
+</div>
 {% endblock %}
 
 

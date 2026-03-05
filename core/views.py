@@ -15,9 +15,9 @@ def index(request):
     busqueda = request.GET.get('busqueda', '')
 
     if busqueda:
-        productos = Producto.objects.filter(nombre__icontains=busqueda)
+        productos = Producto.objects.filter(activo=True, nombre__icontains=busqueda)
     else:
-        productos = Producto.objects.all()
+        productos = Producto.objects.filter(activo=True)
 
     if request.method == "POST":
         form = ContactoForm(request.POST)

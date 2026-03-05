@@ -1,7 +1,10 @@
 .autocomplete {
+    position: absolute;
+    z-index: 1050;
     top: 100%;
     left: 0;
-    max-height: 220px;
+    width: 100%;
+    max-height: 300px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
     border-radius: 0 0 .375rem .375rem;
@@ -11,7 +14,7 @@
 
 .autocomplete .list-group-item {
     font-size: .88rem;
-    padding: .45rem .85rem;
+    padding: 12px 16px;
     border-left: none;
     border-right: none;
 }

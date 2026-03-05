@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ? BUSCAR_ARREGLO_URL
         : "/ventas/ajax/arreglos/";
 
-    addItemBtn.addEventListener("click", agregarFila);
+    addItemBtn.addEventListener("click", () => agregarFila());
     manoObraInput && manoObraInput.addEventListener("input", calcularTotal);
     ivaSelect     && ivaSelect.addEventListener("change", calcularTotal);
     envioInput    && envioInput.addEventListener("input", calcularTotal);
@@ -32,9 +32,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    agregarFila();
+    // ── Inicialización ──────────────────────────────────────────────────────
+    if (typeof ITEMS_EXISTENTES !== "undefined" && ITEMS_EXISTENTES.length > 0) {
+        // Modo edición: cargar cada item y al terminar recalcular el resumen completo
+        ITEMS_EXISTENTES.forEach(item => agregarFila(item));
+        // Forzar recálculo DESPUÉS de que todos los inputs ya están en el DOM
+        // con sus valores correctos
+        setTimeout(calcularTotal, 0);
+    } else {
+        agregarFila();
+    }
 
-    function agregarFila() {
+    // ────────────────────────────────────────────────────────────────────────
+
+    function agregarFila(item) {
         const emptyRow = document.getElementById("emptyRow");
         if (emptyRow) emptyRow.remove();
 
@@ -43,7 +54,8 @@ document.addEventListener("DOMContentLoaded", function () {
             <td class="position-relative" style="min-width:260px;">
                 <input type="text"   class="form-control buscar-arreglo" placeholder="Escribe para buscar arreglo...">
                 <input type="hidden" name="arreglo_id[]" class="arreglo-id">
-                <div class="autocomplete-box list-group position-absolute w-100" style="z-index:1055;top:100%;left:0;display:none;"></div>
+                <div class="autocomplete-box list-group position-absolute w-100"
+                     style="z-index:1055;top:100%;left:0;display:none;"></div>
             </td>
             <td style="width:110px;">
                 <input type="number" class="form-control cantidad" name="cantidad[]" value="1" min="1">
@@ -61,6 +73,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         tableBody.appendChild(tr);
 
+        // Precargar valores si viene del modo edición
+        if (item) {
+            const cantidad = parseInt(item.cantidad)      || 1;
+            const precio   = parseFloat(item.precio)      || 0;
+
+            tr.querySelector(".buscar-arreglo").value = item.nombre   || "";
+            tr.querySelector(".arreglo-id").value     = item.arreglo_id;
+            tr.querySelector(".cantidad").value        = cantidad;
+            tr.querySelector(".precio").value          = precio.toFixed(2);
+
+            // Mostrar subtotal de esta fila de inmediato
+            const cell = tr.querySelector(".subtotal");
+            if (cell) cell.innerText = fmt(cantidad * precio);
+        }
+
         tr.querySelector(".eliminar").addEventListener("click", () => {
             tr.remove();
             calcularTotal();
@@ -72,8 +99,9 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         activarAutocomplete(tr);
-        calcularTotal();
     }
+
+    // ── Autocomplete ────────────────────────────────────────────────────────
 
     function activarAutocomplete(row) {
         const input      = row.querySelector(".buscar-arreglo");
@@ -87,57 +115,62 @@ document.addEventListener("DOMContentLoaded", function () {
             clearTimeout(debounceTimer);
             const query = this.value.trim();
 
-            if (query.length < 2) {
-                cerrarBox(box);
-                return;
-            }
+            if (query.length < 2) { cerrarBox(box); return; }
 
             debounceTimer = setTimeout(() => {
                 fetch(`${AJAX_URL}?q=${encodeURIComponent(query)}`)
                     .then(res => {
-                        if (!res.ok) throw new Error(`HTTP ${res.status} en ${AJAX_URL}`);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
                         return res.json();
                     })
                     .then(data => {
-    
                         if (data.error) {
-                            console.error("Error del servidor:", data.error);
                             mostrarEnBox(box, `<div class="list-group-item text-danger small py-2">
-                                Error del servidor: ${data.error}
-                            </div>`);
+                                Error: ${data.error}</div>`);
                             return;
                         }
 
-                        
                         const lista = Array.isArray(data.arreglos) ? data.arreglos
-                                    : Array.isArray(data.arreglo)  ? data.arreglo
-                                    : [];
+                                    : Array.isArray(data.arreglo)  ? data.arreglo : [];
 
                         if (lista.length === 0) {
                             mostrarEnBox(box, `<div class="list-group-item text-muted small py-2">
-                                Sin resultados para <strong>${query}</strong>
-                            </div>`);
+                                Sin resultados para <strong>${query}</strong></div>`);
                             return;
                         }
 
                         box.innerHTML = "";
                         lista.forEach(item => {
                             const a = document.createElement("a");
-                            a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-3";
-                            a.innerHTML = `
-                                <span class="small">${item.nombre_flor}</span>
-                                <span class="badge bg-success rounded-pill ms-2">$${parseFloat(item.precio).toLocaleString("es-CO")}</span>
-                            `;
+                            a.className = "list-group-item list-group-item-action py-2 px-3";
                             a.style.cursor = "pointer";
-                           
+                            a.innerHTML = `
+                                <div class="d-flex align-items-center gap-2">
+                                    ${item.imagen
+                                        ? `<img src="${item.imagen}" alt="${item.nombre_flor}"
+                                               style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;">`
+                                        : `<div style="width:48px;height:48px;background:#e9ecef;border-radius:6px;flex-shrink:0;
+                                                       display:flex;align-items:center;justify-content:center;">
+                                               <i class="bi bi-image text-muted"></i></div>`
+                                    }
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">${item.nombre_flor}</div>
+                                        <div class="text-muted" style="font-size:0.78rem;">${item.tipo_producto ?? ''}</div>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">
+                                        $${parseFloat(item.precio).toLocaleString("es-CO")}
+                                    </span>
+                                </div>`;
+
                             a.addEventListener("mousedown", (e) => {
                                 e.preventDefault();
                                 input.value      = item.nombre_flor;
                                 hiddenId.value   = item.id;
-                                priceInput.value = item.precio;
+                                priceInput.value = parseFloat(item.precio).toFixed(2);
                                 cerrarBox(box);
                                 calcularTotal();
                             });
+
                             box.appendChild(a);
                         });
                         box.style.display = "block";
@@ -145,30 +178,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     .catch(err => {
                         console.error("Fetch arreglos falló:", err);
                         mostrarEnBox(box, `<div class="list-group-item text-danger small py-2">
-                            No se pudo conectar. Revisa la consola (F12).
-                        </div>`);
+                            No se pudo conectar.</div>`);
                     });
-            }, 300); // 
+            }, 300);
         });
 
-  
-        input.addEventListener("blur", () => {
-            setTimeout(() => cerrarBox(box), 250);
-        });
+        input.addEventListener("blur", () => setTimeout(() => cerrarBox(box), 250));
     }
 
-    function cerrarBox(box) {
-        box.innerHTML = "";
-        box.style.display = "none";
-    }
+    function cerrarBox(box)          { box.innerHTML = ""; box.style.display = "none"; }
+    function mostrarEnBox(box, html) { box.innerHTML = html; box.style.display = "block"; }
 
-    function mostrarEnBox(box, html) {
-        box.innerHTML = html;
-        box.style.display = "block";
-    }
+    // ── Cálculo del resumen ─────────────────────────────────────────────────
 
     function calcularTotal() {
-        let subtotal = 0;
+        let subtotalItems = 0;
 
         tableBody.querySelectorAll("tr:not(#emptyRow)").forEach(tr => {
             const cant = parseFloat(tr.querySelector(".cantidad")?.value) || 0;
@@ -176,18 +200,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const sub  = cant * prec;
             const cell = tr.querySelector(".subtotal");
             if (cell) cell.innerText = fmt(sub);
-            subtotal += sub;
+            subtotalItems += sub;
         });
 
-        subtotal += parseFloat(manoObraInput?.value) || 0;
+        const manoObra = parseFloat(manoObraInput?.value) || 0;
+        const envio    = (domicilioCheckbox?.checked && envioInput)
+                         ? (parseFloat(envioInput.value) || 0) : 0;
 
-        if (domicilioCheckbox?.checked && envioInput) {
-            subtotal += parseFloat(envioInput.value) || 0;
-        }
-
-        const ivaPct = parseFloat(ivaSelect?.value) || 0;
-        const ivaAmt = subtotal * (ivaPct / 100);
-        const total  = subtotal + ivaAmt;
+        const subtotal = subtotalItems + manoObra + envio;
+        const ivaPct   = parseFloat(ivaSelect?.value) || 0;
+        const ivaAmt   = subtotal * (ivaPct / 100);
+        const total    = subtotal + ivaAmt;
 
         if (subtotalSpan) subtotalSpan.innerText = fmt(subtotal);
         if (ivaSpan)      ivaSpan.innerText      = `${fmt(ivaAmt)} (${ivaPct}%)`;
@@ -196,6 +219,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const hiddenTotal = document.getElementById("hiddenTotal");
         if (hiddenTotal) hiddenTotal.value = total.toFixed(2);
     }
+
+    // ── Utilidades ──────────────────────────────────────────────────────────
 
     function mostrarFilaVacia() {
         if (tableBody.querySelectorAll("tr:not(#emptyRow)").length === 0) {

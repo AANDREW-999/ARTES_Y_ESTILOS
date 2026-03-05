@@ -1,30 +1,209 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
-
 {% block title %}Editar Venta{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ventas/css/venta.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
 
-<h2 class="fw-bold mb-4">
-    <i class="bi bi-pencil-square"></i> Editar Venta
-</h2>
+    <h2 class="fw-bold mb-4">
+        <i class="bi bi-pencil-square"></i> Editar Venta #{{ venta.id }}
+    </h2>
 
-<div class="card shadow col-md-10">
-    <div class="card-body">
+    <div class="card shadow col-md-11">
+        <div class="card-body">
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
+            <form method="post" id="formVenta">
+                {% csrf_token %}
 
-            <div class="mt-4">
-                <button class="btn btn-primary">Actualizar</button>
-                <a href="{% url 'ventas:listar_venta' %}" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
+                <!-- 1. CLIENTE -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                        <i class="bi bi-person-fill me-1 text-primary"></i> 1. Cliente
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.cliente.label }}</label>
+                            {{ form.cliente }}
+                        </div>
+                    </div>
+                </div>
 
+                <hr class="my-4">
+
+                <!-- 2. INFORMACIÓN DE LA VENTA -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                        <i class="bi bi-tag-fill me-1 text-primary"></i> 2. Información de la venta
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">{{ form.tipo_venta.label }}</label>
+                            {{ form.tipo_venta }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">{{ form.forma_pago.label }}</label>
+                            {{ form.forma_pago }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Fecha</label>
+                            {# Forzamos formato yyyy-MM-dd para que el input type=date lo acepte #}
+                            <input type="date" class="form-control" name="fecha"
+                                   value="{{ venta.fecha|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- 3. ITEMS DE LA VENTA -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                        <i class="bi bi-flower1 me-1 text-success"></i> 3. Items de la venta
+                    </h6>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-tools me-1"></i>Mano de obra
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {# Usamos floatformat para asegurar punto decimal, no coma #}
+                                <input type="number" class="form-control" id="manoObra"
+                                       name="mano_obra"
+                                       value="{{ venta.mano_obra|stringformat:'.2f' }}"
+                                       min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-percent me-1"></i>IVA aplicable
+                            </label>
+                            <select class="form-select" id="ivaSelect" name="iva_pct">
+                                <option value="0"  {% if venta.iva_pct == 0  %}selected{% endif %}>Sin IVA (0%)</option>
+                                <option value="5"  {% if venta.iva_pct == 5  %}selected{% endif %}>5%</option>
+                                <option value="19" {% if venta.iva_pct == 19 %}selected{% endif %}>19%</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="addItem">
+                            <i class="bi bi-plus-circle me-1"></i> Agregar arreglo
+                        </button>
+                    </div>
+
+                    <div class="table-responsive" style="overflow: visible;">
+                        <table class="table table-bordered table-hover" id="itemsTable" style="overflow: visible;">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Arreglo / Producto</th>
+                                    <th width="120">Cantidad</th>
+                                    <th width="160">Precio Unit.</th>
+                                    <th width="160">Subtotal</th>
+                                    <th width="60"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- 4. DOMICILIO -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                        <i class="bi bi-truck me-1 text-warning"></i> 4. Domicilio
+                    </h6>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="id_con_domicilio"
+                               name="con_domicilio" {% if venta.con_domicilio %}checked{% endif %}>
+                        <label class="form-check-label fw-semibold" for="id_con_domicilio">
+                            ¿Con domicilio?
+                        </label>
+                    </div>
+
+                    <div id="campos_domicilio" class="row g-3"
+                         style="display:{% if venta.con_domicilio %}flex{% else %}none{% endif %};">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-geo-alt me-1"></i>Dirección de entrega
+                            </label>
+                            {{ form.direccion }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-currency-dollar me-1"></i>Costo de envío
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.precio_envio }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- 5. RESUMEN -->
+                <div id="resumenVenta" class="card border-0 bg-light rounded-3 p-4 mb-4">
+                    <h6 class="fw-bold mb-3 text-uppercase text-muted small">
+                        <i class="bi bi-receipt me-1"></i> 5. Resumen de la venta
+                    </h6>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Subtotal (arreglos + mano obra + envío)</span>
+                        <span class="fw-semibold" id="subtotalVenta">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">IVA</span>
+                        <span class="fw-semibold text-warning" id="ivaVenta">$0.00 (0%)</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 mt-1">
+                        <span class="fw-bold fs-5">TOTAL</span>
+                        <span class="fw-bold fs-4 text-success" id="totalVenta">$0.00</span>
+                    </div>
+                </div>
+
+                <input type="hidden" id="hiddenTotal" name="total">
+
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-save me-1"></i> Guardar cambios
+                    </button>
+                    <a href="{% url 'ventas:listar_venta' %}" class="btn btn-secondary px-4">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </div>
     </div>
 </div>
+{% endblock %}
 
-</div>
+{% block extra_js %}
+<script>
+    const BUSCAR_ARREGLO_URL = "{% url 'ventas:buscar_arreglo' %}";
+
+    {# Usamos |stringformat para forzar punto decimal en el precio (evita coma del locale) #}
+    const ITEMS_EXISTENTES = [
+        {% for d in venta.detalles.all %}
+        {
+            arreglo_id: {{ d.arreglo.id }},
+            nombre:     "{{ d.arreglo.nombre_flor|escapejs }}",
+            cantidad:   {{ d.cantidad }},
+            precio:     {{ d.precio|stringformat:".2f" }},
+            imagen:     "{% if d.arreglo.imagen %}{{ d.arreglo.imagen.url }}{% endif %}",
+            tipo:       "{{ d.arreglo.tipo_producto|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+<script src="{% static 'ventas/js/venta.js' %}"></script>
 {% endblock %}

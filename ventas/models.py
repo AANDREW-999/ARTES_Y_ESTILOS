@@ -79,6 +79,10 @@ class Venta(models.Model):
         self.subtotal_sin_iva = subtotal
         self.iva_monto        = iva_monto
         self.total            = subtotal + iva_monto
+        
+    @property
+    def total_arreglo(self):
+        return sum(d.subtotal for d in self.detalles.all())
 
     def save(self, *args, **kwargs):
         if self.pk:
@@ -125,3 +129,6 @@ class DetalleVenta(models.Model):
         ordering = ['-created_at']
         verbose_name        = 'Detalle de venta'
         verbose_name_plural = 'Detalles de venta'
+        
+    
+        

@@ -203,20 +203,17 @@ footer a:hover {
   #carouselAye .carousel-item img { max-height: 45vh; }
 }
 
-/* Transición profesional: fade + pan/zoom */
-#carouselAye.carousel-fade .carousel-item { transition: opacity .6s ease; }
-#carouselAye .carousel-item img { transition: transform .8s ease, opacity .8s ease; }
-#carouselAye .carousel-item.next-reveal img,
-#carouselAye .carousel-item.prev-reveal img {
-  opacity: 0.85;
-  transform: scale(1.02) translateX(12px); /* pequeño pan/zoom de entrada */
-}
+/* Transición profesional: fade + zoom sutil (calmo) */
+#carouselAye.carousel-fade .carousel-item { transition: opacity .85s ease; }
+#carouselAye .carousel-item img { transition: transform 1.2s ease, opacity 1.2s ease; }
 #carouselAye .carousel-item.active img {
   opacity: 1;
-  transform: scale(1) translateX(0);
+  transform: scale(1);
 }
-/* al mantener presionado, aceleramos el paso pero mantenemos suavidad */
-#carouselAye.hold-advance .carousel-item img { transition-duration: .5s; }
+#carouselAye .carousel-item:not(.active) img {
+  opacity: 0.96;
+  transform: scale(1.01);
+}
 
 /* Tarjetas lado derecho con paleta floral y hover profesional */
 .card-floral {

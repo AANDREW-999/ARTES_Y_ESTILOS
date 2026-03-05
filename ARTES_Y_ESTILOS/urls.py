@@ -31,7 +31,9 @@ urlpatterns = [
     path('panel/compras/', include('compras.urls')),
     path('panel/clientes/', include('clientes.urls')),
     path('panel/ventas/', include('ventas.urls')),
-    path('panel/arreglo/', include('arreglo.urls')),
+    path('panel/flor/', include('flor.urls')),
+    path('panel/producto/', include('producto.urls')),
+    path('panel/categoria/', include('categoria.urls')),
 
     # Ruta específica para el favicon
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'img/FaviconAE.png', permanent=True)),
@@ -41,5 +43,4 @@ if settings.DEBUG:
     # Servir archivos estáticos en desarrollo
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     # Servir archivos media (uploads de usuarios)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

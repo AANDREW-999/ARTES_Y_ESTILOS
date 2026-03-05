@@ -3,7 +3,7 @@ from usuarios.decorators import panel_login_required
 
 
 @panel_login_required
-def lista_flor(request):
-	return render(request, 'flor/lista.html')
+def lista_producto(request):
+	return render(request, 'producto/lista.html')
 
 # Create your views here.

@@ -44,12 +44,18 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 .dashboard-body {
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
     line-height: 1.6;
+    min-height: 100%;
 }
 
 /* ==========================================
@@ -587,6 +593,7 @@ body.sidebar-resizing .main-content {
     display: flex;
     flex-direction: column;
     transition: var(--transition);
+    overflow: visible;
 }
 
 .topbar {
@@ -882,6 +889,7 @@ html[data-theme="light"] .breadcrumb-item.active {
     border-top: 1px solid var(--border-color);
     padding: 1.5rem 2rem;
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 .footer-content {

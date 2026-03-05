@@ -22,8 +22,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Arreglo</th>
-                    <th>Cantidad</th>
+                    <th>Ítems</th>
                     <th>Total</th>
                     <th>Fecha</th>
                     <th>Cliente</th>
@@ -34,8 +33,17 @@
                 {% for venta in ventas %}
                 <tr>
                     <td>{{ venta.id }}</td>
-                   
-                    <td>{{ venta.cantidad }}</td>
+
+                    <td>
+                        {% with detalles=venta.detalles.all %}
+                            {{ detalles|length }}
+                            {% with first=detalles|first %}
+                                {% if first %}
+                                    · {{ first.item_nombre }}
+                                {% endif %}
+                            {% endwith %}
+                        {% endwith %}
+                    </td>
                     <td>${{ venta.total }}</td>
                     <td>{{ venta.fecha }}</td>
                     <td>{{ venta.cliente.nombre }}</td>
@@ -53,7 +61,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center">
+                    <td colspan="6" class="text-center">
                         No hay ventas registradas
                     </td>
                 </tr>

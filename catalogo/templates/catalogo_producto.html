@@ -35,14 +35,14 @@
         <form action="{% url 'catalogo:gestion_productos' %}" method="GET">
             <div class="search-wrapper">
                 <input type="text" name="q" value="{{ busqueda|default:'' }}"
-                       class="search-input" placeholder="Buscar por producto, categoría o tamaño...">
+                       class="search-input" placeholder="Buscar por Catálogo, categoría o tamaño...">
                 <button type="submit" class="search-btn">
                     <i class="bi bi-search"></i> Buscar
                 </button>
             </div>
         </form>
         <a href="{% url 'catalogo:agregar_producto' %}" class="btn-catalogo-nuevo">
-            <i class="bi bi-plus-circle"></i> Nuevo Producto
+            <i class="bi bi-plus-circle"></i> Nuevo Catálogo
         </a>
     </div>
 </div>
@@ -51,7 +51,7 @@
     <table class="catalogo-table">
         <thead>
             <tr>
-                <th class="ps-4">Producto</th>
+                <th class="ps-4">Catálogo</th>
                 <th>Categoría</th>
                 <th>Tamaño</th>
                 <th>Precio</th>
@@ -109,7 +109,7 @@
                 <td colspan="8">
                     <div class="empty-state">
                         <i class="bi bi-search"></i>
-                        <p>No se encontraron productos{% if busqueda %} que coincidan con "{{ busqueda }}"{% endif %}.</p>
+                        <p>No se encontraron productos para el catálogo{% if busqueda %} que coincidan con "{{ busqueda }}"{% endif %}.</p>
                     </div>
                 </td>
             </tr>

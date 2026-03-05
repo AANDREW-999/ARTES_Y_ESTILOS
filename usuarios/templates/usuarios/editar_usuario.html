@@ -266,7 +266,7 @@
                 <div><small><strong>Nota:</strong> Los cambios en permisos afectan el nivel de acceso al sistema.</small></div>
             </div>
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox"
                                name="is_active" id="id_is_active"
@@ -276,17 +276,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox"
-                               name="is_staff" id="id_is_staff"
-                               {% if form.is_staff.value %}checked{% endif %}>
-                        <label class="form-check-label" for="id_is_staff">
-                            <strong>Acceso al panel</strong>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox"
                                name="is_superuser" id="id_is_superuser"

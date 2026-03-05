@@ -23,7 +23,15 @@
                     <strong>Cliente:</strong> {{ venta.cliente.nombre }}
                 </li>
                 <li class="list-group-item">
-                    <strong>Arreglo:</strong> {{ venta.arreglo.nombre }}
+                    <strong>Ítems:</strong>
+                    {% with detalles=venta.detalles.all %}
+                        {{ detalles|length }}
+                        {% with first=detalles|first %}
+                            {% if first %}
+                                · {{ first.item_nombre }}
+                            {% endif %}
+                        {% endwith %}
+                    {% endwith %}
                 </li>
                 <li class="list-group-item">
                     <strong>Total:</strong> ${{ venta.total }}

@@ -6,7 +6,7 @@ app_name = 'core'
 urlpatterns = [
     path('', views.index, name='landing'),
     
-    path('dashboard/', views.dashboard_view, name='dashboard'),
+    path('panel/dashboard/', views.dashboard_view, name='dashboard'),
     #  nuevas rutas públicas
     #  path('nosotros/', views.nosotros, name='nosotros'),
     #  path('productos/', views.productos, name='productos'),

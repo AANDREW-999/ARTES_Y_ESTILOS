@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function validarDocumentoServidor(input, documentoId) {
         const currentId = document.querySelector('[name="cliente_id"]')?.value || '';
 
-        fetch(`/clientes/verificar-documento/?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
+        fetch(`/panel/clientes/verificar-documento/?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.existe) {

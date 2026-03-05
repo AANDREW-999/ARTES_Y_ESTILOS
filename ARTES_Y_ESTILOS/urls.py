@@ -26,12 +26,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('', include('usuarios.urls')),
-    path('', include('catalogo.urls')),
-    path('proveedores/', include('proveedores.urls')),
-    path('compras/', include('compras.urls')),  
-    path('clientes/', include('clientes.urls')), 
-    path('ventas/', include('ventas.urls')),
-    path('arreglo', include('arreglo.urls')),
+    path('panel/catalogo/', include('catalogo.urls')),
+    path('panel/proveedores/', include('proveedores.urls')),
+    path('panel/compras/', include('compras.urls')),
+    path('panel/clientes/', include('clientes.urls')),
+    path('panel/ventas/', include('ventas.urls')),
+    path('panel/arreglo/', include('arreglo.urls')),
 
     # Ruta específica para el favicon
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'img/FaviconAE.png', permanent=True)),

@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('[name="cliente_id"]')?.value ||
             document.querySelector('[name="proveedor_id"]')?.value ||
             '';
-        const url = verifyUrl || '/clientes/verificar-documento/';
+        const url = verifyUrl || '/panel/clientes/verificar-documento/';
 
         fetch(`${url}?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
             .then(response => response.json())

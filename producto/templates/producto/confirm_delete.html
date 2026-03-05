@@ -1,0 +1,21 @@
+{% extends 'panel_admin_base.html' %}
+
+{% block title %}Eliminar Producto{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow-sm col-md-6">
+        <div class="card-header bg-danger text-white">Eliminar Producto</div>
+        <div class="card-body">
+            <p>¿Deseas eliminar <strong>{{ object.nombre }}</strong>?</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                    <a href="{% url 'producto:lista' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

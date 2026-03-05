@@ -1,0 +1,48 @@
+{% extends 'panel_admin_base.html' %}
+
+{% block title %}{% if object %}Editar Producto{% else %}Nuevo Producto{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow-sm col-lg-8">
+        <div class="card-body">
+            <h4 class="fw-bold mb-4">{% if object %}Editar Producto{% else %}Nuevo Producto{% endif %}</h4>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo</label>
+                        {{ form.tipo_producto }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Precio</label>
+                        {{ form.precio }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Stock</label>
+                        {{ form.cantidad }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Descripcion</label>
+                        {{ form.descripcion }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Imagen</label>
+                        {{ form.imagen }}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a href="{% url 'producto:lista' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

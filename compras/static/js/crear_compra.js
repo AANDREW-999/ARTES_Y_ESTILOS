@@ -139,6 +139,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
+            nuevoItem.querySelectorAll('select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+
             container.appendChild(nuevoItem);
             configurarProductoItem(nuevoItem);
         });

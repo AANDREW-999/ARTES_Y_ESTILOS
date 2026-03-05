@@ -232,7 +232,8 @@
                     <table class="compras-table" style="font-size:.82rem;">
                         <thead>
                             <tr>
-                                <th>RIF</th>
+                                <th>Item</th>
+                                <th>Tipo</th>
                                 <th>Precio</th>
                                 <th>Cantidad</th>
                                 <th>Subtotal</th>
@@ -241,14 +242,15 @@
                         <tbody>
                             {% for detalle in compra.detalles.all %}
                             <tr>
-                                <td>{{ detalle.rif|default:"N/A" }}</td>
+                                <td>{{ detalle.item_nombre|default:"N/A" }}</td>
+                                <td>{{ detalle.get_tipo_item_display }}</td>
                                 <td>${{ detalle.precio|floatformat:2 }}</td>
                                 <td>{{ detalle.cantidad }}</td>
                                 <td><span class="badge-total">${{ detalle.subtotal|floatformat:2 }}</span></td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4">
+                                <td colspan="5">
                                     <div class="empty-state" style="padding:1.5rem;">
                                         <i class="bi bi-inbox"></i>
                                         <p>Sin artículos registrados</p>

@@ -45,20 +45,48 @@
                     </button>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="itemsTable">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Arreglo / Producto</th>
-                                <th width="120">Cantidad</th>
-                                <th width="160">Precio Unit.</th>
-                                <th width="160">Subtotal</th>
-                                <th width="60"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                <div id="itemsContainer" class="d-flex flex-column gap-3">
+                    <div class="item-venta border rounded-3 p-3 bg-light-subtle">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Item *</label>
+                                <select name="arreglo_id[]" class="form-select item-select" required>
+                                    <option value="">Seleccione...</option>
+                                    <optgroup label="Flores">
+                                        {% for flor in flores %}
+                                        <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">
+                                            {{ flor.nombre }} (Stock: {{ flor.cantidad }})
+                                        </option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="Productos">
+                                        {% for producto in productos %}
+                                        <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">
+                                            {{ producto.nombre }} (Stock: {{ producto.cantidad }})
+                                        </option>
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Precio *</label>
+                                <input type="number" class="form-control precio" name="precio[]" min="0" step="0.01" value="0">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Cantidad *</label>
+                                <input type="number" class="form-control cantidad" name="cantidad[]" min="1" value="1">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger w-100 eliminar" title="Eliminar item">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-end mt-2">
+                            <small class="text-muted">Subtotal item:</small>
+                            <span class="subtotal fw-semibold ms-2">$0.00</span>
+                        </div>
+                    </div>
                 </div>
 
                 <hr class="my-4">
@@ -158,9 +186,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    const BUSCAR_ARREGLO_URL = "{% url 'ventas:buscar_arreglo' %}";
-</script>
 <script src="{% static 'ventas/js/venta.js' %}"></script>
 {% endblock %}
 

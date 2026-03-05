@@ -1,327 +1,338 @@
-# views.py
-from django.http import HttpResponse
-from django.template import loader
-from django.shortcuts import get_object_or_404, redirect
-from .forms import CompraForm, DetalleCompraForm
-from django.views import generic
+from decimal import Decimal, InvalidOperation
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.template import loader
 from django.urls import reverse_lazy
+from django.views import generic
+
+from datetime import date, datetime
+
+from flor.models import Flor
+from producto.models import Producto
+from proveedores.models import Proveedor
+
+from .forms import CompraForm
 from .models import Compra, DetalleCompra
-from proveedores.models import Proveedor  # Importar el modelo Proveedor
-from django.db.models import Q, Sum, Count
-from datetime import datetime, date
+
+
+def _parse_item_id(raw_item_id):
+    tipo_raw, raw_id = (raw_item_id or "").split("-", 1)
+    item_id = int(raw_id)
+    if tipo_raw == "F":
+        return "FLOR", item_id
+    if tipo_raw == "P":
+        return "PRODUCTO", item_id
+    raise ValueError("Tipo de item invalido")
+
+
+def _parse_detalles_compra(request):
+    item_ids = request.POST.getlist("item_id[]")
+    precios = request.POST.getlist("precio[]")
+    cantidades = request.POST.getlist("cantidad[]")
+
+    detalles = []
+    for idx, (item_id_raw, precio_raw, cantidad_raw) in enumerate(zip(item_ids, precios, cantidades), start=1):
+        item_id_raw = str(item_id_raw).strip()
+        precio_raw = str(precio_raw).strip()
+        cantidad_raw = str(cantidad_raw).strip()
+
+        if not item_id_raw and not precio_raw and not cantidad_raw:
+            continue
+
+        if not item_id_raw:
+            raise ValueError(f"Articulo {idx}: Debe seleccionar un item.")
+        if not precio_raw or not cantidad_raw:
+            raise ValueError(f"Articulo {idx}: Debe completar precio y cantidad.")
+
+        try:
+            tipo_item, item_pk = _parse_item_id(item_id_raw)
+        except (ValueError, TypeError):
+            raise ValueError(f"Articulo {idx}: Item invalido.")
+
+        try:
+            precio_normalizado = precio_raw
+            if "," in precio_raw:
+                precio_normalizado = precio_raw.replace(".", "").replace(",", ".")
+
+            precio_limpio = Decimal(precio_normalizado)
+            cantidad_limpia = int(cantidad_raw)
+        except (InvalidOperation, ValueError):
+            raise ValueError(f"Articulo {idx}: Formato invalido en precio o cantidad.")
+
+        if precio_limpio <= 0:
+            raise ValueError(f"Articulo {idx}: El precio debe ser mayor a 0.")
+        if cantidad_limpia <= 0:
+            raise ValueError(f"Articulo {idx}: La cantidad debe ser mayor a 0.")
+
+        detalles.append(
+            {
+                "tipo_item": tipo_item,
+                "item_pk": item_pk,
+                "cantidad": cantidad_limpia,
+                "precio": precio_limpio,
+            }
+        )
+
+    if not detalles:
+        raise ValueError("Debe agregar al menos un articulo con precio y cantidad validos.")
+
+    return detalles
+
+
+def _bloquear_item(tipo_item, item_pk):
+    if tipo_item == "FLOR":
+        return Flor.objects.select_for_update().get(pk=item_pk)
+    return Producto.objects.select_for_update().get(pk=item_pk)
+
+
+def _sumar_stock_item(tipo_item, item_pk, cantidad):
+    item = _bloquear_item(tipo_item, item_pk)
+    item.cantidad += cantidad
+    item.save(update_fields=["cantidad"])
+
+
+def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
+    item = _bloquear_item(tipo_item, item_pk)
+    if item.cantidad < cantidad:
+        raise ValueError(
+            f"No hay stock suficiente para ajustar {item.nombre} en {contexto}. Disponible: {item.cantidad}, requerido: {cantidad}."
+        )
+    item.cantidad -= cantidad
+    item.save(update_fields=["cantidad"])
+
 
 def compras_list(request):
-    # Optimizar queries con select_related y prefetch_related
-    lista_compras = Compra.objects.select_related(
-        'proveedor',
-        'usuario'
-    ).prefetch_related('detalles').all()
-    
-    # Aplicar filtros si existen
-    proveedor_nombre = request.GET.get('proveedor_nombre', '').strip()
-    fecha_desde = request.GET.get('fecha_desde', '')
-    
+    lista_compras = Compra.objects.select_related("proveedor", "usuario").prefetch_related(
+        "detalles__flor", "detalles__producto"
+    )
+
+    proveedor_nombre = request.GET.get("proveedor_nombre", "").strip()
+    fecha_desde = request.GET.get("fecha_desde", "")
+
     if proveedor_nombre:
         lista_compras = lista_compras.filter(proveedor__nombre_proveedor__icontains=proveedor_nombre)
-    
+
     if fecha_desde:
         try:
-            fecha = datetime.strptime(fecha_desde, '%Y-%m-%d').date()
+            fecha = datetime.strptime(fecha_desde, "%Y-%m-%d").date()
             lista_compras = lista_compras.filter(fecha_emision__gte=fecha)
-        except:
-            fecha_desde = ''
-    template = loader.get_template('lista_compra.html')  
-    
-    # Obtener proveedores para el datalist (ordenado por nombre)
-    proveedores = Proveedor.objects.all().order_by('nombre_proveedor')
-    
-    # Calcular estadísticas
+        except ValueError:
+            fecha_desde = ""
+
+    template = loader.get_template("lista_compra.html")
+    proveedores = Proveedor.objects.all().order_by("nombre_proveedor")
+
     total_compras = lista_compras.count()
-    monto_total = lista_compras.aggregate(Sum('total_compra'))['total_compra__sum'] or 0
-    total_proveedores = lista_compras.values('proveedor').distinct().count()
-    
-    # Compras de este mes
+    monto_total = lista_compras.aggregate(Sum("total_compra"))["total_compra__sum"] or 0
+    total_proveedores = lista_compras.values("proveedor").distinct().count()
+
     hoy = date.today()
     inicio_mes = hoy.replace(day=1)
-    compras_mes = lista_compras.filter(
-        fecha_emision__gte=inicio_mes,
-        fecha_emision__lte=hoy
-    ).count()
-    
+    compras_mes = lista_compras.filter(fecha_emision__gte=inicio_mes, fecha_emision__lte=hoy).count()
+
     context = {
-        'compras': lista_compras,
-        'total_compras': total_compras,
-        'monto_total': monto_total,
-        'total_proveedores': total_proveedores,
-        'compras_mes': compras_mes,
-        'proveedores': proveedores,
-        'proveedor_nombre_filtro': proveedor_nombre,
-        'fecha_desde_filtro': fecha_desde,
+        "compras": lista_compras,
+        "total_compras": total_compras,
+        "monto_total": monto_total,
+        "total_proveedores": total_proveedores,
+        "compras_mes": compras_mes,
+        "proveedores": proveedores,
+        "proveedor_nombre_filtro": proveedor_nombre,
+        "fecha_desde_filtro": fecha_desde,
     }
     return HttpResponse(template.render(context, request))
 
-def form_invalid(self, form):
-    print("ERRORES:", form.errors.as_json())
-    messages.error(self.request, f'Errores del form: {form.errors}')
-    return super().form_invalid(form)
 
-
-def compra_detail(request, id):  
+def compra_detail(request, id):
     una_compra = get_object_or_404(
-        Compra.objects.select_related('proveedor', 'usuario').prefetch_related('detalles'),
-        id=id
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__flor", "detalles__producto"),
+        id=id,
     )
-    template = loader.get_template('compra_detail.html')
-    
+    template = loader.get_template("compra_detail.html")
+
     context = {
-        'compra': una_compra,
-        'detalles': una_compra.detalles.all(),
+        "compra": una_compra,
+        "detalles": una_compra.detalles.all(),
     }
     return HttpResponse(template.render(context, request))
+
 
 class CompraCreateView(LoginRequiredMixin, generic.CreateView):
-    """Vista para crear una nueva compra"""
     model = Compra
     form_class = CompraForm
-    template_name = 'crear_compra.html'
-    success_url = reverse_lazy('compras:lista_compra')
-    login_url = 'usuarios:login'
-    
+    template_name = "crear_compra.html"
+    success_url = reverse_lazy("compras:lista_compra")
+    login_url = "usuarios:login"
+
     def get_context_data(self, **kwargs):
-        """Agregar proveedores al contexto"""
         context = super().get_context_data(**kwargs)
-        context['proveedores'] = Proveedor.objects.filter(activo=True).order_by('nombre_proveedor')
+        context["proveedores"] = Proveedor.objects.filter(activo=True).order_by("nombre_proveedor")
+        context["flores"] = Flor.objects.all().order_by("nombre")
+        context["productos"] = Producto.objects.all().order_by("nombre")
         return context
-    
+
     def form_valid(self, form):
-        """Procesar la compra y sus detalles"""
         try:
-            # Obtener los arrays del POST primero para validar
-            rifs = self.request.POST.getlist('rif[]')
-            precios = self.request.POST.getlist('precio[]')
-            cantidades = self.request.POST.getlist('cantidad[]')
-            
-            # Filtrar los detalles vacíos y validar
-            detalles_validos = []
-            for idx, (rif, precio, cantidad) in enumerate(zip(rifs, precios, cantidades)):
-                precio_str = str(precio).strip()
-                cantidad_str = str(cantidad).strip()
-                
-                # Saltar filas completamente vacías
-                if not precio_str and not cantidad_str:
-                    continue
-                    
-                # Validar que tenga precio y cantidad
-                if not precio_str or not cantidad_str:
-                    messages.error(
-                        self.request,
-                        f'Artículo {idx + 1}: Debe completar tanto precio como cantidad.'
-                    )
-                    return self.form_invalid(form)
-                
-                try:
-                    # Limpiar el precio: remover puntos (miles) y reemplazar coma por punto
-                    precio_limpio = precio_str.replace('.', '').replace(',', '.')
-                    cantidad_limpia = int(cantidad_str)
-                    
-                    if float(precio_limpio) <= 0:
-                        messages.error(
-                            self.request,
-                            f'Artículo {idx + 1}: El precio debe ser mayor a 0.'
-                        )
-                        return self.form_invalid(form)
-                    
-                    if cantidad_limpia <= 0:
-                        messages.error(
-                            self.request,
-                            f'Artículo {idx + 1}: La cantidad debe ser mayor a 0.'
-                        )
-                        return self.form_invalid(form)
-                    
-                    detalles_validos.append((rif.strip() if rif else '', precio_limpio, cantidad_limpia))
-                    
-                except (ValueError, TypeError) as e:
-                    messages.error(
-                        self.request,
-                        f'Artículo {idx + 1}: Formato inválido. Verifique precio y cantidad.'
-                    )
-                    return self.form_invalid(form)
-            
-            # Validar que haya al menos un artículo
-            if not detalles_validos:
-                messages.error(
-                    self.request,
-                    'Debe agregar al menos un artículo con precio y cantidad válidos.'
-                )
-                return self.form_invalid(form)
-            
-            # Guardar la compra
-            compra = form.save(commit=False)
-            compra.subtotal = 0
-            compra.total_compra = 0
-            compra.usuario = self.request.user
-            compra.save()
-            
-            # Crear los detalles validados
-            for rif, precio_limpio, cantidad in detalles_validos:
-                detalle = DetalleCompra(
-                    compra=compra,
-                    rif=rif,
-                    precio=float(precio_limpio),
-                    cantidad=cantidad
-                )
-                detalle.save()
-            
-            # Calcular totales
-            compra.calcular_totales()
-            
-            messages.success(
-                self.request,
-                f'¡Compra registrada exitosamente! {len(detalles_validos)} artículo{"s" if len(detalles_validos) != 1 else ""} agregado{"s" if len(detalles_validos) != 1 else ""}.'
-            )
-            return redirect(self.success_url)
-        except Exception as e:
-            print(f"Error inesperado en form_valid: {e}")
-            messages.error(
-                self.request,
-                f'Error al guardar la compra: {str(e)}'
-            )
+            detalles = _parse_detalles_compra(self.request)
+        except ValueError as exc:
+            messages.error(self.request, str(exc))
             return self.form_invalid(form)
-    
+
+        try:
+            with transaction.atomic():
+                compra = form.save(commit=False)
+                compra.subtotal = 0
+                compra.total_compra = 0
+                compra.usuario = self.request.user
+                compra.save()
+
+                for data in detalles:
+                    detalle = DetalleCompra(
+                        compra=compra,
+                        tipo_item=data["tipo_item"],
+                        cantidad=data["cantidad"],
+                        precio=data["precio"],
+                    )
+                    if data["tipo_item"] == "FLOR":
+                        detalle.flor = Flor.objects.get(pk=data["item_pk"])
+                    else:
+                        detalle.producto = Producto.objects.get(pk=data["item_pk"])
+                    detalle.save()
+
+                    _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
+
+                compra.calcular_totales()
+
+            messages.success(self.request, f"Compra registrada exitosamente con {len(detalles)} item(s).")
+            return redirect(self.success_url)
+        except (Flor.DoesNotExist, Producto.DoesNotExist):
+            messages.error(self.request, "Uno de los items seleccionados ya no existe.")
+            return self.form_invalid(form)
+        except ValueError as exc:
+            messages.error(self.request, str(exc))
+            return self.form_invalid(form)
+        except Exception as exc:
+            messages.error(self.request, f"Error al guardar la compra: {exc}")
+            return self.form_invalid(form)
+
     def form_invalid(self, form):
-        messages.error(self.request, 'Por favor, corrija los errores en el formulario.')
+        messages.error(self.request, "Por favor, corrija los errores en el formulario.")
         return super().form_invalid(form)
 
 
 class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
-    """Vista para actualizar una compra existente"""
     model = Compra
     form_class = CompraForm
-    template_name = 'editar_compra.html'
-    success_url = reverse_lazy('compras:lista_compra')
-    pk_url_kwarg = 'compra_id'
-    login_url = 'usuarios:login'
-    
+    template_name = "editar_compra.html"
+    success_url = reverse_lazy("compras:lista_compra")
+    pk_url_kwarg = "compra_id"
+    login_url = "usuarios:login"
+
     def get_context_data(self, **kwargs):
-        """Agregar proveedores y detalles al contexto para edición"""
         context = super().get_context_data(**kwargs)
-        context['proveedores'] = Proveedor.objects.filter(activo=True).order_by('nombre_proveedor')
-        context['detalles'] = self.object.detalles.all()
+        context["proveedores"] = Proveedor.objects.filter(activo=True).order_by("nombre_proveedor")
+        context["detalles"] = self.object.detalles.select_related("flor", "producto")
+        context["flores"] = Flor.objects.all().order_by("nombre")
+        context["productos"] = Producto.objects.all().order_by("nombre")
         return context
-    
+
     def form_valid(self, form):
-        """Procesar la actualización de compra y sus detalles"""
         try:
-            # Obtener los arrays del POST para validar
-            rifs = self.request.POST.getlist('rif[]')
-            precios = self.request.POST.getlist('precio[]')
-            cantidades = self.request.POST.getlist('cantidad[]')
-            
-            # Filtrar los detalles vacíos y validar
-            detalles_validos = []
-            for idx, (rif, precio, cantidad) in enumerate(zip(rifs, precios, cantidades)):
-                precio_str = str(precio).strip()
-                cantidad_str = str(cantidad).strip()
-                
-                # Saltar filas completamente vacías
-                if not precio_str and not cantidad_str:
-                    continue
-                    
-                # Validar que tenga precio y cantidad
-                if not precio_str or not cantidad_str:
-                    messages.error(
-                        self.request,
-                        f'Artículo {idx + 1}: Debe completar tanto precio como cantidad.'
-                    )
-                    return self.form_invalid(form)
-                
-                try:
-                    # Limpiar el precio
-                    precio_limpio = precio_str.replace('.', '').replace(',', '.')
-                    cantidad_limpia = int(cantidad_str)
-                    
-                    if float(precio_limpio) <= 0:
-                        messages.error(
-                            self.request,
-                            f'Artículo {idx + 1}: El precio debe ser mayor a 0.'
-                        )
-                        return self.form_invalid(form)
-                    
-                    if cantidad_limpia <= 0:
-                        messages.error(
-                            self.request,
-                            f'Artículo {idx + 1}: La cantidad debe ser mayor a 0.'
-                        )
-                        return self.form_invalid(form)
-                    
-                    detalles_validos.append((rif.strip() if rif else '', precio_limpio, cantidad_limpia))
-                    
-                except (ValueError, TypeError) as e:
-                    messages.error(
-                        self.request,
-                        f'Artículo {idx + 1}: Formato inválido. Verifique precio y cantidad.'
-                    )
-                    return self.form_invalid(form)
-            
-            # Validar que haya al menos un artículo
-            if not detalles_validos:
-                messages.error(
-                    self.request,
-                    'Debe agregar al menos un artículo con precio y cantidad válidos.'
-                )
-                return self.form_invalid(form)
-            
-            # Guardar la compra
-            compra = form.save()
-            
-            # Limpiar detalles anteriores y crear los nuevos
-            compra.detalles.all().delete()
-            
-            for rif, precio_limpio, cantidad in detalles_validos:
-                detalle = DetalleCompra(
-                    compra=compra,
-                    rif=rif,
-                    precio=float(precio_limpio),
-                    cantidad=cantidad
-                )
-                detalle.save()
-            
-            # Calcular totales
-            compra.calcular_totales()
-            
-            messages.success(
-                self.request,
-                f'¡Compra actualizada exitosamente! {len(detalles_validos)} artículo{"s" if len(detalles_validos) != 1 else ""}.'
-            )
-            return redirect(self.success_url)
-        except Exception as e:
-            print(f"Error inesperado en form_valid: {e}")
-            messages.error(
-                self.request,
-                f'Error al actualizar la compra: {str(e)}'
-            )
+            nuevos_detalles = _parse_detalles_compra(self.request)
+        except ValueError as exc:
+            messages.error(self.request, str(exc))
             return self.form_invalid(form)
-    
+
+        compra = self.get_object()
+
+        try:
+            with transaction.atomic():
+                compra = form.save()
+
+                detalles_actuales = list(compra.detalles.select_related("flor", "producto"))
+
+                for detalle in detalles_actuales:
+                    item_pk = detalle.flor_id if detalle.tipo_item == "FLOR" else detalle.producto_id
+                    if not item_pk:
+                        continue
+
+                    _restar_stock_item(
+                        detalle.tipo_item,
+                        item_pk,
+                        detalle.cantidad,
+                        "la edicion de compra",
+                    )
+
+                compra.detalles.all().delete()
+
+                for data in nuevos_detalles:
+                    detalle = DetalleCompra(
+                        compra=compra,
+                        tipo_item=data["tipo_item"],
+                        cantidad=data["cantidad"],
+                        precio=data["precio"],
+                    )
+                    if data["tipo_item"] == "FLOR":
+                        detalle.flor = Flor.objects.get(pk=data["item_pk"])
+                    else:
+                        detalle.producto = Producto.objects.get(pk=data["item_pk"])
+                    detalle.save()
+
+                    _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
+
+                compra.calcular_totales()
+
+            messages.success(self.request, f"Compra actualizada exitosamente con {len(nuevos_detalles)} item(s).")
+            return redirect(self.success_url)
+        except (Flor.DoesNotExist, Producto.DoesNotExist):
+            messages.error(self.request, "Uno de los items seleccionados ya no existe.")
+            return self.form_invalid(form)
+        except ValueError as exc:
+            messages.error(self.request, str(exc))
+            return self.form_invalid(form)
+        except Exception as exc:
+            messages.error(self.request, f"Error al actualizar la compra: {exc}")
+            return self.form_invalid(form)
+
     def form_invalid(self, form):
-        messages.error(self.request, 'Por favor, corrija los errores en el formulario.')
+        messages.error(self.request, "Por favor, corrija los errores en el formulario.")
         return super().form_invalid(form)
 
 
 class CompraDeleteView(LoginRequiredMixin, generic.DeleteView):
-    """Vista para eliminar una compra"""
     model = Compra
-    template_name = 'eliminar_compra.html'
-    success_url = reverse_lazy('compras:lista_compra')
-    pk_url_kwarg = 'compra_id'
-    login_url = 'usuarios:login'
-    
-    def delete(self, request, *args, **kwargs):
+    template_name = "eliminar_compra.html"
+    success_url = reverse_lazy("compras:lista_compra")
+    pk_url_kwarg = "compra_id"
+    login_url = "usuarios:login"
+
+    def post(self, request, *args, **kwargs):
         compra = self.get_object()
-        messages.success(
-            request,
-            f'La compra {compra.descripcion} ha sido eliminada exitosamente.'
-        )
-        return super().delete(request, *args, **kwargs)
-        return super().delete(request, *args, **kwargs)
+        try:
+            with transaction.atomic():
+                detalles = list(compra.detalles.select_related("flor", "producto"))
+                for detalle in detalles:
+                    item_pk = detalle.flor_id if detalle.tipo_item == "FLOR" else detalle.producto_id
+                    if not item_pk:
+                        continue
+
+                    _restar_stock_item(
+                        detalle.tipo_item,
+                        item_pk,
+                        detalle.cantidad,
+                        "la eliminacion de compra",
+                    )
+                compra.delete()
+
+            messages.success(request, f"La compra {compra.id} ha sido eliminada exitosamente.")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+        except Exception as exc:
+            messages.error(request, f"No se pudo eliminar la compra: {exc}")
+
+        return redirect(self.success_url)

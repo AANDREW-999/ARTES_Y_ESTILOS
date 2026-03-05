@@ -1,41 +1,49 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Producto{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/modules.css' %}">
-{% endblock %}
+{% block title %}Productos{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="page-breadcrumb mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'core:dashboard' %}">
-                        <i class="bi bi-house-door-fill"></i>
-                        <span>Inicio</span>
-                    </a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">Producto</li>
-            </ol>
-        </nav>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-box"></i> Productos</h2>
+        <a href="{% url 'producto:crear' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo producto
+        </a>
     </div>
 
-    <div class="page-header-clientes">
-        <div class="page-header-info">
-            <h1><i class="bi bi-box"></i> Producto</h1>
-            <p>Este módulo está listo para continuar la unificación del panel.</p>
+    <div class="card shadow-sm">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.get_tipo_producto_display }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>{{ producto.cantidad }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'producto:editar' producto.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                            <a href="{% url 'producto:eliminar' producto.id %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No hay productos registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
-
-    <div class="confirmation-card" style="max-width: 720px; margin: 0 auto;">
-        <div class="confirmation-icon" aria-hidden="true">
-            <i class="bi bi-info-circle"></i>
-        </div>
-        <div class="confirmation-title">En construcción</div>
-        <div class="confirmation-text">Cuando me indiques el CRUD y campos, lo dejo igual que Clientes/Proveedores (breadcrumb, tabla responsive, eliminar con confirmación y notificaciones).</div>
     </div>
 </div>
 {% endblock %}

@@ -135,6 +135,7 @@
       });
     }
 
+
     // ========================================================================
     // TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
     // ========================================================================
@@ -209,6 +210,8 @@
       const usernameInput = document.getElementById('id_username');
       if (!usernameInput) return;
 
+      const validateUrl = usernameInput.dataset.validateUrl || window.LOGIN_VALIDATE_URL;
+
       // Crear el elemento de ayuda si no existe
       let helpBadge = document.getElementById('username-help');
       if (!helpBadge) {
@@ -225,6 +228,67 @@
         formFloating.parentNode.insertBefore(helpBadge, formFloating);
       }
 
+      let debounceTimer = null;
+      let requestSeq = 0;
+
+      const setStatus = (state, message) => {
+        const helpBadgeElement = document.getElementById('username-help') || helpBadge;
+        if (!helpBadgeElement) return;
+
+        if (state === 'valid') {
+          usernameInput.classList.remove('is-valid', 'is-invalid');
+          helpBadgeElement.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i>${message}`;
+          helpBadgeElement.className = 'form-text text-success mb-3';
+          return;
+        }
+
+        if (state === 'invalid') {
+          usernameInput.classList.remove('is-valid', 'is-invalid');
+          helpBadgeElement.innerHTML = `<i class="bi bi-x-circle-fill text-danger me-1"></i>${message}`;
+          helpBadgeElement.className = 'form-text text-danger mb-3';
+          return;
+        }
+
+        usernameInput.classList.remove('is-valid', 'is-invalid');
+        helpBadgeElement.innerHTML = `<i class="bi bi-info-circle me-1"></i>${message}`;
+        helpBadgeElement.className = 'form-text text-muted mb-3';
+      };
+
+      const checkExists = (value) => {
+        if (!validateUrl) return;
+        const currentSeq = ++requestSeq;
+        fetch(`${validateUrl}?q=${encodeURIComponent(value)}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (currentSeq !== requestSeq) return;
+            if (!data || !value) return;
+            if (data.type === 'empty') {
+              usernameInput.dataset.exists = '';
+              setStatus('neutral', 'Ingresa un usuario o documento.');
+              return;
+            }
+            if (data.exists) {
+              usernameInput.dataset.exists = 'true';
+              const msg = data.type === 'documento'
+                ? 'Documento registrado.'
+                : 'Usuario registrado.';
+              setStatus('valid', msg);
+              return;
+            }
+            usernameInput.dataset.exists = 'false';
+            const msg = data.type === 'documento'
+              ? 'Documento no encontrado.'
+              : 'Usuario no encontrado.';
+            setStatus('invalid', msg);
+          })
+          .catch(() => {
+            usernameInput.dataset.exists = '';
+            setStatus('neutral', 'No se pudo validar en este momento.');
+          });
+      };
+
       // Detectar si están escribiendo un documento
       usernameInput.addEventListener('input', (e) => {
         const value = e.target.value.trim();
@@ -233,24 +297,30 @@
 
         if (!helpBadgeElement) return;
 
-        if (isNumeric) {
-          if (value.length >= 6 && value.length <= 10) {
-            helpBadgeElement.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Documento válido detectado';
-            helpBadgeElement.className = 'form-text text-success mb-3';
-          } else if (value.length > 0 && value.length < 6) {
-            helpBadgeElement.innerHTML = `<i class="bi bi-hash me-1"></i>Documento: ${value.length}/6-10 dígitos`;
-            helpBadgeElement.className = 'form-text text-primary mb-3';
-          } else if (value.length > 10) {
-            helpBadgeElement.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>El documento debe tener entre 6 y 10 dígitos';
-            helpBadgeElement.className = 'form-text text-warning mb-3';
-          }
-        } else if (value.length > 0) {
-          helpBadgeElement.innerHTML = '<i class="bi bi-person-circle text-primary me-1"></i>Usuario detectado';
-          helpBadgeElement.className = 'form-text text-primary mb-3';
-        } else {
-          helpBadgeElement.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (6-10 dígitos)';
-          helpBadgeElement.className = 'form-text text-muted mb-3';
+        if (!value) {
+          usernameInput.dataset.exists = '';
+          setStatus('neutral', 'Puedes usar tu nombre de usuario o documento (6-10 digitos)');
+          return;
         }
+
+        if (isNumeric) {
+          if (value.length > 0 && value.length < 6) {
+            setStatus('neutral', `Documento: ${value.length}/6-10 digitos`);
+            return;
+          }
+          if (value.length > 10) {
+            setStatus('neutral', 'El documento debe tener entre 6 y 10 digitos');
+            return;
+          }
+        } else if (value.length < 3) {
+          setStatus('neutral', 'Sigue escribiendo para validar el usuario.');
+          return;
+        }
+
+        usernameInput.dataset.exists = 'pending';
+        setStatus('neutral', 'Buscando en el sistema...');
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => checkExists(value), 400);
       });
 
       console.log('✅ Detección de documento inicializada');
@@ -320,6 +390,7 @@
             // Validación adicional para username/documento
             if (input.id === 'id_username') {
               const isNumeric = /^\d+$/.test(value);
+              const existsFlag = input.dataset.exists || '';
               
               if (isNumeric) {
                 // Es un documento - debe tener entre 6 y 10 dígitos
@@ -335,16 +406,37 @@
                   if (feedback) {
                     feedback.textContent = `El documento debe tener entre 6 y 10 dígitos (tienes ${value.length})`;
                   }
-                } else {
-                  input.classList.remove('is-invalid');
-                  input.classList.add('is-valid');
-                  console.log(`✅ ${input.id}: Documento válido (${value.length} dígitos)`);
+                } else if (existsFlag === 'false') {
+                  hasErrors = true;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                  errors.push(`${input.id}-noexiste`);
+                  const feedback = input.parentElement.querySelector('.invalid-feedback');
+                  if (feedback) {
+                    feedback.textContent = 'Documento no encontrado.';
+                  }
                 }
               } else {
                 // Es un username
-                input.classList.remove('is-invalid');
-                input.classList.add('is-valid');
-                console.log(`✅ ${input.id}: Usuario válido`);
+                if (value.length < 3) {
+                  hasErrors = true;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                  errors.push(`${input.id}-formato`);
+                  const feedback = input.parentElement.querySelector('.invalid-feedback');
+                  if (feedback) {
+                    feedback.textContent = 'El usuario debe tener al menos 3 caracteres.';
+                  }
+                } else if (existsFlag === 'false') {
+                  hasErrors = true;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                  errors.push(`${input.id}-noexiste`);
+                  const feedback = input.parentElement.querySelector('.invalid-feedback');
+                  if (feedback) {
+                    feedback.textContent = 'Usuario no encontrado.';
+                  }
+                }
               }
             } else {
               input.classList.remove('is-invalid');
@@ -395,27 +487,14 @@
       // Validación especial para username/documento
       if (input.id === 'id_username' && value.length > 0) {
         const isNumeric = /^\d+$/.test(value);
-        
-        if (isNumeric) {
-          // Es un documento
-          if (value.length >= 6 && value.length <= 10) {
-            input.classList.add('is-valid');
-          } else if (value.length > 10) {
-            input.classList.add('is-invalid');
-            const feedback = input.parentElement.querySelector('.invalid-feedback');
-            if (feedback) {
-              feedback.textContent = 'El documento debe tener entre 6 y 10 dígitos';
-            }
-          }
-          // Si tiene menos de 6, no marcamos como inválido aún (están escribiendo)
-        } else {
-          // Es un username - validar longitud mínima
-          if (value.length >= 3) {
-            input.classList.add('is-valid');
-          } else if (value.length > 0) {
-            // Están escribiendo, no marcar como inválido aún
+        if (isNumeric && value.length > 10) {
+          input.classList.add('is-invalid');
+          const feedback = input.parentElement.querySelector('.invalid-feedback');
+          if (feedback) {
+            feedback.textContent = 'El documento debe tener entre 6 y 10 dígitos';
           }
         }
+        return;
       } else if (value.length > 0) {
         // Otros campos
         if (isEmpty) {

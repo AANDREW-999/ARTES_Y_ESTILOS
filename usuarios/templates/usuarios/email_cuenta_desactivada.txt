@@ -1,0 +1,8 @@
+Hola {{ nombre }},
+
+Tu cuenta ha sido desactivada en el panel administrativo de Artes y Estilos.
+No podras iniciar sesion hasta que un superadministrador reactive tu cuenta.
+
+Si consideras que esto es un error, contacta al equipo de administracion.
+
+Artes y Estilos

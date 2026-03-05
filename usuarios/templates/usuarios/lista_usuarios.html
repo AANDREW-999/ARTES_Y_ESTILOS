@@ -261,6 +261,12 @@
                                 </a>
 
                                 {% if request.user.is_superuser and usuario.is_staff and not usuario.is_superuser %}
+                                    <a href="{% url 'usuarios:convertir_superadmin' usuario.id %}"
+                                       class="btn-action btn-editar"
+                                       title="Convertir a SuperAdmin">
+                                        <i class="bi bi-shield-fill-check"></i>
+                                        <span>SuperAdmin</span>
+                                    </a>
                                     {% if usuario.is_active %}
                                         <a href="{% url 'usuarios:desactivar_usuario' usuario.id %}"
                                            class="btn-action btn-desactivar"

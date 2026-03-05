@@ -31,10 +31,11 @@
     <!-- ════════════════════════════════════
          SIDEBAR
     ════════════════════════════════════ -->
+    {% if user.is_authenticated %}
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="user-avatar">
-                {% if user.perfil.foto_perfil %}
+                {% if user.perfil and user.perfil.foto_perfil %}
                     <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="avatar-img">
                 {% else %}
                     <div class="avatar-placeholder">
@@ -102,8 +103,9 @@
                        role="button"
                        aria-expanded="{% if request.resolver_match.app_name == 'productos' %}true{% else %}false{% endif %}"
                        aria-controls="submenuProductos">
-                        <span><i class="bi bi-bag-check me-2"></i> Tipos de productos</span>
-                        <i class="bi bi-chevron-down small"></i>
+                        <i class="bi bi-bag-check"></i>
+                        <span>Tipos de productos</span>
+                        <i class="bi bi-chevron-right small"></i>
                     </a>
                     <div class="collapse {% if request.resolver_match.app_name == 'productos' %}show{% endif %}"
                          id="submenuProductos">
@@ -128,7 +130,8 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="{% url 'ventas:listar_venta' %}">
+                    <a href="{% url 'ventas:listar_venta' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'ventas' %}active{% endif %}">
                         <i class="bi bi-cart3"></i><span>Ventas</span>
                     </a>
                 </li>
@@ -149,8 +152,9 @@
                        role="button"
                        aria-expanded="{% if request.resolver_match.app_name == 'compras' or request.resolver_match.app_name == 'proveedores' %}true{% else %}false{% endif %}"
                        aria-controls="submenuCompras">
-                        <span><i class="bi bi-bag-check me-2"></i> Compras</span>
-                        <i class="bi bi-chevron-down small"></i>
+                        <i class="bi bi-bag-check"></i>
+                        <span>Compras</span>
+                        <i class="bi bi-chevron-right small"></i>
                     </a>
                     <div class="collapse {% if request.resolver_match.app_name == 'compras' or request.resolver_match.app_name == 'proveedores' %}show{% endif %}"
                          id="submenuCompras">
@@ -188,7 +192,10 @@
 
             </ul>
         </nav>
+
+        <div class="sidebar-resizer" id="sidebar-resizer" aria-hidden="true"></div>
     </div>
+    {% endif %}
 
 
     <!-- ════════════════════════════════════
@@ -240,6 +247,7 @@
 
 
         <!-- ─── Top Bar ─── -->
+        {% if user.is_authenticated %}
         <div class="topbar">
             <div class="topbar-left">
                 <button class="btn btn-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
@@ -266,6 +274,7 @@
                 </div>  
             </div>
         </div>
+        {% endif %}
 
 
         <!-- ─── Contenido Principal ─── -->

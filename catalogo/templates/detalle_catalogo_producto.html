@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=20260303">
 {% endblock %}
 
 {% block content %}
 
-<div class="container py-4">
+<div class="container py-4 catalogo-detail">
 
     <!-- Botón volver -->
     <div class="mb-4">
@@ -64,5 +64,4 @@
 
 </div>
 
-<script src="{% static 'js/archivo.js' %}"></script>
 {% endblock %}

@@ -13,7 +13,8 @@
 {% comment %}Overlay notificación centrada — siempre en DOM, oculto por JS{% endcomment %}
 <div id="adminNotificationOverlay"
      class="admin-notification-overlay"
-     style="display:none;"
+    style="display:none;"
+    data-index-url="{% url 'core:landing' %}"
      role="dialog"
      aria-modal="true"
      aria-live="assertive"

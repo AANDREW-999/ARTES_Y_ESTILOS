@@ -670,7 +670,7 @@ def eliminar_usuario_view(request, user_id):
             messages.warning(request,
                 f'⚠️ Tu cuenta {username} ha sido eliminada permanentemente.',
                 extra_tags='level-warning field-general')
-            return redirect('core:index')
+            return redirect('core:landing')
         else:
             messages.error(request,
                 '⛔ Debes escribir "ELIMINAR" para confirmar esta acción.',

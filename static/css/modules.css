@@ -106,6 +106,45 @@ html[data-theme="light"] {
     gap: 1rem;
 }
 
+/* Buscador en headers (lista) */
+.page-header-actions .form-control,
+.page-header-actions .form-control-sm {
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.page-header-actions .form-control:hover,
+.page-header-actions .form-control-sm:hover {
+    border-color: #BF5486;
+}
+
+.page-header-actions .form-control:focus,
+.page-header-actions .form-control-sm:focus {
+    border-color: #BF5486;
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18);
+    outline: none;
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.page-header-actions .btn {
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: 0.25rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.page-header-actions .btn:hover {
+    background: #BF5486;
+    border-color: #BF5486;
+    color: white;
+}
+
 /* ========================================
    BOTÓN NUEVO CLIENTE
    ======================================== */
@@ -686,6 +725,30 @@ html[data-theme="dark"] .badge-cliente {
 }
 
 .field-input:focus {
+    border-color: #BF5486;
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18);
+    background: var(--bg-card);
+}
+
+/* Inputs Bootstrap dentro de .form-card (unificar sin tocar widgets backend) */
+.form-card .form-control,
+.form-card .form-select {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.form-card .form-control:focus,
+.form-card .form-select:focus {
     border-color: #BF5486;
     box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18);
     background: var(--bg-card);

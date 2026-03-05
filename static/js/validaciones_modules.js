@@ -69,9 +69,15 @@ document.addEventListener('DOMContentLoaded', function() {
             soloNumeros: true,
             permitirEspacios: true,
             permitirCaracteresEspeciales: false,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return { valido: false, mensaje: 'El teléfono es obligatorio' };
+                    }
                     return { valido: true, mensaje: 'Opcional' };
+                }
+                if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                 }
                 const soloNumeros = valor.replace(/\s/g, '');
                 if (!/^\d+$/.test(soloNumeros)) {
@@ -89,9 +95,15 @@ document.addEventListener('DOMContentLoaded', function() {
         correo_electronico: {
             selector: ['#id_correo_electronico', '#id_email'],
             permitirCaracteresEspeciales: true,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return { valido: false, mensaje: 'El correo electrónico es obligatorio' };
+                    }
                     return { valido: true, mensaje: 'Opcional' };
+                }
+                if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                 }
                 const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!regex.test(valor)) {
@@ -156,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
             selector: ['#id_ciudad'],
             soloLetras: true,
             permitirCaracteresEspeciales: false,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 const departamento = document.querySelector('#id_departamento')?.value;
 
                 // Si hay departamento seleccionado, ciudad es obligatoria
@@ -164,13 +176,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!valor || valor.trim() === '') {
                         return { valido: false, mensaje: 'Debe seleccionar una ciudad' };
                     }
+                    if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                        return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
+                    }
                     if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
                         return { valido: false, mensaje: 'Solo letras permitidas' };
                     }
                 } else {
                     // Si no hay departamento, ciudad es opcional
                     if (!valor || valor.trim() === '') {
+                        if (input && input.required) {
+                            return { valido: false, mensaje: 'La ciudad es obligatoria' };
+                        }
                         return { valido: true, mensaje: 'Opcional' };
+                    }
+                    if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                        return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                     }
                     if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
                         return { valido: false, mensaje: 'Solo letras permitidas' };
@@ -182,14 +203,71 @@ document.addEventListener('DOMContentLoaded', function() {
         direccion: {
             selector: ['#id_direccion'],
             permitirCaracteresEspeciales: false,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return { valido: false, mensaje: 'La dirección es obligatoria' };
+                    }
                     return { valido: true, mensaje: 'Opcional' };
+                }
+                if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                 }
                 if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúñÑ\s\.,#\-]+$/.test(valor)) {
                     return { valido: false, mensaje: 'Caracteres especiales no permitidos (solo letras, números, ., ,, #, -)' };
                 }
                 return { valido: true, mensaje: 'Dirección válida' };
+            }
+        },
+
+        // ========================================
+        // PROVEEDORES
+        // ========================================
+        tipo_documento_proveedor: {
+            selector: ['#id_tipo_documento'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor === '') {
+                    return { valido: false, mensaje: 'Debe seleccionar el tipo de documento' };
+                }
+                return { valido: true, mensaje: 'Tipo de documento válido' };
+            }
+        },
+        numero_documento_proveedor: {
+            selector: ['#id_numero_documento'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El número de documento es obligatorio' };
+                }
+                const trimmed = valor.trim();
+                if (trimmed.length > 50) {
+                    return { valido: false, mensaje: 'Debe tener máximo 50 caracteres' };
+                }
+                if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúñÑ\-\.\s]+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Formato inválido (usa letras, números, espacio, - o .)' };
+                }
+                return { valido: true, mensaje: 'Documento válido' };
+            }
+        },
+        nombre_proveedor: {
+            selector: ['#id_nombre_proveedor'],
+            permitirCaracteresEspeciales: false,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El nombre del proveedor es obligatorio' };
+                }
+                const trimmed = valor.trim();
+                if (trimmed.length < 2) {
+                    return { valido: false, mensaje: 'Debe tener al menos 2 caracteres' };
+                }
+                if (trimmed.length > 150) {
+                    return { valido: false, mensaje: 'Debe tener máximo 150 caracteres' };
+                }
+                if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúñÑ\s\.,\-]+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Caracteres no permitidos (solo letras, números, espacio, ., , y -)' };
+                }
+                return { valido: true, mensaje: 'Nombre válido' };
             }
         }
     };
@@ -440,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 } else {
                     input.addEventListener('input', function() {
-                        const resultado = config.validar(this.value);
+                        const resultado = config.validar(this.value, this);
                         mostrarFeedback(this, resultado);
                     });
                 }
@@ -456,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }
                     } else {
-                        const resultado = config.validar(this.value);
+                        const resultado = config.validar(this.value, this);
                         mostrarFeedback(this, resultado);
                     }
                 });
@@ -475,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 mostrarFeedback(input, resultadoLocal);
                             }
                         } else {
-                            const resultado = config.validar(input.value);
+                            const resultado = config.validar(input.value, input);
                             mostrarFeedback(input, resultado);
                         }
                     }, 100);
@@ -516,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 return;
                             }
                         } else {
-                            const resultado = config.validar(input.value);
+                            const resultado = config.validar(input.value, input);
                             mostrarFeedback(input, resultado);
                             if (!resultado.valido) {
                                 formularioValido = false;

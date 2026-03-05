@@ -1,74 +1,154 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Agregar Proveedor{% endblock %}
+{% block title %}Crear proveedor{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
 
-<h2 class="fw-bold mb-4">
-    <i class="bi bi-person-plus"></i> Agregar Proveedor
-</h2>
-
-<div class="card shadow col-md-8">
-    <div class="card-body">
-
-        <form method="post">
-            {% csrf_token %}
-
-            <div class="row">
-                <div class="col-md-6">
-                    {{ form.tipo_documento.label_tag }}
-                    {{ form.tipo_documento }}
-                </div>
-                <div class="col-md-6">
-                    {{ form.nombre_proveedor.label_tag }}
-                    {{ form.nombre_proveedor }}
-                </div>
-                <div class="col-md-6 mt-2">
-                    {{ form.numero_documento.label_tag }}
-                    {{ form.numero_documento }}
-                </div>
-            </div>
-
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    {{ form.ciudad.label_tag }}
-                    {{ form.ciudad }}
-                </div>
-                <div class="col-md-6">
-                    {{ form.telefono.label_tag }}
-                    {{ form.telefono }}
-                </div>
-            </div>
-
-            <div class="mt-2">
-                {{ form.direccion.label_tag }}
-                {{ form.direccion }}
-            </div>
-
-            <div class="mt-2">
-                {{ form.correo_electronico.label_tag }}
-                {{ form.correo_electronico }}
-            </div>
-
-            <div class="form-check mt-3">
-                {{ form.activo }} {{ form.activo.label_tag }}
-            </div>
-
-            <div class="mt-4">
-                <button class="btn btn-primary">
-                    <i class="bi bi-save"></i> Guardar
-                </button>
-                <a href="{% url 'proveedores:listar' %}" class="btn btn-secondary">
-                    Cancelar
-                </a>
-            </div>
-
-        </form>
-
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'proveedores:listar' %}">Proveedores</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Crear proveedor</li>
+            </ol>
+        </nav>
     </div>
-</div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9 col-xl-8">
+            <div class="form-card">
+                <div class="form-section-title">
+                    <i class="bi bi-person-plus"></i>
+                    Crear proveedor
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.tipo_documento.id_for_label }}">Tipo de documento</label>
+                                {{ form.tipo_documento }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.tipo_documento.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.numero_documento.id_for_label }}">Número de documento</label>
+                                {{ form.numero_documento }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.numero_documento.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.nombre_proveedor.id_for_label }}">Nombre del proveedor</label>
+                                {{ form.nombre_proveedor }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.nombre_proveedor.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.direccion.id_for_label }}">Dirección</label>
+                                {{ form.direccion }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.direccion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.ciudad.id_for_label }}">Ciudad</label>
+                                {{ form.ciudad }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.ciudad.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.telefono.id_for_label }}">Teléfono</label>
+                                {{ form.telefono }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.telefono.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.correo_electronico.id_for_label }}">Correo electrónico</label>
+                                {{ form.correo_electronico }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.correo_electronico.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.activo }}
+                                <label class="form-check-label" for="{{ form.activo.id_for_label }}">Activo</label>
+                            </div>
+                            {% for error in form.activo.errors %}
+                                <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                        <a href="{% url 'proveedores:listar' %}" class="btn-cancelar">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
 {% endblock %}

@@ -44,12 +44,18 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 .dashboard-body {
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
     line-height: 1.6;
+    min-height: 100%;
 }
 
 /* ==========================================
@@ -587,6 +593,7 @@ body.sidebar-resizing .main-content {
     display: flex;
     flex-direction: column;
     transition: var(--transition);
+    overflow: visible;
 }
 
 .topbar {
@@ -882,6 +889,7 @@ html[data-theme="light"] .breadcrumb-item.active {
     border-top: 1px solid var(--border-color);
     padding: 1.5rem 2rem;
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 .footer-content {
@@ -1029,6 +1037,25 @@ html[data-theme="light"] .breadcrumb-item.active {
     .content-wrapper {
         padding: 1rem;
     }
+
+    /* Tablas: permitir scroll horizontal y mejorar legibilidad */
+    .content-wrapper .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .content-wrapper .table-responsive > table {
+        margin-bottom: 0;
+    }
+
+    .content-wrapper .table-responsive table th,
+    .content-wrapper .table-responsive table td {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
 }
 
 /* ==========================================
@@ -1037,6 +1064,56 @@ html[data-theme="light"] .breadcrumb-item.active {
 .text-primary { color: var(--rosa-intenso) !important; }
 .bg-primary { background-color: var(--rosa-intenso) !important; }
 .border-primary { border-color: var(--rosa-intenso) !important; }
+
+/* ==========================================
+   🌸 SCROLLBARS (barra rosada)
+   - Para tablas con scroll horizontal en módulos del panel
+   ========================================== */
+.content-wrapper .table-responsive,
+.clientes-table-container,
+.usuarios-table-container,
+.catalogo-table-container,
+.panel-table-container {
+    scrollbar-color: var(--rosa-intenso) rgba(217, 167, 194, 0.25);
+    scrollbar-width: thin;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar,
+.clientes-table-container::-webkit-scrollbar,
+.usuarios-table-container::-webkit-scrollbar,
+.catalogo-table-container::-webkit-scrollbar,
+.panel-table-container::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-track,
+.clientes-table-container::-webkit-scrollbar-track,
+.usuarios-table-container::-webkit-scrollbar-track,
+.catalogo-table-container::-webkit-scrollbar-track,
+.panel-table-container::-webkit-scrollbar-track {
+    background: rgba(217, 167, 194, 0.12);
+    border-radius: 999px;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-thumb,
+.clientes-table-container::-webkit-scrollbar-thumb,
+.usuarios-table-container::-webkit-scrollbar-thumb,
+.catalogo-table-container::-webkit-scrollbar-thumb,
+.panel-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, var(--rosa-intenso), var(--rosa-suave));
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-thumb:hover,
+.clientes-table-container::-webkit-scrollbar-thumb:hover,
+.usuarios-table-container::-webkit-scrollbar-thumb:hover,
+.catalogo-table-container::-webkit-scrollbar-thumb:hover,
+.panel-table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--rosa-intenso);
+}
 
 /* Animación suave */
 @keyframes fadeIn {

@@ -239,6 +239,18 @@ class EditarPerfilForm(forms.ModelForm):
             except Perfil.DoesNotExist:
                 pass
 
+        # En el panel solo existen administradores y superadministradores.
+        # Forzamos que is_staff no sea editable desde formularios.
+        self.fields.pop('is_staff', None)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = True
+        if commit:
+            user.save()
+            self.save_m2m()
+        return user
+
     # ── Validaciones ─────────────────────────────────────────────────────
 
     def clean_username(self):

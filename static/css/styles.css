@@ -268,12 +268,29 @@ hr {
   background: rgba(191,84,134,.08);
 }
 
-/* Animaciones de aparición (reveal) */
-.reveal { opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .5s ease; }
+/* Animaciones de aparición (reveal) — suaves y tranquilas */
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .7s cubic-bezier(.22,.9,.24,1), transform .7s cubic-bezier(.22,.9,.24,1);
+  will-change: opacity, transform;
+}
 .reveal.in-view { opacity: 1; transform: translateY(0); }
-.reveal-left { opacity: 0; transform: translateX(-16px); transition: opacity .55s ease, transform .55s ease; }
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity .75s cubic-bezier(.22,.9,.24,1), transform .75s cubic-bezier(.22,.9,.24,1);
+  will-change: opacity, transform;
+}
 .reveal-left.in-view { opacity: 1; transform: translateX(0); }
-.reveal-right { opacity: 0; transform: translateX(16px); transition: opacity .55s ease, transform .55s ease; }
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity .75s cubic-bezier(.22,.9,.24,1), transform .75s cubic-bezier(.22,.9,.24,1);
+  will-change: opacity, transform;
+}
 .reveal-right.in-view { opacity: 1; transform: translateX(0); }
 
 /* Rosa grande bajo redes: más presencia y hover decorativo */

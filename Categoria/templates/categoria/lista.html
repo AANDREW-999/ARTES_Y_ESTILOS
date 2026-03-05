@@ -1,0 +1,41 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Categoría{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Categoría</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="page-header-clientes">
+        <div class="page-header-info">
+            <h1><i class="bi bi-tag"></i> Categoría</h1>
+            <p>Este módulo está listo para continuar la unificación del panel.</p>
+        </div>
+    </div>
+
+    <div class="confirmation-card" style="max-width: 720px; margin: 0 auto;">
+        <div class="confirmation-icon" aria-hidden="true">
+            <i class="bi bi-info-circle"></i>
+        </div>
+        <div class="confirmation-title">En construcción</div>
+        <div class="confirmation-text">Cuando me indiques el CRUD y campos, lo dejo igual que Clientes/Proveedores (breadcrumb, tabla responsive, eliminar con confirmación y notificaciones).</div>
+    </div>
+</div>
+{% endblock %}

@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'accesibilidad',
     'compras',
     'ventas',
-    'arreglo',
+    'flor',
+    'producto',
+    'categoria',
 ]
 
 MIDDLEWARE = [

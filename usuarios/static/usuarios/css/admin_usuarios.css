@@ -1300,6 +1300,23 @@ html[data-theme="light"] .form-text {
     .stats-grid {
         grid-template-columns: 1fr;
     }
+
+    /* Tablas en móvil: permitir desplazamiento horizontal dentro de la tarjeta */
+    .usuarios-table-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+    }
+
+    /* Evitar doble scroll si el panel envuelve tablas con `.table-responsive` */
+    .usuarios-table-container .table-responsive {
+        overflow: visible;
+    }
+
+    .usuarios-table {
+        min-width: 760px;
+    }
 }
 
 @media (max-width: 576px) {

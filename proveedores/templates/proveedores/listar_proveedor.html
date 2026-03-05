@@ -1,106 +1,145 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Listado de Proveedores{% endblock %}
+{% block title %}Proveedores{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="fw-bold">
-        <i class="bi bi-truck"></i> Proveedores
-    </h2>
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
+            </ol>
+        </nav>
+    </div>
 
-    <a href="{% url 'proveedores:agregar' %}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Nuevo Proveedor
-    </a>
-</div>
-  
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="GET" id="filtroForm">
-                        <div class="row align-items-end">
-                            <div class="col-md-3">
-                                <label for="proveedor">Proveedor</label>
-                                <select name="proveedor" id="proveedor" class="form-control">
-                                    <option value="">Todos los proveedores</option>
-                                    {% for proveedor in proveedores %}
-                                    <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="fecha_desde">Fecha desde</label>
-                                <input type="date" name="fecha_desde" id="fecha_desde" class="form-control">
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-info w-100">
-                                    <i class="fas fa-filter"></i> Filtrar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Header -->
+    <div class="page-header-clientes fadeInUp">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-truck"></i> Proveedores
+            </h1>
+            <p>Gestiona los proveedores de la floristería.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <form method="get" class="d-flex" role="search" aria-label="Buscar proveedores">
+                <input
+                    name="q"
+                    value="{{ request.GET.q }}"
+                    class="form-control form-control-sm"
+                    placeholder="Buscar proveedor..."
+                    style="width: 250px;">
+                <button type="submit" class="btn btn-sm ms-1" aria-label="Buscar">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <a href="{% url 'proveedores:agregar' %}" class="btn-cliente-nuevo">
+                <i class="bi bi-plus-lg"></i> Crear proveedor
+            </a>
         </div>
     </div>
 
-<div class="card shadow">
-    <div class="card-body table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Tipo Doc</th>
-                    <th>Numero</th>
-                    <th>Nombre</th>
-                    <th>Ciudad</th>
-                    <th>Teléfono</th>
-                    <th>Correo</th>
-                    <th>Estado</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for proveedor in proveedores %}
-                <tr>
-                    <td>{{ proveedor.tipo_documento }}</td>
-                    <td>{{ proveedor.numero_documento }}</td>
-                    <td>{{ proveedor.nombre_proveedor }}</td>
-                    <td>{{ proveedor.ciudad }}</td>
-                    <td>{{ proveedor.telefono }}</td>
-                    <td>{{ proveedor.correo_electronico }}</td>
-                    <td>
-                        {% if proveedor.activo %}
-                            <span class="badge bg-success">Activo</span>
-                        {% else %}
-                            <span class="badge bg-danger">Inactivo</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
-                        <a href="{% url 'proveedores:detalle' proveedor.id %}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                        <a href="{% url 'proveedores:editar' proveedor.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a href="{% url 'proveedores:eliminar' proveedor.id %}" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center text-muted">
-                        No hay proveedores registrados
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Tabla -->
+    <div class="clientes-table-container fadeInUp" style="animation-delay: 0.2s;">
+        <div class="table-responsive">
+            <table class="clientes-table">
+                <thead>
+                    <tr>
+                        <th>DOCUMENTO</th>
+                        <th>PROVEEDOR</th>
+                        <th>CIUDAD</th>
+                        <th>TELÉFONO</th>
+                        <th>CORREO</th>
+                        <th>ESTADO</th>
+                        <th class="text-end">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proveedor in proveedores %}
+                    <tr class="slideIn">
+                        <td>
+                            <span class="badge-cliente">
+                                {{ proveedor.tipo_documento }} {{ proveedor.numero_documento }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="cliente-avatar-wrapper">
+                                <div class="cliente-avatar-placeholder">
+                                    {{ proveedor.nombre_proveedor|first|upper }}
+                                </div>
+                                <div class="cliente-info">
+                                    <strong>{{ proveedor.nombre_proveedor }}</strong>
+                                    <small>{{ proveedor.direccion|default:'—' }}</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>{{ proveedor.ciudad|default:'—' }}</td>
+                        <td>{{ proveedor.telefono|default:'—' }}</td>
+                        <td>{{ proveedor.correo_electronico|default:'—' }}</td>
+                        <td>
+                            {% if proveedor.activo %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            <div class="acciones-cliente-wrapper">
+                                <a
+                                    href="{% url 'proveedores:detalle' proveedor.id %}"
+                                    class="btn-cliente-action btn-cliente-ver"
+                                    title="Ver"
+                                    aria-label="Ver proveedor">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'proveedores:editar' proveedor.id %}"
+                                    class="btn-cliente-action btn-cliente-editar"
+                                    title="Editar"
+                                    aria-label="Editar proveedor">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'proveedores:eliminar' proveedor.id %}"
+                                    class="btn-cliente-action btn-cliente-eliminar"
+                                    title="Eliminar"
+                                    aria-label="Eliminar proveedor">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="bi bi-truck"></i>
+                            <p>No hay proveedores registrados aún.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
 </div>
 {% endblock %}

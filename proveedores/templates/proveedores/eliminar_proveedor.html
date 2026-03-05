@@ -3,28 +3,58 @@
 
 {% block title %}Eliminar Proveedor{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
+<div class="container-fluid py-4">
 
-<div class="card shadow col-md-6 mx-auto text-center">
-    <div class="card-body">
-        <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
-        <h4 class="mt-3">¿Eliminar proveedor?</h4>
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'proveedores:listar' %}">Proveedores</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
+    </div>
 
-        <p class="fw-bold">{{ proveedor.nombre_proveedor }}</p>
-        <p class="text-muted">{{ proveedor.correo_electronico }}</p>
+    <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-danger" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
 
-        <form method="post">
+        <div class="confirmation-title">¿Eliminar proveedor?</div>
+
+        <div class="user-info-box">
+            <div class="user-info-avatar-placeholder" aria-hidden="true">
+                {{ proveedor.nombre_proveedor|first|upper }}
+            </div>
+            <div>
+                <div class="fw-bold" style="color: var(--text-primary);">{{ proveedor.nombre_proveedor }}</div>
+                <div style="color: var(--text-secondary);">{{ proveedor.correo_electronico }}</div>
+            </div>
+        </div>
+
+        <form method="post" class="d-flex flex-wrap gap-2 justify-content-center">
             {% csrf_token %}
-            <button class="btn btn-danger">
-                <i class="bi bi-trash"></i> Eliminar
+            <button type="submit" class="btn-confirm btn-confirm-danger">
+                <i class="bi bi-trash"></i> Confirmar eliminación
             </button>
-            <a href="{% url 'proveedores:listar' %}" class="btn btn-secondary">
-                Cancelar
+            <a href="{% url 'proveedores:listar' %}" class="btn-cancel">
+                <i class="bi bi-x-lg"></i> Cancelar
             </a>
         </form>
     </div>
-</div>
 
 </div>
 {% endblock %}

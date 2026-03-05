@@ -2,6 +2,7 @@ import base64
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.core.files.base import ContentFile
+from django.contrib import messages
 from .models import Producto
 
 
@@ -47,20 +48,27 @@ def lista_productos(request):
 # 2. AGREGAR
 def agregar_producto(request):
     if request.method == 'POST':
-        nombre    = request.POST.get('nombre')
-        precio_raw = request.POST.get('precio', '0').replace('.', '').replace(',', '.')
+        try:
+            nombre    = request.POST.get('nombre')
+            precio_raw = request.POST.get('precio', '0').replace('.', '').replace(',', '.')
+            activo = request.POST.get('activo') == 'on'
 
-        imagen = _procesar_imagen(request, nombre)
+            imagen = _procesar_imagen(request, nombre)
 
-        Producto.objects.create(
-            nombre=nombre,
-            categoria=request.POST.get('categoria'),
-            precio=precio_raw,
-            tamano=request.POST.get('tamano'),
-            descripcion=request.POST.get('descripcion'),
-            imagen=imagen
-        )
-        return redirect('catalogo:gestion_productos')
+            Producto.objects.create(
+                nombre=nombre,
+                categoria=request.POST.get('categoria'),
+                precio=precio_raw,
+                tamano=request.POST.get('tamano'),
+                descripcion=request.POST.get('descripcion'),
+                activo=activo,
+                imagen=imagen
+            )
+            messages.success(request, 'Producto creado correctamente.')
+            return redirect('catalogo:gestion_productos')
+        except Exception:
+            messages.error(request, 'No se pudo crear el producto. Verifica los datos e inténtalo nuevamente.')
+            return redirect('catalogo:gestion_productos')
 
     return render(request, 'agregar_catalogo_producto.html', {
         'categorias_list': Producto.CATEGORIAS
@@ -72,21 +80,27 @@ def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
 
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        precio_raw = request.POST.get('precio', '0').replace('.', '').replace(',', '.')
+        try:
+            nombre = request.POST.get('nombre')
+            precio_raw = request.POST.get('precio', '0').replace('.', '').replace(',', '.')
 
-        producto.nombre     = nombre
-        producto.categoria  = request.POST.get('categoria')
-        producto.precio     = precio_raw
-        producto.tamano     = request.POST.get('tamano')
-        producto.descripcion = request.POST.get('descripcion')
+            producto.nombre     = nombre
+            producto.categoria  = request.POST.get('categoria')
+            producto.precio     = precio_raw
+            producto.tamano     = request.POST.get('tamano')
+            producto.descripcion = request.POST.get('descripcion')
+            producto.activo = request.POST.get('activo') == 'on'
 
-        imagen = _procesar_imagen(request, nombre)
-        if imagen:
-            producto.imagen = imagen
+            imagen = _procesar_imagen(request, nombre)
+            if imagen:
+                producto.imagen = imagen
 
-        producto.save()
-        return redirect('catalogo:gestion_productos')
+            producto.save()
+            messages.success(request, 'Producto actualizado correctamente.')
+            return redirect('catalogo:gestion_productos')
+        except Exception:
+            messages.error(request, 'No se pudo actualizar el producto. Verifica los datos e inténtalo nuevamente.')
+            return redirect('catalogo:gestion_productos')
 
     return render(request, 'editar_catalogo_producto.html', {
         'producto': producto,
@@ -98,8 +112,16 @@ def editar_producto(request, id):
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     if request.method == 'POST':
-        producto.delete()
-    return redirect('catalogo:gestion_productos')
+        try:
+            producto.delete()
+            messages.success(request, 'Producto eliminado correctamente.')
+        except Exception:
+            messages.error(request, 'No se pudo eliminar el producto. Inténtalo nuevamente.')
+        return redirect('catalogo:gestion_productos')
+
+    return render(request, 'eliminar_catalogo_producto.html', {
+        'producto': producto,
+    })
 
 
 # 5. DETALLE

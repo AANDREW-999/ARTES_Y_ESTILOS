@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ── URL del endpoint (inyectada desde Django en el HTML) ──────────────
     const AJAX_URL = (typeof BUSCAR_ARREGLO_URL !== "undefined")
         ? BUSCAR_ARREGLO_URL
-        : "/ventas/ajax/arreglos/";
+        : "/panel/ventas/ajax/arreglos/";
 
     // ── Eventos globales ──────────────────────────────────────────────────
     addItemBtn.addEventListener("click", agregarFila);

@@ -9,17 +9,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // CONFIRMACIONES DE ACCIONES
     // ==========================================
 
-    // Confirmación para desactivar usuario
+    // Confirmacion flotante al desactivar usuario
     const desactivarButtons = document.querySelectorAll('.btn-desactivar');
     desactivarButtons.forEach(btn => {
-        if (!btn.closest('form')) { // Solo agregar si no está dentro de un form de confirmación
+        if (!btn.closest('form')) {
             btn.addEventListener('click', function(e) {
-                const username = this.getAttribute('data-username');
-                if (username) {
-                    const confirmed = confirm(`¿Estás seguro de desactivar al usuario ${username}?`);
-                    if (!confirmed) {
-                        e.preventDefault();
-                    }
+                const username = this.getAttribute('data-username') || 'el usuario';
+                const targetUrl = this.getAttribute('href');
+                if (!targetUrl) return;
+
+                e.preventDefault();
+
+                if (window._dashboard?.showAdminConfirm) {
+                    window._dashboard.showAdminConfirm(
+                        'warning',
+                        `¿Estas seguro de desactivar a ${username}?`,
+                        () => { window.location.href = targetUrl; },
+                        () => {}
+                    );
+                } else {
+                    window.location.href = targetUrl;
+                }
+            });
+        }
+    });
+
+    // Confirmacion flotante al activar usuario
+    const activarButtons = document.querySelectorAll('.btn-activar');
+    activarButtons.forEach(btn => {
+        if (!btn.closest('form')) {
+            btn.addEventListener('click', function(e) {
+                const username = this.getAttribute('data-username') || 'el usuario';
+                const targetUrl = this.getAttribute('href');
+                if (!targetUrl) return;
+
+                e.preventDefault();
+
+                if (window._dashboard?.showAdminConfirm) {
+                    window._dashboard.showAdminConfirm(
+                        'info',
+                        `¿Deseas activar a ${username}?`,
+                        () => { window.location.href = targetUrl; },
+                        () => {}
+                    );
+                } else {
+                    window.location.href = targetUrl;
                 }
             });
         }

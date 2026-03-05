@@ -1,65 +1,162 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
 
-<div class="container py-5 animated fadeIn">
-    <div class="card border-0 shadow-lg col-md-8 mx-auto rounded-4 bg-white">
-        <div class="card-header bg-primary text-white py-3 border-0 rounded-top-4">
-            <h5 class="mb-0 fw-bold text-center">
-                <i class="bi bi-plus-circle-fill me-2"></i>Registrar Nuevo Producto
-            </h5>
+<div class="page-header-catalogo">
+    <div class="page-header-info">
+        <h1><i class="bi bi-plus-circle-fill"></i> Registrar Nuevo Producto</h1>
+        <p>Complete la información del producto.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'catalogo:gestion_productos' %}" class="btn-volver">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="profile-header-card">
+    <div class="profile-header-content">
+        <div class="profile-avatar-placeholder">
+            <i class="bi bi-box-seam"></i>
         </div>
-        <div class="card-body p-5">
-            <form action="{% url 'catalogo:agregar_producto' %}" method="POST" enctype="multipart/form-data" class="row g-4">
-                {% csrf_token %}
-                
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Nombre del Producto</label>
-                    <input type="text" name="nombre" class="form-control shadow-sm" placeholder="Ej. Ramo de Rosas" required>
-                </div>
+        <div>
+            <p class="profile-name">Nuevo Producto</p>
+            <span class="profile-badge badge-user">
+                <i class="bi bi-tag"></i> Producto
+            </span>
+        </div>
+    </div>
+</div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Categoría</label>
-                    <select name="categoria" class="form-select shadow-sm" required>
+<form id="product-form" action="{% url 'catalogo:agregar_producto' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" id="cropped-image-data" name="cropped_image_data">
+
+    <div class="form-card">
+        <h2 class="form-section-title">
+            <i class="bi bi-info-circle"></i> Datos del Producto
+        </h2>
+        <div class="row g-4">
+
+            <!-- Nombre -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-type"></i> Nombre del Producto</label>
+                    <input type="text" name="nombre" class="field-input"
+                           placeholder="Ej. Ramo de Rosas" required autocomplete="off">
+                    <span class="field-error" id="nombre-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Categoría -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-grid"></i> Categoría</label>
+                    <select name="categoria" class="field-input field-input-select" required>
                         <option value="" selected disabled>Seleccione una categoría...</option>
                         {% for id, nombre in categorias_list %}
                         <option value="{{ id }}">{{ nombre }}</option>
                         {% endfor %}
                     </select>
+                    <span class="field-error" id="categoria-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Precio</label>
-                    <input type="number" step="0.01" name="precio" class="form-control shadow-sm" required>
+            <!-- Precio -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-currency-dollar"></i> Precio</label>
+                    <input type="text" id="precio-display" class="field-input"
+                           placeholder="0" inputmode="numeric" autocomplete="off">
+                    <input type="hidden" name="precio" id="precio-real">
+                    <span class="field-error" id="precio-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Tamaño</label>
-                    <select name="tamano" class="form-select shadow-sm">
+            <!-- Tamaño -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-rulers"></i> Tamaño</label>
+                    <select name="tamano" class="field-input field-input-select">
                         <option value="Pequeño">Pequeño</option>
                         <option value="Mediano">Mediano</option>
                         <option value="Grande">Grande</option>
                     </select>
+                    <span class="field-error" id="tamano-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
                 </div>
+            </div>
 
-                <div class="col-12">
-                    <label class="form-label fw-bold">Imagen</label>
-                    <input type="file" name="imagen" class="form-control shadow-sm" accept="image/*">
+            <!-- Imagen + Cropper -->
+            <div class="col-12">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-image"></i> Imagen</label>
+                    <input type="file" id="image-input" name="imagen"
+                           class="field-input" accept="image/*">
+                    <p class="cropper-hint">
+                        <i class="bi bi-info-circle"></i>
+                        Al seleccionar una imagen podrás recortarla antes de guardar.
+                    </p>
+                    <div class="cropper-section" id="cropper-wrapper">
+                        <img id="image-preview" src="" alt="Vista previa">
+                        <div class="cropper-toolbar">
+                            <button type="button" class="btn-crop-action" id="btn-rotate-left">
+                                <i class="bi bi-arrow-counterclockwise"></i> Rotar
+                            </button>
+                            <button type="button" class="btn-crop-action" id="btn-rotate-right">
+                                <i class="bi bi-arrow-clockwise"></i> Rotar
+                            </button>
+                            <button type="button" class="btn-crop-action" id="btn-flip-h">
+                                <i class="bi bi-symmetry-vertical"></i> Voltear H
+                            </button>
+                            <button type="button" class="btn-crop-action" id="btn-flip-v">
+                                <i class="bi bi-symmetry-horizontal"></i> Voltear V
+                            </button>
+                            <div class="crop-preview-box" id="crop-preview"></div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div class="col-12">
-                    <label class="form-label fw-bold">Descripción</label>
-                    <textarea name="descripcion" class="form-control shadow-sm" rows="3"></textarea>
+            <!-- Descripción -->
+            <div class="col-12">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-text-paragraph"></i> Descripción</label>
+                    <textarea name="descripcion" class="field-input field-input-textarea"
+                              rows="3" placeholder="Descripción del producto..."></textarea>
                 </div>
+            </div>
 
-                <div class="col-12 mt-5 d-flex gap-3">
-                    <a href="{% url 'catalogo:gestion_productos' %}" class="btn btn-outline-secondary w-50 py-2 fw-bold">Cancelar</a>
-                    <button type="submit" class="btn btn-primary w-50 py-2 fw-bold shadow">Guardar Producto</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
+
+    <div class="d-flex gap-3 justify-content-end mb-4">
+        <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancelar">
+            <i class="bi bi-x-lg"></i> Cancelar
+        </a>
+        <button type="submit" class="btn-guardar">
+            <i class="bi bi-floppy"></i> Guardar Producto
+        </button>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="{% static 'js/cropper_producto.js' %}"></script>
+<script src="{% static 'js/precio_formato.js' %}"></script>
 {% endblock %}

@@ -7,6 +7,7 @@ Arquitectura de permisos:
 """
 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.shortcuts import redirect
 from django.contrib import messages
 from functools import wraps
@@ -17,6 +18,7 @@ def superadmin_required(view_func):
     Decorador para restringir acceso solo a superadmins.
     """
     @wraps(view_func)
+    @never_cache
     @login_required(login_url='/panel/login/')
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -35,6 +37,7 @@ def panel_login_required(view_func):
     Decorador para proteger todas las vistas del panel.
     """
     @wraps(view_func)
+    @never_cache
     @login_required(login_url='/panel/login/')
     def _wrapped_view(request, *args, **kwargs):
         # El usuario ya está autenticado gracias a @login_required

@@ -1,0 +1,7 @@
+Nuevo mensaje desde el formulario de contacto.
+
+Nombre: {{ nombre }}
+Email: {{ email }}
+
+Mensaje:
+{{ mensaje }}

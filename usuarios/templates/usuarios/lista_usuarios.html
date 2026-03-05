@@ -260,10 +260,35 @@
                                     <span>Detalles</span>
                                 </a>
 
-                                <!-- Los otros usuarios NO tienen acciones de editar/eliminar -->
-                                <span class="badge-readonly">
-                                    <i class="bi bi-lock-fill"></i> Solo lectura
-                                </span>
+                                {% if request.user.is_superuser and usuario.is_staff and not usuario.is_superuser %}
+                                    <a href="{% url 'usuarios:convertir_superadmin' usuario.id %}"
+                                       class="btn-action btn-editar"
+                                       title="Convertir a SuperAdmin">
+                                        <i class="bi bi-shield-fill-check"></i>
+                                        <span>SuperAdmin</span>
+                                    </a>
+                                    {% if usuario.is_active %}
+                                        <a href="{% url 'usuarios:desactivar_usuario' usuario.id %}"
+                                           class="btn-action btn-desactivar"
+                                           title="Desactivar administrador"
+                                           data-username="{{ usuario.username }}">
+                                            <i class="bi bi-person-slash"></i>
+                                            <span>Desactivar</span>
+                                        </a>
+                                    {% else %}
+                                                     <a href="{% url 'usuarios:activar_usuario' usuario.id %}"
+                                                         class="btn-action btn-activar"
+                                                         title="Activar administrador"
+                                                         data-username="{{ usuario.username }}">
+                                            <i class="bi bi-person-check"></i>
+                                            <span>Activar</span>
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge-readonly">
+                                        <i class="bi bi-lock-fill"></i> Solo lectura
+                                    </span>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -285,6 +310,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'usuarios/js/admin_usuarios.js' %}"></script>
+<script src="{% static 'usuarios/js/admin_usuarios.js' %}?v=20260302b"></script>
 {% endblock %}
 

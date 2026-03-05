@@ -1,6 +1,6 @@
 /**
  * VALIDACIONES EN TIEMPO REAL PARA CLIENTES
- * Con bloqueo de caracteres inválidos
+ * Con bloqueo de caracteres inválidos y caracteres especiales
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
         documento: {
             selector: '#id_documento',
             soloNumeros: true,
+            permitirCaracteresEspeciales: false,
             validarLocal: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El documento es obligatorio' };
@@ -23,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (valor.length < 6) {
                     return { valido: false, mensaje: 'Debe tener al menos 6 dígitos' };
                 }
-                if (valor.length > 15) {
-                    return { valido: false, mensaje: 'Debe tener máximo 15 dígitos' };
+                if (valor.length > 10) {
+                    return { valido: false, mensaje: 'Debe tener máximo 10 dígitos' };
                 }
                 return { valido: true, mensaje: 'Verificando...' };
             }
@@ -32,12 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
         nombre: {
             selector: '#id_nombre',
             soloLetras: true,
+            permitirCaracteresEspeciales: false,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El nombre es obligatorio' };
                 }
                 if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
-                    return { valido: false, mensaje: 'Solo letras permitidas' };
+                    return { valido: false, mensaje: 'Solo letras permitidas (sin números ni caracteres especiales)' };
                 }
                 if (valor.trim().length < 2) {
                     return { valido: false, mensaje: 'Debe tener al menos 2 caracteres' };
@@ -48,12 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
         apellido: {
             selector: '#id_apellido',
             soloLetras: true,
+            permitirCaracteresEspeciales: false,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El apellido es obligatorio' };
                 }
                 if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
-                    return { valido: false, mensaje: 'Solo letras permitidas' };
+                    return { valido: false, mensaje: 'Solo letras permitidas (sin números ni caracteres especiales)' };
                 }
                 if (valor.trim().length < 2) {
                     return { valido: false, mensaje: 'Debe tener al menos 2 caracteres' };
@@ -65,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             selector: '#id_telefono',
             soloNumeros: true,
             permitirEspacios: true,
+            permitirCaracteresEspeciales: false,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: true, mensaje: 'Opcional' };
@@ -84,35 +88,66 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         correo_electronico: {
             selector: '#id_correo_electronico',
+            permitirCaracteresEspeciales: true,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: true, mensaje: 'Opcional' };
                 }
                 const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!regex.test(valor)) {
-                    return { valido: false, mensaje: 'Correo electrónico inválido' };
+                    return { valido: false, mensaje: 'Correo electrónico inválido (debe incluir @ y .)' };
                 }
                 return { valido: true, mensaje: 'Correo válido' };
+            }
+        },
+        // ========================================
+        // NUEVAS VALIDACIONES
+        // ========================================
+        departamento: {
+            selector: '#id_departamento',
+            validar: function(valor) {
+                if (!valor || valor === '') {
+                    return { valido: false, mensaje: 'Debe seleccionar un departamento' };
+                }
+                return { valido: true, mensaje: 'Departamento válido' };
             }
         },
         ciudad: {
             selector: '#id_ciudad',
             soloLetras: true,
+            permitirCaracteresEspeciales: false,
             validar: function(valor) {
-                if (!valor || valor.trim() === '') {
-                    return { valido: true, mensaje: 'Opcional' };
-                }
-                if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
-                    return { valido: false, mensaje: 'Solo letras permitidas' };
+                const departamento = document.querySelector('#id_departamento')?.value;
+
+                // Si hay departamento seleccionado, ciudad es obligatoria
+                if (departamento && departamento !== '') {
+                    if (!valor || valor.trim() === '') {
+                        return { valido: false, mensaje: 'Debe seleccionar una ciudad' };
+                    }
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
+                        return { valido: false, mensaje: 'Solo letras permitidas' };
+                    }
+                } else {
+                    // Si no hay departamento, ciudad es opcional
+                    if (!valor || valor.trim() === '') {
+                        return { valido: true, mensaje: 'Opcional' };
+                    }
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
+                        return { valido: false, mensaje: 'Solo letras permitidas' };
+                    }
                 }
                 return { valido: true, mensaje: 'Ciudad válida' };
             }
         },
         direccion: {
             selector: '#id_direccion',
+            permitirCaracteresEspeciales: false,
             validar: function(valor) {
                 if (!valor || valor.trim() === '') {
                     return { valido: true, mensaje: 'Opcional' };
+                }
+                if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúñÑ\s\.,#\-]+$/.test(valor)) {
+                    return { valido: false, mensaje: 'Caracteres especiales no permitidos (solo letras, números, ., ,, #, -)' };
                 }
                 return { valido: true, mensaje: 'Dirección válida' };
             }
@@ -154,13 +189,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // BLOQUEO PARA CAMPOS DE SOLO NÚMEROS
         if (config.soloNumeros) {
-            // Si es número, permitir
             if (/^\d$/.test(event.key)) return;
-
-            // Si permite espacios y es espacio, permitir
             if (config.permitirEspacios && event.key === ' ') return;
-
-            // Bloquear cualquier otra tecla
             event.preventDefault();
             mostrarNotificacionTemporal(input, 'Solo números permitidos');
             return;
@@ -168,15 +198,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // BLOQUEO PARA CAMPOS DE SOLO LETRAS
         if (config.soloLetras) {
-            // Permitir letras con acentos y ñ
             if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/.test(event.key)) return;
-
-            // Permitir espacio
             if (event.key === ' ') return;
-
-            // Bloquear cualquier otra tecla
             event.preventDefault();
             mostrarNotificacionTemporal(input, 'Solo letras permitidas');
+            return;
+        }
+
+        // BLOQUEO PARA CAMPOS SIN CARACTERES ESPECIALES
+        if (!config.permitirCaracteresEspeciales && !config.soloLetras && !config.soloNumeros) {
+            if (/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]$/.test(event.key)) return;
+            if (event.key === '.' || event.key === ',' || event.key === '-' || event.key === '#') return;
+            event.preventDefault();
+            mostrarNotificacionTemporal(input, 'Caracteres especiales no permitidos');
             return;
         }
     }
@@ -189,7 +223,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const fieldWrapper = input.closest('.field-wrapper');
         if (!fieldWrapper) return;
 
-        // Crear notificación
         const notificacion = document.createElement('div');
         notificacion.className = 'field-error temporal';
         notificacion.style.opacity = '0.7';
@@ -197,13 +230,11 @@ document.addEventListener('DOMContentLoaded', function() {
         notificacion.style.marginTop = '2px';
         notificacion.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${mensaje}`;
 
-        // Eliminar notificaciones temporales anteriores
         const anteriores = fieldWrapper.querySelectorAll('.temporal');
         anteriores.forEach(el => el.remove());
 
         fieldWrapper.appendChild(notificacion);
 
-        // Eliminar después de 1.5 segundos
         setTimeout(() => {
             if (notificacion.parentNode) {
                 notificacion.remove();
@@ -302,10 +333,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const input = document.querySelector(config.selector);
 
         if (input) {
-            // Bloqueo de teclado en tiempo real
             input.addEventListener('keydown', bloquearCaracteresInvalidos);
 
-            // Validación al escribir
             if (key === 'documento') {
                 input.addEventListener('input', function() {
                     const valor = this.value;
@@ -373,7 +402,6 @@ document.addEventListener('DOMContentLoaded', function() {
         formulario.addEventListener('submit', function(e) {
             let formularioValido = true;
 
-            // Validar todos los campos
             for (let key in validaciones) {
                 const config = validaciones[key];
                 const input = document.querySelector(config.selector);

@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="{% static 'css/panel_admin_base.css' %}?v=20260225">
 
     <!-- ESTILOS DEL MÓDULO DE USUARIOS (para unificar apariencia en clientes) -->
-    <link rel="stylesheet" href="{% static 'css/admin_usuarios.css' %}?v=20260227">
+    <link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}?v=20260227">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -31,10 +31,11 @@
     <!-- ════════════════════════════════════
          SIDEBAR
     ════════════════════════════════════ -->
+    {% if user.is_authenticated %}
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="user-avatar">
-                {% if user.perfil.foto_perfil %}
+                {% if user.perfil and user.perfil.foto_perfil %}
                     <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="avatar-img">
                 {% else %}
                     <div class="avatar-placeholder">
@@ -102,8 +103,9 @@
                        role="button"
                        aria-expanded="{% if request.resolver_match.app_name == 'productos' %}true{% else %}false{% endif %}"
                        aria-controls="submenuProductos">
-                        <span><i class="bi bi-bag-check me-2"></i> Tipos de productos</span>
-                        <i class="bi bi-chevron-down small"></i>
+                        <i class="bi bi-bag-check"></i>
+                        <span>Tipos de productos</span>
+                        <i class="bi bi-chevron-right small"></i>
                     </a>
                     <div class="collapse {% if request.resolver_match.app_name == 'productos' %}show{% endif %}"
                          id="submenuProductos">
@@ -128,7 +130,8 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="{% url 'ventas:listar_venta' %}">
+                    <a href="{% url 'ventas:listar_venta' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'ventas' %}active{% endif %}">
                         <i class="bi bi-cart3"></i><span>Ventas</span>
                     </a>
                 </li>
@@ -149,8 +152,9 @@
                        role="button"
                        aria-expanded="{% if request.resolver_match.app_name == 'compras' or request.resolver_match.app_name == 'proveedores' %}true{% else %}false{% endif %}"
                        aria-controls="submenuCompras">
-                        <span><i class="bi bi-bag-check me-2"></i> Compras</span>
-                        <i class="bi bi-chevron-down small"></i>
+                        <i class="bi bi-bag-check"></i>
+                        <span>Compras</span>
+                        <i class="bi bi-chevron-right small"></i>
                     </a>
                     <div class="collapse {% if request.resolver_match.app_name == 'compras' or request.resolver_match.app_name == 'proveedores' %}show{% endif %}"
                          id="submenuCompras">
@@ -188,7 +192,10 @@
 
             </ul>
         </nav>
+
+        <div class="sidebar-resizer" id="sidebar-resizer" aria-hidden="true"></div>
     </div>
+    {% endif %}
 
 
     <!-- ════════════════════════════════════
@@ -240,12 +247,13 @@
 
 
         <!-- ─── Top Bar ─── -->
+        {% if user.is_authenticated %}
         <div class="topbar">
             <div class="topbar-left">
                 <button class="btn btn-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
                     <i class="bi bi-list"></i>
                 </button>
-                <h4 class="page-title">{% block page_title %}Dashboard{% endblock %}</h4>
+                <h4 class="page-title">{% block page_title %}Panel de Administración{% endblock %}</h4>
             </div>
 
             <div class="topbar-right">
@@ -263,39 +271,10 @@
                         <i class="bi bi-alarm"></i>
                         <span class="badge-dot"></span>
                     </button>
-                </div>
-
-                <div class="dropdown">
-                    <button class="btn btn-user" data-bs-toggle="dropdown">
-                        {% if user.perfil.foto_perfil %}
-                            <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="user-avatar-sm">
-                        {% else %}
-                            <i class="bi bi-person-circle fs-4"></i>
-                        {% endif %}
-                        <span class="d-none d-md-inline ms-2">{{ user.first_name }}</span>
-                        <i class="bi bi-chevron-down ms-1"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <div class="dropdown-header">
-                            <strong>{{ user.get_full_name }}</strong>
-                            <p class="text-muted mb-0">{{ user.email }}</p>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
-                            <i class="bi bi-person"></i> Mi Perfil
-                        </a>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-gear"></i> Configuración
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <!-- Logout dropdown — SIN onclick, el JS lo intercepta -->
-                        <a class="dropdown-item text-danger" href="{% url 'usuarios:logout' %}">
-                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                        </a>
-                    </div>
-                </div>
+                </div>  
             </div>
         </div>
+        {% endif %}
 
 
         <!-- ─── Contenido Principal ─── -->

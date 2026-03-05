@@ -4,7 +4,7 @@
 {% block title %}{{ titulo|default:"Editar Usuario" }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -133,10 +133,10 @@
                 <div class="col-md-6">
                     <div class="field-wrapper {% if form.documento.errors %}field-wrapper--error{% endif %}">
                         <label class="field-label"><i class="bi bi-card-text"></i> Documento</label>
-                        <input type="text" name="documento" id="id_documento"
+                           <input type="text" name="documento" id="id_documento"
                                value="{{ form.documento.value|default:'' }}"
                                class="field-input {% if form.documento.errors %}field-input--error{% endif %}"
-                               maxlength="10" inputmode="numeric">
+                               maxlength="10" inputmode="numeric" pattern="[0-9]{6,10}" data-verificar-url="">
                         <input type="hidden" id="documento-original" value="{{ documento_original }}">
                         {% if form.documento.errors %}
                         <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ form.documento.errors.0 }}</div>
@@ -146,7 +146,39 @@
 
             </div>
         </div>
-
+        {% comment %} <!-- ── CONFIRMACIÓN CAMBIO DOCUMENTO ── -->
+        <div id="confirmacion-documento" class="form-card"
+             style="display:none; border-left:4px solid #ffc107;">
+            <h3 class="form-section-title" style="color:#f59e0b;">
+                <i class="bi bi-exclamation-triangle-fill"></i> Confirmación — Cambio de Documento
+            </h3>
+            <div class="alert alert-warning mb-3">
+                <strong>ADVERTENCIA:</strong> Vas a cambiar tu documento de identidad.<br>
+                <strong>Actual:</strong> <code id="doc-actual-texto">{{ documento_original }}</code> →
+                <strong>Nuevo:</strong> <code id="doc-nuevo-texto"></code>
+            </div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox"
+                               id="check-confirmar-documento" name="check_confirmar_documento">
+                        <label class="form-check-label" for="check-confirmar-documento">
+                            <strong>He verificado que el nuevo documento es correcto</strong>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="confirmar_cambio_documento" class="field-label">
+                        Escribe <strong>CONFIRMAR</strong> para autorizar:
+                    </label>
+                    <input type="text" class="field-input"
+                           id="confirmar_cambio_documento"
+                           name="confirmar_cambio_documento"
+                           placeholder="CONFIRMAR"
+                           autocomplete="off">
+                </div>
+            </div>
+        </div> {% endcomment %}
         <!-- ── INFORMACIÓN PERSONAL (tabla Perfil) ── -->
         <div class="form-card">
             <h3 class="form-section-title">
@@ -224,40 +256,6 @@
             </div>
         </div>
 
-        <!-- ── CONFIRMACIÓN CAMBIO DOCUMENTO ── -->
-        <div id="confirmacion-documento" class="form-card"
-             style="display:none; border-left:4px solid #ffc107;">
-            <h3 class="form-section-title" style="color:#f59e0b;">
-                <i class="bi bi-exclamation-triangle-fill"></i> Confirmación — Cambio de Documento
-            </h3>
-            <div class="alert alert-warning mb-3">
-                <strong>ADVERTENCIA:</strong> Vas a cambiar tu documento de identidad.<br>
-                <strong>Actual:</strong> <code id="doc-actual-texto">{{ documento_original }}</code> →
-                <strong>Nuevo:</strong> <code id="doc-nuevo-texto"></code>
-            </div>
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox"
-                               id="check-confirmar-documento" name="check_confirmar_documento">
-                        <label class="form-check-label" for="check-confirmar-documento">
-                            <strong>He verificado que el nuevo documento es correcto</strong>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label for="confirmar_cambio_documento" class="field-label">
-                        Escribe <strong>CONFIRMAR</strong> para autorizar:
-                    </label>
-                    <input type="text" class="field-input"
-                           id="confirmar_cambio_documento"
-                           name="confirmar_cambio_documento"
-                           placeholder="CONFIRMAR"
-                           autocomplete="off">
-                </div>
-            </div>
-        </div>
-
         <!-- ── PERMISOS ── -->
         <div class="form-card">
             <h3 class="form-section-title">
@@ -316,73 +314,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const docInput      = document.getElementById('id_documento');
-    const docOriginal   = document.getElementById('documento-original')?.value || '';
-    const confirmDiv    = document.getElementById('confirmacion-documento');
-    const docNuevoEl    = document.getElementById('doc-nuevo-texto');
-    const checkBox      = document.getElementById('check-confirmar-documento');
-    const confirmInput  = document.getElementById('confirmar_cambio_documento');
-    const form          = document.getElementById('form-editar-usuario');
-    const isActiveChk   = document.getElementById('id_is_active');
-    const esAutoEdicion = {{ es_auto_edicion|lower }};
-
-    // Proteger auto-desactivación
-    if (isActiveChk && esAutoEdicion) {
-        isActiveChk.checked = true;
-        isActiveChk.addEventListener('change', function () {
-            if (!this.checked) {
-                this.checked = true;
-                window._dashboard?.showAdminNotification('warning', 'No puedes desactivar tu propia cuenta.');
-            }
-        });
-    }
-
-    // Cambio de documento → mostrar confirmación
-    docInput?.addEventListener('input', function () {
-        const val = this.value.trim();
-        if (val && val !== docOriginal) {
-            confirmDiv.style.display = 'block';
-            docNuevoEl.textContent = val;
-            confirmDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-            confirmDiv.style.display = 'none';
-            if (checkBox) checkBox.checked = false;
-            if (confirmInput) confirmInput.value = '';
-        }
-    });
-
-    // Validar al enviar
-    form?.addEventListener('submit', function (e) {
-        const val = docInput?.value.trim() || '';
-        if (val && val !== docOriginal) {
-            if (!checkBox?.checked) {
-                e.preventDefault();
-                window._dashboard?.showAdminNotification('warning', 'Marca la casilla de confirmación para cambiar el documento.');
-                checkBox?.focus();
-                return;
-            }
-            if (confirmInput?.value !== 'CONFIRMAR') {
-                e.preventDefault();
-                window._dashboard?.showAdminNotification('warning', 'Escribe exactamente "CONFIRMAR" para autorizar el cambio.');
-                confirmInput?.focus();
-                return;
-            }
-        }
-        if (esAutoEdicion && isActiveChk && !isActiveChk.checked) {
-            e.preventDefault();
-            isActiveChk.checked = true;
-            window._dashboard?.showAdminNotification('error', 'No puedes desactivar tu propia cuenta.');
-        }
-    });
-
-    // Scroll al primer error al cargar
-    const firstError = document.querySelector('.field-input--error');
-    if (firstError) {
-        setTimeout(() => firstError.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
-        firstError.focus();
-    }
-});
-</script>
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
+{% comment %} <script src="{% static 'usuarios/js/confirmar_documento.js' %}"></script> {% endcomment %}
 {% endblock %}

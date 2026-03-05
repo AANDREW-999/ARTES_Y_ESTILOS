@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -6,6 +7,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 from django.template.loader import render_to_string
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
@@ -136,11 +138,56 @@ def login_view(request):
         else:
             usuario_o_documento = request.POST.get('username')
             msg = build_login_message(form, usuario_o_documento=usuario_o_documento)
+            if 'field-inactive' in msg.get('tags', ''):
+                auth_logout(request)
+                return redirect('usuarios:panel_inactivo')
             messages.error(request, msg['text'], extra_tags=msg['tags'])
     else:
         form = LoginForm()
 
     return render(request, 'usuarios/login.html', {'form': form})
+
+
+def panel_inactivo_view(request):
+    if not request.user.is_authenticated:
+        messages.warning(
+            request,
+            'Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.',
+            extra_tags='level-warning field-inactive'
+        )
+    return render(request, 'usuarios/panel_inactivo.html')
+
+
+def validar_usuario_documento_view(request):
+    valor = (request.GET.get('q') or '').strip()
+
+    if not valor:
+        return JsonResponse({
+            'exists': False,
+            'type': 'empty',
+            'message': 'Ingresa un usuario o documento.'
+        })
+
+    if valor.isdigit():
+        if not (6 <= len(valor) <= 10):
+            return JsonResponse({
+                'exists': False,
+                'type': 'documento',
+                'message': 'El documento debe tener entre 6 y 10 digitos.'
+            })
+        exists = User.objects.filter(documento=valor).exists()
+        return JsonResponse({
+            'exists': exists,
+            'type': 'documento',
+            'message': 'Documento registrado.' if exists else 'Documento no encontrado.'
+        })
+
+    exists = User.objects.filter(username=valor).exists()
+    return JsonResponse({
+        'exists': exists,
+        'type': 'usuario',
+        'message': 'Usuario registrado.' if exists else 'Usuario no encontrado.'
+    })
 
 
 def logout_view(request):
@@ -265,7 +312,7 @@ class RestablecerPasswordCompletoView(PasswordResetCompleteView):
 # 👥 GESTIÓN DE USUARIOS
 # =====================================================
 
-@login_required
+@panel_login_required
 def lista_usuarios_view(request):
     """
     Lista todos los usuarios del sistema.
@@ -323,7 +370,7 @@ def crear_usuario_view(request):
 
                 messages.success(
                     request,
-                    f'✅ Usuario <strong>{usuario.username}</strong> creado correctamente.',
+                    f'✅ Usuario {usuario.username} creado correctamente.',
                     extra_tags='level-success field-general'
                 )
                 return redirect('usuarios:lista_usuarios')
@@ -377,7 +424,7 @@ def crear_usuario_view(request):
     return render(request, 'usuarios/crear_usuario.html', context)
 
 
-@login_required
+@panel_login_required
 def editar_usuario_view(request, user_id):
     """
     Edita un usuario existente.
@@ -397,22 +444,23 @@ def editar_usuario_view(request, user_id):
         documento_original = usuario.documento
         documento_nuevo    = request.POST.get('documento', '')
 
-        if documento_original != documento_nuevo:
-            confirmar = request.POST.get('confirmar_cambio_documento', '')
-            if confirmar != 'CONFIRMAR':
-                messages.error(
-                    request,
-                    '⚠️ Para cambiar el documento debes marcar la casilla de confirmación y escribir "CONFIRMAR" en el campo.',
-                    extra_tags='level-error field-documento'
-                )
-                form = EditarPerfilForm(request.POST, request.FILES, instance=usuario, editing_user=request.user)
-                return render(request, 'usuarios/editar_usuario.html', {
-                    'form': form, 'usuario': usuario,
-                    'es_auto_edicion': True,
-                    'titulo': 'Editar Mi Perfil',
-                    'boton_texto': 'Guardar Cambios',
-                    'documento_original': documento_original,
-                })
+        # Nota: Validacion de confirmacion de cambio de documento desactivada a pedido.
+        # if documento_original != documento_nuevo:
+        #     confirmar = request.POST.get('confirmar_cambio_documento', '')
+        #     if confirmar != 'CONFIRMAR':
+        #         messages.error(
+        #             request,
+        #             '⚠️ Para cambiar el documento debes marcar la casilla de confirmación y escribir "CONFIRMAR" en el campo.',
+        #             extra_tags='level-error field-documento'
+        #         )
+        #         form = EditarPerfilForm(request.POST, request.FILES, instance=usuario, editing_user=request.user)
+        #         return render(request, 'usuarios/editar_usuario.html', {
+        #             'form': form, 'usuario': usuario,
+        #             'es_auto_edicion': True,
+        #             'titulo': 'Editar Mi Perfil',
+        #             'boton_texto': 'Guardar Cambios',
+        #             'documento_original': documento_original,
+        #         })
 
         form = EditarPerfilForm(
             request.POST,
@@ -475,18 +523,41 @@ def desactivar_usuario_view(request, user_id):
             extra_tags='level-error field-general')
         return redirect('usuarios:lista_usuarios')
 
+    if not usuario.is_staff:
+        messages.error(request,
+            '⛔ Solo puedes desactivar administradores desde esta sección.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
     if request.method == 'POST':
         usuario.is_active = False
         usuario.save()
+
+        if usuario.email:
+            subject = 'Cuenta desactivada - Panel Administrativo Artes y Estilos'
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+            try:
+                context = {
+                    'nombre': usuario.get_full_name() or usuario.username,
+                    'email': usuario.email,
+                }
+                body_text = render_to_string('usuarios/email_cuenta_desactivada.txt', context)
+                body_html = render_to_string('usuarios/email_cuenta_desactivada.html', context)
+                email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario.email])
+                email.attach_alternative(body_html, 'text/html')
+                email.send(fail_silently=True)
+            except Exception:
+                pass
+
         messages.success(request,
-            f'✅ Usuario <strong>{usuario.username}</strong> desactivado correctamente.',
+            f'✅ Usuario {usuario.username} desactivado correctamente.',
             extra_tags='level-success field-general')
         return redirect('usuarios:lista_usuarios')
 
     return render(request, 'usuarios/desactivar_usuario.html', {'usuario': usuario})
 
 
-@login_required
+@panel_login_required
 def visualizar_usuario_view(request, user_id):
     usuario = get_object_or_404(User.objects.select_related('perfil'), id=user_id)
     return render(request, 'usuarios/visualizar_usuario.html', {
@@ -500,18 +571,98 @@ def visualizar_usuario_view(request, user_id):
 def activar_usuario_view(request, user_id):
     usuario = get_object_or_404(User, id=user_id)
 
+    if usuario.is_superuser:
+        messages.error(request,
+            '⛔ No puedes activar a un superadministrador desde esta sección.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if not usuario.is_staff:
+        messages.error(request,
+            '⛔ Solo puedes activar administradores desde esta sección.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
     if request.method == 'POST':
         usuario.is_active = True
         usuario.save()
+
+        if usuario.email:
+            subject = 'Cuenta activada - Panel Administrativo Artes y Estilos'
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+            try:
+                context = {
+                    'nombre': usuario.get_full_name() or usuario.username,
+                    'email': usuario.email,
+                }
+                body_text = render_to_string('usuarios/email_cuenta_activada.txt', context)
+                body_html = render_to_string('usuarios/email_cuenta_activada.html', context)
+                email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario.email])
+                email.attach_alternative(body_html, 'text/html')
+                email.send(fail_silently=True)
+            except Exception:
+                pass
+
         messages.success(request,
-            f'✅ Usuario <strong>{usuario.username}</strong> activado correctamente.',
+            f'✅ Usuario {usuario.username} activado correctamente.',
             extra_tags='level-success field-general')
         return redirect('usuarios:lista_usuarios')
 
     return render(request, 'usuarios/activar_usuario.html', {'usuario': usuario})
 
 
-@login_required
+@superadmin_required
+def convertir_superadmin_view(request, user_id):
+    usuario = get_object_or_404(User, id=user_id)
+
+    if usuario.id == request.user.id:
+        messages.error(request,
+            '⛔ No puedes modificar tu propio rol a superadmin desde esta seccion.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if usuario.is_superuser:
+        messages.error(request,
+            '⛔ Este usuario ya es superadministrador.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if not usuario.is_staff:
+        messages.error(request,
+            '⛔ Solo puedes convertir administradores a superadmin.',
+            extra_tags='level-error field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    if request.method == 'POST':
+        usuario.is_superuser = True
+        usuario.is_staff = True
+        usuario.save()
+
+        if usuario.email:
+            subject = 'Ahora eres SuperAdmin - Panel Administrativo Artes y Estilos'
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+            try:
+                context = {
+                    'nombre': usuario.get_full_name() or usuario.username,
+                    'email': usuario.email,
+                }
+                body_text = render_to_string('usuarios/email_superadmin.txt', context)
+                body_html = render_to_string('usuarios/email_superadmin.html', context)
+                email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario.email])
+                email.attach_alternative(body_html, 'text/html')
+                email.send(fail_silently=True)
+            except Exception:
+                pass
+
+        messages.success(request,
+            f'✅ Usuario {usuario.username} convertido a SuperAdmin.',
+            extra_tags='level-success field-general')
+        return redirect('usuarios:lista_usuarios')
+
+    return render(request, 'usuarios/convertir_superadmin.html', {'usuario': usuario})
+
+
+@panel_login_required
 def eliminar_usuario_view(request, user_id):
     """
     Elimina PERMANENTEMENTE una cuenta.
@@ -531,7 +682,7 @@ def eliminar_usuario_view(request, user_id):
             auth_logout(request)
             usuario.delete()
             messages.warning(request,
-                f'⚠️ Tu cuenta <strong>{username}</strong> ha sido eliminada permanentemente.',
+                f'⚠️ Tu cuenta {username} ha sido eliminada permanentemente.',
                 extra_tags='level-warning field-general')
             return redirect('core:index')
         else:

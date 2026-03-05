@@ -1,0 +1,8 @@
+Hola {{ nombre }},
+
+Tu cuenta ha sido promovida a SuperAdmin en el panel administrativo de Artes y Estilos.
+Ahora tienes permisos maximos del sistema.
+
+Si consideras que esto es un error, contacta al equipo de administracion.
+
+Artes y Estilos

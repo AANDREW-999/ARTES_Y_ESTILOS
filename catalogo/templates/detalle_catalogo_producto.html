@@ -1,58 +1,67 @@
 {% extends 'master.html' %}
 {% load static %}
 
-{% block content %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=20260303">
+{% endblock %}
 
-<div class="container py-5">
+{% block content %}
+
+<div class="container py-4 catalogo-detail">
+
+    <!-- Botón volver -->
     <div class="mb-4">
-        <a href="javascript:history.back()" class="btn btn-outline-dark shadow-sm">
+        <a href="javascript:history.back()" class="btn-volver">
             <i class="bi bi-arrow-left"></i> Volver al Catálogo
         </a>
     </div>
 
-    <div class="row bg-white shadow-sm rounded-4 overflow-hidden border">
-        <div class="col-md-5 p-0 bg-light d-flex align-items-center justify-content-center" style="min-height: 400px;">
-            {% if producto.imagen %}
-                <img src="{{ producto.imagen.url }}" class="img-fluid" style="max-height: 550px; width: 100%; object-fit: contain;">
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
-                    <p class="text-muted">Imagen no disponible</p>
-                </div>
-            {% endif %}
+    <div class="row g-4">
+        <!-- Imagen -->
+        <div class="col-md-5">
+            <div class="img-panel" style="min-height:420px;">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}"
+                         style="max-height:400px;">
+                {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-image"></i>
+                        <p>Imagen no disponible</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="col-md-7 p-5">
-            <h2 class="fw-bold mb-1" style="color: #5d4037;">{{ producto.nombre }}</h2>
-            <p class="text-primary fw-bold fs-3 mb-4">${{ producto.precio }}</p>
+        <!-- Info -->
+        <div class="col-md-7">
+            <div class="detail-info-card">
+                <p class="detail-product-name">{{ producto.nombre }}</p>
+                <p class="detail-product-price">${{ producto.precio }}</p>
 
-            <div class="p-4 rounded-3 border-0 bg-light">
-                <h5 class="fw-bold border-bottom pb-2 mb-3">Información del Arreglo</h5>
-                
-                <div class="row mb-3">
-                    <div class="col-sm-6">
-                        <label class="text-muted small d-block">Categoría</label>
-                        <span class="fw-bold">{{ producto.get_categoria_display }}</span>
-                    </div>
-                    <div class="col-sm-6">
-                        <label class="text-muted small d-block">Tamaño</label>
-                        <span class="fw-bold">{{ producto.tamano }}</span>
-                    </div>
-                </div>
+                <h2 class="form-section-title">
+                    <i class="bi bi-info-circle"></i> Información del Arreglo
+                </h2>
 
-                <div class="row">
-                    <div class="col-12">
-                        <label class="text-muted small d-block">Descripción</label>
-                        <p class="text-secondary mb-0">
+                <div class="detail-info-grid">
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Categoría</span>
+                        <span class="detail-info-value">{{ producto.get_categoria_display }}</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Tamaño</span>
+                        <span class="detail-info-value">{{ producto.tamano }}</span>
+                    </div>
+                    <div class="detail-info-item" style="grid-column: 1 / -1;">
+                        <span class="detail-info-label">Descripción</span>
+                        <span class="detail-info-value" style="font-weight:400;color:var(--text-secondary);">
                             {{ producto.descripcion|default:"Un hermoso detalle pensado para sorprender en cualquier ocasión." }}
-                        </p>
+                        </span>
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
     </div>
+
 </div>
 
-<script src="{% static 'js/archivo.js' %}"></script>
 {% endblock %}

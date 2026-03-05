@@ -13,7 +13,8 @@
 {% comment %}Overlay notificación centrada — siempre en DOM, oculto por JS{% endcomment %}
 <div id="adminNotificationOverlay"
      class="admin-notification-overlay"
-     style="display:none;"
+    style="display:none;"
+    data-index-url="{% url 'core:landing' %}"
      role="dialog"
      aria-modal="true"
      aria-live="assertive"
@@ -33,6 +34,15 @@
         <button id="adminNotificationClose" class="admin-notification-btn" type="button">
             Entendido
         </button>
+
+        <div id="adminNotificationActions" class="logout-modal-actions" style="display:none;">
+            <button id="adminNotificationCancel" class="admin-notification-btn btn-cancel" type="button">
+                Cancelar
+            </button>
+            <button id="adminNotificationConfirm" class="admin-notification-btn btn-logout" type="button">
+                Aceptar
+            </button>
+        </div>
 
         <div class="admin-notification-progress" id="adminNotificationProgress"></div>
     </div>
@@ -64,7 +74,7 @@
                 Cancelar
             </button>
             <a id="logoutModalConfirm" href="#" class="admin-notification-btn btn-logout">
-                Sí, cerrar sesión
+                Sí, Cerrar sesión
             </a>
         </div>
     </div>

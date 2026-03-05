@@ -1,0 +1,92 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Convertir a SuperAdmin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Convertir a SuperAdmin
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-warning">
+            <i class="bi bi-shield-fill-check"></i>
+        </div>
+
+        <h1 class="confirmation-title">¿Convertir a SuperAdmin?</h1>
+
+        <p class="confirmation-message">
+            Este usuario pasara a ser superadministrador. Este rango es maximo y no se podra modificar desde el panel.
+        </p>
+
+        <div class="user-info-box">
+            {% if usuario.perfil.foto_perfil %}
+                <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="user-info-avatar">
+            {% else %}
+                <div class="user-info-avatar-placeholder">
+                    {% if usuario.first_name and usuario.last_name %}
+                        {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
+                    {% else %}
+                        {{ usuario.username.0|upper }}
+                    {% endif %}
+                </div>
+            {% endif %}
+            <div class="user-info-content">
+                <h4>{{ usuario.get_full_name|default:usuario.username }}</h4>
+                <p>@{{ usuario.username }} • {{ usuario.email }}</p>
+            </div>
+        </div>
+
+        <ul class="info-list info-list-warning">
+            <li>
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Obtendra permisos maximos del sistema</span>
+            </li>
+            <li>
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Este rol no se puede modificar desde el panel</span>
+            </li>
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Recibira un correo de confirmacion</span>
+            </li>
+        </ul>
+
+        <form method="post" class="d-flex justify-content-center gap-3 flex-wrap">
+            {% csrf_token %}
+            <button type="submit" class="btn-confirm btn-confirm-warning">
+                <i class="bi bi-shield-fill-check"></i>
+                Convertir a SuperAdmin
+            </button>
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn-cancel">
+                <i class="bi bi-x-circle-fill"></i>
+                Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

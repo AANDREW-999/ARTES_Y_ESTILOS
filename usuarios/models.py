@@ -10,12 +10,12 @@ class Usuario(AbstractUser):
     Solo contiene campos esenciales para login/auth.
     Los datos adicionales están en el modelo Perfil (relación 1:1)
     """
-    # Documento de 10 dígitos, único (requerido para registro)
+    # Documento de 6-10 dígitos, único (requerido para registro)
     documento = models.CharField(
         max_length=10,
         unique=True,
-        validators=[RegexValidator(r"^\d{10}$", message="El documento debe tener exactamente 10 dígitos.")],
-        help_text="Documento de identidad (10 dígitos)"
+        validators=[RegexValidator(r"^\d{6,10}$", message="El documento debe tener entre 6 y 10 dígitos.")],
+        help_text="Documento de identidad (6-10 dígitos)"
     )
 
     # Email único (requerido para registro)

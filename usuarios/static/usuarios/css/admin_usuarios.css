@@ -861,7 +861,6 @@
 
 .form-check.form-switch .form-check-label {
     cursor: pointer;
-    user-select: none;
 }
 
 .form-check.form-switch .form-check-label i {

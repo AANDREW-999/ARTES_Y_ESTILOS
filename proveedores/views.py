@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -27,7 +29,9 @@ def agregar_proveedor(request):
         form = ProveedorForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Proveedor creado correctamente.')
             return redirect('proveedores:listar')
+        messages.error(request, 'Por favor, revisa los campos del formulario.')
     else:
         form = ProveedorForm()
 
@@ -44,7 +48,9 @@ def editar_proveedor(request, pk):
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Proveedor actualizado correctamente.')
             return redirect('proveedores:listar')
+        messages.error(request, 'Por favor, revisa los campos del formulario.')
     else:
         form = ProveedorForm(instance=proveedor)
 
@@ -59,7 +65,9 @@ def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
     if request.method == 'POST':
+        nombre = proveedor.nombre_proveedor
         proveedor.delete()
+        messages.success(request, f'Proveedor "{nombre}" eliminado correctamente.')
         return redirect('proveedores:listar')
 
     context = {
@@ -75,3 +83,20 @@ def detalle_proveedor(request, pk):
         'proveedor': proveedor
     }
     return render(request, 'proveedores/detalle_proveedor.html', context)
+
+
+@login_required
+def verificar_documento(request):
+    """Vista AJAX para verificar si un documento de proveedor ya existe."""
+    documento = request.GET.get('documento', '')
+    exclude_id = request.GET.get('exclude_id', '')
+
+    if not documento:
+        return JsonResponse({'existe': False})
+
+    queryset = Proveedor.objects.filter(numero_documento=documento)
+
+    if exclude_id and exclude_id.isdigit():
+        queryset = queryset.exclude(pk=int(exclude_id))
+
+    return JsonResponse({'existe': queryset.exists()})

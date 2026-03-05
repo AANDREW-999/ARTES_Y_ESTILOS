@@ -1029,6 +1029,25 @@ html[data-theme="light"] .breadcrumb-item.active {
     .content-wrapper {
         padding: 1rem;
     }
+
+    /* Tablas: permitir scroll horizontal y mejorar legibilidad */
+    .content-wrapper .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .content-wrapper .table-responsive > table {
+        margin-bottom: 0;
+    }
+
+    .content-wrapper .table-responsive table th,
+    .content-wrapper .table-responsive table td {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
 }
 
 /* ==========================================

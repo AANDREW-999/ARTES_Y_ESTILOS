@@ -235,25 +235,40 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         numero_documento_proveedor: {
             selector: ['#id_numero_documento'],
-            permitirCaracteresEspeciales: true,
-            validar: function(valor) {
+            soloNumeros: true,
+            permitirCaracteresEspeciales: false,
+            validarLocal: function(valor, input) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El número de documento es obligatorio' };
                 }
+
                 const trimmed = valor.trim();
-                if (trimmed.length > 50) {
-                    return { valido: false, mensaje: 'Debe tener máximo 50 caracteres' };
+                if (!/^\d+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Solo números permitidos' };
                 }
-                if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúñÑ\-\.\s]+$/.test(trimmed)) {
-                    return { valido: false, mensaje: 'Formato inválido (usa letras, números, espacio, - o .)' };
+
+                const maxLen = (input && input.maxLength > 0) ? input.maxLength : 10;
+                if (trimmed.length < 6) {
+                    return { valido: false, mensaje: 'Debe tener al menos 6 dígitos' };
                 }
+                if (trimmed.length > maxLen) {
+                    return { valido: false, mensaje: `Debe tener máximo ${maxLen} dígitos` };
+                }
+
+                return { valido: true, mensaje: 'Verificando...' };
+            },
+            validar: function(valor) {
+                const input = document.querySelector('#id_numero_documento');
+                const local = this.validarLocal(valor, input);
+                if (!local.valido) return local;
                 return { valido: true, mensaje: 'Documento válido' };
             }
         },
         nombre_proveedor: {
             selector: ['#id_nombre_proveedor'],
+            soloLetras: true,
             permitirCaracteresEspeciales: false,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 if (!valor || valor.trim() === '') {
                     return { valido: false, mensaje: 'El nombre del proveedor es obligatorio' };
                 }
@@ -261,11 +276,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (trimmed.length < 2) {
                     return { valido: false, mensaje: 'Debe tener al menos 2 caracteres' };
                 }
-                if (trimmed.length > 150) {
-                    return { valido: false, mensaje: 'Debe tener máximo 150 caracteres' };
+                if (input && input.maxLength > 0 && trimmed.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                 }
-                if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúñÑ\s\.,\-]+$/.test(trimmed)) {
-                    return { valido: false, mensaje: 'Caracteres no permitidos (solo letras, números, espacio, ., , y -)' };
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Solo letras permitidas (sin números ni caracteres especiales)' };
                 }
                 return { valido: true, mensaje: 'Nombre válido' };
             }
@@ -345,6 +360,48 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             mostrarNotificacionTemporal(input, 'Caracteres especiales no permitidos');
             return;
+        }
+    }
+
+    function normalizarValorSegunConfig(input, config) {
+        if (!input || !config) return;
+
+        if (config.soloNumeros) {
+            const valorAnterior = input.value;
+            const soloDigitos = config.permitirEspacios
+                ? valorAnterior.replace(/[^\d\s]/g, '')
+                : valorAnterior.replace(/\D/g, '');
+
+            if (soloDigitos !== valorAnterior) {
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                input.value = soloDigitos;
+                try {
+                    const delta = valorAnterior.length - soloDigitos.length;
+                    const newPos = Math.max(0, (start || 0) - delta);
+                    input.setSelectionRange(newPos, newPos);
+                } catch (_) {
+                    // Algunos navegadores/inputs no soportan setSelectionRange
+                }
+                mostrarNotificacionTemporal(input, 'Solo números permitidos');
+            }
+        }
+
+        if (config.soloLetras) {
+            const valorAnterior = input.value;
+            const soloLetrasYEspacios = valorAnterior.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');
+            if (soloLetrasYEspacios !== valorAnterior) {
+                const start = input.selectionStart;
+                input.value = soloLetrasYEspacios;
+                try {
+                    const delta = valorAnterior.length - soloLetrasYEspacios.length;
+                    const newPos = Math.max(0, (start || 0) - delta);
+                    input.setSelectionRange(newPos, newPos);
+                } catch (_) {
+                    // noop
+                }
+                mostrarNotificacionTemporal(input, 'Solo letras permitidas');
+            }
         }
     }
 
@@ -454,7 +511,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let timeoutId;
     function validarDocumentoServidor(input, documentoId, verifyUrl) {
-        const currentId = document.querySelector('[name="cliente_id"]')?.value || '';
+        const currentId =
+            document.querySelector('[name="exclude_id"]')?.value ||
+            document.querySelector('[name="cliente_id"]')?.value ||
+            document.querySelector('[name="proveedor_id"]')?.value ||
+            '';
         const url = verifyUrl || '/clientes/verificar-documento/';
 
         fetch(`${url}?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
@@ -496,10 +557,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (input) {
                 input.addEventListener('keydown', bloquearCaracteresInvalidos);
 
-                if (key === 'documento') {
-                    input.addEventListener('input', function() {
+                const tieneValidacionDocumento = typeof config.validarLocal === 'function';
+
+                if (tieneValidacionDocumento) {
+                    const handlerDocumento = function() {
+                        normalizarValorSegunConfig(this, config);
                         const valor = this.value;
-                        const resultadoLocal = validaciones.documento.validarLocal(valor);
+                        const resultadoLocal = config.validarLocal(valor, this);
                         const verifyUrl = this.dataset.verificarUrl;
 
                         if (!resultadoLocal.valido) {
@@ -515,19 +579,30 @@ document.addEventListener('DOMContentLoaded', function() {
                                 validarDocumentoServidor(this, valor, verifyUrl);
                             }, 500);
                         }
-                    });
+                    };
+
+                    input.addEventListener('input', handlerDocumento);
+                    if (input.tagName === 'SELECT') {
+                        input.addEventListener('change', handlerDocumento);
+                    }
                 } else {
-                    input.addEventListener('input', function() {
+                    const handlerNormal = function() {
+                        normalizarValorSegunConfig(this, config);
                         const resultado = config.validar(this.value, this);
                         mostrarFeedback(this, resultado);
-                    });
+                    };
+
+                    input.addEventListener('input', handlerNormal);
+                    if (input.tagName === 'SELECT') {
+                        input.addEventListener('change', handlerNormal);
+                    }
                 }
 
                 input.addEventListener('blur', function() {
-                    if (key === 'documento') {
+                    if (tieneValidacionDocumento) {
                         if (this.value && this.classList.contains('is-warning')) {
                             const valor = this.value;
-                            const resultadoLocal = validaciones.documento.validarLocal(valor);
+                            const resultadoLocal = config.validarLocal(valor, this);
                             const verifyUrl = this.dataset.verificarUrl;
                             if (resultadoLocal.valido && verifyUrl) {
                                 validarDocumentoServidor(this, valor, verifyUrl);
@@ -541,8 +616,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (input.value) {
                     setTimeout(() => {
-                        if (key === 'documento') {
-                            const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                        if (tieneValidacionDocumento) {
+                            const resultadoLocal = config.validarLocal(input.value, input);
                             const verifyUrl = input.dataset.verificarUrl;
                             if (resultadoLocal.valido && verifyUrl) {
                                 mostrarCargando(input, 'Verificando documento existente...');
@@ -579,8 +654,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const input = document.querySelector(selector);
 
                     if (input) {
-                        if (key === 'documento') {
-                            const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                        const tieneValidacionDocumento = typeof config.validarLocal === 'function';
+
+                        if (tieneValidacionDocumento) {
+                            const resultadoLocal = config.validarLocal(input.value, input);
                             const verifyUrl = input.dataset.verificarUrl;
                             if (!resultadoLocal.valido) {
                                 formularioValido = false;

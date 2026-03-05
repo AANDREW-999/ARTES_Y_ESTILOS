@@ -42,6 +42,19 @@
 
         if (!departamento || !ciudadSelect) return;
 
+        function encontrarDepartamentoPorCiudad(ciudad) {
+            if (!ciudad) return '';
+            const objetivo = String(ciudad).trim().toLowerCase();
+            for (const [depto, ciudades] of Object.entries(municipios)) {
+                for (let i = 0; i < ciudades.length; i++) {
+                    if (String(ciudades[i]).trim().toLowerCase() === objetivo) {
+                        return depto;
+                    }
+                }
+            }
+            return '';
+        }
+
         function cargarMunicipios() {
             const depto = departamento.value;
             const ciudades = municipios[depto] || [];
@@ -85,6 +98,14 @@
         const form = document.querySelector('form');
         if (form) {
             form.addEventListener('submit', sincronizarCampoOculto);
+        }
+
+        // Si estamos editando y solo tenemos ciudad, inferir el departamento
+        if (!departamento.value && ciudadHidden && ciudadHidden.value) {
+            const deptoInferido = encontrarDepartamentoPorCiudad(ciudadHidden.value);
+            if (deptoInferido) {
+                departamento.value = deptoInferido;
+            }
         }
 
         if (departamento.value) {

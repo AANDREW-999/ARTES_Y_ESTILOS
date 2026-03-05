@@ -36,8 +36,10 @@
                     Editar proveedor
                 </div>
 
-                <form method="post">
+                <form method="post" novalidate autocomplete="off">
                     {% csrf_token %}
+
+                    <input type="hidden" name="proveedor_id" value="{{ proveedor.id }}">
 
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
@@ -90,8 +92,23 @@
 
                         <div class="col-12 col-md-6">
                             <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.departamento.id_for_label }}">Departamento</label>
+                                {{ form.departamento }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.departamento.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
                                 <label class="field-label" for="{{ form.ciudad.id_for_label }}">Ciudad</label>
-                                {{ form.ciudad }}
+                                <select name="ciudad" id="id_ciudad" class="form-select">
+                                    <option value="">Seleccione un departamento primero</option>
+                                </select>
+                                <input type="hidden" name="ciudad_original" id="id_ciudad_original" value="{{ proveedor.ciudad|default:'' }}">
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
                                 {% for error in form.ciudad.errors %}
@@ -151,4 +168,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/validaciones_modules.js' %}"></script>
+<script src="{% static 'js/ciudades.js' %}"></script>
 {% endblock %}

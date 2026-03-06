@@ -1,21 +1,60 @@
 {% extends 'panel_admin_base.html' %}
+{% load static %}
 
 {% block title %}Eliminar Producto{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="card shadow-sm col-md-6">
-        <div class="card-header bg-danger text-white">Eliminar Producto</div>
-        <div class="card-body">
-            <p>¿Deseas eliminar <strong>{{ object.nombre }}</strong>?</p>
-            <form method="post">
-                {% csrf_token %}
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-danger">Eliminar</button>
-                    <a href="{% url 'producto:lista' %}" class="btn btn-secondary">Cancelar</a>
-                </div>
-            </form>
-        </div>
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'producto:lista' %}">Productos</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
     </div>
+
+    <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-danger" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <div class="confirmation-title">¿Eliminar producto?</div>
+
+        <div class="user-info-box">
+            <div class="user-info-avatar-placeholder" aria-hidden="true">
+                {{ object.nombre|first|upper }}
+            </div>
+            <div>
+                <div class="fw-bold" style="color: var(--text-primary);">{{ object.nombre }}</div>
+                <div style="color: var(--text-secondary);">{{ object.get_tipo_producto_display }}</div>
+            </div>
+        </div>
+
+        <form method="post" class="d-flex flex-wrap gap-2 justify-content-center">
+            {% csrf_token %}
+            <button type="submit" class="btn-confirm btn-confirm-danger">
+                <i class="bi bi-trash"></i> Confirmar eliminación
+            </button>
+            <a href="{% url 'producto:lista' %}" class="btn-cancel">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+        </form>
+    </div>
+
 </div>
 {% endblock %}

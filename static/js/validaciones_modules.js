@@ -47,6 +47,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { valido: true, mensaje: 'Nombre válido' };
             }
         },
+        precio: {
+            selector: ['#id_precio'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El precio es obligatorio' };
+                }
+
+                const trimmed = valor.trim();
+                if (!/^\d+(?:[\.,]\d{1,2})?$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Formato inválido (ej: 12000 o 12000.50)' };
+                }
+
+                const normalizado = trimmed.replace(',', '.');
+                const numero = Number(normalizado);
+                if (!Number.isFinite(numero)) {
+                    return { valido: false, mensaje: 'El precio debe ser un número válido' };
+                }
+                if (numero <= 0) {
+                    return { valido: false, mensaje: 'El precio debe ser mayor que 0' };
+                }
+
+                return { valido: true, mensaje: 'Precio válido' };
+            }
+        },
+        cantidad_stock: {
+            selector: ['#id_cantidad'],
+            soloNumeros: true,
+            permitirCaracteresEspeciales: false,
+            validar: function(valor) {
+                if (valor === null || valor === undefined || String(valor).trim() === '') {
+                    return { valido: false, mensaje: 'La cantidad es obligatoria' };
+                }
+
+                const trimmed = String(valor).trim();
+                if (!/^\d+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Solo números enteros permitidos' };
+                }
+
+                const numero = parseInt(trimmed, 10);
+                if (!Number.isFinite(numero)) {
+                    return { valido: false, mensaje: 'La cantidad debe ser un número válido' };
+                }
+                if (numero < 0) {
+                    return { valido: false, mensaje: 'La cantidad no puede ser negativa' };
+                }
+
+                return { valido: true, mensaje: 'Cantidad válida' };
+            }
+        },
         apellido: {
             selector: ['#id_apellido', '#id_last_name'],
             soloLetras: true,

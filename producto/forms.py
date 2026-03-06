@@ -13,5 +13,9 @@ class ProductoForm(forms.ModelForm):
             "descripcion": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "precio": forms.NumberInput(attrs={"class": "form-control", "min": "0", "step": "0.01"}),
             "cantidad": forms.NumberInput(attrs={"class": "form-control", "min": "0"}),
-            "imagen": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "imagen": forms.ClearableFileInput(attrs={
+                "class": "form-control",
+                "id": "image-input",
+                "accept": "image/*",
+            }),
         }

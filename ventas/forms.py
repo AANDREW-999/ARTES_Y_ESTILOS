@@ -13,10 +13,11 @@ class VentaForm(forms.ModelForm):
             'fecha',
             'forma_pago',
             'mano_obra',
-            'iva_pct',
             'con_domicilio',
             'direccion',
             'precio_envio',
+            'nombre_domiciliario',
+            'telefono_domiciliario',
             'descripcion',
         ]
 
@@ -30,12 +31,15 @@ class VentaForm(forms.ModelForm):
             'mano_obra':  forms.NumberInput(attrs={
                 'class': 'form-control', 'min': '0', 'step': '0.01'
             }),
-            'iva_pct':    forms.Select(attrs={'class': 'form-select'}),
             'con_domicilio': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'direccion':  forms.TextInput(attrs={'class': 'form-control'}),
             'precio_envio': forms.NumberInput(attrs={
                 'class': 'form-control', 'min': '0', 'step': '0.01'
             }),
+            'nombre_domiciliario': forms.TextInput(attrs={'class': 'form-control',
+                                                          'placeholder': 'Nombre del domiciliario'}),
+            'telefono_domiciliario': forms.TextInput(attrs={'class': 'form-control',
+                                                           'placeholder': 'Teléfono del domiciliario'}),
             'descripcion': forms.Textarea(attrs={
                 'class': 'form-control', 'rows': 3
             }),

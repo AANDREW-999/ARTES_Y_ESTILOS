@@ -38,12 +38,6 @@ class Venta(models.Model):
         validators=[MinValueValidator(0)],
         help_text='Costo de mano de obra'
     )
-
-    iva_pct = models.PositiveSmallIntegerField(
-        choices=IVA_CHOICES, default=19,
-        verbose_name='IVA (%)'
-    )
-
     forma_pago  = models.CharField(max_length=30, choices=FORMA_PAGO_CHOICES)
     descripcion = models.TextField(blank=True)
     con_domicilio = models.BooleanField(default=False)
@@ -52,6 +46,10 @@ class Venta(models.Model):
         max_digits=10, decimal_places=2, default=0,
         validators=[MinValueValidator(0)]
     )
+    nombre_domiciliario = models.CharField(max_length=100, blank=True, null=True,
+                                           verbose_name='Nombre del domiciliario')
+    telefono_domiciliario = models.CharField(max_length=20, blank=True, null=True,
+                                              verbose_name='Teléfono del domiciliario')
 
     subtotal_sin_iva = models.DecimalField(
         max_digits=12, decimal_places=2, default=0, editable=False
@@ -67,18 +65,14 @@ class Venta(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def recalcular_totales(self):
-        """Recalcula subtotal, IVA y total desde los detalles."""
         from decimal import Decimal
         subtotal = sum(d.subtotal for d in self.detalles.all())
         subtotal += self.mano_obra or Decimal('0')
         if self.con_domicilio:
             subtotal += self.precio_envio or Decimal('0')
-
-        iva_monto = subtotal * (self.iva_pct / Decimal('100'))
-
         self.subtotal_sin_iva = subtotal
-        self.iva_monto        = iva_monto
-        self.total            = subtotal + iva_monto
+        self.iva_monto        = Decimal('0')
+        self.total            = subtotal 
         
     @property
     def total_arreglo(self):

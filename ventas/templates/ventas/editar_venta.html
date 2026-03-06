@@ -50,7 +50,6 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Fecha</label>
-                            {# Forzamos formato yyyy-MM-dd para que el input type=date lo acepte #}
                             <input type="date" class="form-control" name="fecha"
                                    value="{{ venta.fecha|date:'Y-m-d' }}">
                         </div>
@@ -72,22 +71,11 @@
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                {# Usamos floatformat para asegurar punto decimal, no coma #}
                                 <input type="number" class="form-control" id="manoObra"
                                        name="mano_obra"
                                        value="{{ venta.mano_obra|stringformat:'.2f' }}"
                                        min="0" step="0.01">
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-percent me-1"></i>IVA aplicable
-                            </label>
-                            <select class="form-select" id="ivaSelect" name="iva_pct">
-                                <option value="0"  {% if venta.iva_pct == 0  %}selected{% endif %}>Sin IVA (0%)</option>
-                                <option value="5"  {% if venta.iva_pct == 5  %}selected{% endif %}>5%</option>
-                                <option value="19" {% if venta.iva_pct == 19 %}selected{% endif %}>19%</option>
-                            </select>
                         </div>
                     </div>
 
@@ -137,7 +125,7 @@
                             </label>
                             {{ form.direccion }}
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-semibold">
                                 <i class="bi bi-currency-dollar me-1"></i>Costo de envío
                             </label>
@@ -145,6 +133,18 @@
                                 <span class="input-group-text">$</span>
                                 {{ form.precio_envio }}
                             </div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-person-badge me-1"></i>Nombre del domiciliario
+                            </label>
+                            {{ form.nombre_domiciliario }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-telephone me-1"></i>Teléfono del domiciliario
+                            </label>
+                            {{ form.telefono_domiciliario }}
                         </div>
                     </div>
                 </div>
@@ -157,12 +157,8 @@
                         <i class="bi bi-receipt me-1"></i> 5. Resumen de la venta
                     </h6>
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">Subtotal (arreglos + mano obra + envío)</span>
+                        <span class="text-muted">Subtotal (arreglos + mano de obra + envío)</span>
                         <span class="fw-semibold" id="subtotalVenta">$0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">IVA</span>
-                        <span class="fw-semibold text-warning" id="ivaVenta">$0.00 (0%)</span>
                     </div>
                     <div class="d-flex justify-content-between py-2 mt-1">
                         <span class="fw-bold fs-5">TOTAL</span>
@@ -191,7 +187,6 @@
 <script>
     const BUSCAR_ARREGLO_URL = "{% url 'ventas:buscar_arreglo' %}";
 
-    {# Usamos |stringformat para forzar punto decimal en el precio (evita coma del locale) #}
     const ITEMS_EXISTENTES = [
         {% for d in venta.detalles.all %}
         {

@@ -126,11 +126,9 @@ def editar_venta(request, pk):
                     )
                 except (ValueError, Exception):
                     pass
-
-            # Recalcular y guardar totales (el save() del modelo ya llama recalcular,
-            # pero aquí forzamos después de insertar los detalles)
+                
             venta.recalcular_totales()
-            venta.save(update_fields=['subtotal_sin_iva', 'iva_monto', 'total'])
+            venta.save(update_fields=['subtotal', 'total'])
 
             messages.success(request, f'Venta #{venta.id} actualizada correctamente.')
             return redirect('ventas:listar_venta')

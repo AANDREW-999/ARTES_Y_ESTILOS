@@ -4,11 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableBody         = document.querySelector("#itemsTable tbody");
     const totalSpan         = document.getElementById("totalVenta");
     const subtotalSpan      = document.getElementById("subtotalVenta");
-    const ivaSpan           = document.getElementById("ivaVenta");
     const manoObraInput     = document.getElementById("manoObra");
     const domicilioCheckbox = document.getElementById("id_con_domicilio");
     const camposDomicilio   = document.getElementById("campos_domicilio");
-    const ivaSelect         = document.getElementById("ivaSelect");
     const envioInput        = document.getElementById("id_precio_envio");
 
     if (!addItemBtn || !tableBody) {
@@ -22,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     addItemBtn.addEventListener("click", () => agregarFila());
     manoObraInput && manoObraInput.addEventListener("input", calcularTotal);
-    ivaSelect     && ivaSelect.addEventListener("change", calcularTotal);
     envioInput    && envioInput.addEventListener("input", calcularTotal);
 
     if (domicilioCheckbox) {
@@ -34,10 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ── Inicialización ──────────────────────────────────────────────────────
     if (typeof ITEMS_EXISTENTES !== "undefined" && ITEMS_EXISTENTES.length > 0) {
-        // Modo edición: cargar cada item y al terminar recalcular el resumen completo
         ITEMS_EXISTENTES.forEach(item => agregarFila(item));
-        // Forzar recálculo DESPUÉS de que todos los inputs ya están en el DOM
-        // con sus valores correctos
         setTimeout(calcularTotal, 0);
     } else {
         agregarFila();
@@ -73,17 +67,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         tableBody.appendChild(tr);
 
-        // Precargar valores si viene del modo edición
         if (item) {
-            const cantidad = parseInt(item.cantidad)      || 1;
-            const precio   = parseFloat(item.precio)      || 0;
+            const cantidad = parseInt(item.cantidad)  || 1;
+            const precio   = parseFloat(item.precio)  || 0;
 
-            tr.querySelector(".buscar-arreglo").value = item.nombre   || "";
+            tr.querySelector(".buscar-arreglo").value = item.nombre    || "";
             tr.querySelector(".arreglo-id").value     = item.arreglo_id;
             tr.querySelector(".cantidad").value        = cantidad;
             tr.querySelector(".precio").value          = precio.toFixed(2);
 
-            // Mostrar subtotal de esta fila de inmediato
             const cell = tr.querySelector(".subtotal");
             if (cell) cell.innerText = fmt(cantidad * precio);
         }
@@ -114,7 +106,6 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener("input", function () {
             clearTimeout(debounceTimer);
             const query = this.value.trim();
-
             if (query.length < 2) { cerrarBox(box); return; }
 
             debounceTimer = setTimeout(() => {
@@ -125,8 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     })
                     .then(data => {
                         if (data.error) {
-                            mostrarEnBox(box, `<div class="list-group-item text-danger small py-2">
-                                Error: ${data.error}</div>`);
+                            mostrarEnBox(box, `<div class="list-group-item text-danger small py-2">Error: ${data.error}</div>`);
                             return;
                         }
 
@@ -177,8 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     })
                     .catch(err => {
                         console.error("Fetch arreglos falló:", err);
-                        mostrarEnBox(box, `<div class="list-group-item text-danger small py-2">
-                            No se pudo conectar.</div>`);
+                        mostrarEnBox(box, `<div class="list-group-item text-danger small py-2">No se pudo conectar.</div>`);
                     });
             }, 300);
         });
@@ -189,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function cerrarBox(box)          { box.innerHTML = ""; box.style.display = "none"; }
     function mostrarEnBox(box, html) { box.innerHTML = html; box.style.display = "block"; }
 
-    // ── Cálculo del resumen ─────────────────────────────────────────────────
+    // ── Cálculo del total (sin IVA) ─────────────────────────────────────────
 
     function calcularTotal() {
         let subtotalItems = 0;
@@ -207,13 +196,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const envio    = (domicilioCheckbox?.checked && envioInput)
                          ? (parseFloat(envioInput.value) || 0) : 0;
 
-        const subtotal = subtotalItems + manoObra + envio;
-        const ivaPct   = parseFloat(ivaSelect?.value) || 0;
-        const ivaAmt   = subtotal * (ivaPct / 100);
-        const total    = subtotal + ivaAmt;
+        const total = subtotalItems + manoObra + envio;
 
-        if (subtotalSpan) subtotalSpan.innerText = fmt(subtotal);
-        if (ivaSpan)      ivaSpan.innerText      = `${fmt(ivaAmt)} (${ivaPct}%)`;
+        if (subtotalSpan) subtotalSpan.innerText = fmt(total);
         if (totalSpan)    totalSpan.innerText     = fmt(total);
 
         const hiddenTotal = document.getElementById("hiddenTotal");

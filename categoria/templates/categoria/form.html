@@ -66,6 +66,21 @@
                         </div>
 
                         <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label d-flex align-items-center gap-2" for="{{ form.activo.id_for_label }}">
+                                    {{ form.activo }}
+                                    <span>{{ form.activo.label }}</span>
+                                </label>
+                                <small class="text-muted d-block mt-1">
+                                    Si está inactiva, no aparecerá en el catálogo del inicio.
+                                </small>
+                                {% for error in form.activo.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
                             <div class="field-wrapper">
                                 <label class="field-label"><i class="bi bi-image"></i> Imagen (opcional)</label>
                                 <input type="file" id="image-input" name="imagen" class="field-input" accept="image/*">

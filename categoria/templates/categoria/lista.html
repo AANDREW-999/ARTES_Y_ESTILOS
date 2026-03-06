@@ -46,6 +46,7 @@
                         <th>NOMBRE</th>
                         <th class="text-center">IMAGEN</th>
                         <th>DESCRIPCIÓN</th>
+                        <th class="text-center">ESTADO</th>
                         <th class="text-end">ACCIONES</th>
                     </tr>
                 </thead>
@@ -57,18 +58,37 @@
                         </td>
                         <td class="text-center">
                             {% if c.imagen %}
-                                <img src="{{ c.imagen.url }}"
-                                     alt="{{ c.nombre }}"
-                                     style="width:45px;height:45px;object-fit:cover;border-radius:50%;border:2px solid var(--border-color);">
+                            <img src="{{ c.imagen.url }}"
+                            alt="{{ c.nombre }}"
+                            style="width:45px;height:45px;object-fit:cover;border-radius:50%;border:2px solid var(--border-color);">
                             {% else %}
-                                <div style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#BF5486,#D9A7C2);display:inline-flex;align-items:center;justify-content:center;">
-                                    <i class="bi bi-image" style="color:white;font-size:.9rem;"></i>
-                                </div>
+                            <div style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#BF5486,#D9A7C2);display:inline-flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-image" style="color:white;font-size:.9rem;"></i>
+                            </div>
                             {% endif %}
                         </td>
                         <td style="color: var(--text-secondary);">{{ c.descripcion|default:'—' }}</td>
+                        <td class="text-center">
+                            {% if c.activo %}
+                                <span class="badge-stock badge-stock-high">
+                                    <i class="bi bi-circle-fill"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="badge-stock badge-stock-low">
+                                    <i class="bi bi-circle-fill"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </td>
                         <td class="text-end">
                             <div class="acciones-cliente-wrapper">
+                                <a
+                                    href="{% url 'categoria:detalle' c.id %}"
+                                    class="btn-cliente-action btn-cliente-ver"
+                                    title="Ver"
+                                    aria-label="Ver categoría">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            
                                 <a
                                     href="{% url 'categoria:editar' c.id %}"
                                     class="btn-cliente-action btn-cliente-editar"
@@ -89,7 +109,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="empty-state">
+                        <td colspan="5" class="empty-state">
                             <i class="bi bi-tag"></i>
                             <p>No hay categorías registradas aún.</p>
                         </td>

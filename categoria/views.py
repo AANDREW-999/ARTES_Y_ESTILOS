@@ -97,3 +97,11 @@ def eliminar_categoria(request, pk: int):
 		'categoria': categoria,
 	})
 
+
+@panel_login_required
+def detalle_categoria(request, pk: int):
+	categoria = get_object_or_404(Categoria, pk=pk)
+	return render(request, 'categoria/detalle.html', {
+		'categoria': categoria,
+	})
+

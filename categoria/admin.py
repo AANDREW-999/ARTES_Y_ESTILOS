@@ -5,5 +5,6 @@ from .models import Categoria
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-	list_display = ('nombre', 'imagen')
+	list_display = ('nombre', 'activo', 'imagen')
+	list_filter = ('activo',)
 	search_fields = ('nombre',)

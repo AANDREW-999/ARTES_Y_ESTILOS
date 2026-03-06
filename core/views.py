@@ -17,15 +17,19 @@ def index(request):
     busqueda = request.GET.get('busqueda', '')
     categoria_id = (request.GET.get('categoria') or '').strip()
 
-    categorias = Categoria.objects.all().order_by('nombre')
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
     categoria_seleccionada = None
     if categoria_id.isdigit():
         categoria_seleccionada = categorias.filter(pk=int(categoria_id)).first()
 
     if busqueda:
-        productos = Producto.objects.filter(activo=True, nombre__icontains=busqueda)
+        productos = Producto.objects.filter(
+            activo=True,
+            categoria__activo=True,
+            nombre__icontains=busqueda,
+        )
     else:
-        productos = Producto.objects.filter(activo=True)
+        productos = Producto.objects.filter(activo=True, categoria__activo=True)
 
     if categoria_seleccionada:
         productos = productos.filter(categoria=categoria_seleccionada)

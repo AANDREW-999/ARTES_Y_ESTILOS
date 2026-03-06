@@ -702,6 +702,22 @@ html[data-theme="light"] .page-breadcrumb {
     font-size: 1rem;
 }
 
+/* Icono por defecto para todos los niveles del breadcrumb excepto Inicio */
+.breadcrumb-item:not(:first-child) a::before,
+.breadcrumb-item.active::before {
+    content: "\f135";
+    font-family: "bootstrap-icons";
+    font-size: 0.85rem;
+    color: var(--rosa-intenso);
+    margin-right: 0.45rem;
+    line-height: 1;
+}
+
+.breadcrumb-item.active {
+    display: flex;
+    align-items: center;
+}
+
 .breadcrumb-item + .breadcrumb-item::before {
     content: "›";
     color: var(--text-secondary);

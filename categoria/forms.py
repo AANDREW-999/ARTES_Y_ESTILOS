@@ -6,7 +6,7 @@ from .models import Categoria
 class CategoriaForm(forms.ModelForm):
 	class Meta:
 		model = Categoria
-		fields = ['nombre', 'descripcion']
+		fields = ['nombre', 'descripcion', 'activo']
 		widgets = {
 			'nombre': forms.TextInput(attrs={
 				'class': 'form-control',
@@ -20,10 +20,14 @@ class CategoriaForm(forms.ModelForm):
 				'rows': 3,
 				'maxlength': '300',
 			}),
+			'activo': forms.CheckboxInput(attrs={
+				'class': 'form-check-input',
+			}),
 		}
 		labels = {
 			'nombre': 'Nombre',
 			'descripcion': 'Descripción',
+			'activo': 'Estado activo',
 		}
 
 	def clean_nombre(self):

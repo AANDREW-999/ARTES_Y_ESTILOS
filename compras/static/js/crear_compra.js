@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     // Fecha automática
-    const fechaInput = document.getElementById('fecha_emision');
-    if (fechaInput) {
+    const fechaInput = document.getElementById('fecha_emision') || document.getElementById('id_fecha_emision');
+    if (fechaInput && !String(fechaInput.value || '').trim()) {
         const hoy = new Date();
         const año = hoy.getFullYear();
         const mes = String(hoy.getMonth() + 1).padStart(2, '0');

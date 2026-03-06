@@ -21,9 +21,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (domicilioCheckbox) {
         domicilioCheckbox.addEventListener("change", () => {
-            camposDomicilio.style.display = domicilioCheckbox.checked ? "flex" : "none";
+            if (camposDomicilio) {
+                camposDomicilio.classList.toggle("d-none", !domicilioCheckbox.checked);
+            }
             calcularTotal();
         });
+    }
+
+    if (domicilioCheckbox && camposDomicilio) {
+        camposDomicilio.classList.toggle("d-none", !domicilioCheckbox.checked);
     }
 
     itemsContainer.querySelectorAll(".item-venta").forEach(configurarItem);

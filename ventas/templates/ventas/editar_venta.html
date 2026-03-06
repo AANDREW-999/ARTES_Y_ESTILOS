@@ -4,229 +4,350 @@
 {% block title %}Editar Venta{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'ventas/css/venta.css' %}">
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
 
-    <h2 class="fw-bold mb-4">
-        <i class="bi bi-pencil-square"></i> Editar Venta #{{ venta.id }}
-    </h2>
-
-    <div class="card shadow col-md-11">
-        <div class="card-body">
-
-            <form method="post" id="formVenta">
-                {% csrf_token %}
-
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">{{ form.tipo_venta.label }}</label>
-                        {{ form.tipo_venta }}
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">{{ form.forma_pago.label }}</label>
-                        {{ form.forma_pago }}
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Fecha</label>
-                        <input type="date" class="form-control" name="fecha" value="{{ venta.fecha|date:'Y-m-d' }}">
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-flower1 me-2 text-success"></i>Items de la venta</h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm" id="addItem">
-                        <i class="bi bi-plus-circle me-1"></i> Agregar arreglo
-                    </button>
-                </div>
-
-                <div id="itemsContainer" class="d-flex flex-column gap-3">
-                    {% for detalle in detalles %}
-                    <div class="item-venta border rounded-3 p-3 bg-light-subtle">
-                        <div class="row g-3 align-items-end">
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">Item *</label>
-                                <select name="arreglo_id[]" class="form-select item-select" required>
-                                    <option value="">Seleccione...</option>
-                                    <optgroup label="Flores">
-                                        {% for flor in flores %}
-                                        <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}" {% if detalle.tipo_item == 'FLOR' and detalle.flor_id == flor.id %}selected{% endif %}>
-                                            {{ flor.nombre }} (Stock: {{ flor.cantidad }})
-                                        </option>
-                                        {% endfor %}
-                                    </optgroup>
-                                    <optgroup label="Productos">
-                                        {% for producto in productos %}
-                                        <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}" {% if detalle.tipo_item == 'PRODUCTO' and detalle.producto_id == producto.id %}selected{% endif %}>
-                                            {{ producto.nombre }} (Stock: {{ producto.cantidad }})
-                                        </option>
-                                        {% endfor %}
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-semibold">Precio *</label>
-                                <input type="number" class="form-control precio" name="precio[]" value="{{ detalle.precio }}" min="0" step="0.01">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-semibold">Cantidad *</label>
-                                <input type="number" class="form-control cantidad" name="cantidad[]" value="{{ detalle.cantidad }}" min="1">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-outline-danger w-100 eliminar" title="Eliminar item">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="text-end mt-2">
-                            <small class="text-muted">Subtotal item:</small>
-                            <span class="subtotal fw-semibold ms-2">$0.00</span>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="item-venta border rounded-3 p-3 bg-light-subtle">
-                        <div class="row g-3 align-items-end">
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">Item *</label>
-                                <select name="arreglo_id[]" class="form-select item-select" required>
-                                    <option value="">Seleccione...</option>
-                                    <optgroup label="Flores">
-                                        {% for flor in flores %}
-                                        <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">
-                                            {{ flor.nombre }} (Stock: {{ flor.cantidad }})
-                                        </option>
-                                        {% endfor %}
-                                    </optgroup>
-                                    <optgroup label="Productos">
-                                        {% for producto in productos %}
-                                        <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">
-                                            {{ producto.nombre }} (Stock: {{ producto.cantidad }})
-                                        </option>
-                                        {% endfor %}
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-semibold">Precio *</label>
-                                <input type="number" class="form-control precio" name="precio[]" value="0" min="0" step="0.01">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-semibold">Cantidad *</label>
-                                <input type="number" class="form-control cantidad" name="cantidad[]" value="1" min="1">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-outline-danger w-100 eliminar" title="Eliminar item">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="text-end mt-2">
-                            <small class="text-muted">Subtotal item:</small>
-                            <span class="subtotal fw-semibold ms-2">$0.00</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <hr class="my-4">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-tools me-1"></i>Mano de obra
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" class="form-control" id="manoObra" name="mano_obra" value="{{ venta.mano_obra }}" min="0" step="0.01">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-percent me-1"></i>IVA aplicable
-                        </label>
-                        <select class="form-select" id="ivaSelect" name="iva_pct">
-                            <option value="0" {% if venta.iva_pct == 0 %}selected{% endif %}>Sin IVA (0%)</option>
-                            <option value="5" {% if venta.iva_pct == 5 %}selected{% endif %}>5%</option>
-                            <option value="19" {% if venta.iva_pct == 19 %}selected{% endif %}>19%</option>
-                        </select>
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-person me-1"></i>{{ form.cliente.label }}
-                    </label>
-                    {{ form.cliente }}
-                </div>
-
-                <div class="form-check mb-3">
-                    <input type="checkbox" class="form-check-input" id="id_con_domicilio" name="con_domicilio" {% if venta.con_domicilio %}checked{% endif %}>
-                    <label class="form-check-label fw-semibold" for="id_con_domicilio">
-                        <i class="bi bi-truck me-1 text-warning"></i>¿Con domicilio?
-                    </label>
-                </div>
-
-                <div id="campos_domicilio" class="row g-3" style="display:{% if venta.con_domicilio %}flex{% else %}none{% endif %};">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-geo-alt me-1"></i>Dirección de entrega
-                        </label>
-                        {{ form.direccion }}
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-currency-dollar me-1"></i>Costo de envío
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            {{ form.precio_envio }}
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                <div id="resumenVenta" class="card border-0 bg-light rounded-3 p-4 mb-4">
-                    <h6 class="fw-bold mb-3 text-uppercase text-muted small tracking-wide">
-                        <i class="bi bi-receipt me-1"></i>Resumen de la venta
-                    </h6>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">Subtotal (arreglos + mano obra + envío)</span>
-                        <span class="fw-semibold" id="subtotalVenta">$0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">IVA</span>
-                        <span class="fw-semibold text-warning" id="ivaVenta">$0.00 (0%)</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-2 mt-1">
-                        <span class="fw-bold fs-5">TOTAL</span>
-                        <span class="fw-bold fs-4 text-success" id="totalVenta">$0.00</span>
-                    </div>
-                </div>
-
-                <input type="hidden" id="hiddenTotal" name="total">
-
-                <div class="d-flex gap-2 mt-2">
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-save me-1"></i> Guardar cambios
-                    </button>
-                    <a href="{% url 'ventas:listar_venta' %}" class="btn btn-secondary px-4">
-                        <i class="bi bi-x-circle me-1"></i> Cancelar
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
                     </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'ventas:listar_venta' %}">Ventas</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Editar venta</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-9">
+            <div class="form-card">
+                <div class="form-section-title">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar venta #{{ venta.id }}
                 </div>
 
-            </form>
+                <form method="post" id="formVenta" novalidate autocomplete="off">
+                    {% csrf_token %}
 
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.tipo_venta.id_for_label }}">{{ form.tipo_venta.label }}</label>
+                                {{ form.tipo_venta }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.tipo_venta.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.forma_pago.id_for_label }}">{{ form.forma_pago.label }}</label>
+                                {{ form.forma_pago }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.forma_pago.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_fecha">Fecha</label>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="id_fecha"
+                                    name="fecha"
+                                    value="{% if form.fecha.value %}{{ form.fecha.value }}{% else %}{{ venta.fecha|date:'Y-m-d' }}{% endif %}">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.fecha.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title mt-4">
+                        <i class="bi bi-bag-check"></i>
+                        Ítems de la venta
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-3">
+                        <button type="button" class="btn-cliente-nuevo" id="addItem">
+                            <i class="bi bi-plus-circle"></i> Agregar ítem
+                        </button>
+                    </div>
+
+                    <div id="itemsContainer" class="d-flex flex-column gap-3">
+                        {% for detalle in detalles %}
+                        <div class="profile-info-item item-venta">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-5">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Ítem *</label>
+                                        <select name="arreglo_id[]" class="form-select item-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <optgroup label="Flores">
+                                                {% for flor in flores %}
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}" {% if detalle.tipo_item == 'FLOR' and detalle.flor_id == flor.id %}selected{% endif %}>
+                                                    {{ flor.nombre }} (Stock: {{ flor.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            <optgroup label="Productos">
+                                                {% for producto in productos %}
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}" {% if detalle.tipo_item == 'PRODUCTO' and detalle.producto_id == producto.id %}selected{% endif %}>
+                                                    {{ producto.nombre }} (Stock: {{ producto.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Precio *</label>
+                                        <input type="number" class="form-control precio" name="precio[]" value="{{ detalle.precio }}" min="0" step="0.01">
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Cantidad *</label>
+                                        <input type="number" class="form-control cantidad" name="cantidad[]" value="{{ detalle.cantidad }}" min="1">
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2 d-flex justify-content-end">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar eliminar" title="Eliminar ítem" aria-label="Eliminar ítem">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end mt-2">
+                                <small class="text-muted">Subtotal ítem:</small>
+                                <span class="subtotal stock-qty ms-2">$0.00</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="profile-info-item item-venta">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-5">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Ítem *</label>
+                                        <select name="arreglo_id[]" class="form-select item-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <optgroup label="Flores">
+                                                {% for flor in flores %}
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">
+                                                    {{ flor.nombre }} (Stock: {{ flor.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            <optgroup label="Productos">
+                                                {% for producto in productos %}
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">
+                                                    {{ producto.nombre }} (Stock: {{ producto.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Precio *</label>
+                                        <input type="number" class="form-control precio" name="precio[]" value="0" min="0" step="0.01">
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Cantidad *</label>
+                                        <input type="number" class="form-control cantidad" name="cantidad[]" value="1" min="1">
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2 d-flex justify-content-end">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar eliminar" title="Eliminar ítem" aria-label="Eliminar ítem">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end mt-2">
+                                <small class="text-muted">Subtotal ítem:</small>
+                                <span class="subtotal stock-qty ms-2">$0.00</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-section-title mt-4">
+                        <i class="bi bi-receipt"></i>
+                        Totales y entrega
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="manoObra"><i class="bi bi-tools"></i> Mano de obra</label>
+                                <input type="number" class="form-control" id="manoObra" name="mano_obra" value="{% if form.mano_obra.value %}{{ form.mano_obra.value }}{% else %}{{ venta.mano_obra }}{% endif %}" min="0" step="0.01">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.mano_obra.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="ivaSelect"><i class="bi bi-percent"></i> IVA aplicable</label>
+                                <select class="form-select" id="ivaSelect" name="iva_pct">
+                                    {% with iva_val=form.iva_pct.value|default:venta.iva_pct %}
+                                        <option value="0" {% if iva_val|stringformat:'s' == '0' %}selected{% endif %}>Sin IVA (0%)</option>
+                                        <option value="5" {% if iva_val|stringformat:'s' == '5' %}selected{% endif %}>5%</option>
+                                        <option value="19" {% if iva_val|stringformat:'s' == '19' %}selected{% endif %}>19%</option>
+                                    {% endwith %}
+                                </select>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.iva_pct.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.cliente.id_for_label }}"><i class="bi bi-person"></i> {{ form.cliente.label }}</label>
+                                {{ form.cliente }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.cliente.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.descripcion.id_for_label }}"><i class="bi bi-card-text"></i> {{ form.descripcion.label }}</label>
+                                {{ form.descripcion }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.descripcion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper">
+                                <label class="field-label"><i class="bi bi-truck"></i> Entrega</label>
+                                <div class="form-check">
+                                    {{ form.con_domicilio }}
+                                    <label class="form-check-label" for="{{ form.con_domicilio.id_for_label }}">¿Con domicilio?</label>
+                                </div>
+                                {% for error in form.con_domicilio.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="campos_domicilio" class="row g-3 mt-1 {% if venta.con_domicilio %}{% else %}d-none{% endif %}">
+                        <div class="col-12 col-md-7">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.direccion.id_for_label }}"><i class="bi bi-geo-alt"></i> Dirección de entrega</label>
+                                {{ form.direccion }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.direccion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.precio_envio.id_for_label }}"><i class="bi bi-currency-dollar"></i> Costo de envío</label>
+                                {{ form.precio_envio }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.precio_envio.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="resumenVenta" class="profile-info-card mt-4">
+                        <div class="profile-info-title">
+                            <i class="bi bi-receipt"></i>
+                            Resumen de la venta
+                        </div>
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">Subtotal</span>
+                                <div class="profile-info-value" id="subtotalVenta">$0.00</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">IVA</span>
+                                <div class="profile-info-value" id="ivaVenta">$0.00 (0%)</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">Total</span>
+                                <div class="profile-info-value" id="totalVenta">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="hiddenTotal" name="total">
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-save"></i> Guardar cambios
+                        </button>
+                        <a href="{% url 'ventas:listar_venta' %}" class="btn-cancelar">Cancelar</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
 <script src="{% static 'ventas/js/venta.js' %}"></script>
 {% endblock %}
+

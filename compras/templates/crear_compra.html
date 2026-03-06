@@ -4,182 +4,254 @@
 {% block title %}Nueva Compra{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/crear_compra.css' %}">
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container-compra">
-    <div class="compra-card">
-        <h2 class="compra-titulo">Nueva Compra</h2>
+<div class="container-fluid py-4">
 
-        {# Mostrar errores del form si existen #}
-        {% if form.errors %}
-        <div class="alert alert-danger">
-            <strong>Errores en el formulario:</strong>
-            <ul>
-                {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                        <li><b>{{ field }}:</b> {{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'compras:lista_compra' %}">Compras</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Nueva compra</li>
+            </ol>
+        </nav>
+    </div>
 
-        <form method="POST" id="formCompra">
-            {% csrf_token %}
-
-            <div class="compra-grid">
-                <!-- Columna Izquierda -->
-                <div class="compra-col">
-
-                    <!-- Proveedor -->
-                    <div class="form-group">
-                        <label for="id_proveedor">Proveedor *</label>
-                        <select name="proveedor" id="id_proveedor" class="form-control" required>
-                            <option value="">Seleccione Proveedor</option>
-                            {% for proveedor in proveedores %}
-                            <option value="{{ proveedor.id }}"
-                                {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
-                                {{ proveedor.nombre_proveedor }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                        {% if form.proveedor.errors %}
-                            <small class="text-danger">{{ form.proveedor.errors|join:", " }}</small>
-                        {% endif %}
-                        {% if not proveedores %}
-                            <small class="text-danger">⚠️ No hay proveedores disponibles.
-                                <a href="{% url 'proveedores:crear' %}">Crear proveedor</a>
-                            </small>
-                        {% endif %}
-                    </div>
-
-                    <!-- Descripción -->
-                    <div class="form-group">
-                        <label for="id_descripcion">Descripción</label>
-                        <textarea name="descripcion" id="id_descripcion" class="form-control"
-                                  rows="3" placeholder="Descripción de la compra...">{{ form.descripcion.value|default:'' }}</textarea>
-                        {% if form.descripcion.errors %}
-                            <small class="text-danger">{{ form.descripcion.errors|join:", " }}</small>
-                        {% endif %}
-                    </div>
-
-
-                    <!-- Medio de Pago -->
-                    <div class="form-group">
-                        <label for="id_medio_pago">Medio de Pago</label>
-                        <select name="medio_pago" id="id_medio_pago" class="form-control">
-                            <option value="">Seleccione...</option>
-                            <option value="EFECTIVO" {% if form.medio_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
-                            <option value="TRANSFERENCIA" {% if form.medio_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
-                            <option value="TARJETA" {% if form.medio_pago.value == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
-                        </select>
-                    </div>
-
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-9">
+            <div class="form-card">
+                <div class="form-section-title">
+                    <i class="bi bi-cart-plus"></i>
+                    Nueva compra
                 </div>
 
-                <!-- Columna Derecha -->
-                <div class="compra-col">
-
-                    <!-- Fecha de Emisión -->
-                    <div class="form-group">
-                        <label for="id_fecha_emision">Fecha de Emisión *</label>
-                        <input type="date" name="fecha_emision" id="id_fecha_emision"
-                               class="form-control" required
-                               value="{{ form.fecha_emision.value|default:'' }}">
-                        {% if form.fecha_emision.errors %}
-                            <small class="text-danger">{{ form.fecha_emision.errors|join:", " }}</small>
-                        {% endif %}
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Por favor, corrija los errores del formulario.</strong>
                     </div>
+                {% endif %}
 
-                </div>
-            </div>
+                <form method="POST" id="formCompra" novalidate autocomplete="off">
+                    {% csrf_token %}
 
-            <!-- Sección de Productos -->
-            <div class="productos-section">
-                <h3 class="section-subtitle">Productos</h3>
-
-                <div id="productos-container">
-                    <!-- Producto Item Template -->
-                    <div class="producto-item">
-                        <div class="producto-grid">
-                            <div class="form-group">
-                                <label>Item *</label>
-                                <select name="item_id[]" class="form-control form-control-sm" required>
-                                    <option value="">Seleccione...</option>
-                                    <optgroup label="Flores">
-                                        {% for flor in flores %}
-                                        <option value="F-{{ flor.id }}">{{ flor.nombre }} (Stock: {{ flor.cantidad }})</option>
-                                        {% endfor %}
-                                    </optgroup>
-                                    <optgroup label="Productos">
-                                        {% for producto in productos %}
-                                        <option value="P-{{ producto.id }}">{{ producto.nombre }} (Stock: {{ producto.cantidad }})</option>
-                                        {% endfor %}
-                                    </optgroup>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_proveedor">Proveedor *</label>
+                                <select name="proveedor" id="id_proveedor" class="form-select" required>
+                                    <option value="">Seleccione Proveedor</option>
+                                    {% for proveedor in proveedores %}
+                                    <option value="{{ proveedor.id }}" {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ proveedor.nombre_proveedor }}
+                                    </option>
+                                    {% endfor %}
                                 </select>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.proveedor.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                                {% if not proveedores %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> No hay proveedores activos disponibles.</div>
+                                {% endif %}
                             </div>
+                        </div>
 
-                            <div class="form-group">
-                                <label>Precio *</label>
-                                <input type="text" name="precio[]"
-                                       class="form-control form-control-sm precio-input"
-                                       inputmode="decimal" placeholder="0,00" required>
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="fecha_emision">Fecha de emisión *</label>
+                                <input
+                                    type="date"
+                                    name="fecha_emision"
+                                    id="fecha_emision"
+                                    class="form-control"
+                                    required
+                                    value="{{ form.fecha_emision.value|default:'' }}">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.fecha_emision.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
                             </div>
+                        </div>
 
-                            <div class="form-group">
-                                <label>Cantidad *</label>
-                                <input type="number" name="cantidad[]"
-                                       class="form-control form-control-sm cantidad-input"
-                                       min="1" value="1" placeholder="1" required>
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_forma_pago">Forma de pago</label>
+                                <select name="forma_pago" id="id_forma_pago" class="form-select">
+                                    <option value="" {% if not form.forma_pago.value %}selected{% endif %}>Seleccione...</option>
+                                    <option value="EFECTIVO" {% if form.forma_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
+                                    <option value="TRANSFERENCIA" {% if form.forma_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+                                    <option value="TARJETA" {% if form.forma_pago.value == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.forma_pago.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
                             </div>
+                        </div>
 
-                            <div class="form-group align-self-end">
-                                <button type="button" class="btn-eliminar-producto" title="Eliminar producto">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_medio_pago">Medio de pago</label>
+                                <select name="medio_pago" id="id_medio_pago" class="form-select">
+                                    <option value="" {% if not form.medio_pago.value %}selected{% endif %}>Seleccione...</option>
+                                    <option value="EFECTIVO" {% if form.medio_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
+                                    <option value="TRANSFERENCIA" {% if form.medio_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+                                    <option value="TARJETA" {% if form.medio_pago.value == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.medio_pago.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_departamento">Departamento</label>
+                                <input type="text" name="departamento" id="id_departamento" class="form-control" value="{{ form.departamento.value|default:'' }}">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.departamento.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_ciudad">Ciudad</label>
+                                <input type="text" name="ciudad" id="id_ciudad" class="form-control" value="{{ form.ciudad.value|default:'' }}">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.ciudad.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_descripcion">Descripción</label>
+                                <textarea name="descripcion" id="id_descripcion" class="form-control" rows="3" placeholder="Descripción de la compra...">{{ form.descripcion.value|default:'' }}</textarea>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.descripcion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-       {% comment %} <label>Categoría *</label>
-    <select name="categoria[]" class="form-control form-control-sm categoria-input" required>
-        <option value="">Seleccione...</option>
-        {% for cat in categorias %}
-            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
-        {% endfor %}
-    </select> {% endcomment %}
-</div>
+                    <div class="form-section-title mt-4">
+                        <i class="bi bi-list-ul"></i>
+                        Artículos
+                    </div>
 
-                <button type="button" id="btnAgregarProducto" class="btn-agregar">
-                    Agregar Artículo
-                </button>
-            </div>
+                    <div id="productos-container" class="d-flex flex-column gap-3">
+                        <div class="profile-info-item producto-item">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-6">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Ítem *</label>
+                                        <select name="item_id[]" class="form-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <optgroup label="Flores">
+                                                {% for flor in flores %}
+                                                <option value="F-{{ flor.id }}">{{ flor.nombre }} (Stock: {{ flor.cantidad }})</option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            <optgroup label="Productos">
+                                                {% for producto in productos %}
+                                                <option value="P-{{ producto.id }}">{{ producto.nombre }} (Stock: {{ producto.cantidad }})</option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
 
-            <!-- Totales -->
-            <div class="totales-section">
-                <div class="total-item">
-                    <span class="total-label">Subtotal</span>
-                    <span class="total-value" id="subtotal">$0.00</span>
-                </div>
-                <div class="total-item total-final">
-                    <span class="total-label">Total</span>
-                    <span class="total-value" id="total">$0.00</span>
-                </div>
+                                <div class="col-12 col-md-3">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Precio *</label>
+                                        <input type="text" name="precio[]" class="form-control precio-input" inputmode="decimal" placeholder="0,00" required>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Cantidad *</label>
+                                        <input type="number" name="cantidad[]" class="form-control cantidad-input" min="1" value="1" required>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-1 d-flex justify-content-end">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar btn-eliminar-producto" title="Eliminar artículo" aria-label="Eliminar artículo">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" id="btnAgregarProducto" class="btn-cliente-nuevo">
+                            <i class="bi bi-plus-circle"></i>
+                            Agregar artículo
+                        </button>
+                    </div>
+
+                    <div class="profile-info-card mt-4">
+                        <div class="profile-info-title">
+                            <i class="bi bi-receipt"></i>
+                            Totales
+                        </div>
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">Subtotal</span>
+                                <div class="profile-info-value" id="subtotal">$0.00</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">Total</span>
+                                <div class="profile-info-value" id="total">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                        <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">Cancelar</a>
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-save"></i>
+                            Guardar
+                        </button>
+                    </div>
+                </form>
             </div>
-                <div class="acciones-principales">
-                    <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">Cancelar</a>
-                    <button type="submit" class="btn-guardar">Guardar</button>
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
 <script src="{% static 'js/crear_compra.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Detalle de Compra{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/detalle_modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'compras:lista_compra' %}">Compras</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-xl-4">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="bi bi-bag-check"></i>
+                </div>
+                <div class="profile-header-content">
+                    <h2 class="profile-name">Compra #{{ compra.id }}</h2>
+                    <div class="profile-meta">
+                        <span><i class="bi bi-calendar-event"></i> {{ compra.fecha_emision|date:'d/m/Y' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-info-card">
+                <div class="profile-info-title">
+                    <i class="bi bi-info-circle"></i>
+                    Información
+                </div>
+                <div class="profile-info-grid">
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Proveedor</span>
+                        <div class="profile-info-value">{{ compra.proveedor }}</div>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Descripción</span>
+                        <div class="profile-info-value">{{ compra.descripcion|default:'—' }}</div>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Forma de pago</span>
+                        <div class="profile-info-value">{{ compra.forma_pago|default:'—' }}</div>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Medio de pago</span>
+                        <div class="profile-info-value">{{ compra.medio_pago|default:'—' }}</div>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Departamento</span>
+                        <div class="profile-info-value">{{ compra.departamento|default:'—' }}</div>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Ciudad</span>
+                        <div class="profile-info-value">{{ compra.ciudad|default:'—' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a class="btn btn-secondary" href="{% url 'compras:lista_compra' %}">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+                <a class="btn btn-primary" href="{% url 'compras:editar_compra' compra.id %}">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <a class="btn btn-danger" href="{% url 'compras:eliminar_compra' compra.id %}">
+                    <i class="bi bi-trash"></i> Eliminar
+                </a>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-8">
+            <div class="profile-info-card">
+                <div class="profile-info-title">
+                    <i class="bi bi-list-ul"></i>
+                    Artículos
+                </div>
+
+                <div class="clientes-table-container">
+                    <table class="clientes-table">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Tipo</th>
+                                <th class="text-end">Precio</th>
+                                <th class="text-end">Cantidad</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalles %}
+                                <tr>
+                                    <td>{{ detalle.item_nombre }}</td>
+                                    <td>{{ detalle.tipo_item }}</td>
+                                    <td class="text-end">${{ detalle.precio|floatformat:2 }}</td>
+                                    <td class="text-end">{{ detalle.cantidad }}</td>
+                                    <td class="text-end">${{ detalle.subtotal|floatformat:2 }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No hay artículos registrados.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="profile-info-grid mt-3">
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Subtotal</span>
+                        <div class="profile-info-value">${{ compra.subtotal|floatformat:2 }}</div>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Total</span>
+                        <div class="profile-info-value">${{ compra.total_compra|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

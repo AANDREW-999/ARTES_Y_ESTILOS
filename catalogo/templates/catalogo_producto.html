@@ -32,10 +32,16 @@
         <p>Administra los productos de la floristería.</p>
     </div>
     <div class="page-header-actions">
-        <form action="{% url 'catalogo:gestion_productos' %}" method="GET">
+        <form action="{% url 'catalogo:gestion_productos' %}" method="GET" class="js-search-form" novalidate>
+            <input type="hidden" name="categoria" value="{{ categoria_filtro|default:'' }}">
+            <input type="hidden" name="estado" value="{{ estado_filtro|default:'' }}">
+            <input type="hidden" name="tamano" value="{{ tamano_filtro|default:'' }}">
+            <input type="hidden" name="precio_min" value="{{ precio_min_filtro|default:'' }}">
+            <input type="hidden" name="precio_max" value="{{ precio_max_filtro|default:'' }}">
             <div class="search-wrapper">
-                <input type="text" name="q" value="{{ busqueda|default:'' }}"
-                       class="search-input" placeholder="Buscar por Catálogo, categoría o tamaño...">
+                <input type="text" id="search-live-catalogo" name="q" value="{{ busqueda|default:'' }}"
+                       class="search-input js-live-search" data-target="#catalogo-tbody"
+                       placeholder="Buscar por nombre, categoría, tamaño o descripción..." autocomplete="off">
                 <button type="submit" class="search-btn">
                     <i class="bi bi-search"></i> Buscar
                 </button>
@@ -45,6 +51,116 @@
             <i class="bi bi-plus-circle"></i> Nuevo Catálogo
         </a>
     </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-primary">
+            <i class="bi bi-box2-heart"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_productos }}</div>
+            <div class="stat-label">Total productos</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-primary">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_activos }}</div>
+            <div class="stat-label">Productos activos</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-primary">
+            <i class="bi bi-slash-circle-fill"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_inactivos }}</div>
+            <div class="stat-label">Productos inactivos</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-primary">
+            <i class="bi bi-tags-fill"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_categorias }}</div>
+            <div class="stat-label">Categorías en uso</div>
+        </div>
+    </div>
+</div>
+
+<div class="form-card">
+    <div class="form-section-title">
+        <i class="bi bi-funnel-fill"></i>
+        Filtros del listado
+    </div>
+
+    <form method="GET" action="{% url 'catalogo:gestion_productos' %}" class="js-filter-form" id="catalogo-filter-form" novalidate autocomplete="off">
+        <input type="hidden" name="q" value="{{ busqueda|default:'' }}">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+                <div class="field-wrapper">
+                    <label class="field-label" for="filtro_categoria">Categoría</label>
+                    <select name="categoria" id="filtro_categoria" class="form-select">
+                        <option value="">Todas</option>
+                        {% for c in categorias_filtro %}
+                        <option value="{{ c.id }}" {% if categoria_filtro == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 col-lg-2">
+                <div class="field-wrapper">
+                    <label class="field-label" for="filtro_estado">Estado</label>
+                    <select name="estado" id="filtro_estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="activo" {% if estado_filtro == 'activo' %}selected{% endif %}>Activo</option>
+                        <option value="inactivo" {% if estado_filtro == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 col-lg-2">
+                <div class="field-wrapper">
+                    <label class="field-label" for="filtro_tamano">Tamaño</label>
+                    <select name="tamano" id="filtro_tamano" class="form-select">
+                        <option value="">Todos</option>
+                        {% for tam in tamanos_filtro %}
+                        <option value="{{ tam }}" {% if tamano_filtro == tam %}selected{% endif %}>{{ tam }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 col-lg-2">
+                <div class="field-wrapper">
+                    <label class="field-label" for="precio_min">Precio mínimo</label>
+                    <input type="text" class="form-control" id="precio_min" name="precio_min" value="{{ precio_min_filtro|default:'' }}" inputmode="numeric" placeholder="0">
+                </div>
+            </div>
+            <div class="col-12 col-md-3 col-lg-2">
+                <div class="field-wrapper">
+                    <label class="field-label" for="precio_max">Precio máximo</label>
+                    <input type="text" class="form-control" id="precio_max" name="precio_max" value="{{ precio_max_filtro|default:'' }}" inputmode="numeric" placeholder="0">
+                </div>
+            </div>
+        </div>
+
+        <div class="filtro-footer">
+            <div class="filtro-indicador text-muted small">
+                Mostrando <strong>{{ resultados_filtrados }}</strong> resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
+            </div>
+            <div class="filtro-actions d-flex gap-2">
+                <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancelar" title="Limpiar filtros" aria-label="Limpiar filtros">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+                <button type="submit" class="btn-guardar" title="Aplicar filtros" aria-label="Aplicar filtros">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="catalogo-table-container">
@@ -61,9 +177,9 @@
                 <th class="text-end pe-4">Acciones</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="catalogo-tbody" class="js-live-table">
             {% for p in productos %}
-            <tr>
+            <tr data-search-row="1" data-search-text="{{ p.nombre }} {{ p.categoria.nombre }} {{ p.tamano }} {{ p.descripcion|default:'' }} {% if p.activo %}activo{% else %}inactivo{% endif %}">
                 <td class="ps-4"><strong>{{ p.nombre }}</strong></td>
                 <td><span class="badge-catalogo">{{ p.categoria.nombre }}</span></td>
                 <td>{{ p.tamano }}</td>
@@ -105,11 +221,11 @@
             </tr>
 
             {% empty %}
-            <tr>
+            <tr data-empty-server="1">
                 <td colspan="8">
                     <div class="empty-state">
                         <i class="bi bi-search"></i>
-                        <p>No se encontraron productos para el catálogo{% if busqueda %} que coincidan con "{{ busqueda }}"{% endif %}.</p>
+                        <p>No se encontraron productos{% if hay_filtros %} con los filtros aplicados{% endif %}.</p>
                     </div>
                 </td>
             </tr>
@@ -119,6 +235,45 @@
 </div>
 
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('catalogo-filter-form');
+    const precioMin = document.getElementById('precio_min');
+    const precioMax = document.getElementById('precio_max');
+    if (!form || !precioMin || !precioMax) return;
+
+    const normalizar = (valor) => {
+        const limpio = (valor || '').trim();
+        if (!limpio) return null;
+        const numero = Number(limpio.replace(/\./g, '').replace(',', '.'));
+        return Number.isFinite(numero) ? numero : null;
+    };
+
+    const marcarInvalido = (input, invalido) => {
+        input.classList.toggle('is-invalid', invalido);
+        if (!invalido) input.classList.remove('is-valid');
+    };
+
+    form.addEventListener('submit', function (event) {
+        const min = normalizar(precioMin.value);
+        const max = normalizar(precioMax.value);
+
+        if ((precioMin.value.trim() && min === null) || (precioMax.value.trim() && max === null)) {
+            event.preventDefault();
+            marcarInvalido(precioMin, precioMin.value.trim() && min === null);
+            marcarInvalido(precioMax, precioMax.value.trim() && max === null);
+            return;
+        }
+
+        if (min !== null && max !== null && min > max) {
+            event.preventDefault();
+            precioMin.classList.add('is-invalid');
+            precioMax.classList.add('is-invalid');
+            precioMax.focus();
+        }
+    });
+});
+</script>
 </div>
 {% endblock %}
 

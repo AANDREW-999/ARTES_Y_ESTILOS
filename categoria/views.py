@@ -2,6 +2,7 @@ import base64
 
 from django.contrib import messages
 from django.core.files.base import ContentFile
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from usuarios.decorators import panel_login_required
 
@@ -27,9 +28,39 @@ def _procesar_imagen(request, nombre_categoria: str):
 
 @panel_login_required
 def lista_categoria(request):
-	categorias = Categoria.objects.all().order_by('nombre')
+	query = request.GET.get('q', '').strip()
+	estado = request.GET.get('estado', '').strip()
+
+	categorias = Categoria.objects.all()
+
+	if query:
+		categorias = categorias.filter(
+			Q(nombre__icontains=query) |
+			Q(descripcion__icontains=query)
+		)
+
+	if estado == 'activo':
+		categorias = categorias.filter(activo=True)
+	elif estado == 'inactivo':
+		categorias = categorias.filter(activo=False)
+
+	categorias = categorias.order_by('nombre')
+
+	total_categorias = Categoria.objects.count()
+	total_activas = Categoria.objects.filter(activo=True).count()
+	total_inactivas = total_categorias - total_activas
+	total_con_productos = Categoria.objects.filter(productos__isnull=False).distinct().count()
+
 	return render(request, 'categoria/lista.html', {
 		'categorias': categorias,
+		'busqueda': query,
+		'estado_filtro': estado,
+		'total_categorias': total_categorias,
+		'total_activas': total_activas,
+		'total_inactivas': total_inactivas,
+		'total_con_productos': total_con_productos,
+		'resultados_filtrados': categorias.count(),
+		'hay_filtros': any([query, estado]),
 	})
 
 

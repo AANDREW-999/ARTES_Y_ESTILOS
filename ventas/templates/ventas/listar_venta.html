@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -34,6 +35,18 @@
         </div>
 
         <div class="page-header-actions">
+            <form method="GET" action="{% url 'ventas:listar_venta' %}" class="js-search-form" novalidate>
+                <input type="hidden" name="cliente_nombre" value="{{ cliente_nombre_filtro|default:'' }}">
+                <input type="hidden" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
+                <div class="search-wrapper">
+                    <input type="text" id="search-live-ventas" name="q" value="{{ query|default:'' }}"
+                           class="search-input js-live-search" data-target="#ventas-tbody"
+                           placeholder="Buscar por venta, cliente o documento..." autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
             <a href="{% url 'ventas:crear' %}" class="btn-cliente-nuevo">
                 <i class="bi bi-plus-circle"></i> Nueva Venta
             </a>
@@ -88,6 +101,7 @@
         </div>
 
         <form method="GET" id="filtroForm" action="" novalidate autocomplete="off">
+            <input type="hidden" name="q" value="{{ query|default:'' }}">
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-5">
                     <div class="field-wrapper">
@@ -103,7 +117,7 @@
                             autocomplete="off">
                         <datalist id="lista_clientes">
                             {% for cliente in clientes %}
-                            <option value="{{ cliente.nombre }}">{{ cliente.nombre }} {{ cliente.apellido }}</option>
+                            <option value="{{ cliente.nombre }} {{ cliente.apellido }}"></option>
                             {% endfor %}
                         </datalist>
                     </div>
@@ -147,9 +161,9 @@
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="ventas-tbody" class="js-live-table">
                     {% for venta in ventas %}
-                    <tr class="slideIn">
+                    <tr class="slideIn" data-search-row="1" data-search-text="#{{ venta.id }} {{ venta.cliente.nombre|default:'' }} {{ venta.cliente.apellido|default:'' }} {{ venta.cliente.documento|default:'' }} {{ venta.fecha|date:'d/m/Y' }}">
                         <td>
                             <strong>#{{ venta.id }}</strong>
                         </td>
@@ -212,7 +226,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr data-empty-server="1">
                         <td colspan="6" class="empty-state">
                             <i class="bi bi-cart-x"></i>
                             <p>No se encontraron ventas con los filtros aplicados.</p>
@@ -225,4 +239,5 @@
     </div>
 
 </div>
+<script src="{% static 'js/busqueda_catalogo.js' %}"></script>
 {% endblock %}

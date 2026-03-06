@@ -3,7 +3,7 @@ from datetime import date, datetime
 
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -98,8 +98,19 @@ def _devolver_stock(tipo_item, item_pk, cantidad):
 def listar_ventas(request):
     ventas = Venta.objects.select_related("cliente").prefetch_related("detalles__flor", "detalles__producto")
 
+    q = request.GET.get("q", "").strip()
     cliente_nombre = request.GET.get("cliente_nombre", "").strip()
     fecha_desde = request.GET.get("fecha_desde", "")
+
+    if q:
+        filtros_q = (
+            Q(cliente__nombre__icontains=q) |
+            Q(cliente__apellido__icontains=q) |
+            Q(cliente__documento__icontains=q)
+        )
+        if q.isdigit():
+            filtros_q = filtros_q | Q(id=int(q))
+        ventas = ventas.filter(filtros_q)
 
     if cliente_nombre:
         ventas = ventas.filter(cliente__nombre__icontains=cliente_nombre)
@@ -123,6 +134,7 @@ def listar_ventas(request):
 
     context = {
         "ventas": ventas,
+        "query": q,
         "clientes": clientes,
         "cliente_nombre_filtro": cliente_nombre,
         "fecha_desde_filtro": fecha_desde,

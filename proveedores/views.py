@@ -8,18 +8,51 @@ from .forms import ProveedorForm
 
 @login_required
 def listar_proveedores(request):
-    q = request.GET.get('q')
+    q = request.GET.get('q', '').strip()
+    tipo_documento = request.GET.get('tipo_documento', '').strip()
+    ciudad = request.GET.get('ciudad', '').strip()
+    estado = request.GET.get('estado', '').strip()
+
     proveedores = Proveedor.objects.all().order_by('-id')
 
     if q:
         proveedores = proveedores.filter(
             Q(nombre_proveedor__icontains=q) |
             Q(ciudad__icontains=q) |
-            Q(correo_electronico__icontains=q)
+            Q(correo_electronico__icontains=q) |
+            Q(numero_documento__icontains=q)
         )
 
+    if tipo_documento:
+        proveedores = proveedores.filter(tipo_documento=tipo_documento)
+
+    if ciudad:
+        proveedores = proveedores.filter(ciudad__icontains=ciudad)
+
+    if estado == 'activo':
+        proveedores = proveedores.filter(activo=True)
+    elif estado == 'inactivo':
+        proveedores = proveedores.filter(activo=False)
+
+    total_proveedores = Proveedor.objects.count()
+    total_activos = Proveedor.objects.filter(activo=True).count()
+    total_inactivos = total_proveedores - total_activos
+    ciudades_activas = Proveedor.objects.exclude(ciudad__isnull=True).exclude(ciudad='').values('ciudad').distinct().count()
+
     context = {
-        'proveedores': proveedores
+        'proveedores': proveedores,
+        'query': q,
+        'tipo_documento_filtro': tipo_documento,
+        'ciudad_filtro': ciudad,
+        'estado_filtro': estado,
+        'tipos_documento': Proveedor.TIPO_DOCUMENTO,
+        'ciudades_filtro': Proveedor.objects.exclude(ciudad__isnull=True).exclude(ciudad='').values_list('ciudad', flat=True).distinct().order_by('ciudad'),
+        'total_proveedores': total_proveedores,
+        'total_activos': total_activos,
+        'total_inactivos': total_inactivos,
+        'ciudades_activas': ciudades_activas,
+        'resultados_filtrados': proveedores.count(),
+        'hay_filtros': any([q, tipo_documento, ciudad, estado]),
     }
     return render(request, 'proveedores/listar_proveedor.html', context)
 

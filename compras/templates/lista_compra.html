@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
 {% endblock %}
 
 
@@ -39,6 +40,18 @@
             <p>Administra y consulta compras registradas</p>
         </div>
         <div class="page-header-actions">
+            <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
+                <input type="hidden" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
+                <input type="hidden" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
+                <div class="search-wrapper">
+                    <input type="text" id="search-live-compras" name="q" value="{{ query|default:'' }}"
+                           class="search-input js-live-search" data-target="#compras-tbody"
+                           placeholder="Buscar por compra, proveedor o documento..." autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
             <a href="{% url 'compras:crear_compra' %}" class="btn-cliente-nuevo">
                 <i class="bi bi-plus-circle"></i>
                 Nueva compra
@@ -94,6 +107,7 @@
         </div>
 
         <form method="GET" id="filtroForm" action="" novalidate autocomplete="off">
+            <input type="hidden" name="q" value="{{ query|default:'' }}">
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-5">
                     <div class="field-wrapper">
@@ -153,9 +167,9 @@
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="compras-tbody" class="js-live-table">
                     {% for compra in compras %}
-                    <tr class="slideIn">
+                    <tr class="slideIn" data-search-row="1" data-search-text="#{{ compra.id }} {{ compra.proveedor.nombre_proveedor|default:'N/A' }} {{ compra.proveedor.numero_documento|default:'' }} {{ compra.descripcion|default:'' }} {{ compra.fecha_emision|date:'d/m/Y' }}">
                         <td>
                             <div class="cliente-avatar-wrapper">
                                 <div class="cliente-avatar-placeholder" aria-hidden="true">C</div>
@@ -184,7 +198,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr data-empty-server="1">
                         <td colspan="6" class="empty-state">
                             <i class="bi bi-cart-x"></i>
                             <p>No se encontraron compras con los filtros aplicados.</p>
@@ -197,4 +211,5 @@
     </div>
 
 </div>
+<script src="{% static 'js/busqueda_catalogo.js' %}"></script>
 {% endblock %}

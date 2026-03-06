@@ -3,7 +3,7 @@ from decimal import Decimal, InvalidOperation
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template import loader
@@ -111,8 +111,19 @@ def compras_list(request):
         "detalles__flor", "detalles__producto"
     )
 
+    q = request.GET.get("q", "").strip()
     proveedor_nombre = request.GET.get("proveedor_nombre", "").strip()
     fecha_desde = request.GET.get("fecha_desde", "")
+
+    if q:
+        filtros_q = (
+            Q(descripcion__icontains=q) |
+            Q(proveedor__nombre_proveedor__icontains=q) |
+            Q(proveedor__numero_documento__icontains=q)
+        )
+        if q.isdigit():
+            filtros_q = filtros_q | Q(id=int(q))
+        lista_compras = lista_compras.filter(filtros_q)
 
     if proveedor_nombre:
         lista_compras = lista_compras.filter(proveedor__nombre_proveedor__icontains=proveedor_nombre)
@@ -137,6 +148,7 @@ def compras_list(request):
 
     context = {
         "compras": lista_compras,
+        "query": q,
         "total_compras": total_compras,
         "monto_total": monto_total,
         "total_proveedores": total_proveedores,

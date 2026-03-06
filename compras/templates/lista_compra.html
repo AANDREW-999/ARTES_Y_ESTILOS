@@ -127,9 +127,12 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-3 d-flex justify-content-end">
+                <div class="col-12 col-md-3 d-flex justify-content-end gap-2">
+                    <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
                     <button type="submit" class="btn-guardar" name="filtrar" value="1">
-                        <i class="bi bi-search"></i> Filtrar
+                        <i class="bi bi-search"></i>
                     </button>
                 </div>
             </div>

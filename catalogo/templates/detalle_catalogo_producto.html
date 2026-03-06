@@ -9,7 +9,7 @@
 
 <div class="container py-4 catalogo-detail">
 
-    <!-- Breadcrumb (Catálogo) -->
+    {% comment %} <!-- Breadcrumb (Catálogo) -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb mb-0">
             {% if user.is_authenticated and user.is_staff %}
@@ -35,14 +35,7 @@
             {% endif %}
             <li class="breadcrumb-item active" aria-current="page">Detalle</li>
         </ol>
-    </nav>
-
-    <!-- Botón volver -->
-    <div class="mb-4">
-        <a href="javascript:history.back()" class="btn-volver">
-            <i class="bi bi-arrow-left"></i> Volver al Catálogo
-        </a>
-    </div>
+    </nav> {% endcomment %}
 
     <div class="row g-4">
         <!-- Imagen -->
@@ -82,14 +75,19 @@
                     <div class="detail-info-item" style="grid-column: 1 / -1;">
                         <span class="detail-info-label">Descripción</span>
                         <span class="detail-info-value">
-                            {{ producto.descripcion|default:"Un hermoso detalle pensado para sorprender en cualquier ocasión... 🌹✨" }}
+                            {{ producto.descripcion|default:"Un bello detalle pensado para sorprender en cualquier ocasión. ✨" }}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+        <!-- Botón volver -->
+    <div class="mb-4">
+        <a href="javascript:history.back()" class="btn-volver">
+            <i class="bi bi-arrow-left"></i> Volver al Catálogo
+        </a>
+    </div>
 </div>
 
 {% endblock %}

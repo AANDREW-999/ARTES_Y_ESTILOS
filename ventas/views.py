@@ -1,7 +1,9 @@
 from decimal import Decimal, InvalidOperation
+from datetime import date, datetime
 
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -95,7 +97,41 @@ def _devolver_stock(tipo_item, item_pk, cantidad):
 
 def listar_ventas(request):
     ventas = Venta.objects.select_related("cliente").prefetch_related("detalles__flor", "detalles__producto")
-    return render(request, "ventas/listar_venta.html", {"ventas": ventas})
+
+    cliente_nombre = request.GET.get("cliente_nombre", "").strip()
+    fecha_desde = request.GET.get("fecha_desde", "")
+
+    if cliente_nombre:
+        ventas = ventas.filter(cliente__nombre__icontains=cliente_nombre)
+
+    if fecha_desde:
+        try:
+            fecha = datetime.strptime(fecha_desde, "%Y-%m-%d").date()
+            ventas = ventas.filter(fecha__gte=fecha)
+        except ValueError:
+            fecha_desde = ""
+
+    clientes = Cliente.objects.all().order_by("nombre", "apellido")
+
+    total_ventas = ventas.count()
+    monto_total = ventas.aggregate(Sum("total"))["total__sum"] or 0
+    total_clientes = ventas.values("cliente").distinct().count()
+
+    hoy = date.today()
+    inicio_mes = hoy.replace(day=1)
+    ventas_mes = ventas.filter(fecha__gte=inicio_mes, fecha__lte=hoy).count()
+
+    context = {
+        "ventas": ventas,
+        "clientes": clientes,
+        "cliente_nombre_filtro": cliente_nombre,
+        "fecha_desde_filtro": fecha_desde,
+        "total_ventas": total_ventas,
+        "monto_total": monto_total,
+        "total_clientes": total_clientes,
+        "ventas_mes": ventas_mes,
+    }
+    return render(request, "ventas/listar_venta.html", context)
 
 
 def crear_venta(request):

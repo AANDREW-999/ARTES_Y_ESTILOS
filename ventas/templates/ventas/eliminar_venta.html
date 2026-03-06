@@ -3,45 +3,67 @@
 
 {% block title %}Eliminar Venta{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="card shadow col-md-6">
-        <div class="card-header bg-danger text-white">
-            <h4 class="mb-0">Eliminar Venta</h4>
-        </div>
 
-        <div class="card-body">
-            <p class="fs-5">
-                ¿Estás seguro de que deseas eliminar esta venta?
-            </p>
-
-            <ul class="list-group mb-3">
-                <li class="list-group-item">
-                    <strong>ID:</strong> {{ venta.id }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Cliente:</strong> {{ venta.cliente.nombre }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Arreglo:</strong> {{ venta.arreglo.nombre }}
-                </li>
-                <li class="list-group-item">
-                    <strong>Total:</strong> ${{ venta.total }}
-                </li>
-            </ul>
-
-            <form method="post">
-                {% csrf_token %}
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-danger">
-                        Sí, eliminar
-                    </button>
-                    <a href="{% url 'ventas:listar_venta' %}" class="btn btn-secondary">
-                        Cancelar
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
                     </a>
-                </div>
-            </form>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'ventas:listar_venta' %}">Ventas</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-danger" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
         </div>
+
+        <div class="confirmation-title">¿Eliminar venta?</div>
+
+        <div class="user-info-box">
+            <div class="user-info-avatar-placeholder" aria-hidden="true">V</div>
+            <div>
+                <div class="fw-bold">Venta #{{ venta.id }}</div>
+                <div class="text-muted">{{ venta.cliente.nombre }}</div>
+                <div class="text-muted">
+                    {% with detalles=venta.detalles.all %}
+                        Ítems: {{ detalles|length }}
+                        {% with first=detalles|first %}
+                            {% if first %}
+                                · {{ first.item_nombre }}
+                            {% endif %}
+                        {% endwith %}
+                    {% endwith %}
+                </div>
+                <div class="text-muted">Total: ${{ venta.total }}</div>
+            </div>
+        </div>
+
+        <form method="post" class="d-flex flex-wrap gap-2 justify-content-center">
+            {% csrf_token %}
+            <button type="submit" class="btn-confirm btn-confirm-danger">
+                <i class="bi bi-trash"></i> Confirmar eliminación
+            </button>
+            <a href="{% url 'ventas:listar_venta' %}" class="btn-cancel">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+        </form>
     </div>
 </div>
 {% endblock %}
+

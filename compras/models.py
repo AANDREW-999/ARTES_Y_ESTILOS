@@ -75,9 +75,18 @@ class DetalleCompra(models.Model):
     """Modelo para guardar cada línea de producto en una compra"""
     id = models.BigAutoField(primary_key=True)
     compra = models.ForeignKey(Compra, on_delete=models.CASCADE, related_name='detalles')
-    
+
+    TIPO_ITEM_CHOICES = [
+        ('FLOR', 'Flor'),
+        ('PRODUCTO', 'Producto'),
+    ]
+
+    # Item asociado
+    tipo_item = models.CharField(max_length=20, choices=TIPO_ITEM_CHOICES, default='PRODUCTO')
+    flor = models.ForeignKey('flor.Flor', on_delete=models.PROTECT, null=True, blank=True)
+    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, null=True, blank=True)
+
     # Información del producto
-    rif = models.CharField(max_length=100, verbose_name="RIF", blank=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio")
     cantidad = models.IntegerField(default=1, verbose_name="Cantidad")
     
@@ -89,10 +98,23 @@ class DetalleCompra(models.Model):
         verbose_name_plural = "Detalles de Compra"
         ordering = ['id']
 
+    @property
+    def item(self):
+        return self.flor or self.producto
+
+    @property
+    def item_nombre(self):
+        return getattr(self.item, 'nombre', '') if self.item else ''
+
     def __str__(self):
-        return f"Detalle {self.id} - Compra {self.compra.id} - {self.cantidad} x ${self.precio}"
+        return f"Detalle {self.id} - Compra {self.compra.id} - {self.item_nombre} x {self.cantidad}"
 
     def save(self, *args, **kwargs):
+        if self.tipo_item == 'FLOR':
+            self.producto = None
+        elif self.tipo_item == 'PRODUCTO':
+            self.flor = None
+
         self.subtotal = self.cantidad * self.precio
         super().save(*args, **kwargs)
 

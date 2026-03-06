@@ -47,6 +47,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { valido: true, mensaje: 'Nombre válido' };
             }
         },
+        precio: {
+            selector: ['#id_precio'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El precio es obligatorio' };
+                }
+
+                const trimmed = valor.trim();
+                if (!/^\d+(?:[\.,]\d{1,2})?$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Formato inválido (ej: 12000 o 12000.50)' };
+                }
+
+                const normalizado = trimmed.replace(',', '.');
+                const numero = Number(normalizado);
+                if (!Number.isFinite(numero)) {
+                    return { valido: false, mensaje: 'El precio debe ser un número válido' };
+                }
+                if (numero <= 0) {
+                    return { valido: false, mensaje: 'El precio debe ser mayor que 0' };
+                }
+
+                return { valido: true, mensaje: 'Precio válido' };
+            }
+        },
+        cantidad_stock: {
+            selector: ['#id_cantidad'],
+            soloNumeros: true,
+            permitirCaracteresEspeciales: false,
+            validar: function(valor) {
+                if (valor === null || valor === undefined || String(valor).trim() === '') {
+                    return { valido: false, mensaje: 'La cantidad es obligatoria' };
+                }
+
+                const trimmed = String(valor).trim();
+                if (!/^\d+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Solo números enteros permitidos' };
+                }
+
+                const numero = parseInt(trimmed, 10);
+                if (!Number.isFinite(numero)) {
+                    return { valido: false, mensaje: 'La cantidad debe ser un número válido' };
+                }
+                if (numero < 0) {
+                    return { valido: false, mensaje: 'La cantidad no puede ser negativa' };
+                }
+
+                return { valido: true, mensaje: 'Cantidad válida' };
+            }
+        },
         apellido: {
             selector: ['#id_apellido', '#id_last_name'],
             soloLetras: true,
@@ -69,9 +119,15 @@ document.addEventListener('DOMContentLoaded', function() {
             soloNumeros: true,
             permitirEspacios: true,
             permitirCaracteresEspeciales: false,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return { valido: false, mensaje: 'El teléfono es obligatorio' };
+                    }
                     return { valido: true, mensaje: 'Opcional' };
+                }
+                if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                 }
                 const soloNumeros = valor.replace(/\s/g, '');
                 if (!/^\d+$/.test(soloNumeros)) {
@@ -89,9 +145,15 @@ document.addEventListener('DOMContentLoaded', function() {
         correo_electronico: {
             selector: ['#id_correo_electronico', '#id_email'],
             permitirCaracteresEspeciales: true,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return { valido: false, mensaje: 'El correo electrónico es obligatorio' };
+                    }
                     return { valido: true, mensaje: 'Opcional' };
+                }
+                if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                 }
                 const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!regex.test(valor)) {
@@ -156,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
             selector: ['#id_ciudad'],
             soloLetras: true,
             permitirCaracteresEspeciales: false,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 const departamento = document.querySelector('#id_departamento')?.value;
 
                 // Si hay departamento seleccionado, ciudad es obligatoria
@@ -164,13 +226,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!valor || valor.trim() === '') {
                         return { valido: false, mensaje: 'Debe seleccionar una ciudad' };
                     }
+                    if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                        return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
+                    }
                     if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
                         return { valido: false, mensaje: 'Solo letras permitidas' };
                     }
                 } else {
                     // Si no hay departamento, ciudad es opcional
                     if (!valor || valor.trim() === '') {
+                        if (input && input.required) {
+                            return { valido: false, mensaje: 'La ciudad es obligatoria' };
+                        }
                         return { valido: true, mensaje: 'Opcional' };
+                    }
+                    if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                        return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                     }
                     if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
                         return { valido: false, mensaje: 'Solo letras permitidas' };
@@ -182,14 +253,86 @@ document.addEventListener('DOMContentLoaded', function() {
         direccion: {
             selector: ['#id_direccion'],
             permitirCaracteresEspeciales: false,
-            validar: function(valor) {
+            validar: function(valor, input) {
                 if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return { valido: false, mensaje: 'La dirección es obligatoria' };
+                    }
                     return { valido: true, mensaje: 'Opcional' };
+                }
+                if (input && input.maxLength > 0 && valor.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                 }
                 if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúñÑ\s\.,#\-]+$/.test(valor)) {
                     return { valido: false, mensaje: 'Caracteres especiales no permitidos (solo letras, números, ., ,, #, -)' };
                 }
                 return { valido: true, mensaje: 'Dirección válida' };
+            }
+        },
+
+        // ========================================
+        // PROVEEDORES
+        // ========================================
+        tipo_documento_proveedor: {
+            selector: ['#id_tipo_documento'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor === '') {
+                    return { valido: false, mensaje: 'Debe seleccionar el tipo de documento' };
+                }
+                return { valido: true, mensaje: 'Tipo de documento válido' };
+            }
+        },
+        numero_documento_proveedor: {
+            selector: ['#id_numero_documento'],
+            soloNumeros: true,
+            permitirCaracteresEspeciales: false,
+            validarLocal: function(valor, input) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El número de documento es obligatorio' };
+                }
+
+                const trimmed = valor.trim();
+                if (!/^\d+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Solo números permitidos' };
+                }
+
+                const maxLen = (input && input.maxLength > 0) ? input.maxLength : 10;
+                if (trimmed.length < 6) {
+                    return { valido: false, mensaje: 'Debe tener al menos 6 dígitos' };
+                }
+                if (trimmed.length > maxLen) {
+                    return { valido: false, mensaje: `Debe tener máximo ${maxLen} dígitos` };
+                }
+
+                return { valido: true, mensaje: 'Verificando...' };
+            },
+            validar: function(valor) {
+                const input = document.querySelector('#id_numero_documento');
+                const local = this.validarLocal(valor, input);
+                if (!local.valido) return local;
+                return { valido: true, mensaje: 'Documento válido' };
+            }
+        },
+        nombre_proveedor: {
+            selector: ['#id_nombre_proveedor'],
+            soloLetras: true,
+            permitirCaracteresEspeciales: false,
+            validar: function(valor, input) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El nombre del proveedor es obligatorio' };
+                }
+                const trimmed = valor.trim();
+                if (trimmed.length < 2) {
+                    return { valido: false, mensaje: 'Debe tener al menos 2 caracteres' };
+                }
+                if (input && input.maxLength > 0 && trimmed.length > input.maxLength) {
+                    return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
+                }
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(trimmed)) {
+                    return { valido: false, mensaje: 'Solo letras permitidas (sin números ni caracteres especiales)' };
+                }
+                return { valido: true, mensaje: 'Nombre válido' };
             }
         }
     };
@@ -267,6 +410,48 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             mostrarNotificacionTemporal(input, 'Caracteres especiales no permitidos');
             return;
+        }
+    }
+
+    function normalizarValorSegunConfig(input, config) {
+        if (!input || !config) return;
+
+        if (config.soloNumeros) {
+            const valorAnterior = input.value;
+            const soloDigitos = config.permitirEspacios
+                ? valorAnterior.replace(/[^\d\s]/g, '')
+                : valorAnterior.replace(/\D/g, '');
+
+            if (soloDigitos !== valorAnterior) {
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                input.value = soloDigitos;
+                try {
+                    const delta = valorAnterior.length - soloDigitos.length;
+                    const newPos = Math.max(0, (start || 0) - delta);
+                    input.setSelectionRange(newPos, newPos);
+                } catch (_) {
+                    // Algunos navegadores/inputs no soportan setSelectionRange
+                }
+                mostrarNotificacionTemporal(input, 'Solo números permitidos');
+            }
+        }
+
+        if (config.soloLetras) {
+            const valorAnterior = input.value;
+            const soloLetrasYEspacios = valorAnterior.replace(/[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g, '');
+            if (soloLetrasYEspacios !== valorAnterior) {
+                const start = input.selectionStart;
+                input.value = soloLetrasYEspacios;
+                try {
+                    const delta = valorAnterior.length - soloLetrasYEspacios.length;
+                    const newPos = Math.max(0, (start || 0) - delta);
+                    input.setSelectionRange(newPos, newPos);
+                } catch (_) {
+                    // noop
+                }
+                mostrarNotificacionTemporal(input, 'Solo letras permitidas');
+            }
         }
     }
 
@@ -376,8 +561,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let timeoutId;
     function validarDocumentoServidor(input, documentoId, verifyUrl) {
-        const currentId = document.querySelector('[name="cliente_id"]')?.value || '';
-        const url = verifyUrl || '/clientes/verificar-documento/';
+        const currentId =
+            document.querySelector('[name="exclude_id"]')?.value ||
+            document.querySelector('[name="cliente_id"]')?.value ||
+            document.querySelector('[name="proveedor_id"]')?.value ||
+            '';
+        const url = verifyUrl || '/panel/clientes/verificar-documento/';
 
         fetch(`${url}?documento=${encodeURIComponent(documentoId)}&exclude_id=${currentId}`)
             .then(response => response.json())
@@ -418,10 +607,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (input) {
                 input.addEventListener('keydown', bloquearCaracteresInvalidos);
 
-                if (key === 'documento') {
-                    input.addEventListener('input', function() {
+                const tieneValidacionDocumento = typeof config.validarLocal === 'function';
+
+                if (tieneValidacionDocumento) {
+                    const handlerDocumento = function() {
+                        normalizarValorSegunConfig(this, config);
                         const valor = this.value;
-                        const resultadoLocal = validaciones.documento.validarLocal(valor);
+                        const resultadoLocal = config.validarLocal(valor, this);
                         const verifyUrl = this.dataset.verificarUrl;
 
                         if (!resultadoLocal.valido) {
@@ -437,34 +629,45 @@ document.addEventListener('DOMContentLoaded', function() {
                                 validarDocumentoServidor(this, valor, verifyUrl);
                             }, 500);
                         }
-                    });
+                    };
+
+                    input.addEventListener('input', handlerDocumento);
+                    if (input.tagName === 'SELECT') {
+                        input.addEventListener('change', handlerDocumento);
+                    }
                 } else {
-                    input.addEventListener('input', function() {
-                        const resultado = config.validar(this.value);
+                    const handlerNormal = function() {
+                        normalizarValorSegunConfig(this, config);
+                        const resultado = config.validar(this.value, this);
                         mostrarFeedback(this, resultado);
-                    });
+                    };
+
+                    input.addEventListener('input', handlerNormal);
+                    if (input.tagName === 'SELECT') {
+                        input.addEventListener('change', handlerNormal);
+                    }
                 }
 
                 input.addEventListener('blur', function() {
-                    if (key === 'documento') {
+                    if (tieneValidacionDocumento) {
                         if (this.value && this.classList.contains('is-warning')) {
                             const valor = this.value;
-                            const resultadoLocal = validaciones.documento.validarLocal(valor);
+                            const resultadoLocal = config.validarLocal(valor, this);
                             const verifyUrl = this.dataset.verificarUrl;
                             if (resultadoLocal.valido && verifyUrl) {
                                 validarDocumentoServidor(this, valor, verifyUrl);
                             }
                         }
                     } else {
-                        const resultado = config.validar(this.value);
+                        const resultado = config.validar(this.value, this);
                         mostrarFeedback(this, resultado);
                     }
                 });
 
                 if (input.value) {
                     setTimeout(() => {
-                        if (key === 'documento') {
-                            const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                        if (tieneValidacionDocumento) {
+                            const resultadoLocal = config.validarLocal(input.value, input);
                             const verifyUrl = input.dataset.verificarUrl;
                             if (resultadoLocal.valido && verifyUrl) {
                                 mostrarCargando(input, 'Verificando documento existente...');
@@ -475,7 +678,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 mostrarFeedback(input, resultadoLocal);
                             }
                         } else {
-                            const resultado = config.validar(input.value);
+                            const resultado = config.validar(input.value, input);
                             mostrarFeedback(input, resultado);
                         }
                     }, 100);
@@ -501,8 +704,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const input = document.querySelector(selector);
 
                     if (input) {
-                        if (key === 'documento') {
-                            const resultadoLocal = validaciones.documento.validarLocal(input.value);
+                        const tieneValidacionDocumento = typeof config.validarLocal === 'function';
+
+                        if (tieneValidacionDocumento) {
+                            const resultadoLocal = config.validarLocal(input.value, input);
                             const verifyUrl = input.dataset.verificarUrl;
                             if (!resultadoLocal.valido) {
                                 formularioValido = false;
@@ -516,7 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 return;
                             }
                         } else {
-                            const resultado = config.validar(input.value);
+                            const resultado = config.validar(input.value, input);
                             mostrarFeedback(input, resultado);
                             if (!resultado.valido) {
                                 formularioValido = false;

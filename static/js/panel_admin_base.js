@@ -31,6 +31,9 @@
             this._boundDocKeydown = null;
             this._boundWinScroll = null;
 
+            // Responsive tables
+            this._tablesObserver = null;
+
             // Detectar si el foco viene de mouse o teclado (para no abrir flyout por click)
             this._lastInputWasPointer = false;
 
@@ -53,6 +56,7 @@
             this.initActiveMenuDetection();
             this.initSubMenus();
             this.initResponsive();
+            this.initResponsiveTables();
             this.initLogoutModal();
             this.convertDjangoMessages(); // siempre al final
 
@@ -919,6 +923,96 @@
                     this._restoreSidebarWidth();
                 }
             });
+        }
+
+        // ─────────────────────────────────────────
+        // RESPONSIVE TABLES
+        // Envuelve tablas en `.table-responsive` para móviles
+        // sin tener que modificar cada plantilla.
+        // ─────────────────────────────────────────
+        initResponsiveTables() {
+            const root = document.querySelector('.content-wrapper');
+            if (!root) return;
+
+            const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+
+            const wrapAll = () => {
+                if (!isMobile()) return;
+                root.querySelectorAll('table').forEach((table) => {
+                    this._wrapTableInResponsive(table);
+                });
+            };
+
+            const unwrapAll = () => {
+                // Solo removemos wrappers generados automáticamente
+                root.querySelectorAll('.table-responsive[data-auto-table-responsive="true"]').forEach((wrapper) => {
+                    const table = wrapper.querySelector('table');
+                    if (!table) return;
+                    const parent = wrapper.parentNode;
+                    if (!parent) return;
+
+                    parent.insertBefore(table, wrapper);
+                    wrapper.remove();
+                });
+            };
+
+            // Estado inicial según breakpoint
+            if (isMobile()) wrapAll();
+            else unwrapAll();
+
+            if (!('MutationObserver' in window)) return;
+            if (this._tablesObserver) return;
+
+            this._tablesObserver = new MutationObserver((mutations) => {
+                let shouldRewrap = false;
+                for (const mutation of mutations) {
+                    for (const node of mutation.addedNodes) {
+                        if (!(node instanceof Element)) continue;
+                        if (node.matches('table') || node.querySelector?.('table')) {
+                            shouldRewrap = true;
+                            break;
+                        }
+                    }
+                    if (shouldRewrap) break;
+                }
+                if (shouldRewrap) wrapAll();
+            });
+
+            this._tablesObserver.observe(root, { childList: true, subtree: true });
+
+            // En cambios de tamaño: activar/desactivar wrappers
+            window.addEventListener('resize', () => {
+                if (isMobile()) {
+                    wrapAll();
+                } else {
+                    unwrapAll();
+                }
+            });
+        }
+
+        _wrapTableInResponsive(table) {
+            if (!table || !(table instanceof Element)) return;
+
+            // Evitar envolver tablas fuera del contenido principal
+            if (table.closest('.sidebar, .sidebar-flyout')) return;
+
+            // Si ya está dentro de un contenedor responsive, no tocar
+            if (table.closest('.table-responsive, .table-responsive-sm, .table-responsive-md, .table-responsive-lg, .table-responsive-xl, .table-responsive-xxl')) {
+                return;
+            }
+
+            // Si el desarrollador ya definió un contenedor de scroll propio
+            if (table.closest('[data-table-scroll], .table-scroll, .table-container-scroll')) return;
+
+            const parent = table.parentNode;
+            if (!parent) return;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-responsive';
+            wrapper.setAttribute('data-auto-table-responsive', 'true');
+
+            parent.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
         }
     }
 

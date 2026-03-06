@@ -3,58 +3,60 @@
 
 {% block title %}Panel Administrativo{% endblock %}
 
-{% block extra_css %}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_admin.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 dashboard-page">
     <!-- Header con título y bienvenida -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="display-6 fw-bold" style="color: #212529;">
-                <i class="bi bi-speedometer2 me-2" style="color: #BF5486;"></i>Panel de Administración
+            <h1 class="display-6 fw-bold dashboard-title">
+                <i class="bi bi-speedometer2 me-2" style="color: #BF5486;"></i>Panel de Administracion
             </h1>
-            <p class="text-muted mb-0">Bienvenido, {{ request.user.get_full_name|default:request.user.username }}</p>
+            <p class="dashboard-user-muted mb-0">Bienvenido, {{ request.user.get_full_name|default:request.user.username }}</p>
         </div>
     </div>
 
     <!-- Tarjetas de estadísticas -->
     <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; background: white;">
+            <div class="dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, #BF5486, #D9A7C2);">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3 dashboard-stat-icon" style="width: 50px; height: 50px;">
                         <i class="bi bi-people-fill text-white fs-4"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold mb-0" style="color: #212529;">{{ total_usuarios }}</h3>
-                        <p class="text-muted small mb-0">Total Usuarios</p>
+                        <h3 class="fw-bold mb-0 dashboard-stat-value">{{ total_usuarios }}</h3>
+                        <p class="small mb-0 dashboard-stat-label">Total Usuarios</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; background: white;">
+            <div class="dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, #BF5486, #D9A7C2);">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3 dashboard-stat-icon" style="width: 50px; height: 50px;">
                         <i class="bi bi-check-circle-fill text-white fs-4"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold mb-0" style="color: #212529;">{{ usuarios_activos }}</h3>
-                        <p class="text-muted small mb-0">Usuarios Activos</p>
+                        <h3 class="fw-bold mb-0 dashboard-stat-value">{{ usuarios_activos }}</h3>
+                        <p class="small mb-0 dashboard-stat-label">Usuarios Activos</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; background: white;">
+            <div class="dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, #BF5486, #D9A7C2);">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3 dashboard-stat-icon" style="width: 50px; height: 50px;">
                         <i class="bi bi-shield-shaded text-white fs-4"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold mb-0" style="color: #212529;">{{ usuarios_staff }}</h3>
+                        <h3 class="fw-bold mb-0 dashboard-stat-value">{{ usuarios_staff }}</h3>
                         <p class="text-muted small mb-0">Superadministradores</p>
                     </div>
                 </div>
@@ -62,14 +64,14 @@
         </div>
 
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; background: white;">
+            <div class="dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, #BF5486, #D9A7C2);">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3 dashboard-stat-icon" style="width: 50px; height: 50px;">
                         <i class="bi bi-person-plus-fill text-white fs-4"></i>
                     </div>
                     <div>
-                        <h3 class="fw-bold mb-0" style="color: #212529;">{{ nuevos_usuarios_mes }}</h3>
-                        <p class="text-muted small mb-0">Nuevos Este Mes</p>
+                        <h3 class="fw-bold mb-0 dashboard-stat-value">{{ nuevos_usuarios_mes }}</h3>
+                        <p class="small mb-0 dashboard-stat-label">Nuevos Este Mes</p>
                     </div>
                 </div>
             </div>
@@ -78,20 +80,20 @@
 
     <!-- Sección: Acciones Rápidas -->
     <div class="mb-5">
-        <h5 class="fw-bold mb-4" style="color: #212529; border-left: 4px solid #BF5486; padding-left: 15px;">
+        <h5 class="fw-bold mb-4 dashboard-section-title">
             <i class="bi bi-lightning-charge-fill me-2" style="color: #BF5486;"></i>Acciones Rápidas
         </h5>
 
         <div class="d-flex flex-wrap gap-2">
-            <a href="{% url 'usuarios:editar_perfil' %}" class="btn" style="background: white; color: #212529; border: 1px solid #BF5486; border-radius: 10px; padding: 10px 20px; font-weight: 500; transition: all 0.3s;" onmouseover="this.style.background='#BF5486'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#212529';">
+            <a href="{% url 'usuarios:perfil' %}" class="btn dashboard-quick-btn dashboard-quick-btn-outline">
                 <i class="bi bi-person-circle me-2"></i>Mi Perfil
             </a>
 
             {% if user.is_superuser %}
-            <a href="{% url 'usuarios:crear_usuario' %}" class="btn" style="background: linear-gradient(135deg, #BF5486, #D9A7C2); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 500; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+            <a href="{% url 'usuarios:crear_usuario' %}" class="btn dashboard-quick-btn dashboard-quick-btn-solid">
                 <i class="bi bi-person-plus-fill me-2"></i>Crear Usuario
             </a>
-            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn" style="background: white; color: #212529; border: 1px solid #BF5486; border-radius: 10px; padding: 10px 20px; font-weight: 500; transition: all 0.3s;" onmouseover="this.style.background='#BF5486'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#212529';">
+            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn dashboard-quick-btn dashboard-quick-btn-outline">
                 <i class="bi bi-people-fill me-2"></i>Ver Usuarios
             </a>
             {% endif %}
@@ -100,7 +102,7 @@
 
     <!-- Sección: Últimos Usuarios Registrados -->
     <div>
-        <h5 class="fw-bold mb-4" style="color: #212529; border-left: 4px solid #BF5486; padding-left: 15px;">
+        <h5 class="fw-bold mb-4 dashboard-section-title">
             <i class="bi bi-clock-history me-2" style="color: #BF5486;"></i>Últimos Usuarios Registrados
         </h5>
 
@@ -108,40 +110,44 @@
             {% for usuario in ultimos_usuarios %}
             <!-- Tarjeta de usuario -->
             <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; overflow: hidden; background: white; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='translateY(0)';">
+                <div class="dashboard-user-card h-100">
                     <!-- Cabecera con color de fondo degradado -->
-                    <div style="height: 80px; background: linear-gradient(135deg, #BF5486, #D9A7C2);"></div>
+                    <div class="dashboard-user-header"></div>
 
-                    <div class="card-body" style="padding: 1.5rem; position: relative;">
+                    <div class="dashboard-user-body">
                         <!-- Avatar centrado sobre la cabecera -->
-                        <div class="d-flex justify-content-center" style="margin-top: -60px; margin-bottom: 15px;">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center border border-4 border-white" style="width: 80px; height: 80px; background: linear-gradient(135deg, #BF5486, #D9A7C2); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                                <span class="text-white fw-bold fs-3">{{ usuario.get_full_name|first|upper|default:usuario.username|first|upper }}</span>
-                            </div>
+                        <div class="dashboard-user-avatar-wrap">
+                            {% if usuario.perfil and usuario.perfil.foto_perfil %}
+                                <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name|default:usuario.username }}" class="dashboard-user-avatar">
+                            {% else %}
+                                <div class="dashboard-user-avatar-fallback">
+                                    {{ usuario.username|first|upper }}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <!-- Información del usuario -->
                         <div class="text-center mb-3">
-                            <h6 class="fw-bold mb-1" style="color: #212529;">{{ usuario.get_full_name|default:usuario.username }}</h6>
-                            <p class="text-muted small mb-2">@{{ usuario.username }}</p>
-                            <p class="small mb-2"><i class="bi bi-envelope-fill me-2" style="color: #BF5486;"></i>{{ usuario.email }}</p>
+                            <h6 class="fw-bold mb-1 dashboard-user-name">{{ usuario.get_full_name|default:usuario.username }}</h6>
+                            <p class="dashboard-user-muted small mb-2">@{{ usuario.username }}</p>
+                            <p class="small mb-2 dashboard-user-muted"><i class="bi bi-envelope-fill me-2" style="color: #BF5486;"></i>{{ usuario.email }}</p>
 
                             <!-- Documento y Rol en badges -->
                             <div class="d-flex justify-content-center gap-2 mb-3">
-                                <span class="badge" style="background: rgba(191, 84, 134, 0.1); color: #6c757d; padding: 6px 12px; border-radius: 20px; font-weight: 500;">
+                                <span class="badge dashboard-soft-badge">
                                     <i class="bi bi-person-badge me-1"></i>{{ usuario.documento|default:"Sin documento" }}
                                 </span>
 
                                 {% if usuario.is_superuser %}
-                                <span class="badge" style="background: rgba(191, 84, 134, 0.2); color: #6c757d; padding: 6px 12px; border-radius: 20px; font-weight: 500;">
+                                <span class="badge dashboard-soft-badge">
                                     <i class="bi bi-shield-fill-check me-1"></i>SuperAdmin
                                 </span>
                                 {% elif usuario.is_staff %}
-                                <span class="badge" style="background: rgba(191, 84, 134, 0.2); color: #6c757d; padding: 6px 12px; border-radius: 20px; font-weight: 500;">
+                                <span class="badge dashboard-soft-badge">
                                     <i class="bi bi-shield me-1"></i>Admin
                                 </span>
                                 {% else %}
-                                <span class="badge" style="background: rgba(191, 84, 134, 0.2); color: #6c757d; padding: 6px 12px; border-radius: 20px; font-weight: 500;">
+                                <span class="badge dashboard-soft-badge">
                                     <i class="bi bi-person me-1"></i>Usuario
                                 </span>
                                 {% endif %}
@@ -163,7 +169,7 @@
 
                         <!-- Fecha de registro -->
                         <div class="text-center mb-3">
-                            <small class="text-muted">
+                            <small class="dashboard-user-muted">
                                 <i class="bi bi-calendar3 me-1" style="color: #BF5486;"></i>
                                 Registro: {{ usuario.date_joined|date:"d/m/Y H:i" }}
                             </small>
@@ -171,24 +177,14 @@
 
                         <!-- Acciones -->
                         <div class="d-flex justify-content-center gap-2">
-                            <a href="#" class="btn btn-sm" style="background: white; color: #17a2b8; border: 1px solid #17a2b8; border-radius: 8px; padding: 5px 12px; font-size: 0.85rem;" onmouseover="this.style.background='#17a2b8'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#17a2b8';">
+                            <a href="{% url 'usuarios:visualizar_usuario' usuario.id %}" class="btn btn-sm dashboard-action-btn dashboard-action-info">
                                 <i class="bi bi-eye-fill me-1"></i>Detalles
                             </a>
 
                             {% if user.is_superuser %}
-                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}" class="btn btn-sm" style="background: white; color: #ffc107; border: 1px solid #ffc107; border-radius: 8px; padding: 5px 12px; font-size: 0.85rem;" onmouseover="this.style.background='#ffc107'; this.style.color='#212529';" onmouseout="this.style.background='white'; this.style.color='#ffc107';">
+                            <a href="{% url 'usuarios:editar_usuario' usuario.id %}" class="btn btn-sm dashboard-action-btn dashboard-action-warning">
                                 <i class="bi bi-pencil-fill me-1"></i>Editar
                             </a>
-
-                            {% if usuario.is_active %}
-                            <a href="#" class="btn btn-sm" style="background: white; color: #dc3545; border: 1px solid #dc3545; border-radius: 8px; padding: 5px 12px; font-size: 0.85rem;" onmouseover="this.style.background='#dc3545'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#dc3545';">
-                                <i class="bi bi-person-x-fill me-1"></i>Eliminar
-                            </a>
-                            {% else %}
-                            <a href="#" class="btn btn-sm" style="background: white; color: #28a745; border: 1px solid #28a745; border-radius: 8px; padding: 5px 12px; font-size: 0.85rem;" onmouseover="this.style.background='#28a745'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#28a745';">
-                                <i class="bi bi-person-check-fill me-1"></i>Activar
-                            </a>
-                            {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -196,9 +192,9 @@
             </div>
             {% empty %}
             <div class="col-12">
-                <div class="text-center py-5" style="background: white; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <div class="text-center dashboard-empty-card">
                     <i class="bi bi-people-fill" style="font-size: 3rem; color: #D9A7C2; opacity: 0.5;"></i>
-                    <p class="text-muted mt-3">No hay usuarios registrados aún</p>
+                    <p class="dashboard-user-muted mt-3">No hay usuarios registrados aun</p>
                 </div>
             </div>
             {% endfor %}

@@ -50,7 +50,7 @@
     margin-bottom: 2rem;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
-    animation: fadeInUp 0.5s ease;
+    animation: fadeInUp 0.5s ease backwards;
     transition: all 0.3s ease;
 }
 
@@ -224,7 +224,7 @@
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
     overflow: hidden;
-    animation: fadeInUp 0.6s ease;
+    animation: fadeInUp 0.6s ease backwards;
 }
 
 .profile-nav-tabs {

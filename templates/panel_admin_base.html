@@ -55,6 +55,8 @@
         <nav class="sidebar-nav">
             <ul class="nav flex-column">
 
+                <li class="nav-header"><span>MÓDULOS DEL SISTEMA</span></li>
+
                 <li class="nav-item">
                     <a href="{% url 'usuarios:perfil' %}"
                        class="nav-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
@@ -69,16 +71,9 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="{% url 'usuarios:lista_usuarios' %}"
-                       class="nav-link {% if request.resolver_match.url_name == 'lista_usuarios' %}active{% endif %}">
-                        <i class="bi bi-people"></i><span>Usuarios</span>
-                    </a>
-                </li>
-
-                <li class="nav-header"><span>MÓDULOS DEL SISTEMA</span></li>
-
                 {% block sidebar_extra_items %}{% endblock %}
+
+                <li class="nav-header"><span>CATÁLOGO WEB</span></li>
 
                 <li class="nav-item">
                     <a href="{% url 'catalogo:gestion_productos' %}"
@@ -88,46 +83,29 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="{% url 'arreglo:gestion' %}"
-                       class="nav-link {% if request.resolver_match.app_name == 'arreglo' %}active{% endif %}">
-                        <i class="bi bi-flower1"></i><span>Arreglos</span>
+                    <a href="{% url 'categoria:lista' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'categoria' %}active{% endif %}">
+                        <i class="bi bi-tag"></i><span>Categorías</span>
                     </a>
                 </li>
 
-                <!-- Submenú: Tipos de productos -->
+                <li class="nav-header"><span>INVENTARIO</span></li>
+
                 <li class="nav-item">
-                    <a class="nav-link d-flex justify-content-between align-items-center
-                               {% if request.resolver_match.app_name == 'productos' %}active{% endif %}"
-                       data-bs-toggle="collapse"
-                       href="#submenuProductos"
-                       role="button"
-                       aria-expanded="{% if request.resolver_match.app_name == 'productos' %}true{% else %}false{% endif %}"
-                       aria-controls="submenuProductos">
-                        <i class="bi bi-bag-check"></i>
-                        <span>Tipos de productos</span>
-                        <i class="bi bi-chevron-right small"></i>
+                    <a href="{% url 'flor:lista' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'flor' %}active{% endif %}">
+                        <i class="bi bi-flower1"></i><span>Flores</span>
                     </a>
-                    <div class="collapse {% if request.resolver_match.app_name == 'productos' %}show{% endif %}"
-                         id="submenuProductos">
-                        <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
-                            <li class="nav-item">
-                                <a class="nav-link py-1" href="#">
-                                    <i class="bi bi-list-ul me-1"></i> Flor
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-1" href="#">
-                                    <i class="bi bi-truck me-1"></i> Producto
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-1" href="#">
-                                    <i class="bi bi-tag me-1"></i> Categoría
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
                 </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'producto:lista' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'producto' %}active{% endif %}">
+                        <i class="bi bi-box"></i><span>Productos</span>
+                    </a>
+                </li>
+
+                <li class="nav-header"><span>GESTIÓN DE VENTAS</span></li>
 
                 <li class="nav-item">
                     <a href="{% url 'ventas:listar_venta' %}"
@@ -143,39 +121,31 @@
                     </a>
                 </li>
 
-                <!-- Submenú: Compras -->
+                <li class="nav-header"><span>GESTIÓN DE COMPRAS</span></li>
+
                 <li class="nav-item">
-                    <a class="nav-link d-flex justify-content-between align-items-center
-                               {% if request.resolver_match.app_name == 'compras' or request.resolver_match.app_name == 'proveedores' %}active{% endif %}"
-                       data-bs-toggle="collapse"
-                       href="#submenuCompras"
-                       role="button"
-                       aria-expanded="{% if request.resolver_match.app_name == 'compras' or request.resolver_match.app_name == 'proveedores' %}true{% else %}false{% endif %}"
-                       aria-controls="submenuCompras">
-                        <i class="bi bi-bag-check"></i>
-                        <span>Compras</span>
-                        <i class="bi bi-chevron-right small"></i>
+                    <a href="{% url 'compras:lista_compra' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'compras' %}active{% endif %}">
+                        <i class="bi bi-bag"></i><span>Compras</span>
                     </a>
-                    <div class="collapse {% if request.resolver_match.app_name == 'compras' or request.resolver_match.app_name == 'proveedores' %}show{% endif %}"
-                         id="submenuCompras">
-                        <ul class="nav flex-column ms-3 border-start ps-2 mt-1">
-                            <li class="nav-item">
-                                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'lista_compra' %}fw-bold text-primary{% endif %}"
-                                   href="{% url 'compras:lista_compra' %}">
-                                    <i class="bi bi-list-ul me-1"></i> Lista de Compras
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-1 {% if request.resolver_match.url_name == 'listar' %}fw-bold text-primary{% endif %}"
-                                   href="{% url 'proveedores:listar' %}">
-                                    <i class="bi bi-truck me-1"></i> Proveedores
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'proveedores:listar' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'proveedores' %}active{% endif %}">
+                        <i class="bi bi-truck"></i><span>Proveedores</span>
+                    </a>
                 </li>
 
                 <li class="nav-header"><span>CONFIGURACIÓN</span></li>
+
+                <li class="nav-item">
+                    <a href="{% url 'usuarios:lista_usuarios' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name != 'perfil' %}active{% endif %}">
+                        <i class="bi bi-people"></i><span>Usuarios</span>
+                    </a>
+                    <div class="divider"></div>
+                </li>
 
                 <li class="nav-item">
                     <a href="{% url 'core:landing' %}" class="nav-link">

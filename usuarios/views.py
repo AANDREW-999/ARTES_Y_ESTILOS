@@ -11,7 +11,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
-from .utils import build_login_message
+from .utils import build_login_message, build_form_messages
 from .decorators import panel_login_required, superadmin_required
 
 User = get_user_model()
@@ -343,7 +343,6 @@ def crear_usuario_view(request):
     if request.method == 'POST':
         post_data    = request.POST.copy()
         is_active    = request.POST.get('is_active')    == 'on'
-        is_staff     = request.POST.get('is_staff')     == 'on'
         is_superuser = request.POST.get('is_superuser') == 'on'
 
         form = RegistroForm(post_data, request.FILES)
@@ -351,7 +350,9 @@ def crear_usuario_view(request):
         if form.is_valid():
             try:
                 usuario              = form.save(commit=False)
-                usuario.is_staff     = is_staff
+                # En este sistema solo existen administradores y superadministradores.
+                # Por defecto todos los usuarios del panel deben tener acceso (is_staff=True).
+                usuario.is_staff     = True
                 usuario.is_active    = is_active
                 usuario.is_superuser = is_superuser
                 usuario.save()
@@ -382,35 +383,20 @@ def crear_usuario_view(request):
                     extra_tags='level-error field-general'
                 )
         else:
-            error_mostrado = False
+            # Mostrar errores reales del form (incluye password1/password2)
+            for msg in build_form_messages(form):
+                messages.error(request, msg['text'], extra_tags=msg['tags'])
 
-            if 'documento' in form.errors:
-                messages.error(request,
-                    f'El documento {request.POST.get("documento", "")} ya está registrado.',
-                    extra_tags='level-error field-documento')
-                error_mostrado = True
-
-            if 'email' in form.errors:
-                messages.error(request,
-                    f'El correo electrónico {request.POST.get("email", "")} ya está registrado.',
-                    extra_tags='level-error field-email')
-                error_mostrado = True
-
-            if 'username' in form.errors:
-                messages.error(request,
-                    f'El nombre de usuario "{request.POST.get("username", "")}" ya está en uso.',
-                    extra_tags='level-error field-username')
-                error_mostrado = True
-
-            if not error_mostrado:
-                messages.warning(request,
-                    '⚠️ Revisa los campos resaltados y corrige los errores.',
-                    extra_tags='level-warning field-general')
+            messages.warning(
+                request,
+                '⚠️ Revisa los campos resaltados y corrige los errores.',
+                extra_tags='level-warning field-general'
+            )
 
     else:
         form         = RegistroForm()
         is_active    = True
-        is_staff     = False
+        is_staff     = True
         is_superuser = False
 
     context = {
@@ -418,7 +404,7 @@ def crear_usuario_view(request):
         'titulo':        'Crear Nuevo Usuario',
         'boton_texto':   'Crear Usuario',
         'is_active':     is_active if request.method == 'POST' else True,
-        'is_staff':      is_staff  if request.method == 'POST' else False,
+        'is_staff':      is_staff  if request.method == 'POST' else True,
         'is_superuser':  is_superuser if request.method == 'POST' else False,
     }
     return render(request, 'usuarios/crear_usuario.html', context)
@@ -684,7 +670,7 @@ def eliminar_usuario_view(request, user_id):
             messages.warning(request,
                 f'⚠️ Tu cuenta {username} ha sido eliminada permanentemente.',
                 extra_tags='level-warning field-general')
-            return redirect('core:index')
+            return redirect('core:landing')
         else:
             messages.error(request,
                 '⛔ Debes escribir "ELIMINAR" para confirmar esta acción.',

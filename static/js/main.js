@@ -49,71 +49,16 @@ document.addEventListener('DOMContentLoaded', function() {
   const carouselEl = document.getElementById('carouselAye');
   if (!carouselEl || !window.bootstrap) return;
 
-  const carousel = new bootstrap.Carousel(carouselEl, {
-    interval: 3500,     // 3.5s entre slides
+  // Evitar dobles instancias (data-bs-ride + init JS) y dejar el avance 1 a 1.
+  const carousel = bootstrap.Carousel.getOrCreateInstance(carouselEl, {
+    interval: 4500,     // más calmado
     ride: false,        // inicio manual, lo activamos programáticamente
-    pause: 'hover',     // pausa al pasar el mouse
-    wrap: true          // ciclo infinito
+    pause: 'hover',
+    wrap: true
   });
-  // Iniciar autoplay
+
+  carouselEl.classList.add('carousel-fade');
   carousel.cycle();
-  carouselEl.classList.add('carousel-fade'); // transición crossfade más suave
-
-  // Avance/retroceso continuo mientras se mantiene el botón presionado
-  const prevBtn = carouselEl.querySelector('.carousel-control-prev');
-  const nextBtn = carouselEl.querySelector('.carousel-control-next');
-
-  let holdInterval = null;
-
-  function markReveal(direction){
-    const items = carouselEl.querySelectorAll('.carousel-item');
-    const active = carouselEl.querySelector('.carousel-item.active');
-    if (!active) return;
-    let target;
-    if (direction === 'next') {
-      target = active.nextElementSibling || items[0];
-      target && target.classList.add('next-reveal');
-    } else {
-      target = active.previousElementSibling || items[items.length - 1];
-      target && target.classList.add('prev-reveal');
-    }
-    // limpiar marcas tras la transición
-    setTimeout(() => {
-      items.forEach(i => i.classList.remove('next-reveal', 'prev-reveal'));
-    }, 900);
-  }
-
-  function startHold(direction){
-    carouselEl.classList.add('hold-advance');
-    markReveal(direction);
-    direction === 'next' ? carousel.next() : carousel.prev();
-    holdInterval = setInterval(() => {
-      markReveal(direction);
-      direction === 'next' ? carousel.next() : carousel.prev();
-    }, 900);
-  }
-  function stopHold(){
-    carouselEl.classList.remove('hold-advance');
-    clearInterval(holdInterval);
-    holdInterval = null;
-  }
-
-  if (nextBtn){
-    nextBtn.addEventListener('mousedown', () => startHold('next'));
-    nextBtn.addEventListener('mouseup', stopHold);
-    nextBtn.addEventListener('mouseleave', stopHold);
-    nextBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startHold('next'); });
-    nextBtn.addEventListener('touchend', stopHold);
-    nextBtn.addEventListener('touchcancel', stopHold);
-  }
-  if (prevBtn){
-    prevBtn.addEventListener('mousedown', () => startHold('prev'));
-    prevBtn.addEventListener('mouseup', stopHold);
-    prevBtn.addEventListener('mouseleave', stopHold);
-    prevBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startHold('prev'); });
-    prevBtn.addEventListener('touchend', stopHold);
-    prevBtn.addEventListener('touchcancel', stopHold);
-  }
 
   // Mejorar accesibilidad: pausar con enfoque del carrusel mediante teclado
   carouselEl.addEventListener('focusin', () => carousel.pause());

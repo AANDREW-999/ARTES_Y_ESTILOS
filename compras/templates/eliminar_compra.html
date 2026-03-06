@@ -1,0 +1,54 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Compra{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'compras:lista_compra' %}">Compras</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-7">
+            <div class="confirmation-card">
+                <div class="confirmation-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <h2 class="confirmation-title">¿Eliminar compra?</h2>
+                <p class="confirmation-message">
+                    Se eliminará la compra <strong>#{{ object.id }}</strong> asociada al proveedor <strong>{{ object.proveedor }}</strong>.
+                    Esta acción no se puede deshacer.
+                </p>
+
+                <form method="post" class="confirmation-actions">
+                    {% csrf_token %}
+                    <a href="{% url 'compras:lista_compra' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

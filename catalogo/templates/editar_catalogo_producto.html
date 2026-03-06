@@ -8,29 +8,30 @@
 
 {% block content %}
 
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'catalogo:gestion_productos' %}">Catálogo</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Editar</li>
+            </ol>
+        </nav>
+    </div>
+
 <div class="page-header-catalogo">
     <div class="page-header-info">
         <h1><i class="bi bi-pencil-square"></i> Editar Producto</h1>
         <p>Modifica la información del producto.</p>
-    </div>
-    <div class="page-header-actions">
-        <a href="{% url 'catalogo:gestion_productos' %}" class="btn-volver">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
-    </div>
-</div>
-
-<div class="profile-header-card">
-    <div class="profile-header-content">
-        <div class="profile-avatar-placeholder">
-            <i class="bi bi-box-seam"></i>
-        </div>
-        <div>
-            <p class="profile-name">{{ producto.nombre }}</p>
-            <span class="profile-badge badge-user">
-                <i class="bi bi-hash"></i> ID: {{ producto.id }}
-            </span>
-        </div>
     </div>
 </div>
 
@@ -81,9 +82,9 @@
                         <div class="field-wrapper">
                             <label class="field-label"><i class="bi bi-grid"></i> Categoría</label>
                             <select name="categoria" class="field-input field-input-select" required>
-                                {% for id, nombre in categorias_list %}
-                                <option value="{{ id }}" {% if producto.categoria == id %}selected{% endif %}>
-                                    {{ nombre }}
+                                {% for c in categorias_list %}
+                                <option value="{{ c.id }}" {% if producto.categoria_id == c.id %}selected{% endif %}>
+                                    {{ c.nombre }}
                                 </option>
                                 {% endfor %}
                             </select>
@@ -120,6 +121,19 @@
                             <span class="field-error" id="tamano-error" style="display:none;">
                                 <i class="bi bi-exclamation-circle-fill"></i>
                             </span>
+                        </div>
+                    </div>
+
+                    <!-- Activo -->
+                    <div class="col-md-6">
+                        <div class="field-wrapper">
+                            <label class="field-label"><i class="bi bi-toggle-on"></i> Estado</label>
+                            <div class="form-check form-switch" style="padding-left: 2.5rem;">
+                                <input class="form-check-input" type="checkbox" role="switch" id="id_activo" name="activo" {% if producto.activo %}checked{% endif %}>
+                                <label class="form-check-label" for="id_activo" style="color: var(--text-secondary);">
+                                    Activo (visible en el sitio)
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -176,6 +190,8 @@
             </div>
         </form>
     </div>
+</div>
+
 </div>
 
 {% endblock %}

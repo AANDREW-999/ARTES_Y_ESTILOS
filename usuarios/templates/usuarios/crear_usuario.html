@@ -403,13 +403,13 @@
             </h3>
 
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-check form-switch">
                         <input type="checkbox" 
                                class="form-check-input" 
                                id="id_is_active" 
                                name="is_active"
-                               checked>
+                               {% if is_active %}checked{% endif %}>
                         <label class="form-check-label" for="id_is_active">
                             <i class="bi bi-check-circle-fill text-success"></i>
                             <strong>Usuario Activo</strong>
@@ -417,25 +417,13 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-check form-switch">
-                        <input type="checkbox" 
-                               class="form-check-input" 
-                               id="id_is_staff" 
-                               name="is_staff">
-                        <label class="form-check-label" for="id_is_staff">
-                            <i class="bi bi-person-badge-fill text-info"></i>
-                            <strong>Administrador</strong>
-                            <small class="d-block text-muted">Permite acceso al panel administrativo</small>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-check form-switch">
                         <input type="checkbox" 
                                class="form-check-input" 
                                id="id_is_superuser" 
-                               name="is_superuser">
+                               name="is_superuser"
+                               {% if is_superuser %}checked{% endif %}>
                         <label class="form-check-label" for="id_is_superuser">
                             <i class="bi bi-shield-fill-check text-danger"></i>
                             <strong>Superadministrador</strong>
@@ -470,5 +458,6 @@
 
 {% block extra_js %}
 <script src="{% static 'js/validaciones_modules.js' %}"></script>
+<script src="{% static 'usuarios/js/crear_usuario.js' %}"></script>
 {% endblock %}
 

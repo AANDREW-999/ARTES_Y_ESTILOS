@@ -100,10 +100,14 @@ class DetalleVenta(models.Model):
         on_delete=models.CASCADE,
         related_name='detalles'
     )
-    arreglo = models.ForeignKey(
-        'arreglo.Arreglo',
-        on_delete=models.PROTECT
-    )
+    TIPO_ITEM_CHOICES = [
+        ('FLOR', 'Flor'),
+        ('PRODUCTO', 'Producto'),
+    ]
+
+    tipo_item = models.CharField(max_length=20, choices=TIPO_ITEM_CHOICES)
+    flor = models.ForeignKey('flor.Flor', on_delete=models.PROTECT, null=True, blank=True)
+    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, null=True, blank=True)
     cantidad = models.PositiveIntegerField(default=1)
     precio   = models.DecimalField(
         max_digits=10, decimal_places=2,
@@ -115,11 +119,25 @@ class DetalleVenta(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        # Coherencia mínima entre tipo_item y FK
+        if self.tipo_item == 'FLOR':
+            self.producto = None
+        elif self.tipo_item == 'PRODUCTO':
+            self.flor = None
+
         self.subtotal = self.cantidad * self.precio
         super().save(*args, **kwargs)
 
+    @property
+    def item(self):
+        return self.flor or self.producto
+
+    @property
+    def item_nombre(self):
+        return getattr(self.item, 'nombre', '') if self.item else ''
+
     def __str__(self):
-        return f"{self.arreglo.nombre_flor} × {self.cantidad}"
+        return f"{self.item_nombre} × {self.cantidad}"
 
     class Meta:
         ordering = ['-created_at']

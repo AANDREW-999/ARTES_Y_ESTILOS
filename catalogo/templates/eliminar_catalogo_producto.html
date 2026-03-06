@@ -1,0 +1,60 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Producto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'catalogo:gestion_productos' %}">Catálogo</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="confirmation-card">
+        <div class="confirmation-icon confirmation-icon-danger" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <div class="confirmation-title">¿Eliminar producto?</div>
+
+        <div class="user-info-box">
+            <div class="user-info-avatar-placeholder" aria-hidden="true">
+                {{ imagen.nombre|first|upper }}
+            </div>
+            <div>
+                <div class="fw-bold" style="color: var(--text-primary);">{{ producto.nombre }}</div>
+                <div style="color: var(--text-secondary);">{{ producto.categoria.nombre }} · {{ producto.tamano }}</div>
+            </div>
+        </div>
+
+        <form method="post" class="d-flex flex-wrap gap-2 justify-content-center">
+            {% csrf_token %}
+            <button type="submit" class="btn-confirm btn-confirm-danger">
+                <i class="bi bi-trash"></i> Confirmar eliminación
+            </button>
+            <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancel">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

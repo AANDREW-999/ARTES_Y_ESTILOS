@@ -9,12 +9,33 @@
 
 <div class="container py-4 catalogo-detail">
 
-    <!-- Botón volver -->
-    <div class="mb-4">
-        <a href="javascript:history.back()" class="btn-volver">
-            <i class="bi bi-arrow-left"></i> Volver al Catálogo
-        </a>
-    </div>
+    {% comment %} <!-- Breadcrumb (Catálogo) -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0">
+            {% if user.is_authenticated and user.is_staff %}
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'catalogo:gestion_productos' %}">Catálogo</a>
+                </li>
+            {% else %}
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:landing' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:landing' %}#catalogo">Catálogo</a>
+                </li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+        </ol>
+    </nav> {% endcomment %}
 
     <div class="row g-4">
         <!-- Imagen -->
@@ -45,23 +66,28 @@
                 <div class="detail-info-grid">
                     <div class="detail-info-item">
                         <span class="detail-info-label">Categoría</span>
-                        <span class="detail-info-value">{{ producto.get_categoria_display }}</span>
+                        <span class="detail-info-value">{{ producto.categoria.nombre }}</span>
                     </div>
                     <div class="detail-info-item">
                         <span class="detail-info-label">Tamaño</span>
                         <span class="detail-info-value">{{ producto.tamano }}</span>
                     </div>
-                    <div class="detail-info-item" style="grid-column: 1 / -1;">
+                        <div class="detail-info-item" style="grid-column: 1 / -1;">
                         <span class="detail-info-label">Descripción</span>
-                        <span class="detail-info-value" style="font-weight:400;color:var(--text-secondary);">
-                            {{ producto.descripcion|default:"Un hermoso detalle pensado para sorprender en cualquier ocasión." }}
+                        <span class="detail-info-value" style="white-space: pre-line; display: block;">
+                            {{ producto.descripcion|default:"Un bello detalle pensado para sorprender en cualquier ocasión. Hecho con Amor por la Floristeria Artes & Estilos. 🌹✨" }}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+        <!-- Botón volver -->
+    <div class="mb-4">
+        <a href="javascript:history.back()" class="btn-volver">
+            <i class="bi bi-arrow-left"></i> Volver al Catálogo
+        </a>
+    </div>
 </div>
 
 {% endblock %}

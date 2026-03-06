@@ -9,4 +9,5 @@ urlpatterns = [
     path('editar/<int:pk>/', views.editar_proveedor, name='editar'),
     path('eliminar/<int:pk>/', views.eliminar_proveedor, name='eliminar'),
     path('detalle/<int:pk>/', views.detalle_proveedor, name='detalle'),
+     path('reporte/',    views.ReporteProveedoresPDF.as_view(), name='reporte'),
 ]

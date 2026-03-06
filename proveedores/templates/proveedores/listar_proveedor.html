@@ -6,16 +6,56 @@
 {% block content %}
 <div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="fw-bold">
-        <i class="bi bi-truck"></i> Proveedores
-    </h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">
+            <i class="bi bi-truck"></i> Proveedores
+        </h2>
+        <div class="d-flex gap-2">
+            <a href="{% url 'proveedores:agregar' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo Proveedor
+            </a>
+            <!-- ✅ Botón que abre el modal de reporte PDF -->
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalReportePDF">
+                <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+            </button>
+        </div>
+    </div>
 
-    <a href="{% url 'proveedores:agregar' %}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Nuevo Proveedor
-    </a>
-</div>
-  
+    <!-- ✅ Modal para seleccionar rango de fechas -->
+    <div class="modal fade" id="modalReportePDF" tabindex="-1" aria-labelledby="modalReportePDFLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalReportePDFLabel">
+                        <i class="bi bi-file-earmark-pdf"></i> Reporte de Proveedores PDF
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="GET" action="{% url 'proveedores:reporte' %}" target="_blank" id="formReportePDF">
+                        <div class="mb-3">
+                            <label for="inicio" class="form-label fw-semibold">Fecha desde:</label>
+                            <input type="date" name="inicio" id="inicio" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fin" class="form-label fw-semibold">Fecha hasta:</label>
+                            <input type="date" name="fin" id="fin" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" form="formReportePDF" class="btn btn-danger">
+                        <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
     <div class="row mb-3">
         <div class="col-12">
             <div class="card">
@@ -47,60 +87,61 @@
         </div>
     </div>
 
-<div class="card shadow">
-    <div class="card-body table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Tipo Doc</th>
-                    <th>Numero</th>
-                    <th>Nombre</th>
-                    <th>Ciudad</th>
-                    <th>Teléfono</th>
-                    <th>Correo</th>
-                    <th>Estado</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for proveedor in proveedores %}
-                <tr>
-                    <td>{{ proveedor.tipo_documento }}</td>
-                    <td>{{ proveedor.numero_documento }}</td>
-                    <td>{{ proveedor.nombre_proveedor }}</td>
-                    <td>{{ proveedor.ciudad }}</td>
-                    <td>{{ proveedor.telefono }}</td>
-                    <td>{{ proveedor.correo_electronico }}</td>
-                    <td>
-                        {% if proveedor.activo %}
-                            <span class="badge bg-success">Activo</span>
-                        {% else %}
-                            <span class="badge bg-danger">Inactivo</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
-                        <a href="{% url 'proveedores:detalle' proveedor.id %}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                        <a href="{% url 'proveedores:editar' proveedor.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a href="{% url 'proveedores:eliminar' proveedor.id %}" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center text-muted">
-                        No hay proveedores registrados
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Tabla -->
+    <div class="card shadow">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Tipo Doc</th>
+                        <th>Numero</th>
+                        <th>Nombre</th>
+                        <th>Ciudad</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proveedor in proveedores %}
+                    <tr>
+                        <td>{{ proveedor.tipo_documento }}</td>
+                        <td>{{ proveedor.numero_documento }}</td>
+                        <td>{{ proveedor.nombre_proveedor }}</td>
+                        <td>{{ proveedor.ciudad }}</td>
+                        <td>{{ proveedor.telefono }}</td>
+                        <td>{{ proveedor.correo_electronico }}</td>
+                        <td>
+                            {% if proveedor.activo %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'proveedores:detalle' proveedor.id %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'proveedores:editar' proveedor.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'proveedores:eliminar' proveedor.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            No hay proveedores registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
 </div>
 {% endblock %}

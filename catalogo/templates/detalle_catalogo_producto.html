@@ -72,10 +72,10 @@
                         <span class="detail-info-label">Tamaño</span>
                         <span class="detail-info-value">{{ producto.tamano }}</span>
                     </div>
-                    <div class="detail-info-item" style="grid-column: 1 / -1;">
+                        <div class="detail-info-item" style="grid-column: 1 / -1;">
                         <span class="detail-info-label">Descripción</span>
-                        <span class="detail-info-value">
-                            {{ producto.descripcion|default:"Un bello detalle pensado para sorprender en cualquier ocasión. ✨" }}
+                        <span class="detail-info-value" style="white-space: pre-line; display: block;">
+                            {{ producto.descripcion|default:"Un bello detalle pensado para sorprender en cualquier ocasión. Hecho con Amor por la Floristeria Artes & Estilos. 🌹✨" }}
                         </span>
                     </div>
                 </div>

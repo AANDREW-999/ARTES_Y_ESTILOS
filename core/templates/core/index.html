@@ -107,7 +107,7 @@
               <i class="bi bi-award fs-3" style="color: var(--rosa-intenso);"></i>
               <div>
                 <h5 class="card-title mb-1">Experiencia floral</h5>
-                <p class="card-text mb-0">Mas de 25 anos creando arreglos que celebran momentos en Boyaca.</p>
+                <p class="card-text mb-0">Mas de 25 años creando arreglos que celebran momentos en Boyaca.</p>
               </div>
             </div>
           </div>
@@ -128,17 +128,57 @@
 
  <section id="catalogo" class="py-5 catalogo-section">
     <div class="container">
-        <div class="row mb-4">
-            <div class="col">
-                <h1 class="fw-bold title-floral">Nuestro <span class="acento">Catálogo Floral 🌸</span></h1>
-                <p class="text-muted">Descubre arreglos diseñados para enamorar, sorprender y emocionar 💖</p>
-            </div>
-        </div>
+    <div class="row mb-4 align-items-end g-3">
+      <div class="col-lg-7">
+        <h1 class="fw-bold title-floral">Nuestro <span class="acento">Catálogo Floral 🌸</span></h1>
+        <p class="text-muted">Descubre arreglos diseñados para enamorar, sorprender y emocionar 💖</p>
+      </div>
 
         <div class="row g-4 catalogo-grid">
-            <div class="col-12">
-                <h2 class="fw-bold title-floral mb-4" style="color: #5d4037;">Cada arreglo cuenta una historia… ¿Cuál quieres regalar hoy? 🌹✨</h2>
+          <div class="col-12">
+              <h2 class="fw-bold title-floral mb-4" style="color: #5d4037;">Cada arreglo cuenta una historia… ¿Cuál quieres regalar hoy? 🌹✨</h2>
+          </div>
+            <div class="col-lg-5">
+              <form method="get" action="{% url 'core:landing' %}#catalogo" class="d-flex justify-content-lg-end">
+                {% if busqueda %}
+                  <input type="hidden" name="busqueda" value="{{ busqueda }}">
+                {% endif %}
+
+                <div class="dropdown w-100 w-lg-auto">
+                  <button class="btn btn-rosa dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if categoria_seleccionada %}
+                      {{ categoria_seleccionada.nombre }}
+                    {% else %}
+                      Filtrar por categoría
+                    {% endif %}
+                  </button>
+
+                  <ul class="dropdown-menu dropdown-menu-end w-100" style="max-height: 360px; overflow:auto;">
+                    <li>
+                      <button class="dropdown-item" type="submit" name="categoria" value="">
+                        Todas las categorías
+                      </button>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+
+                    {% for c in categorias %}
+                    <li>
+                      <button class="dropdown-item d-flex align-items-center gap-2" type="submit" name="categoria" value="{{ c.id }}">
+                        {% if c.imagen %}
+                          <img src="{{ c.imagen.url }}" alt="" aria-hidden="true"
+                            style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+                        {% else %}
+                          <i class="bi bi-tag" aria-hidden="true" style="color: var(--rosa-intenso);"></i>
+                        {% endif %}
+                        <span>{{ c.nombre }}</span>
+                      </button>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </form>
             </div>
+          </div>
 
             {% for p in productos %}
             <div class="col-12 col-sm-6 col-lg-4 reveal">
@@ -170,7 +210,11 @@
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
+              {% if categoria_seleccionada %}
+                <h4 class="text-muted">No hay arreglos en la categoría "{{ categoria_seleccionada.nombre }}".</h4>
+              {% else %}
                 <h4 class="text-muted">Aún no hay arreglos en el catálogo.</h4>
+              {% endif %}
             </div>
             {% endfor %}
         </div>

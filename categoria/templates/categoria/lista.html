@@ -23,19 +23,81 @@
         </nav>
     </div>
 
-    <div class="page-header-clientes">
+    <div class="page-header-clientes fadeInUp">
         <div class="page-header-info">
-            <h1><i class="bi bi-tag"></i> Categoría</h1>
-            <p>Este módulo está listo para continuar la unificación del panel.</p>
+            <h1>
+                <i class="bi bi-tag"></i> Categorías
+            </h1>
+            <p>Gestiona las categorías para clasificar mejor el catálogo.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <a href="{% url 'categoria:agregar' %}" class="btn-cliente-nuevo">
+                <i class="bi bi-plus-circle"></i> Crear categoría
+            </a>
         </div>
     </div>
 
-    <div class="confirmation-card" style="max-width: 720px; margin: 0 auto;">
-        <div class="confirmation-icon" aria-hidden="true">
-            <i class="bi bi-info-circle"></i>
+    <div class="clientes-table-container fadeInUp" style="animation-delay: 0.2s;">
+        <div class="table-responsive">
+            <table class="clientes-table">
+                <thead>
+                    <tr>
+                        <th>NOMBRE</th>
+                        <th class="text-center">IMAGEN</th>
+                        <th>DESCRIPCIÓN</th>
+                        <th class="text-end">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in categorias %}
+                    <tr class="slideIn">
+                        <td>
+                            <span class="badge-cliente">{{ c.nombre }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if c.imagen %}
+                                <img src="{{ c.imagen.url }}"
+                                     alt="{{ c.nombre }}"
+                                     style="width:45px;height:45px;object-fit:cover;border-radius:50%;border:2px solid var(--border-color);">
+                            {% else %}
+                                <div style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#BF5486,#D9A7C2);display:inline-flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-image" style="color:white;font-size:.9rem;"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td style="color: var(--text-secondary);">{{ c.descripcion|default:'—' }}</td>
+                        <td class="text-end">
+                            <div class="acciones-cliente-wrapper">
+                                <a
+                                    href="{% url 'categoria:editar' c.id %}"
+                                    class="btn-cliente-action btn-cliente-editar"
+                                    title="Editar"
+                                    aria-label="Editar categoría">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'categoria:eliminar' c.id %}"
+                                    class="btn-cliente-action btn-cliente-eliminar"
+                                    title="Eliminar"
+                                    aria-label="Eliminar categoría">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <i class="bi bi-tag"></i>
+                            <p>No hay categorías registradas aún.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <div class="confirmation-title">En construcción</div>
-        <div class="confirmation-text">Cuando me indiques el CRUD y campos, lo dejo igual que Clientes/Proveedores (breadcrumb, tabla responsive, eliminar con confirmación y notificaciones).</div>
     </div>
 </div>
 {% endblock %}

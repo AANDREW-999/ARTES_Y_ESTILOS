@@ -9,15 +9,26 @@ from django.contrib import messages
 from .forms import ContactoForm
 from django.template.loader import render_to_string
 
+from categoria.models import Categoria
+
 # Create your views here.
 
 def index(request):
     busqueda = request.GET.get('busqueda', '')
+    categoria_id = (request.GET.get('categoria') or '').strip()
+
+    categorias = Categoria.objects.all().order_by('nombre')
+    categoria_seleccionada = None
+    if categoria_id.isdigit():
+        categoria_seleccionada = categorias.filter(pk=int(categoria_id)).first()
 
     if busqueda:
         productos = Producto.objects.filter(activo=True, nombre__icontains=busqueda)
     else:
         productos = Producto.objects.filter(activo=True)
+
+    if categoria_seleccionada:
+        productos = productos.filter(categoria=categoria_seleccionada)
 
     if request.method == "POST":
         form = ContactoForm(request.POST)
@@ -55,6 +66,8 @@ def index(request):
     context = {
         'productos': productos,
         'busqueda': busqueda,
+		'categorias': categorias,
+		'categoria_seleccionada': categoria_seleccionada,
         'form': form
     }
 

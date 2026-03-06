@@ -1,0 +1,123 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{% if modo == 'editar' %}Editar categoría{% else %}Crear categoría{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'categoria:lista' %}">Categorías</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% if modo == 'editar' %}Editar{% else %}Crear{% endif %}
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9 col-xl-8">
+            <div class="form-card">
+                <div class="form-section-title">
+                    <i class="bi bi-tag"></i>
+                    {% if modo == 'editar' %}Editar categoría{% else %}Crear categoría{% endif %}
+                </div>
+
+                <form id="product-form" method="post" novalidate autocomplete="off" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="cropped-image-data" name="cropped_image_data">
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+                                {{ form.nombre }}
+                                {% for error in form.nombre.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                                {{ form.descripcion }}
+                                {% for error in form.descripcion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper">
+                                <label class="field-label"><i class="bi bi-image"></i> Imagen (opcional)</label>
+                                <input type="file" id="image-input" name="imagen" class="field-input" accept="image/*">
+                                <p class="cropper-hint">
+                                    <i class="bi bi-info-circle"></i>
+                                    Al seleccionar una imagen podrás recortarla antes de guardar.
+                                </p>
+                                <div class="cropper-section" id="cropper-wrapper">
+                                    <img id="image-preview" src="" alt="Vista previa">
+                                    <div class="cropper-toolbar">
+                                        <button type="button" class="btn-crop-action" id="btn-rotate-left">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Rotar
+                                        </button>
+                                        <button type="button" class="btn-crop-action" id="btn-rotate-right">
+                                            <i class="bi bi-arrow-clockwise"></i> Rotar
+                                        </button>
+                                        <button type="button" class="btn-crop-action" id="btn-flip-h">
+                                            <i class="bi bi-symmetry-vertical"></i> Voltear H
+                                        </button>
+                                        <button type="button" class="btn-crop-action" id="btn-flip-v">
+                                            <i class="bi bi-symmetry-horizontal"></i> Voltear V
+                                        </button>
+                                        <div class="crop-preview-box" id="crop-preview"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="col-12">
+                            {% for error in form.non_field_errors %}
+                                <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                        <a href="{% url 'categoria:lista' %}" class="btn-cancelar">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="{% static 'js/cropper_producto.js' %}"></script>
+{% endblock %}

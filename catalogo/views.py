@@ -5,6 +5,8 @@ from django.core.files.base import ContentFile
 from django.contrib import messages
 from .models import Producto
 
+from categoria.models import Categoria
+
 
 def _procesar_imagen(request, nombre_producto):
     """
@@ -35,7 +37,7 @@ def lista_productos(request):
         productos = Producto.objects.filter(
             Q(nombre__icontains=query) |
             Q(descripcion__icontains=query) |
-            Q(categoria__icontains=query)
+            Q(categoria__nombre__icontains=query)
         ).order_by('-id')
     else:
         productos = Producto.objects.all().order_by('-id')
@@ -53,11 +55,17 @@ def agregar_producto(request):
             precio_raw = request.POST.get('precio', '0').replace('.', '').replace(',', '.')
             activo = request.POST.get('activo') == 'on'
 
+            categoria_id = request.POST.get('categoria')
+            categoria = Categoria.objects.filter(pk=categoria_id).first()
+            if not categoria:
+                messages.error(request, 'Debes seleccionar una categoría válida.')
+                return redirect('catalogo:agregar_producto')
+
             imagen = _procesar_imagen(request, nombre)
 
             Producto.objects.create(
                 nombre=nombre,
-                categoria=request.POST.get('categoria'),
+                categoria=categoria,
                 precio=precio_raw,
                 tamano=request.POST.get('tamano'),
                 descripcion=request.POST.get('descripcion'),
@@ -71,7 +79,7 @@ def agregar_producto(request):
             return redirect('catalogo:gestion_productos')
 
     return render(request, 'agregar_catalogo_producto.html', {
-        'categorias_list': Producto.CATEGORIAS
+        'categorias_list': Categoria.objects.all().order_by('nombre')
     })
 
 
@@ -84,8 +92,14 @@ def editar_producto(request, id):
             nombre = request.POST.get('nombre')
             precio_raw = request.POST.get('precio', '0').replace('.', '').replace(',', '.')
 
+            categoria_id = request.POST.get('categoria')
+            categoria = Categoria.objects.filter(pk=categoria_id).first()
+            if not categoria:
+                messages.error(request, 'Debes seleccionar una categoría válida.')
+                return redirect('catalogo:editar_producto', id=producto.id)
+
             producto.nombre     = nombre
-            producto.categoria  = request.POST.get('categoria')
+            producto.categoria  = categoria
             producto.precio     = precio_raw
             producto.tamano     = request.POST.get('tamano')
             producto.descripcion = request.POST.get('descripcion')
@@ -104,7 +118,7 @@ def editar_producto(request, id):
 
     return render(request, 'editar_catalogo_producto.html', {
         'producto': producto,
-        'categorias_list': Producto.CATEGORIAS
+        'categorias_list': Categoria.objects.all().order_by('nombre')
     })
 
 

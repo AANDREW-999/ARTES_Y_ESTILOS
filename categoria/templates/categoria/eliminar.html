@@ -1,7 +1,7 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
 
-{% block title %}Eliminar Producto{% endblock %}
+{% block title %}Eliminar categoría{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
@@ -21,7 +21,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="{% url 'catalogo:gestion_productos' %}">Catálogo</a>
+                    <a href="{% url 'categoria:lista' %}">Categorías</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
             </ol>
@@ -33,15 +33,22 @@
             <i class="bi bi-exclamation-triangle"></i>
         </div>
 
-        <div class="confirmation-title">¿Eliminar producto?</div>
+        <div class="confirmation-title">¿Eliminar categoría?</div>
 
         <div class="user-info-box">
-            <div class="user-info-avatar-placeholder" aria-hidden="true">
-                {{ producto.nombre|first|upper }}
-            </div>
+            {% if categoria.imagen %}
+                <img
+                    src="{{ categoria.imagen.url }}"
+                    alt="{{ categoria.nombre }}"
+                    style="width:56px;height:56px;object-fit:cover;border-radius:50%;border:2px solid var(--border-color);">
+            {% else %}
+                <div class="user-info-avatar-placeholder" aria-hidden="true">
+                    {{ categoria.nombre|first|upper }}
+                </div>
+            {% endif %}
             <div>
-                <div class="fw-bold" style="color: var(--text-primary);">{{ producto.nombre }}</div>
-                <div style="color: var(--text-secondary);">{{ producto.categoria.nombre }} · {{ producto.tamano }}</div>
+                <div class="fw-bold" style="color: var(--text-primary);">{{ categoria.nombre }}</div>
+                <div style="color: var(--text-secondary);">{{ categoria.descripcion|default:'—' }}</div>
             </div>
         </div>
 
@@ -50,7 +57,7 @@
             <button type="submit" class="btn-confirm btn-confirm-danger">
                 <i class="bi bi-trash"></i> Confirmar eliminación
             </button>
-            <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancel">
+            <a href="{% url 'categoria:lista' %}" class="btn-cancel">
                 <i class="bi bi-x-lg"></i> Cancelar
             </a>
         </form>

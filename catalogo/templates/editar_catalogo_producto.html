@@ -101,9 +101,9 @@
                         <div class="field-wrapper">
                             <label class="field-label"><i class="bi bi-grid"></i> Categoría</label>
                             <select name="categoria" class="field-input field-input-select" required>
-                                {% for id, nombre in categorias_list %}
-                                <option value="{{ id }}" {% if producto.categoria == id %}selected{% endif %}>
-                                    {{ nombre }}
+                                {% for c in categorias_list %}
+                                <option value="{{ c.id }}" {% if producto.categoria_id == c.id %}selected{% endif %}>
+                                    {{ c.nombre }}
                                 </option>
                                 {% endfor %}
                             </select>

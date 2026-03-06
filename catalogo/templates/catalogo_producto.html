@@ -65,7 +65,7 @@
             {% for p in productos %}
             <tr>
                 <td class="ps-4"><strong>{{ p.nombre }}</strong></td>
-                <td><span class="badge-catalogo">{{ p.get_categoria_display }}</span></td>
+                <td><span class="badge-catalogo">{{ p.categoria.nombre }}</span></td>
                 <td>{{ p.tamano }}</td>
                 <td><strong style="color:#BF5486">${{ p.precio|intcomma }}</strong></td>
                 <td>

@@ -82,8 +82,8 @@
                     <label class="field-label"><i class="bi bi-grid"></i> Categoría</label>
                     <select name="categoria" class="field-input field-input-select" required>
                         <option value="" selected disabled>Seleccione una categoría...</option>
-                        {% for id, nombre in categorias_list %}
-                        <option value="{{ id }}">{{ nombre }}</option>
+                        {% for c in categorias_list %}
+                        <option value="{{ c.id }}">{{ c.nombre }}</option>
                         {% endfor %}
                     </select>
                     <span class="field-error" id="categoria-error" style="display:none;">

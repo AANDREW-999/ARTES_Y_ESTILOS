@@ -1,0 +1,294 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Flores{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Flores</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header-clientes fadeInUp">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-flower1"></i>Gestión de Flores
+            </h1>
+            <p>Gestiona las flores disponibles para la floristeria Artes & Estilos.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <form action="{% url 'flor:lista' %}" method="GET" class="js-search-form" novalidate>
+                <input type="hidden" name="tipo" value="{{ tipo_filtro|default:'' }}">
+                <input type="hidden" name="nivel_stock" value="{{ nivel_stock_filtro|default:'' }}">
+                <input type="hidden" name="precio_min" value="{{ precio_min_filtro|default:'' }}">
+                <input type="hidden" name="precio_max" value="{{ precio_max_filtro|default:'' }}">
+                <div class="search-wrapper">
+                    <input type="text" id="search-live-flor" name="q" value="{{ busqueda|default:'' }}"
+                           class="search-input js-live-search" data-target="#flor-tbody"
+                           placeholder="Buscar por nombre, tipo o descripcion..." autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+            <a href="{% url 'flor:crear' %}" class="btn-cliente-nuevo">
+                <i class="bi bi-plus-circle"></i> Nueva Flor
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-flower1"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_flores }}</div>
+                <div class="stat-label">Total flores</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_stock }}</div>
+                <div class="stat-label">Stock total</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-exclamation-circle-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ bajo_stock }}</div>
+                <div class="stat-label">Stock bajo</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ tipos_usados }}</div>
+                <div class="stat-label">Tipos en uso</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-section-title">
+            <i class="bi bi-funnel-fill"></i>
+            Filtros del listado
+        </div>
+
+        <form method="GET" action="{% url 'flor:lista' %}" class="js-filter-form" id="flor-filter-form" novalidate autocomplete="off">
+            <input type="hidden" name="q" value="{{ busqueda|default:'' }}">
+
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="filtro_tipo_flor">Tipo de flor</label>
+                        <select name="tipo" id="filtro_tipo_flor" class="form-select">
+                            <option value="">Todos</option>
+                            {% for valor, etiqueta in tipos_filtro %}
+                            <option value="{{ valor }}" {% if tipo_filtro == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-2">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="filtro_nivel_flor">Nivel de stock</label>
+                        <select name="nivel_stock" id="filtro_nivel_flor" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="bajo" {% if nivel_stock_filtro == 'bajo' %}selected{% endif %}>Bajo</option>
+                            <option value="medio" {% if nivel_stock_filtro == 'medio' %}selected{% endif %}>Medio</option>
+                            <option value="alto" {% if nivel_stock_filtro == 'alto' %}selected{% endif %}>Alto</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-2">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="precio_min_flor">Precio minimo</label>
+                        <input type="text" class="form-control" id="precio_min_flor" name="precio_min" value="{{ precio_min_filtro|default:'' }}" inputmode="numeric" placeholder="0">
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-2">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="precio_max_flor">Precio maximo</label>
+                        <input type="text" class="form-control" id="precio_max_flor" name="precio_max" value="{{ precio_max_filtro|default:'' }}" inputmode="numeric" placeholder="0">
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-2 d-flex align-items-end gap-2 justify-content-md-start justify-content-lg-end">
+                    <a href="{% url 'flor:lista' %}" class="btn-cancelar" title="Limpiar filtros" aria-label="Limpiar filtros">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                    <button type="submit" class="btn-guardar" title="Aplicar filtros" aria-label="Aplicar filtros">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-3 text-muted small">
+                Mostrando <strong>{{ resultados_filtrados }}</strong> resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla -->
+    <div class="clientes-table-container fadeInUp" style="animation-delay: 0.2s;">
+        <div class="table-responsive">
+            <table class="clientes-table">
+                <thead>
+                    <tr>
+                        <th>NOMBRE</th>
+                        <th>TIPO</th>
+                        <th>PRECIO</th>
+                        <th>STOCK</th>
+                        <th>NIVEL</th>
+                        <th class="text-end">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody id="flor-tbody" class="js-live-table">
+                    {% for flor in flores %}
+                    <tr class="slideIn" data-search-row="1" data-search-text="{{ flor.nombre }} {{ flor.get_tipo_flor_display }} {{ flor.descripcion|default:'' }} {{ flor.cantidad }}">
+                        <td>
+                            <div class="cliente-avatar-wrapper">
+                                <div class="cliente-avatar-placeholder">
+                                    {% if flor.imagen %}
+                                        <img src="{{ flor.imagen.url }}" alt="Imagen de {{ flor.nombre }}">
+                                    {% else %}
+                                        {{ flor.nombre|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="cliente-info">
+                                    <strong>{{ flor.nombre }}</strong>
+                                    <small>{{ flor.descripcion|default:'—' }}</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>{{ flor.get_tipo_flor_display }}</td>
+                        <td>${{ flor.precio|floatformat:0|intcomma }}</td>
+                        <td>
+                            <span class="stock-qty">{{ flor.cantidad }}</span>
+                        </td>
+
+                        <td>
+                            {% if flor.cantidad <= 10 %}
+                                <span class="badge-stock badge-stock-low">Bajo</span>
+                            {% elif flor.cantidad <= 30 %}
+                                <span class="badge-stock badge-stock-medium">Medio</span>
+                            {% else %}
+                                <span class="badge-stock badge-stock-high">Alto</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end">
+                            <div class="acciones-cliente-wrapper">
+                                <a
+                                    href="{% url 'flor:detalle' flor.id %}"
+                                    class="btn-cliente-action btn-cliente-ver"
+                                    title="Ver"
+                                    aria-label="Ver flor">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'flor:editar' flor.id %}"
+                                    class="btn-cliente-action btn-cliente-editar"
+                                    title="Editar"
+                                    aria-label="Editar flor">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'flor:eliminar' flor.id %}"
+                                    class="btn-cliente-action btn-cliente-eliminar"
+                                    title="Eliminar"
+                                    aria-label="Eliminar flor">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr data-empty-server="1">
+                        <td colspan="6" class="empty-state">
+                            <i class="bi bi-flower1"></i>
+                            <p>No se encontraron flores{% if hay_filtros %} con los filtros aplicados{% else %} registradas aun{% endif %}.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<script src="{% static 'js/busqueda_catalogo.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('flor-filter-form');
+    const precioMin = document.getElementById('precio_min_flor');
+    const precioMax = document.getElementById('precio_max_flor');
+    if (!form || !precioMin || !precioMax) return;
+
+    const toNumber = (raw) => {
+        const value = (raw || '').trim();
+        if (!value) return null;
+        const normalized = value.replace(/\./g, '').replace(',', '.');
+        const n = Number(normalized);
+        return Number.isFinite(n) ? n : null;
+    };
+
+    const setValidity = (input, invalid) => {
+        input.classList.toggle('is-invalid', invalid);
+        if (!invalid) input.classList.remove('is-valid');
+    };
+
+    form.addEventListener('submit', function (event) {
+        const min = toNumber(precioMin.value);
+        const max = toNumber(precioMax.value);
+
+        const minInvalid = precioMin.value.trim() && min === null;
+        const maxInvalid = precioMax.value.trim() && max === null;
+        setValidity(precioMin, minInvalid);
+        setValidity(precioMax, maxInvalid);
+
+        if (minInvalid || maxInvalid) {
+            event.preventDefault();
+            return;
+        }
+
+        if (min !== null && max !== null && min > max) {
+            event.preventDefault();
+            setValidity(precioMin, true);
+            setValidity(precioMax, true);
+            precioMax.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

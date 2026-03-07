@@ -1,10 +1,12 @@
 from django.db import models
-
+from django.core.validators import RegexValidator
+from django.utils import timezone
 
 class Cliente(models.Model):
     """Modelo para clientes de la floristería."""
 
     TIPO_DOCUMENTO_CHOICES = [
+        ('', 'Seleccione Documento...'),
         ('CC', 'Cédula de ciudadanía'),
         ('TI', 'Tarjeta de identidad'),
         ('CE', 'Cédula de extranjería'),
@@ -13,7 +15,13 @@ class Cliente(models.Model):
     ]
 
     id = models.BigAutoField(primary_key=True)
-    documento = models.CharField('Documento', max_length=20, unique=True)
+    documento = models.CharField(
+        'Documento',
+        max_length=10,
+        unique=True,
+        validators=[RegexValidator(r"^\d{6,10}$", message="El documento debe tener entre 6 y 10 dígitos.")],
+        help_text="Documento (6-10 dígitos)"
+    )
     tipo_documento = models.CharField(
         'Tipo de documento',
         max_length=10,
@@ -37,3 +45,9 @@ class Cliente(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} ({self.documento})"
+
+    def save(self, *args, **kwargs):
+        """Asegurar que updated_at siempre tenga un valor."""
+        if not self.updated_at:
+            self.updated_at = timezone.now()
+        super().save(*args, **kwargs)

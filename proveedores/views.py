@@ -1,25 +1,66 @@
+from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.views import View                          # ✅ Corregido: era flask.views
+from django.utils.decorators import method_decorator  # ✅ Agregado: para proteger clases
 from .models import Proveedor
 from .forms import ProveedorForm
+from django.utils import timezone
+from .utils import render_to_pdf
+
 
 @login_required
 def listar_proveedores(request):
-    q = request.GET.get('q')
+    q = request.GET.get('q', '').strip()
+    tipo_documento = request.GET.get('tipo_documento', '').strip()
+    ciudad = request.GET.get('ciudad', '').strip()
+    estado = request.GET.get('estado', '').strip()
+
     proveedores = Proveedor.objects.all().order_by('-id')
 
     if q:
         proveedores = proveedores.filter(
             Q(nombre_proveedor__icontains=q) |
             Q(ciudad__icontains=q) |
-            Q(correo_electronico__icontains=q)
+            Q(correo_electronico__icontains=q) |
+            Q(numero_documento__icontains=q)
         )
 
+    if tipo_documento:
+        proveedores = proveedores.filter(tipo_documento=tipo_documento)
+
+    if ciudad:
+        proveedores = proveedores.filter(ciudad__icontains=ciudad)
+
+    if estado == 'activo':
+        proveedores = proveedores.filter(activo=True)
+    elif estado == 'inactivo':
+        proveedores = proveedores.filter(activo=False)
+
+    total_proveedores = Proveedor.objects.count()
+    total_activos = Proveedor.objects.filter(activo=True).count()
+    total_inactivos = total_proveedores - total_activos
+    ciudades_activas = Proveedor.objects.exclude(ciudad__isnull=True).exclude(ciudad='').values('ciudad').distinct().count()
+
     context = {
-        'proveedores': proveedores
+        'proveedores': proveedores,
+        'query': q,
+        'tipo_documento_filtro': tipo_documento,
+        'ciudad_filtro': ciudad,
+        'estado_filtro': estado,
+        'tipos_documento': Proveedor.TIPO_DOCUMENTO,
+        'ciudades_filtro': Proveedor.objects.exclude(ciudad__isnull=True).exclude(ciudad='').values_list('ciudad', flat=True).distinct().order_by('ciudad'),
+        'total_proveedores': total_proveedores,
+        'total_activos': total_activos,
+        'total_inactivos': total_inactivos,
+        'ciudades_activas': ciudades_activas,
+        'resultados_filtrados': proveedores.count(),
+        'hay_filtros': any([q, tipo_documento, ciudad, estado]),
     }
     return render(request, 'proveedores/listar_proveedor.html', context)
+
 
 @login_required
 def agregar_proveedor(request):
@@ -27,7 +68,9 @@ def agregar_proveedor(request):
         form = ProveedorForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Proveedor creado correctamente.')
             return redirect('proveedores:listar')
+        messages.error(request, 'Por favor, revisa los campos del formulario.')
     else:
         form = ProveedorForm()
 
@@ -35,6 +78,7 @@ def agregar_proveedor(request):
         'form': form
     }
     return render(request, 'proveedores/agregar_proveedor.html', context)
+
 
 @login_required
 def editar_proveedor(request, pk):
@@ -44,7 +88,9 @@ def editar_proveedor(request, pk):
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Proveedor actualizado correctamente.')
             return redirect('proveedores:listar')
+        messages.error(request, 'Por favor, revisa los campos del formulario.')
     else:
         form = ProveedorForm(instance=proveedor)
 
@@ -54,18 +100,22 @@ def editar_proveedor(request, pk):
     }
     return render(request, 'proveedores/editar_proveedor.html', context)
 
+
 @login_required
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
     if request.method == 'POST':
+        nombre = proveedor.nombre_proveedor
         proveedor.delete()
+        messages.success(request, f'Proveedor "{nombre}" eliminado correctamente.')
         return redirect('proveedores:listar')
 
     context = {
         'proveedor': proveedor
     }
     return render(request, 'proveedores/eliminar_proveedor.html', context)
+
 
 @login_required
 def detalle_proveedor(request, pk):
@@ -75,3 +125,45 @@ def detalle_proveedor(request, pk):
         'proveedor': proveedor
     }
     return render(request, 'proveedores/detalle_proveedor.html', context)
+
+
+
+# ✅ Corregido: clase duplicada eliminada, se conserva solo la más completa
+@method_decorator(login_required, name='dispatch')
+class ReporteProveedoresPDF(View):
+    def get(self, request, *args, **kwargs):
+        fecha_inicio = request.GET.get('inicio')
+        fecha_fin = request.GET.get('fin')
+
+        queryset = Proveedor.objects.all()
+
+        if fecha_inicio and fecha_fin:
+            queryset = queryset.filter(
+                created_at__range=[fecha_inicio, fecha_fin]  # ✅ nombre correcto
+            )
+
+        data = {
+            'proveedores': queryset,
+            'inicio': fecha_inicio,
+            'fin': fecha_fin,
+            'fecha_generado': timezone.now()
+        }
+
+        return render_to_pdf('proveedores/reporte.html', data)
+
+@login_required
+def verificar_documento(request):
+    """Vista AJAX para verificar si un documento de proveedor ya existe."""
+    documento = request.GET.get('documento', '')
+    exclude_id = request.GET.get('exclude_id', '')
+
+    if not documento:
+        return JsonResponse({'existe': False})
+
+    queryset = Proveedor.objects.filter(numero_documento=documento)
+
+    if exclude_id and exclude_id.isdigit():
+        queryset = queryset.exclude(pk=int(exclude_id))
+
+    return JsonResponse({'existe': queryset.exists()})
+

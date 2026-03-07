@@ -1,0 +1,305 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Editar Compra{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'compras:lista_compra' %}">Compras</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Editar compra</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-9">
+            <div class="form-card">
+                <div class="form-section-title">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar compra #{{ object.id }}
+                </div>
+
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Por favor, corrija los errores del formulario.</strong>
+                    </div>
+                {% endif %}
+
+                <form method="POST" id="formCompra" novalidate autocomplete="off">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_proveedor">Proveedor *</label>
+                                <select name="proveedor" id="id_proveedor" class="form-select" required>
+                                    <option value="">Seleccione Proveedor</option>
+                                    {% for proveedor in proveedores %}
+                                    <option value="{{ proveedor.id }}" {% if object.proveedor.id == proveedor.id %}selected{% endif %}>
+                                        {{ proveedor.nombre_proveedor }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.proveedor.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="fecha_emision">Fecha de emisión *</label>
+                                <input
+                                    type="date"
+                                    name="fecha_emision"
+                                    id="fecha_emision"
+                                    class="form-control"
+                                    required
+                                    value="{{ object.fecha_emision|date:'Y-m-d' }}">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.fecha_emision.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_forma_pago">Forma de pago</label>
+                                <select name="forma_pago" id="id_forma_pago" class="form-select">
+                                    <option value="" {% if not object.forma_pago %}selected{% endif %}>Seleccione...</option>
+                                    <option value="EFECTIVO" {% if object.forma_pago == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
+                                    <option value="TRANSFERENCIA" {% if object.forma_pago == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+                                    <option value="TARJETA" {% if object.forma_pago == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_medio_pago">Medio de pago</label>
+                                <select name="medio_pago" id="id_medio_pago" class="form-select">
+                                    <option value="" {% if not object.medio_pago %}selected{% endif %}>Seleccione...</option>
+                                    <option value="EFECTIVO" {% if object.medio_pago == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
+                                    <option value="TRANSFERENCIA" {% if object.medio_pago == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+                                    <option value="TARJETA" {% if object.medio_pago == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_departamento">Departamento</label>
+                                <select name="departamento" id="id_departamento" class="form-select js-departamento">
+                                    <option value="">Seleccione un departamento</option>
+                                </select>
+                                <input type="hidden" name="departamento_original" id="id_departamento_original" value="{{ object.departamento|default:'' }}">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_ciudad">Ciudad</label>
+                                <select name="ciudad" id="id_ciudad" class="form-select js-ciudad" disabled>
+                                    <option value="">Seleccione una ciudad</option>
+                                </select>
+                                <input type="hidden" name="ciudad_original" id="id_ciudad_original" value="{{ object.ciudad|default:'' }}">
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="id_descripcion">Descripción</label>
+                                <textarea name="descripcion" id="id_descripcion" class="form-control" rows="3" placeholder="Descripción de la compra...">{{ object.descripcion }}</textarea>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.descripcion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title mt-4">
+                        <i class="bi bi-list-ul"></i>
+                        Artículos
+                    </div>
+
+                    <div id="productos-container" class="d-flex flex-column gap-3">
+                        {% for detalle in detalles %}
+                        <div class="info-item producto-item">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-6">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Ítem *</label>
+                                        <select name="item_id[]" class="form-select item-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <optgroup label="Flores">
+                                                {% for flor in flores %}
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}" {% if detalle.tipo_item == 'FLOR' and detalle.flor_id == flor.id %}selected{% endif %}>
+                                                    {{ flor.nombre }} (Stock: {{ flor.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            <optgroup label="Productos">
+                                                {% for producto in productos %}
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}" {% if detalle.tipo_item == 'PRODUCTO' and detalle.producto_id == producto.id %}selected{% endif %}>
+                                                    {{ producto.nombre }} (Stock: {{ producto.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Precio *</label>
+                                        <input type="text" name="precio[]" class="form-control precio-input" inputmode="decimal" placeholder="0,00" value="{{ detalle.precio }}" required readonly>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Cantidad *</label>
+                                        <input type="number" name="cantidad[]" class="form-control cantidad-input" min="1" value="{{ detalle.cantidad }}" required>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-1 d-flex justify-content-end">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar btn-eliminar-producto" title="Eliminar artículo" aria-label="Eliminar artículo">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="info-item producto-item">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-6">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Ítem *</label>
+                                        <select name="item_id[]" class="form-select item-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <optgroup label="Flores">
+                                                {% for flor in flores %}
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">{{ flor.nombre }} (Stock: {{ flor.cantidad }})</option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            <optgroup label="Productos">
+                                                {% for producto in productos %}
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.nombre }} (Stock: {{ producto.cantidad }})</option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Precio *</label>
+                                        <input type="text" name="precio[]" class="form-control precio-input" inputmode="decimal" placeholder="0,00" required readonly>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Cantidad *</label>
+                                        <input type="number" name="cantidad[]" class="form-control cantidad-input" min="1" value="1" required>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-1 d-flex justify-content-end">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar btn-eliminar-producto" title="Eliminar artículo" aria-label="Eliminar artículo">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4 mb-2">
+                        <button type="button" id="btnAgregarProducto" class="btn-cliente-nuevo">
+                            <i class="bi bi-plus-circle"></i>
+                            Agregar artículo
+                        </button>
+                    </div>
+
+                    <div class="profile-info-card mt-4">
+                        <div class="profile-info-title">
+                            <i class="bi bi-receipt"></i>
+                            Resumen de la Compra
+                        </div>
+                        <div class="profile-info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Subtotal</span>
+                                <div class="profile-info-value" id="subtotal">${{ object.subtotal|floatformat:2 }}</div>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Total</span>
+                                <div class="profile-info-value" id="total">${{ object.total_compra|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                        <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">Cancelar</a>
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-save"></i>
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
+<script src="{% static 'js/departamentos_ciudades.js' %}?v=20260307"></script>
+<script src="{% static 'js/crear_compra.js' %}?v=20260306"></script>
+{% endblock %}
+

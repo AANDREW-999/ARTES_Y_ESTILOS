@@ -1,0 +1,285 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Agregar Venta{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'ventas:listar_venta' %}">Ventas</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Nueva venta</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-9">
+            <div class="form-card">
+                <div class="form-section-title">
+                    <i class="bi bi-cart-plus"></i>
+                    Nueva venta
+                </div>
+
+                <form method="post" id="formVenta" novalidate autocomplete="off">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.tipo_venta.id_for_label }}">{{ form.tipo_venta.label }}</label>
+                                {{ form.tipo_venta }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.tipo_venta.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.forma_pago.id_for_label }}">{{ form.forma_pago.label }}</label>
+                                {{ form.forma_pago }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.forma_pago.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.fecha.id_for_label }}">Fecha</label>
+                                {{ form.fecha }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.fecha.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title mt-4">
+                        <i class="bi bi-bag-check"></i>
+                        Ítems de la venta
+                        <span class="ms-auto"></span>
+                    </div>
+
+                    <div id="itemsContainer" class="d-flex flex-column gap-3">
+                        <div class="info-item item-venta">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12 col-md-5">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Ítem *</label>
+                                        <select name="arreglo_id[]" class="form-select item-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <optgroup label="Flores">
+                                                {% for flor in flores %}
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">
+                                                    {{ flor.nombre }} (Stock: {{ flor.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            <optgroup label="Productos">
+                                                {% for producto in productos %}
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">
+                                                    {{ producto.nombre }} (Stock: {{ producto.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Precio *</label>
+                                        <input type="number" class="form-control precio" name="precio[]" min="0" step="0.01" value="0" readonly>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Cantidad *</label>
+                                        <input type="number" class="form-control cantidad" name="cantidad[]" min="1" value="1">
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2 d-flex justify-content-end">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar eliminar" title="Eliminar ítem" aria-label="Eliminar ítem">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn-cliente-nuevo" id="addItem">
+                            <i class="bi bi-plus-circle"></i> Agregar ítem
+                        </button>
+                    </div>
+
+                    <div class="form-section-title mt-4">
+                        <i class="bi bi-receipt"></i>
+                        Totales y entrega
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.mano_obra.id_for_label }}"><i class="bi bi-tools"></i> Mano de obra</label>
+                                {{ form.mano_obra }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.mano_obra.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.cliente.id_for_label }}"><i class="bi bi-person"></i> {{ form.cliente.label }}</label>
+                                {{ form.cliente }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.cliente.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.descripcion.id_for_label }}"><i class="bi bi-card-text"></i> {{ form.descripcion.label }}</label>
+                                {{ form.descripcion }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.descripcion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper">
+                                <label class="field-label"><i class="bi bi-truck"></i> Entrega</label>
+                                <div class="form-check">
+                                    {{ form.con_domicilio }}
+                                    <label class="form-check-label" for="{{ form.con_domicilio.id_for_label }}">¿Con domicilio?</label>
+                                </div>
+                                {% for error in form.con_domicilio.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="campos_domicilio" class="row g-3 mt-1 {% if mostrar_campos_domicilio %}{% else %}d-none{% endif %}">
+                        <div class="col-12 col-md-7">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.direccion.id_for_label }}"><i class="bi bi-geo-alt"></i> Dirección de entrega</label>
+                                {{ form.direccion }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.direccion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.nombre_domiciliario.id_for_label }}"><i class="bi bi-person-badge"></i> Nombre del domiciliario</label>
+                                {{ form.nombre_domiciliario }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.nombre_domiciliario.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.telefono_domiciliario.id_for_label }}"><i class="bi bi-telephone"></i> Teléfono del domiciliario</label>
+                                {{ form.telefono_domiciliario }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.telefono_domiciliario.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <div class="field-wrapper">
+                                <label class="field-label" for="{{ form.precio_envio.id_for_label }}"><i class="bi bi-currency-dollar"></i> Costo de envío</label>
+                                {{ form.precio_envio }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.precio_envio.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="resumenVenta" class="profile-info-card mt-4">
+                        <div class="profile-info-title">
+                            <i class="bi bi-receipt"></i>
+                            Resumen de la Venta
+                        </div>
+                        <div class="profile-info-grid">
+                            <div class="info-item">
+                                <span class="profile-info-label">Subtotal</span>
+                                <div class="profile-info-value" id="subtotalVenta">$0.00</div>
+                            </div>
+                            <div class="info-item">
+                                <span class="profile-info-label">Total</span>
+                                <div class="profile-info-value" id="totalVenta">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="hiddenTotal" name="total">
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-save"></i> Guardar venta
+                        </button>
+                        <a href="{% url 'ventas:listar_venta' %}" class="btn-cancelar">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
+<script src="{% static 'ventas/js/venta.js' %}"></script>
+{% endblock %}
+

@@ -1,0 +1,140 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Detalle de categoría{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/detalle_modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'categoria:lista' %}">Categorías</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header tipo ficha -->
+    <div class="profile-header-card">
+        <div class="profile-header-content">
+            <div class="profile-avatar-wrapper" aria-hidden="true">
+                {% if categoria.imagen %}
+                    <img class="profile-avatar" src="{{ categoria.imagen.url }}" alt="{{ categoria.nombre }}">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ categoria.nombre|first|upper }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-header-info">
+                <div class="profile-name">{{ categoria.nombre }}</div>
+                <div class="profile-username">{{ categoria.descripcion|default:'—' }}</div>
+
+                <div class="profile-badges">
+                    <span class="profile-badge badge-user"><i class="bi bi-tag"></i> Categoría</span>
+                    {% if categoria.activo %}
+                        <span class="profile-badge badge-active">
+                            <i class="bi bi-check-circle-fill"></i> Activo
+                        </span>
+                    {% else %}
+                        <span class="profile-badge badge-inactive">
+                            <i class="bi bi-x-circle-fill"></i> Inactivo
+                        </span>
+                    {% endif %}       
+                </div>      
+            </div>
+
+            <div class="profile-header-actions">
+                <a href="{% url 'categoria:editar' categoria.id %}" class="btn-edit-profile">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-tabs-card">
+        <div class="profile-tab-content">
+            <div class="profile-section">
+                <div class="section-title">
+                    <i class="bi bi-card-checklist"></i>
+                    Información de la categoría
+                </div>
+
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-lg-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-image"></i> Imagen</div>
+                            <div class="info-value">
+                                {% if categoria.imagen %}
+                                    <img
+                                        src="{{ categoria.imagen.url }}"
+                                        alt="{{ categoria.nombre }}"
+                                        style="width: 100%; max-width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 14px; border: 2px solid var(--border-color); object-fit: cover;">
+                                {% else %}
+                                    <div
+                                        class="profile-avatar-placeholder"
+                                        style="width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; display:flex; align-items:center; justify-content:center;">
+                                        {{ categoria.nombre|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-type"></i> Nombre</div>
+                                    <div class="info-value">{{ categoria.nombre }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-text-paragraph"></i> Descripción</div>
+                                    <div class="info-value">{{ categoria.descripcion|default:'—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-toggle-on"></i> Estado</div>
+                                    <div class="info-value">
+                                        {% if categoria.activo %}
+                                            <span class="profile-badge badge-active">
+                                                <i class="bi bi-check-circle-fill"></i> Activo
+                                            </span>
+                                        {% else %}
+                                            <span class="profile-badge badge-inactive">
+                                                <i class="bi bi-x-circle-fill"></i> Inactivo
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

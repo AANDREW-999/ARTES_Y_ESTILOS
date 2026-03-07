@@ -1,0 +1,210 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Ver Usuario - {{ usuario.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/detalle_modules.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<div class="page-breadcrumb mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'core:dashboard' %}">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'usuarios:lista_usuarios' %}">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ usuario.username }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+
+            <!-- Header del Perfil -->
+            <div class="profile-header-card">
+                <div class="profile-header-content">
+                    <div class="profile-avatar-wrapper">
+                        {% if usuario.perfil.foto_perfil %}
+                            <img src="{{ usuario.perfil.foto_perfil.url }}" alt="{{ usuario.get_full_name }}" class="profile-avatar">
+                        {% else %}
+                            <div class="profile-avatar-placeholder">
+                                <span>{{ usuario.first_name.0 }}{{ usuario.last_name.0 }}</span>
+                            </div>
+                        {% endif %}
+                        {% if usuario.is_active %}
+                        <div class="profile-status-indicator"></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="profile-header-info">
+                        <h1 class="profile-name">{{ usuario.get_full_name|default:usuario.username }}</h1>
+                        <p class="profile-username">@{{ usuario.username }}</p>
+                        <div class="profile-badges">
+                            {% if usuario.is_superuser %}
+                                <span class="profile-badge badge-admin">
+                                    <i class="bi bi-shield-fill-check"></i> Superadministrador
+                                </span>
+                            {% elif usuario.is_staff %}
+                                <span class="profile-badge badge-staff">
+                                    <i class="bi bi-person-badge-fill"></i> Administrador
+                                </span>
+                            {% else %}
+                                <span class="profile-badge badge-user">
+                                    <i class="bi bi-person-fill"></i> Usuario
+                                </span>
+                            {% endif %}
+
+                            {% if usuario.is_active %}
+                                <span class="profile-badge badge-active">
+                                    <i class="bi bi-check-circle-fill"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="profile-badge badge-inactive">
+                                    <i class="bi bi-x-circle-fill"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if es_propio_perfil %}
+                    <div class="profile-header-actions">
+                        <a href="{% url 'usuarios:editar_usuario' usuario.id %}" class="profile-action-btn btn-edit">
+                            <i class="bi bi-pencil-square"></i>
+                            <span>Editar</span>
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="profile-header-actions">
+                        <span class="badge-readonly" style="padding: 0.75rem 1.25rem;">
+                            <i class="bi bi-lock-fill"></i>
+                            <span>Solo lectura</span>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tab: Información Personal -->
+            <div class="profile-tabs-card">
+                <div class="tab-content profile-tab-content" id="profileTabsContent">
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <div class="profile-section">
+                            <h3 class="section-title">
+                                <i class="bi bi-info-circle-fill"></i>
+                                Datos Generales
+                            </h3>
+                            
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-envelope-fill"></i>
+                                            Correo Electrónico
+                                        </label>
+                                            <div class="info-value">{{ usuario.email }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-card-text"></i>
+                                            Documento
+                                        </label>
+                                            <div class="info-value">{{ usuario.documento }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-person-fill"></i>
+                                            Nombre Completo
+                                        </label>
+                                            <div class="info-value">{{ usuario.first_name }} {{ usuario.last_name }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-telephone-fill"></i>
+                                            Teléfono
+                                        </label>
+                                            <div class="info-value">{{ perfil.telefono|default:"No especificado" }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-calendar-event"></i>
+                                            Fecha de Nacimiento
+                                        </label>
+                                        <div class="info-value">
+                                                {% if perfil.fecha_nacimiento %}
+                                                    {{ perfil.fecha_nacimiento|date:"d/m/Y" }}
+                                            {% else %}
+                                                No especificada
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-calendar-check"></i>
+                                            Miembro Desde
+                                        </label>
+                                            <div class="info-value">{{ usuario.date_joined|date:"d/m/Y" }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                            Dirección
+                                        </label>
+                                            <div class="info-value">{{ perfil.direccion|default:"No especificada" }}</div>
+                                    </div>
+                                </div>
+                                
+                                    {% if perfil.biografia %}
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">
+                                            <i class="bi bi-file-text-fill"></i>
+                                            Biografía
+                                        </label>
+                                            <div class="info-value">{{ perfil.biografia }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

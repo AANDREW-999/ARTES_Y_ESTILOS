@@ -1,0 +1,322 @@
+{% comment %} {% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Editar Perfil{% endblock %}
+{% block page_title %}Editar Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/perfil.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-breadcrumb">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'core:dashboard' %}"><i class="bi bi-house-door-fill"></i> Inicio</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'usuarios:perfil' %}"><i class="bi bi-person-circle"></i> Mi Perfil</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Editar</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+
+            <!-- Header -->
+            <div class="profile-header-card mb-4">
+                <div class="profile-header-content">
+                    <div class="profile-avatar-wrapper">
+                        {% if usuario.perfil.foto_perfil %}
+                            <img src="{{ usuario.perfil.foto_perfil.url }}"
+                                 alt="{{ usuario.get_full_name }}"
+                                 class="profile-avatar"
+                                 id="avatarPreview">
+                        {% else %}
+                            <div class="profile-avatar-placeholder" id="avatarPreview">
+                                <span>{{ usuario.first_name.0 }}{{ usuario.last_name.0 }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="profile-status-indicator"></div>
+                    </div>
+                    <div class="profile-header-info">
+                        <h1 class="profile-name">Editar Perfil</h1>
+                        <p class="profile-username">@{{ usuario.username }}</p>
+                        <div class="profile-badges">
+                            <span class="profile-badge badge-active">
+                                <i class="bi bi-pencil-square"></i> Modo Edición
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Errores globales del form -->
+            {% if form.non_field_errors %}
+            <div class="field-non-field-errors mb-4">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>
+                    <strong>Corrige los siguientes errores:</strong>
+                    <ul class="mb-0 mt-1 ps-3">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="profile-tabs-card">
+                <div class="profile-tab-content">
+
+                    <!-- BUG 9 FIX: action explícito -->
+                    <form method="post"
+                          action="{% url 'usuarios:editar_perfil' %}"
+                          enctype="multipart/form-data"
+                          id="perfilForm"
+                          novalidate>
+                        {% csrf_token %}
+
+                        <!-- ══ DATOS DE CUENTA ══════════════════════════════ -->
+                        <div class="form-section mb-4">
+                            <h3 class="form-section-title">
+                                <i class="bi bi-person-badge-fill"></i> Datos de Cuenta
+                            </h3>
+                            <div class="row g-4">
+
+                                <!-- Nombre -->
+                                <div class="col-md-6">
+                                    <div class="field-wrapper {% if form.first_name.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_first_name" class="field-label">
+                                            <i class="bi bi-person-fill"></i> Nombre
+                                        </label>
+                                        {# FIX BUG 6: usamos el widget del form, no value manual #}
+                                        {{ form.first_name }}
+                                        {% if form.first_name.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.first_name.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Apellido -->
+                                <div class="col-md-6">
+                                    <div class="field-wrapper {% if form.last_name.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_last_name" class="field-label">
+                                            <i class="bi bi-person-fill"></i> Apellido
+                                        </label>
+                                        {{ form.last_name }}
+                                        {% if form.last_name.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.last_name.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Username -->
+                                <div class="col-md-6">
+                                    <div class="field-wrapper {% if form.username.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_username" class="field-label">
+                                            <i class="bi bi-at"></i> Nombre de usuario
+                                        </label>
+                                        {{ form.username }}
+                                        {% if form.username.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.username.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <div class="field-wrapper {% if form.email.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_email" class="field-label">
+                                            <i class="bi bi-envelope-fill"></i> Correo electrónico
+                                        </label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.email.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ══ INFORMACIÓN PERSONAL ═════════════════════════ -->
+                        <div class="form-section mb-4">
+                            <h3 class="form-section-title">
+                                <i class="bi bi-person-lines-fill"></i> Información Personal
+                            </h3>
+                            <div class="row g-4">
+
+                                <!-- Teléfono -->
+                                <div class="col-md-6">
+                                    <div class="field-wrapper {% if form.telefono.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_telefono" class="field-label">
+                                            <i class="bi bi-telephone-fill"></i> Teléfono
+                                        </label>
+                                        {{ form.telefono }}
+                                        {% if form.telefono.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.telefono.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Fecha de nacimiento -->
+                                <div class="col-md-6">
+                                    <div class="field-wrapper {% if form.fecha_nacimiento.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_fecha_nacimiento" class="field-label">
+                                            <i class="bi bi-calendar-event"></i> Fecha de nacimiento
+                                        </label>
+                                        {# FIX BUG 6: el widget DateInput con type=date
+                                           renderiza correctamente con el valor del form.
+                                           No usar |date:'Y-m-d' porque en POST fallido
+                                           devuelve el valor enviado por el usuario. #}
+                                        {{ form.fecha_nacimiento }}
+                                        {% if form.fecha_nacimiento.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.fecha_nacimiento.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Dirección -->
+                                <div class="col-12">
+                                    <div class="field-wrapper {% if form.direccion.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_direccion" class="field-label">
+                                            <i class="bi bi-geo-alt-fill"></i> Dirección
+                                        </label>
+                                        {{ form.direccion }}
+                                        {% if form.direccion.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.direccion.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Biografía -->
+                                <div class="col-12">
+                                    <div class="field-wrapper {% if form.biografia.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_biografia" class="field-label">
+                                            <i class="bi bi-file-text-fill"></i> Biografía
+                                        </label>
+                                        {{ form.biografia }}
+                                        {% if form.biografia.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.biografia.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Foto de perfil -->
+                                <div class="col-12">
+                                    <div class="field-wrapper {% if form.foto_perfil.errors %}field-wrapper--error{% endif %}">
+                                        <label for="id_foto_perfil" class="field-label">
+                                            <i class="bi bi-camera-fill"></i> Foto de Perfil
+                                        </label>
+                                        {{ form.foto_perfil }}
+                                        <small class="field-hint">
+                                            <i class="bi bi-info-circle"></i>
+                                            JPG, PNG, GIF · Máx. 5 MB
+                                        </small>
+                                        {% if form.foto_perfil.errors %}
+                                        <div class="field-error">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            {{ form.foto_perfil.errors.0 }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between align-items-center pt-4"
+                             style="border-top: 2px solid var(--border-color);">
+                            <a href="{% url 'usuarios:perfil' %}" class="btn-cancelar">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn-guardar">
+                                <i class="bi bi-check-circle-fill"></i> Guardar Cambios
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ── Preview de avatar ──────────────────────────────────────
+    document.getElementById('id_foto_perfil')?.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            window._dashboard?.showAdminNotification('warning', 'La imagen no debe superar 5 MB.');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            const preview = document.getElementById('avatarPreview');
+            if (!preview) return;
+            if (preview.tagName === 'IMG') {
+                preview.src = ev.target.result;
+            } else {
+                const img    = document.createElement('img');
+                img.src      = ev.target.result;
+                img.className = 'profile-avatar';
+                img.id        = 'avatarPreview';
+                img.alt       = 'Vista previa';
+                preview.replaceWith(img);
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // ── Scroll al primer campo con error al cargar ─────────────
+    const firstError = document.querySelector('.field-input--error, .field-wrapper--error .field-input');
+    if (firstError) {
+        setTimeout(() => {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstError.focus();
+        }, 150);
+    }
+
+});
+</script>
+{% endblock %} {% endcomment %}

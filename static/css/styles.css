@@ -29,6 +29,7 @@ body {
 /* Navbar floral */
 .floral-navbar {
   background: var(--rosa-suave);
+  -webkit-backdrop-filter: saturate(110%) blur(4px);
   backdrop-filter: saturate(110%) blur(4px);
 }
 .floral-navbar .navbar-brand span {
@@ -45,7 +46,7 @@ body {
   text-decoration: none;
 }
 .brand-logo {
-  height: 42px;
+  height: 60px;
   width: auto;
   object-fit: contain;
 }
@@ -55,7 +56,7 @@ body {
 .brand-logo-xl { height: 64px; }
 
 /* Branding tamaños ampliados (solicitud del usuario) */
-.brand-logo-xxl { height: 84px; }
+.brand-logo-xxl { height: 100px; }
 .footer-logo-xxl { height: 68px; }
 
 /* Ajuste del spacing para navbar con logo grande */
@@ -178,7 +179,23 @@ hr {
 }
 
 /* Navbar sticky scrolled */
-#mainNavbar.navbar-scrolled { box-shadow: 0 8px 22px rgba(0,0,0,.12); backdrop-filter: saturate(120%) blur(6px); }
+#mainNavbar.navbar-scrolled {
+  box-shadow: 0 8px 22px rgba(0,0,0,.12);
+  -webkit-backdrop-filter: saturate(120%) blur(6px);
+  backdrop-filter: saturate(120%) blur(6px);
+}
+.floral-navbar {
+  border-bottom: 1px solid rgba(89,40,44,.08);
+}
+.floral-navbar .nav-link {
+  transition: color .2s ease, background-color .2s ease, transform .2s ease;
+  border-radius: 999px;
+  padding-inline: .6rem;
+}
+.floral-navbar .nav-link:hover {
+  background: rgba(255,255,255,.28);
+}
+.floral-navbar .nav-link:active { transform: translateY(0); }
 .nav-divider { height: 4px; background: linear-gradient(90deg, var(--rosa-suave), var(--rosa-intenso)); opacity: .35; }
 
 /* Footer branding estilos */
@@ -200,12 +217,80 @@ hr {
 .floral-navbar .nav-link:hover::after,
 .floral-navbar .nav-link.active::after { width: 100%; }
 
-/* Animaciones de aparición (reveal) */
-.reveal { opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .5s ease; }
+/* Usuario en navbar: estilo profesional y consistente */
+.floral-navbar .nav-user { gap: .6rem; }
+.floral-navbar .user-avatar-nav {
+  border: 2px solid rgba(255,255,255,.7);
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+}
+.floral-navbar .user-role-pill {
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  padding: .18rem .5rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+}
+.floral-navbar .user-role-pill.role-admin {
+  background: rgba(89,40,44,.12);
+  color: #55252a;
+  border: 1px solid rgba(89,40,44,.2);
+}
+.floral-navbar .user-role-pill.role-super {
+  background: linear-gradient(90deg, #bf5486, #a94372);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(191,84,134,.35);
+}
+
+/* Dropdown de usuario mas elegante */
+.floral-navbar .dropdown-menu {
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 14px 30px rgba(0,0,0,.12);
+  padding: .5rem;
+  transform-origin: top right;
+  opacity: 0;
+  transform: translateY(6px) scale(.98);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.floral-navbar .dropdown-menu.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.floral-navbar .dropdown-item {
+  border-radius: 10px;
+  padding: .5rem .75rem;
+}
+.floral-navbar .dropdown-item:hover {
+  background: rgba(191,84,134,.08);
+}
+
+/* Animaciones de aparición (reveal) — suaves y tranquilas */
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .7s cubic-bezier(.22,.9,.24,1), transform .7s cubic-bezier(.22,.9,.24,1);
+  will-change: opacity, transform;
+}
 .reveal.in-view { opacity: 1; transform: translateY(0); }
-.reveal-left { opacity: 0; transform: translateX(-16px); transition: opacity .55s ease, transform .55s ease; }
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity .75s cubic-bezier(.22,.9,.24,1), transform .75s cubic-bezier(.22,.9,.24,1);
+  will-change: opacity, transform;
+}
 .reveal-left.in-view { opacity: 1; transform: translateX(0); }
-.reveal-right { opacity: 0; transform: translateX(16px); transition: opacity .55s ease, transform .55s ease; }
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity .75s cubic-bezier(.22,.9,.24,1), transform .75s cubic-bezier(.22,.9,.24,1);
+  will-change: opacity, transform;
+}
 .reveal-right.in-view { opacity: 1; transform: translateX(0); }
 
 /* Rosa grande bajo redes: más presencia y hover decorativo */
@@ -288,3 +373,98 @@ hr {
     max-width: calc(100vw - 2rem);
   }
 }
+
+/* WhatsApp FAB */
+.whatsapp-fab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1.25rem;
+  z-index: 1050;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,#25D366,#128C7E);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms, opacity 200ms;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.whatsapp-fab .icon { font-size: 1.35rem; line-height:1; }
+.whatsapp-fab:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+}
+
+/* Cuando el footer esté visible, subimos ligeramente el FAB para no taparlo */
+.whatsapp-fab.fab-near-footer {
+  transform: translateY(-56px);
+}
+
+/* Hover state suave adicional (clase añadida por JS si se desea) */
+.whatsapp-fab.fab-hover { transform: translateY(-8px) scale(1.03); }
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .whatsapp-fab { right: 0.75rem; bottom: 0.9rem; width: 48px; height: 48px; }
+  .whatsapp-fab.fab-near-footer { transform: translateY(-42px); }
+}
+
+/* Reveal animations (landing) */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 520ms ease, transform 520ms cubic-bezier(.2,.8,.2,1);
+}
+[data-reveal].revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Esta clase se activará con JS cuando lleguemos al footer */
+.whatsapp-float.subir {
+  transform: translateY(-70px); /* Ajusta este número según el alto de tu footer */
+  transition: transform 0.3s ease;
+}
+
+/* Si estás en móvil, que suba un poco menos */
+@media (max-width: 576px) {
+  .whatsapp-float.subir {
+    transform: translateY(-50px);
+  }
+}
+.whatsapp-float {
+  position: fixed;
+  width: 60px;
+  height: 61px;
+  bottom: 120px; /* Distancia del borde inferior */
+  right: 35px;  /* Distancia del borde derecho */
+  background: linear-gradient(135deg, #e082d3 0%, #c058b8 100%); /* Degradado similar a tu imagen */
+  color: #FFF;
+  border-radius: 50px;
+  text-align: center;
+  font-size: 30px;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+  z-index: 1000; /* Para que siempre esté por encima de todo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 3px solid #6a1b4d; /* El borde oscuro que se ve en tu imagen */
+}
+
+/* Efecto al pasar el mouse */
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  color: #fff;
+  box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Ajuste para el icono de Bootstrap */
+.whatsapp-float i {
+  line-height: 0;
+}
+

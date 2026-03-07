@@ -1,239 +1,305 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
-UserModel = get_user_model()
+from .models import Perfil
+
+User = get_user_model()
+
+
+# =====================================================
+# 🔐 LOGIN FORM
+# =====================================================
+
+class LoginForm(AuthenticationForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'username' in self.fields:
+            self.fields['username'].widget.attrs.setdefault('data-validate-url', '')
+
+    def clean(self):
+        username_or_doc = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
+
+        if not username_or_doc or not password:
+            raise ValidationError("Usuario/documento y contraseña son obligatorios.")
+
+        if username_or_doc.isdigit() and 6 <= len(username_or_doc) <= 10:
+            try:
+                user_obj = User.objects.get(documento=username_or_doc)
+                if not user_obj.is_active:
+                    raise ValidationError(
+                        "Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.",
+                        code="inactive",
+                    )
+                user = authenticate(self.request, username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                user = None
+        else:
+            user_obj = User.objects.filter(username=username_or_doc).first()
+            if user_obj and not user_obj.is_active:
+                raise ValidationError(
+                    "Tu cuenta esta inactiva. No puedes ingresar hasta que un superadministrador la active nuevamente.",
+                    code="inactive",
+                )
+            user = authenticate(self.request, username=username_or_doc, password=password)
+
+        if user is None:
+            raise ValidationError("Credenciales inválidas.")
+
+        self.confirm_login_allowed(user)
+        self.user_cache = user
+        return self.cleaned_data
+
+
+# =====================================================
+# 📝 REGISTRO FORM (Usuario + Perfil)
+# =====================================================
 
 class RegistroForm(UserCreationForm):
-    # Campos del modelo Usuario (autenticación)
-    documento = forms.CharField(
-        max_length=10,
-        required=True,
-        help_text='Debe tener exactamente 10 dígitos',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Documento (10 dígitos)',
-            'autofocus': 'autofocus',
-            'pattern': '[0-9]{10}',
-            'inputmode': 'numeric',
-            'title': 'Solo se permiten números (10 dígitos)'
-        }),
-    )
 
-    email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Correo electrónico'
-        }),
-    )
-
-    first_name = forms.CharField(
-        required=True,
-        label='Nombre',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Nombre',
-            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
-            'title': 'Solo se permiten letras'
-        }),
-    )
-
-    last_name = forms.CharField(
-        required=True,
-        label='Apellido',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Apellido',
-            'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+',
-            'title': 'Solo se permiten letras'
-        }),
-    )
-
-    # Campos del modelo Perfil (información adicional - OPCIONALES)
-    telefono = forms.CharField(
-        required=False,
-        label='Teléfono',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Teléfono (opcional)'
-        })
-    )
-
-    direccion = forms.CharField(
-        required=False,
-        label='Dirección',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Dirección (opcional)'
-        })
-    )
-
+    # Campos del Perfil
+    telefono         = forms.CharField(required=False, label="Teléfono")
+    direccion        = forms.CharField(required=False, label="Dirección")
     fecha_nacimiento = forms.DateField(
         required=False,
-        label='Fecha de nacimiento',
-        widget=forms.DateInput(attrs={
-            'class': 'form-control',
-            'type': 'date',
-            'placeholder': 'Fecha de nacimiento (opcional)'
-        })
+        label="Fecha de nacimiento",
+        widget=forms.DateInput(attrs={"type": "date"}),
     )
+    biografia   = forms.CharField(widget=forms.Textarea(attrs={"rows": 3}), required=False, label="Biografía")
+    foto_perfil = forms.ImageField(required=False, label="Foto de perfil")
 
-    foto_perfil = forms.ImageField(
-        required=False,
-        label='Foto de perfil',
-        widget=forms.FileInput(attrs={
-            'class': 'form-control',
-            'accept': 'image/*'
-        })
-    )
-
-    biografia = forms.CharField(
-        required=False,
-        label='Biografía',
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Cuéntanos sobre ti (opcional)',
-            'rows': 4
-        })
-    )
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "documento",
+            "first_name",
+            "last_name",
+            "email",
+            "password1",
+            "password2",
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Personalizar widgets de contraseña
-        self.fields['password1'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Contraseña',
+        for name, field in self.fields.items():
+            widget = field.widget
+            classes = widget.attrs.get('class', '')
+
+            if name == 'foto_perfil':
+                widget.attrs['class'] = f"{classes} form-control".strip()
+                continue
+
+            widget.attrs['class'] = f"{classes} form-control".strip()
+
+            if name in {
+                'username', 'documento', 'first_name', 'last_name',
+                'email', 'password1', 'password2', 'fecha_nacimiento',
+                'telefono', 'direccion'
+            }:
+                widget.attrs.setdefault('placeholder', ' ')
+
+        self.fields['documento'].widget.attrs.update({
+            'maxlength': '10',
+            'inputmode': 'numeric',
+            'pattern': '[0-9]{6,10}',
+            'data-verificar-url': '',
         })
-        self.fields['password2'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Confirmar contraseña',
-        })
-
-        # Personalizar widget de username
-        self.fields['username'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Nombre de usuario'
-        })
-
-        # Personalizar mensajes de ayuda
-        self.fields['password1'].help_text = 'La contraseña debe tener al menos 8 caracteres.'
-
-        # Personalizar labels
-        self.fields['password1'].label = 'Contraseña'
-        self.fields['password2'].label = 'Confirmar contraseña'
-        self.fields['username'].label = 'Usuario'
-
-    class Meta:
-        model = UserModel
-        fields = (
-            'username', 'documento', 'first_name', 'last_name', 'email',
-            'password1', 'password2'
-        )
-
-    def clean_documento(self):
-        doc = self.cleaned_data['documento']
-        if not doc.isdigit() or len(doc) != 10:
-            raise forms.ValidationError('El documento debe tener exactamente 10 dígitos.')
-        existentes = UserModel.objects.filter(documento=doc)
-        if self.instance.pk:
-            existentes = existentes.exclude(pk=self.instance.pk)
-        if existentes.exists():
-            raise forms.ValidationError('Ya existe un usuario con este documento.')
-        return doc
 
     def clean_username(self):
-        username = self.cleaned_data.get('username', '')
-
-        # Validar longitud mínima
-        if len(username) < 4:
-            raise forms.ValidationError('El nombre de usuario debe tener al menos 4 caracteres.')
-
-        # Permitir solo letras, números, guiones y guiones bajos
-        import re
-        if not re.match(r'^[a-zA-Z0-9_-]+$', username):
-            raise forms.ValidationError('El nombre de usuario solo puede contener letras, números, guiones (-) y guiones bajos (_).')
-
-        # Verificar si ya existe en la base de datos
-        existentes = UserModel.objects.filter(username=username)
-        if self.instance.pk:
-            existentes = existentes.exclude(pk=self.instance.pk)
-        if existentes.exists():
-            raise forms.ValidationError('Este nombre de usuario ya está en uso. Por favor, elige otro.')
-
+        username = self.cleaned_data.get("username")
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("Este nombre de usuario ya está en uso.")
         return username
 
     def clean_email(self):
-        email = self.cleaned_data['email']
-        existentes = UserModel.objects.filter(email=email)
-        if self.instance.pk:
-            existentes = existentes.exclude(pk=self.instance.pk)
-        if existentes.exists():
-            raise forms.ValidationError('Ya existe un usuario con este correo.')
+        email = self.cleaned_data.get("email")
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Este correo ya está registrado.")
         return email
 
+    def clean_documento(self):
+        documento = self.cleaned_data.get("documento", "")
+        if not documento or not documento.isdigit() or not (6 <= len(documento) <= 10):
+            raise ValidationError("El documento debe tener entre 6 y 10 dígitos.")
+        if User.objects.filter(documento=documento).exists():
+            raise ValidationError("Este documento ya está registrado.")
+        return documento
+
+
+# =====================================================
+# ✏️ EDITAR PERFIL / USUARIO FORM
+# =====================================================
+
+class EditarPerfilForm(forms.ModelForm):
+    """
+    Formulario unificado para editar Usuario + Perfil.
+
+    Campos del modelo Usuario: first_name, last_name, username,
+        email, documento, is_active, is_staff, is_superuser.
+
+    Campos del modelo Perfil (inyectados como extra fields):
+        telefono, direccion, fecha_nacimiento, biografia, foto_perfil.
+
+    ─────────────────────────────────────────────────────────────
+    FIX BUG CRÍTICO: auto-desactivación del usuario
+    ─────────────────────────────────────────────────────────────
+    PROBLEMA:
+        Meta.fields incluía is_active, is_staff, is_superuser.
+        editar_perfil.html NO renderiza esos campos en el <form>.
+        Los campos BooleanField ausentes en un POST son procesados
+        como False por Django → usuario.is_active = False →
+        el usuario pierde acceso al sistema al guardar su perfil.
+
+        editar_usuario.html SÍ los renderiza, por lo que allí
+        el bug no se manifiesta.
+
+    SOLUCIÓN:
+        En __init__, cuando editing_user == instance (el usuario
+        edita su propio perfil), eliminamos solo is_staff e
+        is_superuser del formulario con self.fields.pop().
+        Dejamos is_active disponible para que el usuario pueda
+        activar/desactivar su propia cuenta de forma controlada.
+
+        Cuando editing_user != instance (superadmin edita a otro),
+        los campos permanecen disponibles para que editar_usuario.html
+        los renderice con normalidad.
+    """
+
+    # ── Campos extra del Perfil (no están en User) ──────────────────────
+    telefono = forms.CharField(
+        required=False,
+        label="Teléfono",
+        widget=forms.TextInput(attrs={"placeholder": "Ej: 3001234567"}),
+    )
+    direccion = forms.CharField(
+        required=False,
+        label="Dirección",
+        widget=forms.TextInput(attrs={"placeholder": "Dirección completa"}),
+    )
+    fecha_nacimiento = forms.DateField(
+        required=False,
+        label="Fecha de nacimiento",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    biografia = forms.CharField(
+        required=False,
+        label="Biografía",
+        widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Cuéntanos algo sobre ti..."}),
+    )
+    foto_perfil = forms.ImageField(
+        required=False,
+        label="Foto de perfil",
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "username",
+            "email",
+            "documento",
+            "is_active",      # renderizado en editar_usuario.html (vista admin)
+            "is_staff",       # renderizado en editar_usuario.html (vista admin)
+            "is_superuser",   # renderizado en editar_usuario.html (vista admin)
+        ]
+
+    def __init__(self, *args, **kwargs):
+        self.editing_user = kwargs.pop("editing_user", None)
+        super().__init__(*args, **kwargs)
+
+        # ── FIX: cuando el usuario edita su propio perfil,
+        #    eliminar is_active / is_staff / is_superuser del form.
+        #    editar_perfil.html no los renderiza → el POST los envía
+        #    vacíos → Django los lee como False → is_active = False.
+        es_auto_edicion = (
+            self.editing_user is not None
+            and self.instance.pk is not None
+            and self.editing_user.pk == self.instance.pk
+        )
+        if es_auto_edicion:
+            for campo in ("is_staff", "is_superuser"):
+                self.fields.pop(campo, None)
+
+        # Cargar valores actuales del Perfil relacionado
+        if self.instance.pk:
+            try:
+                perfil = self.instance.perfil
+                self.fields["telefono"].initial         = perfil.telefono
+                self.fields["direccion"].initial        = perfil.direccion
+                self.fields["fecha_nacimiento"].initial = perfil.fecha_nacimiento
+                self.fields["biografia"].initial        = perfil.biografia
+                self.fields["foto_perfil"].initial      = perfil.foto_perfil
+            except Perfil.DoesNotExist:
+                pass
+
+        # En el panel solo existen administradores y superadministradores.
+        # Forzamos que is_staff no sea editable desde formularios.
+        self.fields.pop('is_staff', None)
+
     def save(self, commit=True):
-        """
-        Guarda el usuario y su perfil.
-        El perfil se crea automáticamente mediante señales.
-        """
-        # Guardar el usuario (UserCreationForm ya hashea la contraseña)
         user = super().save(commit=False)
-
-        # Asignar campos del formulario al usuario
-        user.documento = self.cleaned_data.get('documento')
-        user.email = self.cleaned_data.get('email')
-        user.first_name = self.cleaned_data.get('first_name', '')
-        user.last_name = self.cleaned_data.get('last_name', '')
-
+        user.is_staff = True
         if commit:
             user.save()
-
-            # Actualizar el perfil (se crea automáticamente por la señal)
-            perfil = user.perfil
-            perfil.telefono = self.cleaned_data.get('telefono', '')
-            perfil.direccion = self.cleaned_data.get('direccion', '')
-            perfil.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
-            perfil.biografia = self.cleaned_data.get('biografia', '')
-
-            # Foto de perfil
-            foto = self.cleaned_data.get('foto_perfil')
-            if foto:
-                perfil.foto_perfil = foto
-
-            perfil.save()
-
+            self.save_m2m()
         return user
 
-class LoginForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario o documento'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}))
+    # ── Validaciones ─────────────────────────────────────────────────────
 
-    def clean(self):
-        cleaned = super().clean()
-        usuario_o_documento = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-        User = get_user_model()
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        qs = User.objects.filter(username=username)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Este nombre de usuario ya está en uso.")
+        return username
 
-        if usuario_o_documento and password:
-            # Si parece documento (10 dígitos), intentamos autenticar usando el username del usuario con ese documento
-            if usuario_o_documento.isdigit() and len(usuario_o_documento) == 10:
-                try:
-                    u = User.objects.get(documento=usuario_o_documento)
-                    user = authenticate(self.request, username=u.username, password=password)
-                except User.DoesNotExist:
-                    user = None
-            else:
-                user = authenticate(self.request, username=usuario_o_documento, password=password)
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        qs = User.objects.filter(email=email)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Este correo ya está registrado.")
+        return email
 
-            if user is None:
-                raise forms.ValidationError('Credenciales inválidas, verifica tu usuario/documento y contraseña.')
-            self.confirm_login_allowed(user)
-            self._user = user
-        return cleaned
+    def clean_documento(self):
+        documento = self.cleaned_data.get("documento", "")
+        if not documento or not documento.isdigit() or not (6 <= len(documento) <= 10):
+            raise ValidationError("El documento debe tener entre 6 y 10 dígitos.")
+        qs = User.objects.filter(documento=documento)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Este documento ya está registrado.")
+        return documento
 
-    def get_user(self):
-        return getattr(self, '_user', None)
+    # ── Guardado atómico: User + Perfil ──────────────────────────────────
 
+    def save(self, commit=True):
+        with transaction.atomic():
+            user = super().save(commit=commit)
+
+            perfil = user.perfil
+            perfil.telefono         = self.cleaned_data.get("telefono", "")
+            perfil.direccion        = self.cleaned_data.get("direccion", "")
+            perfil.fecha_nacimiento = self.cleaned_data.get("fecha_nacimiento")
+            perfil.biografia        = self.cleaned_data.get("biografia", "")
+
+            foto = self.cleaned_data.get("foto_perfil")
+            # Solo actualizar si es un archivo subido nuevo (no el string del initial)
+            if foto and hasattr(foto, "name"):
+                perfil.foto_perfil = foto
+
+            if commit:
+                perfil.save()
+
+        return user

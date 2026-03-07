@@ -135,6 +135,7 @@
       });
     }
 
+
     // ========================================================================
     // TOGGLE MOSTRAR/OCULTAR CONTRASEÑA
     // ========================================================================
@@ -180,7 +181,7 @@
     // ========================================================================
     addFormControls() {
       const inputs = [
-        { id: 'id_username', placeholder: 'Usuario o documento' },
+        { id: 'id_username', placeholder: 'Usuario o documento (6-10 dígitos)' },
         { id: 'id_password', placeholder: 'Ingrese su contraseña' }
       ];
 
@@ -197,6 +198,132 @@
       });
 
       console.log('✅ Clases form-control agregadas');
+      
+      // Agregar detección de documento en tiempo real
+      this.initializeDocumentDetection();
+    }
+
+    // ========================================================================
+    // DETECCIÓN DE DOCUMENTO CON FEEDBACK VISUAL
+    // ========================================================================
+    initializeDocumentDetection() {
+      const usernameInput = document.getElementById('id_username');
+      if (!usernameInput) return;
+
+      const validateUrl = usernameInput.dataset.validateUrl || window.LOGIN_VALIDATE_URL;
+
+      // Crear el elemento de ayuda si no existe
+      let helpBadge = document.getElementById('username-help');
+      if (!helpBadge) {
+        helpBadge = document.createElement('div');
+        helpBadge.id = 'username-help';
+        helpBadge.className = 'form-text text-muted mb-3';
+        helpBadge.style.marginBottom = '1rem';
+        helpBadge.innerHTML = '<i class="bi bi-info-circle me-1"></i>Puedes usar tu nombre de usuario o documento (6-10 dígitos)';
+      }
+
+      const formFloating = usernameInput.closest('.form-floating');
+      if (formFloating && !document.getElementById('username-help')) {
+        // Insertar ANTES del form-floating (arriba del campo)
+        formFloating.parentNode.insertBefore(helpBadge, formFloating);
+      }
+
+      let debounceTimer = null;
+      let requestSeq = 0;
+
+      const setStatus = (state, message) => {
+        const helpBadgeElement = document.getElementById('username-help') || helpBadge;
+        if (!helpBadgeElement) return;
+
+        if (state === 'valid') {
+          usernameInput.classList.remove('is-valid', 'is-invalid');
+          helpBadgeElement.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i>${message}`;
+          helpBadgeElement.className = 'form-text text-success mb-3';
+          return;
+        }
+
+        if (state === 'invalid') {
+          usernameInput.classList.remove('is-valid', 'is-invalid');
+          helpBadgeElement.innerHTML = `<i class="bi bi-x-circle-fill text-danger me-1"></i>${message}`;
+          helpBadgeElement.className = 'form-text text-danger mb-3';
+          return;
+        }
+
+        usernameInput.classList.remove('is-valid', 'is-invalid');
+        helpBadgeElement.innerHTML = `<i class="bi bi-info-circle me-1"></i>${message}`;
+        helpBadgeElement.className = 'form-text text-muted mb-3';
+      };
+
+      const checkExists = (value) => {
+        if (!validateUrl) return;
+        const currentSeq = ++requestSeq;
+        fetch(`${validateUrl}?q=${encodeURIComponent(value)}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (currentSeq !== requestSeq) return;
+            if (!data || !value) return;
+            if (data.type === 'empty') {
+              usernameInput.dataset.exists = '';
+              setStatus('neutral', 'Ingresa un usuario o documento.');
+              return;
+            }
+            if (data.exists) {
+              usernameInput.dataset.exists = 'true';
+              const msg = data.type === 'documento'
+                ? 'Documento registrado.'
+                : 'Usuario registrado.';
+              setStatus('valid', msg);
+              return;
+            }
+            usernameInput.dataset.exists = 'false';
+            const msg = data.type === 'documento'
+              ? 'Documento no encontrado.'
+              : 'Usuario no encontrado.';
+            setStatus('invalid', msg);
+          })
+          .catch(() => {
+            usernameInput.dataset.exists = '';
+            setStatus('neutral', 'No se pudo validar en este momento.');
+          });
+      };
+
+      // Detectar si están escribiendo un documento
+      usernameInput.addEventListener('input', (e) => {
+        const value = e.target.value.trim();
+        const isNumeric = /^\d+$/.test(value);
+        const helpBadgeElement = document.getElementById('username-help');
+
+        if (!helpBadgeElement) return;
+
+        if (!value) {
+          usernameInput.dataset.exists = '';
+          setStatus('neutral', 'Puedes usar tu nombre de usuario o documento (6-10 digitos)');
+          return;
+        }
+
+        if (isNumeric) {
+          if (value.length > 0 && value.length < 6) {
+            setStatus('neutral', `Documento: ${value.length}/6-10 digitos`);
+            return;
+          }
+          if (value.length > 10) {
+            setStatus('neutral', 'El documento debe tener entre 6 y 10 digitos');
+            return;
+          }
+        } else if (value.length < 3) {
+          setStatus('neutral', 'Sigue escribiendo para validar el usuario.');
+          return;
+        }
+
+        usernameInput.dataset.exists = 'pending';
+        setStatus('neutral', 'Buscando en el sistema...');
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => checkExists(value), 400);
+      });
+
+      console.log('✅ Detección de documento inicializada');
     }
 
     // ========================================================================
@@ -250,7 +377,8 @@
         [usernameInput, passwordInput].forEach(input => {
           if (!input) return;
 
-          const isEmpty = !input.value || input.value.trim() === '';
+          const value = input.value ? input.value.trim() : '';
+          const isEmpty = value === '';
 
           if (isEmpty) {
             hasErrors = true;
@@ -259,9 +387,62 @@
             errors.push(input.id);
             console.log(`❌ ${input.id}: Campo vacío`);
           } else {
-            input.classList.remove('is-invalid');
-            input.classList.add('is-valid');
-            console.log(`✅ ${input.id}: Válido`);
+            // Validación adicional para username/documento
+            if (input.id === 'id_username') {
+              const isNumeric = /^\d+$/.test(value);
+              const existsFlag = input.dataset.exists || '';
+              
+              if (isNumeric) {
+                // Es un documento - debe tener entre 6 y 10 dígitos
+                if (value.length < 6 || value.length > 10) {
+                  hasErrors = true;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                  errors.push(`${input.id}-formato`);
+                  console.log(`❌ ${input.id}: Documento debe tener entre 6 y 10 dígitos (tiene ${value.length})`);
+                  
+                  // Actualizar mensaje de error
+                  const feedback = input.parentElement.querySelector('.invalid-feedback');
+                  if (feedback) {
+                    feedback.textContent = `El documento debe tener entre 6 y 10 dígitos (tienes ${value.length})`;
+                  }
+                } else if (existsFlag === 'false') {
+                  hasErrors = true;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                  errors.push(`${input.id}-noexiste`);
+                  const feedback = input.parentElement.querySelector('.invalid-feedback');
+                  if (feedback) {
+                    feedback.textContent = 'Documento no encontrado.';
+                  }
+                }
+              } else {
+                // Es un username
+                if (value.length < 3) {
+                  hasErrors = true;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                  errors.push(`${input.id}-formato`);
+                  const feedback = input.parentElement.querySelector('.invalid-feedback');
+                  if (feedback) {
+                    feedback.textContent = 'El usuario debe tener al menos 3 caracteres.';
+                  }
+                } else if (existsFlag === 'false') {
+                  hasErrors = true;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                  errors.push(`${input.id}-noexiste`);
+                  const feedback = input.parentElement.querySelector('.invalid-feedback');
+                  if (feedback) {
+                    feedback.textContent = 'Usuario no encontrado.';
+                  }
+                }
+              }
+            } else {
+              input.classList.remove('is-invalid');
+              input.classList.add('is-valid');
+              console.log(`✅ ${input.id}: Válido`);
+            }
           }
         });
 
@@ -269,7 +450,13 @@
           e.preventDefault();
           console.log('❌ FORMULARIO CON ERRORES - NO SE ENVIARÁ');
 
-          this.showToast('warning', '⚠️ Por favor, completa todos los campos para iniciar sesión.');
+          // Mensaje específico según el error
+          const hasFormatoError = errors.some(err => err.includes('formato'));
+          const message = hasFormatoError 
+            ? '⚠️ El documento debe tener entre 6 y 10 dígitos numéricos.'
+            : '⚠️ Por favor, completa todos los campos para iniciar sesión.';
+          
+          this.showToast('warning', message);
 
           // Focus en el primer campo con error
           const firstInvalid = form.querySelector('.is-invalid');
@@ -297,7 +484,19 @@
 
       input.classList.remove('is-valid', 'is-invalid');
 
-      if (value.length > 0) {
+      // Validación especial para username/documento
+      if (input.id === 'id_username' && value.length > 0) {
+        const isNumeric = /^\d+$/.test(value);
+        if (isNumeric && value.length > 10) {
+          input.classList.add('is-invalid');
+          const feedback = input.parentElement.querySelector('.invalid-feedback');
+          if (feedback) {
+            feedback.textContent = 'El documento debe tener entre 6 y 10 dígitos';
+          }
+        }
+        return;
+      } else if (value.length > 0) {
+        // Otros campos
         if (isEmpty) {
           input.classList.add('is-invalid');
         } else {
@@ -317,7 +516,7 @@
     }
 
     // ========================================================================
-    // SLIDESHOW DE FONDO
+    // SLIDESHOW DE FONDO - MEJORADO CON CLICK Y TRANSICIONES SUAVES
     // ========================================================================
     initializeSlideshow() {
       const container = document.getElementById('bg-slideshow');
@@ -333,22 +532,41 @@
       }
 
       let currentIndex = 0;
+      let intervalId = null;
 
       const activateSlide = (index) => {
         slides.forEach((slide, i) => {
           slide.classList.toggle('active', i === index);
         });
+        console.log(`🖼️ Slide activo: ${index + 1}/${slides.length}`);
+      };
+
+      const nextSlide = () => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        activateSlide(currentIndex);
+      };
+
+      const startAutoSlide = () => {
+        // Limpiar intervalo anterior si existe
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+        // Cambiar slide cada 10 segundos
+        intervalId = setInterval(nextSlide, 10000);
       };
 
       // Activar el primer slide
       activateSlide(currentIndex);
-      console.log('✅ Slideshow de fondo iniciado');
+      startAutoSlide();
+      console.log('✅ Slideshow iniciado - Click en el fondo para cambiar');
 
-      // Cambiar slide cada 10 segundos
-      setInterval(() => {
-        currentIndex = (currentIndex + 1) % slides.length;
-        activateSlide(currentIndex);
-      }, 10000);
+      // Permitir cambio manual con click en el fondo
+      container.addEventListener('click', () => {
+        nextSlide();
+        // Reiniciar el intervalo automático
+        startAutoSlide();
+        console.log('👆 Click en fondo - Cambiando slide manualmente');
+      });
     }
   }
 

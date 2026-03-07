@@ -1,0 +1,151 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Detalle de Flor{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/detalle_modules.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'flor:lista' %}">Flores</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header tipo ficha -->
+    <div class="profile-header-card">
+        <div class="profile-header-content">
+            <div class="profile-avatar-wrapper" aria-hidden="true">
+                {% if flor.imagen %}
+                    <img class="profile-avatar" src="{{ flor.imagen.url }}" alt="{{ flor.nombre }}">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ flor.nombre|first|upper }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-header-info">
+                <div class="profile-name">{{ flor.nombre }}</div>
+                <div class="profile-username">{{ flor.get_tipo_flor_display }}</div>
+
+                <div class="profile-badges">
+                    <span class="profile-badge badge-user"><i class="bi bi-currency-dollar"></i> ${{ flor.precio }}</span>
+                    <span class="profile-badge badge-active"><i class="bi bi-box"></i> Stock: {{ flor.cantidad }}</span>
+                    {% if flor.cantidad <= 10 %}
+                        <span class="profile-badge badge-stock-low"><i class="bi bi-exclamation-triangle"></i> Nivel: Bajo</span>
+                    {% elif flor.cantidad <= 30 %}
+                        <span class="profile-badge badge-stock-medium"><i class="bi bi-dash-circle"></i> Nivel: Medio</span>
+                    {% else %}
+                        <span class="profile-badge badge-stock-high"><i class="bi bi-check-circle"></i> Nivel: Alto</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="profile-header-actions">
+                <a href="{% url 'flor:editar' flor.id %}" class="btn-edit-profile">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-tabs-card">
+        <div class="profile-tab-content">
+            <div class="profile-section">
+                <div class="section-title">
+                    <i class="bi bi-card-checklist"></i>
+                    Información de la flor
+                </div>
+
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-lg-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-image"></i> Imagen</div>
+                            <div class="info-value">
+                                {% if flor.imagen %}
+                                    <img
+                                        src="{{ flor.imagen.url }}"
+                                        alt="{{ flor.nombre }}"
+                                        style="width: 100%; max-width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 14px; border: 2px solid var(--border-color); object-fit: cover;">
+                                {% else %}
+                                    <div
+                                        class="profile-avatar-placeholder"
+                                        style="width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; display:flex; align-items:center; justify-content:center;">
+                                        {{ flor.nombre|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-flower1"></i> Tipo</div>
+                                    <div class="info-value">{{ flor.get_tipo_flor_display }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-currency-dollar"></i> Precio</div>
+                                    <div class="info-value">{{ flor.precio }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-box"></i> Stock</div>
+                                    <div class="info-value">{{ flor.cantidad }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-activity"></i> Nivel de stock</div>
+                                    <div class="info-value">
+                                        {% if flor.cantidad <= 10 %}
+                                            <span class="badge-stock badge-stock-low">Bajo</span>
+                                        {% elif flor.cantidad <= 30 %}
+                                            <span class="badge-stock badge-stock-medium">Medio</span>
+                                        {% else %}
+                                            <span class="badge-stock badge-stock-high">Alto</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-text-paragraph"></i> Descripción</div>
+                                    <div class="info-value">{{ flor.descripcion|default:'—' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from proveedores.models import Proveedor
 
 # --- Definiciones de Choices para Compra ---
@@ -15,15 +16,16 @@ MEDIO_PAGO_CHOICES = [
     ('TARJETA', 'Tarjeta Debito/Credito'),
 ]
 
+TIPO_PRODUCTO_CHOICES = [
+    ('FLOR', 'Flor'),
+    ('PRODUCTO', 'Producto'),
+]
+
 # --- Modelo Compra ---
 
 class Compra(models.Model):
-    # id BIGINT se crea automáticamente como Primary Key si no se define, 
-    # pero si quieres usar explícitamente BigAutoField:
     id = models.BigAutoField(primary_key=True)
     
-    # Datos numéricos y financieros (agregados)
-    descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Descuento")
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Subtotal")
     total_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Total Compra")
     
@@ -34,14 +36,19 @@ class Compra(models.Model):
     
     # Fechas
     fecha_emision = models.DateField(verbose_name="Fecha de Emisión")
-    fecha_vencimiento = models.DateField(verbose_name="Fecha de Vencimiento", blank=True, null=True)
     
     # Relación con Proveedor (ForeignKey real)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT, verbose_name="Proveedor")
     
+    # Usuario que creó la compra
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Usuario")
+    
     # Ubicación y Proceso
     departamento = models.CharField(max_length=45, verbose_name="Departamento", blank=True)
-    ciudad = models.CharField(max_length=45, verbose_name="Ciudad", blank=True)
+    ciudad = models.CharField(max_length=100, verbose_name="Ciudad", blank=True)
+    
+    # Tipo de producto
+    tipo_producto = models.CharField(max_length=20, choices=TIPO_PRODUCTO_CHOICES, verbose_name="Tipo de Producto", blank=True)
     
     # Metadata
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -56,10 +63,9 @@ class Compra(models.Model):
 
     def calcular_totales(self):
         """Calcula automáticamente los totales de la compra"""
-        detalles = self.detallecompra_set.all()
+        detalles = self.detalles.all()
         self.subtotal = sum(d.cantidad * d.precio for d in detalles)
-        total_descuento = self.subtotal * (self.descuento / 100) if self.descuento > 0 else 0
-        self.total_compra = self.subtotal - total_descuento
+        self.total_compra = self.subtotal
         self.save()
 
 
@@ -69,9 +75,18 @@ class DetalleCompra(models.Model):
     """Modelo para guardar cada línea de producto en una compra"""
     id = models.BigAutoField(primary_key=True)
     compra = models.ForeignKey(Compra, on_delete=models.CASCADE, related_name='detalles')
-    
+
+    TIPO_ITEM_CHOICES = [
+        ('FLOR', 'Flor'),
+        ('PRODUCTO', 'Producto'),
+    ]
+
+    # Item asociado
+    tipo_item = models.CharField(max_length=20, choices=TIPO_ITEM_CHOICES, default='PRODUCTO')
+    flor = models.ForeignKey('flor.Flor', on_delete=models.PROTECT, null=True, blank=True)
+    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, null=True, blank=True)
+
     # Información del producto
-    rif = models.CharField(max_length=100, verbose_name="RIF", blank=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio")
     cantidad = models.IntegerField(default=1, verbose_name="Cantidad")
     
@@ -83,9 +98,25 @@ class DetalleCompra(models.Model):
         verbose_name_plural = "Detalles de Compra"
         ordering = ['id']
 
+    @property
+    def item(self):
+        return self.flor or self.producto
+
+    @property
+    def item_nombre(self):
+        return getattr(self.item, 'nombre', '') if self.item else ''
+
     def __str__(self):
-        return f"Detalle {self.id} - Compra {self.compra.id} - {self.cantidad} x ${self.precio}"
+        return f"Detalle {self.id} - Compra {self.compra.id} - {self.item_nombre} x {self.cantidad}"
 
     def save(self, *args, **kwargs):
+        if self.tipo_item == 'FLOR':
+            self.producto = None
+        elif self.tipo_item == 'PRODUCTO':
+            self.flor = None
+
         self.subtotal = self.cantidad * self.precio
         super().save(*args, **kwargs)
+
+
+

@@ -1,0 +1,120 @@
+{% extends 'master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}?v=20260306">
+<link rel="stylesheet" href="{% static 'css/detalle_modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/detalle_catalogo_producto.css' %}?v=20260307">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 catalogo-detalle-modulo">
+
+    <div class="profile-header-card">
+        <div class="profile-header-content">
+            <div class="profile-avatar-wrapper" aria-hidden="true">
+                {% if producto.imagen %}
+                    <img class="profile-avatar" src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ producto.nombre|first|upper }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-header-info">
+                <div class="profile-name">{{ producto.nombre }}</div>
+                <div class="catalogo-rating mb-3" aria-label="Calificación 5 de 5">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <span class="profile-badge badge-active"><i class="bi bi-currency-dollar"></i> {{ producto.precio|floatformat:2|intcomma }}</span>
+                <div class="profile-badges">
+                    <span class="profile-badge badge-user"><i class="bi bi-tag"></i> {{ producto.categoria.nombre|default:'Sin categoría' }}</span>
+                    <span class="profile-badge badge-user"><i class="bi bi-bounding-box"></i> {{ producto.tamano|default:'Sin tamaño' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-tabs-card">
+        <div class="profile-tab-content">
+            <div class="profile-section">
+                <div class="section-title">
+                    <i class="bi bi-card-checklist"></i>
+                    Información del Arreglo
+                </div>
+
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-lg-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-image"></i> Imagen</div>
+                            <div class="info-value">
+                                {% if producto.imagen %}
+                                    <img
+                                        class="catalogo-main-image"
+                                        src="{{ producto.imagen.url }}"
+                                        alt="{{ producto.nombre }}"
+                                        style="width: 100%; max-width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 14px; border: 2px solid var(--border-color); object-fit: cover;">
+                                {% else %}
+                                    <div
+                                        class="profile-avatar-placeholder"
+                                        style="width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; display:flex; align-items:center; justify-content:center;">
+                                        {{ producto.nombre|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-tag"></i> Categoría</div>
+                                    <div class="info-value">{{ producto.categoria.nombre|default:'—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-bounding-box"></i> Tamaño</div>
+                                    <div class="info-value">{{ producto.tamano|default:'—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"></i> Precio</div>
+                                    <div class="info-value">${{ producto.precio|floatformat:2|intcomma }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-text-paragraph"></i> Descripción</div>
+                                    <div class="info-value" style="white-space: pre-line;">
+                                        {{ producto.descripcion|default:"Un bello detalle pensado para sorprender en cualquier ocasión. Hecho con Amor por la Floristeria Artes y Estilos." }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <a href="javascript:history.back()" class="btn-secondary-custom">
+                        <i class="bi bi-arrow-left"></i> Volver al Catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

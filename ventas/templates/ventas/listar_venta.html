@@ -1,0 +1,265 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+{% load humanize %}
+{% block title %}Listado de Ventas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Ventas</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header-clientes fadeInUp">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-cart"></i> Gestión de Ventas
+            </h1>
+            <p>Administra y consulta todas las ventas registradas de Artes & Estilos.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <form method="GET" action="{% url 'ventas:listar_venta' %}" class="js-search-form" id="search-form-ventas" novalidate>
+                <input type="hidden" id="search-cliente-nombre" name="cliente_nombre" value="{{ cliente_nombre_filtro|default:'' }}">
+                <input type="hidden" id="search-fecha-desde" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
+                <div class="search-wrapper">
+                    <input type="text" id="search-live-ventas" name="q" value="{{ query|default:'' }}"
+                           class="search-input js-live-search" data-target="#ventas-tbody"
+                           placeholder="Buscar por venta, cliente o documento..." autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+            <a href="{% url 'ventas:crear' %}" class="btn-cliente-nuevo">
+                <i class="bi bi-plus-circle"></i> Nueva Venta
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-cart4"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_ventas|default:"—" }}</div>
+                <div class="stat-label">Total Ventas</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">${{ monto_total|default_if_none:0|floatformat:0|intcomma }}</div>
+                <div class="stat-label">Monto Total</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_clientes|default:"—" }}</div>
+                <div class="stat-label">Clientes</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-calendar-check-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ ventas_mes|default:"—" }}</div>
+                <div class="stat-label">Ventas este mes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="form-card">
+        <div class="form-section-title">
+            <i class="bi bi-funnel-fill"></i>
+            Filtros
+        </div>
+
+        <form method="GET" id="filtroForm" action="{% url 'ventas:listar_venta' %}" novalidate autocomplete="off">
+            <input type="hidden" name="q" value="{{ query|default:'' }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-5">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="cliente_nombre">Cliente</label>
+                        <input
+                            type="text"
+                            name="cliente_nombre"
+                            id="cliente_nombre"
+                            class="form-control"
+                            placeholder="Escribe el nombre del cliente..."
+                            value="{{ cliente_nombre_filtro }}"
+                            list="lista_clientes"
+                            autocomplete="off">
+                        <datalist id="lista_clientes">
+                            {% for cliente in clientes %}
+                            <option value="{{ cliente.nombre }} {{ cliente.apellido }}"></option>
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="fecha_desde">Fecha desde</label>
+                        <input
+                            type="date"
+                            name="fecha_desde"
+                            id="fecha_desde"
+                            class="form-control"
+                            value="{{ fecha_desde_filtro }}">
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 d-flex justify-content-end gap-2">
+                    <a href="{% url 'ventas:listar_venta' %}" class="btn-cancelar">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                    <button type="submit" class="btn-guardar" name="filtrar" value="1">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-3 text-muted small">
+                Mostrando <strong>{{ resultados_filtrados }}</strong> resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla -->
+    <div class="clientes-table-container fadeInUp">
+        <div class="table-responsive">
+            <table class="clientes-table">
+                <thead>
+                    <tr>
+                        <th>Numero de Venta</th>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Cliente</th>
+                        <th>Domicilio</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="ventas-tbody" class="js-live-table">
+                    {% for venta in ventas %}
+                    <tr class="slideIn" data-search-row="1" data-search-text="#{{ venta.id }} {{ venta.cliente.nombre|default:'' }} {{ venta.cliente.apellido|default:'' }} {{ venta.cliente.documento|default:'' }} {{ venta.descripcion|default:'' }} {{ venta.fecha|date:'d/m/Y' }} {% if venta.con_domicilio %}con domicilio{% else %}sin domicilio{% endif %}">
+                        <td>
+                            <div class="cliente-avatar-wrapper">
+                                <div class="cliente-avatar-placeholder" aria-hidden="true">V</div>
+                                <div class="cliente-info">
+                                    <strong>#{{ venta.id }}</strong>
+                                    <small>{{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>{{ venta.fecha|date:'d/m/Y' }}</td>
+
+                        <td>{{ venta.descripcion|default:"Sin descripción"|truncatewords:8 }}</td>
+
+                        <td>
+                            {{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}
+                        </td>
+
+                        <td>
+                            {% if venta.con_domicilio %}
+                                <span class="badge bg-success">Sí</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end"><strong>${{ venta.total|floatformat:2|intcomma }}</strong></td>
+
+                        <td class="text-end">
+                            <div class="acciones-cliente-wrapper">
+                                <a
+                                    href="{% url 'ventas:detalle' venta.id %}"
+                                    class="btn-cliente-action btn-cliente-ver"
+                                    title="Ver"
+                                    aria-label="Ver venta">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'ventas:editar' venta.id %}"
+                                    class="btn-cliente-action btn-cliente-editar"
+                                    title="Editar"
+                                    aria-label="Editar venta">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'ventas:eliminar' venta.id %}"
+                                    class="btn-cliente-action btn-cliente-eliminar"
+                                    title="Eliminar"
+                                    aria-label="Eliminar venta">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr data-empty-server="1">
+                        <td colspan="7" class="empty-state">
+                            <i class="bi bi-cart-x"></i>
+                            <p>No se encontraron ventas con los filtros aplicados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<script src="{% static 'js/busqueda_catalogo.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.getElementById('search-form-ventas');
+    const clienteInput = document.getElementById('cliente_nombre');
+    const fechaInput = document.getElementById('fecha_desde');
+    const hiddenCliente = document.getElementById('search-cliente-nombre');
+    const hiddenFecha = document.getElementById('search-fecha-desde');
+
+    function syncSearchFilters() {
+        if (hiddenCliente && clienteInput) {
+            hiddenCliente.value = clienteInput.value || '';
+        }
+        if (hiddenFecha && fechaInput) {
+            hiddenFecha.value = fechaInput.value || '';
+        }
+    }
+
+    if (clienteInput) clienteInput.addEventListener('input', syncSearchFilters);
+    if (fechaInput) fechaInput.addEventListener('change', syncSearchFilters);
+    if (searchForm) searchForm.addEventListener('submit', syncSearchFilters);
+});
+</script>
+{% endblock %}

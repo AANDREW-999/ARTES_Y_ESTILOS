@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,13 +40,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'usuarios',
     'core',
+    'bootstrap5',
+    'catalogo',
     'proveedores',
     'clientes',
-    'bootstrap5',
     'accesibilidad',
     'compras',
+    'flor',      # ← must be here
+    'ventas',
+    'producto',
+    'categoria',
 ]
 
 MIDDLEWARE = [
@@ -127,7 +134,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # URLs de redirección después de login/logout
 LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
 LOGIN_REDIRECT_URL = 'core:dashboard'  # A dónde ir después de login exitoso
-LOGOUT_REDIRECT_URL = 'core:index'  # A dónde ir después de logout
+LOGOUT_REDIRECT_URL = 'core:landing'  # A dónde ir después de logout
 
 # Configuración de sesiones
 SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
@@ -144,4 +151,54 @@ AUTH_PASSWORD_VALIDATORS = [
         }
     },
 ]
+
+# Para ver correos en la terminal
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# ============================================================================
+# CONFIGURACIÓN DE EMAIL PARA RECUPERACIÓN DE CONTRASEÑA
+# ============================================================================
+
+# Backend de email: console (desarrollo) o smtp (producción)
+EMAIL_BACKEND_TYPE = config('EMAIL_BACKEND', default='console')
+
+if EMAIL_BACKEND_TYPE == 'smtp':
+    # MODO PRODUCCIÓN: Gmail SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+    DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=f'Arte & Estilos <{EMAIL_HOST_USER}>')
+    SERVER_EMAIL = EMAIL_HOST_USER
+else:
+    # MODO DESARROLLO: Emails se muestran en la consola
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
+    SERVER_EMAIL = 'noreply@arteyestilos.local'
+# ============================================================================
+# CONFIGURACIÓN DE EMAIL PARA RECUPERACIÓN DE CONTRASEÑA
+# ============================================================================
+
+# Backend de email: console (desarrollo) o smtp (producción)
+EMAIL_BACKEND_TYPE = config('EMAIL_BACKEND', default='console')
+
+if EMAIL_BACKEND_TYPE == 'smtp':
+    # MODO PRODUCCIÓN: Gmail SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+    DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=f'Arte & Estilos <{EMAIL_HOST_USER}>')
+    SERVER_EMAIL = EMAIL_HOST_USER
+else:
+    # MODO DESARROLLO: Emails se muestran en la consola
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
+    SERVER_EMAIL = 'noreply@arteyestilos.local'
+
+
 

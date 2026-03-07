@@ -1,0 +1,209 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Categoría{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Categoría</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="page-header-clientes fadeInUp">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-tag"></i> Gestión de Categorías
+            </h1>
+            <p>Gestiona las categorías para clasificar mejor el catálogo de Artes & Estilos.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <form action="{% url 'categoria:lista' %}" method="GET" class="js-search-form" novalidate>
+                <input type="hidden" name="estado" value="{{ estado_filtro|default:'' }}">
+                <div class="search-wrapper">
+                    <input type="text" id="search-live-categoria" name="q" value="{{ busqueda|default:'' }}"
+                           class="search-input js-live-search" data-target="#categoria-tbody"
+                           placeholder="Buscar por nombre o descripción..." autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+            <a href="{% url 'categoria:agregar' %}" class="btn-cliente-nuevo">
+                <i class="bi bi-plus-circle"></i> Crear categoría
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-tags-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_categorias }}</div>
+                <div class="stat-label">Total categorías</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_activas }}</div>
+                <div class="stat-label">Categorías activas</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-slash-circle-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_inactivas }}</div>
+                <div class="stat-label">Categorías inactivas</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_con_productos }}</div>
+                <div class="stat-label">Con productos asociados</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-section-title">
+            <i class="bi bi-funnel-fill"></i>
+            Filtros del listado
+        </div>
+
+        <form method="GET" action="{% url 'categoria:lista' %}" class="js-filter-form" novalidate autocomplete="off">
+            <input type="hidden" name="q" value="{{ busqueda|default:'' }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="filtro_estado_categoria">Estado</label>
+                        <select name="estado" id="filtro_estado_categoria" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="activo" {% if estado_filtro == 'activo' %}selected{% endif %}>Activo</option>
+                            <option value="inactivo" {% if estado_filtro == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="mt-3 text-muted small">
+                        Mostrando <strong>{{ resultados_filtrados }}</strong> resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
+                    </div>
+                </div>
+                <div class="col-12 col-md-8 d-flex justify-content-md-end gap-2">
+                    <a href="{% url 'categoria:lista' %}" class="btn-cancelar" title="Limpiar filtros" aria-label="Limpiar filtros">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                    <button type="submit" class="btn-guardar" title="Aplicar filtros" aria-label="Aplicar filtros">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="clientes-table-container fadeInUp" style="animation-delay: 0.2s;">
+        <div class="table-responsive">
+            <table class="clientes-table">
+                <thead>
+                    <tr>
+                        <th>NOMBRE</th>
+                        <th class="text-center">IMAGEN</th>
+                        <th>DESCRIPCIÓN</th>
+                        <th class="text-center">ESTADO</th>
+                        <th class="text-end">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody id="categoria-tbody" class="js-live-table">
+                    {% for c in categorias %}
+                    <tr class="slideIn" data-search-row="1" data-search-text="{{ c.nombre }} {{ c.descripcion|default:'' }} {% if c.activo %}activo{% else %}inactivo{% endif %}">
+                        <td>
+                            <span class="badge-cliente">{{ c.nombre }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if c.imagen %}
+                            <img src="{{ c.imagen.url }}"
+                            alt="{{ c.nombre }}"
+                            style="width:45px;height:45px;object-fit:cover;border-radius:50%;border:2px solid var(--border-color);">
+                            {% else %}
+                            <div style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#BF5486,#D9A7C2);display:inline-flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-image" style="color:white;font-size:.9rem;"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td style="color: var(--text-secondary);">{{ c.descripcion|default:'—' }}</td>
+                        <td class="text-center">
+                            {% if c.activo %}
+                                <span class="badge-stock badge-stock-high">
+                                    <i class="bi bi-circle-fill"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="badge-stock badge-stock-low">
+                                    <i class="bi bi-circle-fill"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="acciones-cliente-wrapper">
+                                <a
+                                    href="{% url 'categoria:detalle' c.id %}"
+                                    class="btn-cliente-action btn-cliente-ver"
+                                    title="Ver"
+                                    aria-label="Ver categoría">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            
+                                <a
+                                    href="{% url 'categoria:editar' c.id %}"
+                                    class="btn-cliente-action btn-cliente-editar"
+                                    title="Editar"
+                                    aria-label="Editar categoría">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'categoria:eliminar' c.id %}"
+                                    class="btn-cliente-action btn-cliente-eliminar"
+                                    title="Eliminar"
+                                    aria-label="Eliminar categoría">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr data-empty-server="1">
+                        <td colspan="5" class="empty-state">
+                            <i class="bi bi-tag"></i>
+                            <p>No se encontraron categorías{% if hay_filtros %} con los filtros aplicados{% endif %}.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/busqueda_catalogo.js' %}"></script>
+{% endblock %}

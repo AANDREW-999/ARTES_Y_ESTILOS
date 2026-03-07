@@ -1,0 +1,379 @@
+    /* ======================================== */
+    /* ESTILO UNIFICADO PARA TODOS LOS CAMPOS   */
+    /* ======================================== */
+    .form-control,
+    .form-select,
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+        background: var(--bg-secondary) !important;
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        color: var(--text-primary) !important;
+        padding: 0.65rem 0.9rem !important;
+        font-size: 0.9375rem !important;
+        transition: all 0.2s ease !important;
+        width: 100% !important;
+    }
+
+    .form-control:hover,
+    .form-select:hover,
+    input[type="text"]:hover,
+    input[type="email"]:hover,
+    input[type="tel"]:hover,
+    select:hover,
+    textarea:hover {
+        border-color: #BF5486 !important;
+    }
+
+    .form-control:focus,
+    .form-select:focus,
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #BF5486 !important;
+        box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18) !important;
+        background: var(--bg-card) !important;
+        outline: none !important;
+    }
+
+    html[data-theme="dark"] .form-control,
+    html[data-theme="dark"] .form-select,
+    html[data-theme="dark"] input[type="text"],
+    html[data-theme="dark"] input[type="email"],
+    html[data-theme="dark"] input[type="tel"],
+    html[data-theme="dark"] select,
+    html[data-theme="dark"] textarea {
+        background: rgba(20, 24, 51, 0.5) !important;
+        color: #fff !important;
+    }
+
+    html[data-theme="light"] .form-control,
+    html[data-theme="light"] .form-select,
+    html[data-theme="light"] input[type="text"],
+    html[data-theme="light"] input[type="email"],
+    html[data-theme="light"] input[type="tel"],
+    html[data-theme="light"] select,
+    html[data-theme="light"] textarea {
+        background: #ffffff !important;
+        color: #212529 !important;
+        border-color: #dee2e6 !important;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 0.375rem;
+    }
+
+    .field-label i {
+        color: #BF5486;
+        margin-right: 0.375rem;
+    }
+
+    .field-wrapper {
+        margin-bottom: 1rem;
+    }
+
+    /* ======================================== */
+    /* COLOR DE LA OPCIÓN POR DEFECTO           */
+    /* ======================================== */
+    #id_tipo_documento {
+        color: var(--text-primary) !important;
+    }
+
+    #id_tipo_documento option[value=""] {
+        color: var(--text-secondary) !important;
+        opacity: 0.8 !important;
+    }
+
+    #id_tipo_documento option:not([value=""]) {
+        color: var(--text-primary) !important;
+    }
+
+    html[data-theme="light"] #id_tipo_documento {
+        color: #212529 !important;
+    }
+
+    html[data-theme="light"] #id_tipo_documento option[value=""] {
+        color: #6c757d !important;
+        opacity: 1 !important;
+    }
+
+
+    /* ========================================================================================================== */
+    /* ANIMACIONES NUEVAS Y MEJORADAS           */
+    /* ========================================================================================================== */
+
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        25% { transform: scale(1.15); }
+        50% { transform: scale(1); }
+        75% { transform: scale(1.08); }
+    }
+
+    @keyframes shakeWarning {
+        0%, 100% { transform: translateX(0); }
+        15%, 45%, 75% { transform: translateX(-8px); }
+        30%, 60%, 90% { transform: translateX(8px); }
+    }
+
+    @keyframes pulseIcon {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    @keyframes glowText {
+        0%, 100% { text-shadow: 0 0 5px rgba(220, 53, 69, 0.3); }
+        50% { text-shadow: 0 0 20px rgba(220, 53, 69, 0.6); }
+    }
+
+    @keyframes slideUpScale {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes floatIcon {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+
+    @keyframes pulseAvatar {
+        0%, 100% { box-shadow: 0 0 10px rgba(191, 84, 134, 0.3); }
+        50% { box-shadow: 0 0 25px rgba(191, 84, 134, 0.7); }
+    }
+
+    @keyframes rotateIcon {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* ======================================== */
+    /* CLASES DE ANIMACIÓN                       */
+    /* ======================================== */
+
+    .heartbeat {
+        animation: heartbeat 2s ease infinite;
+    }
+
+    .shakeWarning {
+        animation: shakeWarning 0.6s ease;
+    }
+
+    .pulseIcon {
+        animation: pulseIcon 1.5s ease infinite;
+    }
+
+    .glowText {
+        animation: glowText 2s ease infinite;
+    }
+
+    .slideUpScale {
+        animation: slideUpScale 0.5s ease;
+    }
+
+    .floatIcon {
+        animation: floatIcon 3s ease infinite;
+    }
+
+    .pulseAvatar {
+        animation: pulseAvatar 2s ease infinite;
+    }
+
+    .fadeIn {
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* ======================================== */
+    /* ESTILOS PARA TARJETAS (MÁS VIVAS)        */
+    /* ======================================== */
+
+    .tarjetaAnimada {
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: default;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tarjetaDanger {
+        background: rgba(220,53,69,0.05);
+        border: 1px solid rgba(220,53,69,0.1);
+    }
+
+    .tarjetaWarning {
+        background: rgba(255,193,7,0.05);
+        border: 1px solid rgba(255,193,7,0.1);
+    }
+
+    .tarjetaSecondary {
+        background: rgba(108,117,125,0.05);
+        border: 1px solid rgba(108,117,125,0.1);
+    }
+
+    .tarjetaAnimada:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .tarjetaDanger:hover {
+        background: rgba(220,53,69,0.12);
+        border-color: #dc3545;
+    }
+
+    .tarjetaWarning:hover {
+        background: rgba(255,193,7,0.12);
+        border-color: #ffc107;
+    }
+
+    .tarjetaSecondary:hover {
+        background: rgba(108,117,125,0.12);
+        border-color: #6c757d;
+    }
+
+    .iconoAnimado {
+        font-size: 2rem;
+        transition: all 0.3s ease;
+        animation: floatIcon 3s ease infinite;
+    }
+
+    .tarjetaAnimada:hover .iconoAnimado {
+        transform: scale(1.2) rotate(5deg);
+        animation: none;
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .tarjetaDanger:hover .iconoAnimado {
+        color: #dc3545 !important;
+    }
+
+    .tarjetaWarning:hover .iconoAnimado {
+        color: #ffc107 !important;
+    }
+
+    .tarjetaSecondary:hover .iconoAnimado {
+        color: #6c757d !important;
+    }
+
+    /* ======================================== */
+    /* BOTONES MEJORADOS                         */
+    /* ======================================== */
+
+    .botonCancelar {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .botonCancelar:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+        border-color: #BF5486;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .botonEliminar {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+    }
+
+    .botonEliminar:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(220,53,69,0.5);
+        background: #c82333;
+    }
+
+    .botonEliminar i {
+        transition: all 0.3s ease;
+    }
+
+    .botonEliminar:hover i {
+        animation: heartbeat 1s ease infinite;
+    }
+
+    /* ======================================== */
+    /* ANIMACIONES ORIGINALES (CONSERVADAS)     */
+    /* ======================================== */
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Clases de animación originales */
+    .fadeInUp { animation: fadeInUp 0.5s ease; }
+    .slideInLeft { animation: slideInLeft 0.5s ease; }
+    .scaleIn { animation: scaleIn 0.3s ease; }
+    .shake { animation: shake 0.5s ease; }
+    .float { animation: float 3s ease infinite; }
+
+    /* Hover effects para tarjetas (original) */
+    .col-md-4 > div:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }

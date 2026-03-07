@@ -1,0 +1,8 @@
+Hola {{ nombre }},
+
+Tu cuenta ha sido activada en el panel administrativo de Artes y Estilos.
+Ya puedes iniciar sesion con tu usuario y contrasena.
+
+Si consideras que esto es un error, contacta al equipo de administracion.
+
+Artes y Estilos

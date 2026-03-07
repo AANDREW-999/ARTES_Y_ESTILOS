@@ -5,6 +5,7 @@
 *.log
 *.pot
 *.pyc
+*.md
 __pycache__/
 local_settings.py
 db.sqlite3
@@ -13,6 +14,12 @@ media
 data/
 staticfiles/
 
+### Python Testing ###
+test_email_config.py
+
+### Html Testin ###
+demo_tema.html
+demo_indicador_premium.html
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
@@ -51,6 +58,7 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+.hintrc
 
 # Installer logs
 pip-log.txt

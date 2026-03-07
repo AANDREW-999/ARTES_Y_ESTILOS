@@ -1,55 +1,27 @@
 {% extends "master.html" %}
 {% load static %}
+{% load humanize %}
 
 
 
 {% block title %}Inicio · Arte & Estilos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/styles.css' %}?v=20260203">
+<link rel="stylesheet" href="{% static 'css/components.css' %}?v=20260306">
 {% endblock %}
 
 {% block content %}
-<section class="hero-section">
+<section id="hero" class="py-5">
   <div class="container">
     <div class="row align-items-start g-4">
       <!-- Columna izquierda: encabezado + carrusel -->
       <div class="col-lg-7 reveal-left">
         <div class="mb-3">
-          <h1 class="display-6 fw-bold mb-2">Bienvenidos a <span class="acento">Arte & Estilos</span></h1>
+          <h1 class="fw-bold title-floral">Bienvenidos a <span class="acento">Arte & Estilos</span></h1>
           <p class="lead">Arreglos florales con amor, elegancia y detalles que inspiran</p>
         </div>
-        <div id="carouselAye" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselAye" data-bs-slide-to="0" class="active" aria-current="true" aria-label="1"></button>
-            <button type="button" data-bs-target="#carouselAye" data-bs-slide-to="1" aria-label="2"></button>
-            <button type="button" data-bs-target="#carouselAye" data-bs-slide-to="2" aria-label="3"></button>
-            <button type="button" data-bs-target="#carouselAye" data-bs-slide-to="3" aria-label="4"></button>
-            <button type="button" data-bs-target="#carouselAye" data-bs-slide-to="4" aria-label="5"></button>
-            <button type="button" data-bs-target="#carouselAye" data-bs-slide-to="5" aria-label="6"></button>
-            <button type="button" data-bs-target="#carouselAye" data-bs-slide-to="6" aria-label="7"></button>
-          </div>
-          <div class="carousel-inner rounded-4 shadow-sm">
-            <div class="carousel-item active"><img src="{% static 'core/img/ArregloRosas.png' %}" alt="Arreglo de rosas"></div>
-            <div class="carousel-item"><img src="{% static 'core/img/ArregloRosasClaras.png' %}" alt="Arreglo de rosas claras"></div>
-            <div class="carousel-item"><img src="{% static 'core/img/ArregloFloresAmarillas.png' %}" alt="Flores amarillas"></div>
-            <div class="carousel-item"><img src="{% static 'core/img/ArregloRosasGlobo.png' %}" alt="Rosas con globo"></div>
-            <div class="carousel-item"><img src="{% static 'core/img/ArregloRosasChocolate.png' %}" alt="Rosas y chocolate"></div>
-            <div class="carousel-item"><img src="{% static 'core/img/ArregloGirasolesFlores.png' %}" alt="Girasoles y flores"></div>
-            <div class="carousel-item"><img src="{% static 'core/img/ArregloPeluches.png' %}" alt="Arreglo con peluche"></div>
-          </div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#carouselAye" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Anterior</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carouselAye" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Siguiente</span>
-          </button>
-        </div>
-        <div class="mt-3 d-flex gap-2">
-          <a href="{% url 'core:productos' %}" class="btn btn-rosa">Ver productos</a>
-          <a href="{% url 'core:contactanos' %}" class="btn btn-vino">Contáctanos</a>
+        <div class="hero-media rounded-4 shadow-sm">
+          <img src="{% static 'core/img/LogotipoArtesEstilos.png' %}?v=20260305" alt="Logotipo de Arte & Estilos" loading="eager">
         </div>
       </div>
 
@@ -84,13 +56,279 @@
               </div>
             </div>
           </div>
+          <div class="card card-floral feature-card border-0">
+            <div class="card-body d-flex align-items-center gap-3">
+              <i class="bi bi-award fs-3" style="color: var(--rosa-intenso);"></i>
+              <div>
+                <h5 class="card-title mb-1">Experiencia floral</h5>
+                <p class="card-text mb-0">Mas de 25 años creando arreglos que celebran momentos en Boyaca.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card card-floral feature-card border-0">
+            <div class="card-body d-flex align-items-center gap-3">
+              <i class="bi bi-emoji-smile fs-3" style="color: var(--vino-oscuro);"></i>
+              <div>
+                <h5 class="card-title mb-1">Satisfaccion regional</h5>
+                <p class="card-text mb-0">Clientes felices nos reconocen como una de las mejores floristerias de Boyaca.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 d-flex gap-2 hero-actions">
+            <a href="#catalogo" class="btn btn-rosa">Ver productos</a>
+            <a href="#contacto" class="btn btn-vino">Contáctanos</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+ <section id="catalogo" class="py-5 catalogo-section">
+    <div class="container">
+    <div class="row mb-4 align-items-end g-3">
+      <div class="col-lg-7">
+        <h1 class="fw-bold title-floral">Nuestro <span class="acento">Catálogo Floral 🌸</span></h1>
+        <p class="text-muted">Descubre arreglos diseñados para enamorar, sorprender y emocionar 💖</p>
+      </div>
+
+        <div class="row g-4 catalogo-grid">
+          <div class="col-12">
+              <h2 class="fw-bold title-floral mb-4" style="color: #5d4037;">Cada arreglo cuenta una historia… ¿Cuál quieres regalar hoy? 🌹✨</h2>
+          </div>
+            <div class="col-lg-5">
+              <form method="get" action="{% url 'core:landing' %}#catalogo" class="d-flex justify-content-lg-end">
+                {% if busqueda %}
+                  <input type="hidden" name="busqueda" value="{{ busqueda }}">
+                {% endif %}
+
+                <div class="dropdown w-100 w-lg-auto">
+                  <button class="btn btn-rosa dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if categoria_seleccionada %}
+                      {{ categoria_seleccionada.nombre }}
+                    {% else %}
+                      Filtrar por categoría
+                    {% endif %}
+                  </button>
+
+                  <ul class="dropdown-menu dropdown-menu-end w-100" style="max-height: 360px; overflow:auto;">
+                    <li>
+                      <button class="dropdown-item" type="submit" name="categoria" value="">
+                        Todas las categorías
+                      </button>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+
+                    {% for c in categorias %}
+                    <li>
+                      <button class="dropdown-item d-flex align-items-center gap-2" type="submit" name="categoria" value="{{ c.id }}">
+                        {% if c.imagen %}
+                          <img src="{{ c.imagen.url }}" alt="" aria-hidden="true"
+                            style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+                        {% else %}
+                          <i class="bi bi-tag" aria-hidden="true" style="color: var(--rosa-intenso);"></i>
+                        {% endif %}
+                        <span>{{ c.nombre }}</span>
+                      </button>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </form>
+            </div>
+          </div>
+
+            {% for p in productos %}
+            <div class="col-12 col-sm-6 col-lg-4 reveal">
+              <div class="card card-floral border-0 shadow-sm catalogo-card">
+                    
+                    {% if p.imagen %}
+                        <div class="card-img-container">
+                            <img src="{{ p.imagen.url }}" class="card-img-top" alt="{{ p.nombre }}">
+                        </div>
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="bi bi-image text-muted fs-1"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="card-body p-4">
+                        <div class="catalogo-head mb-2">
+                          <h5 class="card-title mb-0">{{ p.nombre }}</h5>
+                          <span class="catalogo-categoria-badge">
+                            <i class="bi bi-tag-fill" aria-hidden="true"></i>
+                            {% if p.categoria %}{{ p.categoria.nombre }}{% else %}Sin categoría{% endif %}
+                          </span>
+                        </div>
+
+                        <div class="catalogo-rating mb-3" aria-label="Calificación 5 de 5">
+                          <i class="bi bi-star-fill"></i>
+                          <i class="bi bi-star-fill"></i>
+                          <i class="bi bi-star-fill"></i>
+                          <i class="bi bi-star-fill"></i>
+                          <i class="bi bi-star-fill"></i>
+                        </div>
+
+                        <p class="card-text small mb-4 catalogo-desc">
+                          {{ p.descripcion|default:'Un bello detalle pensado para sorprender en cualquier ocasión, Con Amor "Floristeria Artes & Estilos". 🌹✨' }}
+                        </p>
+                          
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="fw-bold fs-4" style="color: #5d4037;">${{ p.precio|floatformat:2|intcomma }}</span>
+                            
+                            <a href="{% url 'catalogo:detalle_producto' p.id %}" class="btn btn-rosa shadow-sm">
+                                Ver detalles 🔍
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+              {% if categoria_seleccionada %}
+                <h4 class="text-muted">No hay arreglos en la categoría "{{ categoria_seleccionada.nombre }}".</h4>
+              {% else %}
+                <h4 class="text-muted">Aún no hay arreglos en el catálogo.</h4>
+              {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="contacto" class="py-5">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-6 reveal-left">
+        <h1 class="fw-bold title-floral">Contáctanos</h1>
+        <p class="text-muted mb-3">Estamos aquí para ayudarte a expresar emociones con flores frescas y diseños únicos.</p>
+        <div class="card card-floral border-0">
+          <div class="card-body">
+            <form method="POST">
+              {% csrf_token %}
+
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+              {% endif %}
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="{{ form.nombre.id_for_label }}">Nombre</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                  <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="{{ form.mensaje.id_for_label }}">Mensaje</label>
+                {{ form.mensaje }}
+                {% if form.mensaje.errors %}
+                  <div class="text-danger small mt-1">{{ form.mensaje.errors }}</div>
+                {% endif %}
+              </div>
+
+              <hr>
+
+              <button type="submit" class="btn btn-rosa w-100">
+                Enviar mensaje 💌
+              </button>
+                <div class="mt-4">
+                  <h6 class="fw-bold">También en redes</h6>
+                <p class="mb-3">Instagram, Facebook y WhatsApp, ¡te esperamos!</p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal-right">
+        <div class="section-card">
+          <h5 class="fw-bold mb-3">Información</h5>
+          <ul class="list-unstyled d-grid gap-2">
+            <li><i class="bi bi-geo-alt-fill" style="color: var(--rosa-intenso);"></i> Cra 10 # 9 - 47, Sogamoso</li>
+            <li><i class="bi bi-telephone-fill" style="color: var(--rosa-intenso);"></i> +57 310 584 4207</li>
+            <li><i class="bi bi-envelope-fill" style="color: var(--rosa-intenso);"></i> arteyestilos.test@gmail.com</li>
+            <div class="mt-4">
+              <h6 class="fw-bold">Encuéntranos</h6>
+              <p class="mb-3">En nuestras redes sociales.</p>
+            <a href="https://api.whatsapp.com/send?phone=%2B573217195520" target="_blank" rel="noopener" class="social-link btn-social whatsapp" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+            <a href="https://www.facebook.com/ArteyEstilosFloristeria/about" target="_blank" rel="noopener" class="social-link btn-social facebook" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="https://www.instagram.com/floristeriaarteyestilos_soga" target="_blank" rel="noopener" class="social-link btn-social instagram" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          </ul>
+          <hr>
+          <div class="ratio ratio-16x9">
+            <iframe title="Ubicación" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+<section id="sobre" class="py-5">
+  <div class="container reveal">
+    <!-- Encabezado descriptivo -->
+    <div class="row mb-4 align-items-center">
+      <div class="col-12">
+        <h1 class="fw-bold title-floral">Sobre <span class="acento">Nosotros</span>
+          <img src="{% static 'img/FaviconAE.png' %}" alt="pétalo" class="title-petal" aria-hidden="true">
+        </h1>
+        <p class="text-muted mb-0">En <strong>Floristería Arte & Estilos</strong> tenemos <strong>25 años de experiencia</strong> creando arreglos florales para toda ocasión. Es nuestro <strong>emblema</strong>: trabajar con amor por lo que hacemos, la <strong>dedicación</strong> en cada detalle y el <strong>buen gusto</strong> en cada diseño. Aquí encontrarás <strong>flores</strong>, <strong>chocolates</strong> y detalles especiales que acompañan tus momentos importantes. Estamos ubicados en <strong>Cra 10 # 9 - 47, Sogamoso</strong>, transformando sentimientos en diseños que <strong>enamoran</strong>.</p>
+      </div>
+    </div>
+
+    <!-- Misión y Visión sin imágenes internas -->
+    <div class="row g-4">
+      <div class="col-lg-6 reveal-left">
+        <div class="ribbon-card h-100">
+          <div class="ribbon r-vision">
+            <h3 class="ribbon-title">Visión</h3>
+          </div>
+          <div class="ribbon-body">
+            <p>
+              Ser una floristería reconocida por la calidad de su trabajo, el buen gusto en cada diseño y la confianza construida con nuestros clientes,
+              creciendo como una empresa sólida y familiar, y convirtiéndonos en una opción preferida para celebrar y expresar emociones a través de las flores.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 reveal-right">
+        <div class="ribbon-card h-100">
+          <div class="ribbon r-mision">
+            <h3 class="ribbon-title">Misión</h3>
+          </div>
+          <div class="ribbon-body">
+            <p>
+              En Floristería Arte & Estilos creamos arreglos florales que comunican sentimientos y acompañan momentos importantes. Trabajamos con flores frescas,
+              diseño cuidadoso y dedicación en cada detalle, brindando una atención cercana y responsable, comprometida con la calidad y la satisfacción de nuestros clientes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa de Google -->
+    <div class="row mt-5">
+      <div class="col-12 reveal">
+        <h2 class="fw-bold title-floral">Encuéntranos</h2>
+        <div class="section-card p-0 overflow-hidden">
+          <iframe title="Mapa Floristería" src="https://www.google.com/maps?q=Cra%2010%20%23%209%20-%2047,%20Sogamoso&output=embed" width="100%" height="360" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/main.js' %}"></script>
+<script src="{% static 'js/landing.js' %}" defer></script>
 {% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'catalogo:gestion_productos' %}">Catálogo</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Agregar</li>
+            </ol>
+        </nav>
+    </div>
+
+<div class="page-header-catalogo">
+    <div class="page-header-info">
+        <h1><i class="bi bi-plus-circle-fill"></i> Registrar Nuevo Producto</h1>
+        <p>Complete la información del producto.</p>
+    </div>
+</div>
+
+<form id="product-form" action="{% url 'catalogo:agregar_producto' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" id="cropped-image-data" name="cropped_image_data">
+
+    <div class="form-card">
+        <h2 class="form-section-title">
+            <i class="bi bi-info-circle"></i> Datos del Producto
+        </h2>
+        <div class="row g-4">
+
+            <!-- Nombre -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-type"></i> Nombre del Producto</label>
+                    <input type="text" name="nombre" class="field-input"
+                           placeholder="Ej. Ramo de Rosas" required autocomplete="off">
+                    <span class="field-error" id="nombre-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Categoría -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-grid"></i> Categoría</label>
+                    <select name="categoria" class="field-input field-input-select" required>
+                        <option value="" selected disabled>Seleccione una categoría...</option>
+                        {% for c in categorias_list %}
+                        <option value="{{ c.id }}">{{ c.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="field-error" id="categoria-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Precio -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-currency-dollar"></i> Precio</label>
+                    <input type="text" id="precio-display" class="field-input"
+                           placeholder="0" inputmode="numeric" autocomplete="off">
+                    <input type="hidden" name="precio" id="precio-real">
+                    <span class="field-error" id="precio-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tamaño -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-rulers"></i> Tamaño</label>
+                    <select name="tamano" class="field-input field-input-select">
+                        <option value="Pequeño">Pequeño</option>
+                        <option value="Mediano">Mediano</option>
+                        <option value="Grande">Grande</option>
+                    </select>
+                    <span class="field-error" id="tamano-error" style="display:none;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Activo -->
+            <div class="col-md-6">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-toggle-on"></i> Estado</label>
+                    <div class="form-check form-switch" style="padding-left: 2.5rem;">
+                        <input class="form-check-input" type="checkbox" role="switch" id="id_activo" name="activo" checked>
+                        <label class="form-check-label" for="id_activo" style="color: var(--text-secondary);">
+                            Activo (visible en el sitio)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Imagen + Cropper -->
+            <div class="col-12">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-image"></i> Imagen</label>
+                    <input type="file" id="image-input" name="imagen"
+                           class="field-input" accept="image/*">
+                    <p class="cropper-hint">
+                        <i class="bi bi-info-circle"></i>
+                        Al seleccionar una imagen podrás recortarla antes de guardar.
+                    </p>
+                    <div class="cropper-section" id="cropper-wrapper">
+                        <img id="image-preview" src="" alt="Vista previa">
+                        <div class="cropper-toolbar">
+                            <button type="button" class="btn-crop-action" id="btn-rotate-left">
+                                <i class="bi bi-arrow-counterclockwise"></i> Rotar
+                            </button>
+                            <button type="button" class="btn-crop-action" id="btn-rotate-right">
+                                <i class="bi bi-arrow-clockwise"></i> Rotar
+                            </button>
+                            <button type="button" class="btn-crop-action" id="btn-flip-h">
+                                <i class="bi bi-symmetry-vertical"></i> Voltear H
+                            </button>
+                            <button type="button" class="btn-crop-action" id="btn-flip-v">
+                                <i class="bi bi-symmetry-horizontal"></i> Voltear V
+                            </button>
+                            <div class="crop-preview-box" id="crop-preview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descripción -->
+            <div class="col-12">
+                <div class="field-wrapper">
+                    <label class="field-label"><i class="bi bi-text-paragraph"></i> Descripción</label>
+                    <textarea name="descripcion" class="field-input field-input-textarea"
+                              rows="3" placeholder="Descripción del producto..."></textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 justify-content-end mb-4">
+        <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancelar">
+            <i class="bi bi-x-lg"></i> Cancelar
+        </a>
+        <button type="submit" class="btn-guardar">
+            <i class="bi bi-floppy"></i> Guardar Producto
+        </button>
+    </div>
+</form>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="{% static 'js/cropper_producto.js' %}"></script>
+<script src="{% static 'js/precio_formato.js' %}"></script>
+{% endblock %}

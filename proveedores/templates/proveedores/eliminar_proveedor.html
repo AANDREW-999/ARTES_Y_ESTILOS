@@ -1,30 +1,95 @@
-{% extends 'core/panel_admin_base.html' %}
+{% extends 'panel_admin_base.html' %}
 {% load static %}
 
 {% block title %}Eliminar Proveedor{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
+<div class="container-fluid py-4">
 
-<div class="card shadow col-md-6 mx-auto text-center">
-    <div class="card-body">
-        <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
-        <h4 class="mt-3">¿Eliminar proveedor?</h4>
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'proveedores:listar' %}">Proveedores</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+            </ol>
+        </nav>
+    </div>
 
-        <p class="fw-bold">{{ proveedor.nombre_proveedor }}</p>
-        <p class="text-muted">{{ proveedor.correo_electronico }}</p>
+    <div class="confirmation-card scaleIn">
+        <div class="confirmation-icon confirmation-icon-danger heartbeat" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <div class="confirmation-title glowText">¿Eliminar proveedor?</div>
+
+        <div class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-4 shakeWarning"
+             style="background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.2); border-radius: 12px;">
+            <i class="bi bi-exclamation-triangle-fill text-danger fs-4 pulseIcon"></i>
+            <div class="text-danger">
+                <strong>ATENCION:</strong> Esta accion es permanente y no se puede deshacer.
+            </div>
+        </div>
+
+        <div class="user-info-box slideInUp">
+            <div class="user-info-avatar-placeholder pulseAvatar" aria-hidden="true">
+                {{ proveedor.nombre_proveedor|first|upper }}
+            </div>
+            <div>
+                <div class="fw-bold" style="color: var(--text-primary);">{{ proveedor.nombre_proveedor }}</div>
+                <div style="color: var(--text-secondary);">{{ proveedor.correo_electronico }}</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="p-3 text-center tarjetaAnimada tarjetaDanger" style="animation: slideUpScale 0.5s ease 0.2s both;">
+                    <i class="bi bi-x-circle-fill text-danger mb-2 iconoAnimado"></i>
+                    <p class="mb-0 fw-bold">Eliminacion</p>
+                    <p class="mb-0 small text-danger">permanente</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 text-center tarjetaAnimada tarjetaWarning" style="animation: slideUpScale 0.5s ease 0.3s both;">
+                    <i class="bi bi-truck text-warning mb-2 iconoAnimado"></i>
+                    <p class="mb-0 fw-bold">Proveedor</p>
+                    <p class="mb-0 small text-warning">eliminado</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 text-center tarjetaAnimada tarjetaSecondary" style="animation: slideUpScale 0.5s ease 0.4s both;">
+                    <i class="bi bi-arrow-counterclockwise text-secondary mb-2 iconoAnimado"></i>
+                    <p class="mb-0 fw-bold">No se puede</p>
+                    <p class="mb-0 small text-secondary">deshacer</p>
+                </div>
+            </div>
+        </div>
 
         <form method="post">
             {% csrf_token %}
-            <button class="btn btn-danger">
-                <i class="bi bi-trash"></i> Eliminar
-            </button>
-            <a href="{% url 'proveedores:listar' %}" class="btn btn-secondary">
-                Cancelar
-            </a>
+            <div class="d-flex justify-content-center gap-3" style="animation: fadeIn 0.5s ease 0.5s both;">
+                <a href="{% url 'proveedores:listar' %}" class="btn botonCancelar px-4 py-2">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn botonEliminar px-4 py-2">
+                    <i class="bi bi-trash"></i> Eliminar permanentemente
+                </button>
+            </div>
         </form>
     </div>
-</div>
 
 </div>
 {% endblock %}

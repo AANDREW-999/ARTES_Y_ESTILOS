@@ -1,9 +1,9 @@
 :root {
-    --floral-brown: #BF5486;
+    --floral-brown: #e42980;
     --floral-pink:  #83232b;
-    --floral-mauve: #eb6152;
-    --floral-yellow: #f312e8;
-    --floral-cream: #d15d9b;
+    --floral-mauve:  hsl(332, 63%, 31%);
+    --floral-yellow:  #912b5b;
+    --floral-cream:  #701e44;
 }
 
 /* Wrapper para aislar filtros - afecta solo al contenido, NO al widget */
@@ -18,14 +18,14 @@
     right: 30px !important;
     width: 70px !important;
     height: 70px !important;
-    background: linear-gradient(135deg, var(--floral-pink) 0%, var(--floral-mauve) 100%) !important;
+    background: linear-gradient(135deg, #eb76db 0%, #cc7be0 100%) !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
     z-index: 999999 !important;
-    box-shadow: 0 8px 25px rgba(191, 84, 148, 0.4) !important;
+    box-shadow: 0 8px 25px rgba(231, 56, 161, 0.4) !important;
     transition: all 0.4s ease !important;
     border: 3px solid var(--floral-cream) !important;
 }
@@ -55,12 +55,12 @@
     right: 120px !important;
     bottom: 30px !important;
     width: 400px !important;
-    background: linear-gradient(180deg, var(--floral-cream) 0%, #ffffff 100%) !important;
+    background: linear-gradient(180deg, #e5d4f1 0%, #f5f0fa 100%) !important;
     border-radius: 30px !important;
     padding: 30px !important;
     z-index: 999998 !important;
-    box-shadow: 0 15px 50px rgba(89, 40, 44, 0.2) !important;
-    border: 3px solid var(--floral-mauve) !important;
+    box-shadow: 0 15px 50px rgba(141, 57, 130, 0.2) !important;
+    border: 3px solid #cc7be0 !important;
     animation: floatIn 0.4s ease-out;
 }
 
@@ -76,13 +76,13 @@
 
 .panel-icon {
     font-size: 1.5rem;
-    color: var(--floral-pink);
+    color: #eb6eda;
 }
 
 .panel-title {
     margin: 0;
     font-family: 'Georgia', serif;
-    color: var(--floral-brown);
+    color: #8d3982 !important;
     font-size: 1.4rem;
     letter-spacing: 1px;
 }
@@ -151,34 +151,34 @@
 }
 
 .floral-btn.color-1 {
-    background: linear-gradient(135deg, var(--floral-brown) 0%, #ca5555 100%);
-    color: white;
+    background: linear-gradient(135deg, #d455c3 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-2 {
-    background: linear-gradient(135deg, var(--floral-pink) 0%, #d56ea8 100%);
-    color: white;
+    background: linear-gradient(135deg, #e45cd2 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-3 {
-    background: linear-gradient(135deg, var(--floral-mauve) 0%, #e5bdd6 100%);
-    color: var(--floral-brown);
+    background: linear-gradient(135deg, #d45cc4 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-4 {
-    background: linear-gradient(135deg, var(--floral-yellow) 0%, #e0e48e 100%);
-    color: var(--floral-brown);
+    background: linear-gradient(135deg, #da60c9 0%, #cc7be0 100%);
+    color: white !important;
 }
 
 .floral-btn.color-5 {
-    background: linear-gradient(135deg, var(--floral-cream) 0%, #fff5eb 100%);
-    color: var(--floral-brown);
-    border: 2px solid var(--floral-mauve);
+    background: linear-gradient(135deg, #db5aca 0%, #cc7be0 100%);
+    color: white !important;
+    border: 2px solid #d655c5;
 }
 
 .floral-btn.reset-btn {
     background: linear-gradient(135deg, #8d3982 0%, #cc7be0 100%);
-    color: white;
+    color: white !important;
     grid-column: 1 / -1;
 }
 
@@ -219,6 +219,7 @@
 /* Menú desplegable de daltonismo */
 .color-blind-btn-wrapper {
     position: relative;
+     display: contents;
 }
 
 .color-blind-menu {
@@ -243,7 +244,7 @@
     border-radius: 10px;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    color: var(--floral-brown);
+    color: rgb(255, 255, 255) !important;
     gap: 10px;
 }
 
@@ -274,7 +275,6 @@
     pointer-events: none;
 }
 
-/* EFECTOS DE ACCESIBILIDAD */
 
 /* Alto contraste */
 #accessibility-content-wrapper.high-contrast-mode {
@@ -284,7 +284,7 @@
 
 #accessibility-content-wrapper.high-contrast-mode *:not(.acc-opt):not(.acc-opt *):not(.minegate-acc-trigger):not(.minegate-acc-trigger *) {
     background-color: #000 !important;
-    color: #fff !important;
+    color: #f5f1f1 !important;
     border-color: #fff !important;
 }
 

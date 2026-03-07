@@ -1,0 +1,1818 @@
+/* ==========================================
+   🌸 PANEL ADMIN - ESTILO FINANCIERO MODERNO
+   Inspirado en el ejemplo con paleta floristería
+   ========================================== */
+
+:root {
+    /* Paleta de la Floristería */
+    --vino-oscuro: #59282C;
+    --rosa-intenso: #BF5486;
+    --rosa-suave: #D9A7C2;
+    --verde-claro: #D6D97E;
+    --beige-claro: #F2E7DC;
+
+    /* Colores del sistema (modo claro por defecto) */
+    --bg-primary: #0a0e27;
+    --bg-secondary: #141833;
+    --bg-card: #1a1f3a;
+    --bg-hover: #252a4a;
+    --text-primary: #ffffff;
+    --text-secondary: #8b92b0;
+    --border-color: rgba(139, 146, 176, 0.1);
+
+    /* Dimensiones */
+    /* Desktop (expandido/colapsado) */
+    --sidebar-width: 260px;
+    --sidebar-width-collapsed: 70px;
+    --topbar-height: 70px;
+
+    /* Sombras */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    /* Transiciones */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   LAYOUT BASE
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+.dashboard-body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    line-height: 1.6;
+    min-height: 100%;
+}
+
+/* ==========================================
+   🎨 SIDEBAR MINIMALISTA
+   ========================================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    transition: var(--transition);
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Resizer (arrastrar para ajustar ancho) */
+.sidebar-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    background: transparent;
+    z-index: 1100;
+}
+
+.sidebar-resizer::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    right: 3px;
+    width: 2px;
+    border-radius: 2px;
+    background: transparent;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.sidebar:hover .sidebar-resizer::after {
+    opacity: 0;
+}
+
+.sidebar.collapsed .sidebar-resizer {
+    display: none;
+}
+
+/* Durante el drag: sin transiciones y evitar selección de texto */
+body.sidebar-resizing {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body.sidebar-resizing .sidebar,
+body.sidebar-resizing .main-content {
+    transition: none !important;
+}
+
+/* ==========================================
+   🧩 SIDEBAR COLAPSABLE (SaaS / VSCode-like)
+   - `.sidebar.collapsed`
+   - `.main-content.collapsed`
+   ========================================== */
+.sidebar.collapsed {
+    width: var(--sidebar-width-collapsed);
+}
+
+.sidebar.collapsed .sidebar-header {
+    padding: 1rem 0;
+}
+
+.sidebar.collapsed .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.sidebar.collapsed .user-name,
+.sidebar.collapsed .user-role,
+.sidebar.collapsed .divider {
+    display: none;
+}
+
+.sidebar.collapsed .nav-header {
+    display: none;
+}
+
+.sidebar.collapsed .nav-item {
+    margin: 0.25rem 0.5rem;
+}
+
+.sidebar.collapsed .nav-link {
+    /* Bootstrap `.justify-content-between` usa `!important`, por eso aquí también */
+    justify-content: center !important;
+    gap: 0 !important;
+    padding: 0.75rem 0.5rem;
+}
+
+.sidebar.collapsed .nav-link > i:not(.bi-chevron-down):not(.bi-chevron-right) {
+    margin-right: 0 !important;
+    width: 24px;
+}
+
+.sidebar.collapsed .nav-link span {
+    display: none;
+}
+
+.sidebar.collapsed .nav-link .bi-chevron-down,
+.sidebar.collapsed .nav-link .bi-chevron-right {
+    display: none;
+}
+
+.sidebar.collapsed .collapse {
+    display: none !important;
+}
+
+/* Desktop: los submenús del sidebar NO se renderizan abajo (solo flyout a la derecha) */
+@media (min-width: 769px) {
+    .sidebar .collapse {
+        display: none !important;
+    }
+}
+
+/* Quitar la línea vertical de submenús (Bootstrap `border-start`) */
+.sidebar .border-start {
+    border-left: 0 !important;
+}
+
+/* Flyout: quitar línea/indentación heredada del `<ul class="ms-3 border-start ps-2 mt-1">` */
+.sidebar-flyout .border-start {
+    border-left: 0 !important;
+}
+
+.sidebar-flyout .ms-3 {
+    margin-left: 0 !important;
+}
+
+.sidebar-flyout .ps-2 {
+    padding-left: 0 !important;
+}
+
+.sidebar-flyout .mt-1 {
+    margin-top: 0 !important;
+}
+
+/* ==========================================
+   🌸 SUBMENÚS: animación + activo con indicador
+   ========================================== */
+.sidebar .collapse,
+.sidebar .collapsing {
+    overflow: hidden;
+    will-change: height;
+}
+
+.sidebar .collapse.show > .nav {
+    animation: submenuIn 0.18s ease both;
+}
+
+@keyframes submenuIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Activo dentro de submenú: mismo lenguaje visual (rosado + barrita) */
+.sidebar .collapse .nav-link,
+.sidebar-flyout .nav-link {
+    position: relative;
+}
+
+.sidebar .collapse .nav-link.active,
+.sidebar-flyout .nav-link.active {
+    background: linear-gradient(90deg,
+        rgba(191, 84, 134, 0.15) 0%,
+        rgba(191, 84, 134, 0.05) 100%
+    );
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Submenús: sin indicador inferior */
+.sidebar .collapse .nav-link.active::after,
+.sidebar-flyout .nav-link.active::after {
+    content: none;
+}
+
+.sidebar .collapse .nav-link.active > i:not(.bi-chevron-down):not(.bi-chevron-right),
+.sidebar-flyout .nav-link.active > i:not(.bi-chevron-down):not(.bi-chevron-right) {
+    color: var(--rosa-intenso);
+}
+
+/* Texto de submenús en blanco */
+.sidebar .collapse .nav-link,
+.sidebar-flyout .nav-link {
+    color: var(--text-primary);
+}
+
+.main-content.collapsed {
+    margin-left: var(--sidebar-width-collapsed);
+}
+
+/* Flyout flotante para submenús cuando el sidebar está colapsado */
+.sidebar-flyout {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2000;
+    min-width: 220px;
+    max-width: 280px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.sidebar-flyout.show {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.sidebar-flyout .nav-item {
+    margin: 0.125rem 0;
+}
+
+.sidebar-flyout .nav-link {
+    padding: 0.625rem 0.75rem;
+    border-radius: 10px;
+}
+
+.sidebar-flyout .nav-link i {
+    margin-right: 0.5rem;
+}
+
+/* Tooltip bonito (Bootstrap Tooltip con customClass) */
+.sidebar-tooltip .tooltip-inner {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    padding: 0.4rem 0.6rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.sidebar-tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: var(--bg-card);
+}
+
+.sidebar-tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: var(--bg-card);
+}
+
+.sidebar-tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--bg-card);
+}
+
+.sidebar-tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--bg-card);
+}
+
+/* Scrollbar minimalista */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(191, 84, 134, 0.3);
+    border-radius: 2px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(191, 84, 134, 0.5);
+}
+
+/* Header del Sidebar */
+.sidebar-header {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-menu-toggle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.90rem 0 0.1rem;
+    width: 100%;
+    padding: 0;
+    text-align: center;
+}
+
+.sidebar .sidebar-toggle-btn {
+    margin-inline: auto;
+}
+
+.sidebar.collapsed .sidebar-menu-toggle-wrap {
+    margin: 0.90rem 0 0.6rem;
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-toggle-btn {
+    margin-inline: auto;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 0.75rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.user-avatar:hover {
+    border-color: var(--rosa-intenso);
+    transform: scale(1.05);
+}
+
+.user-avatar .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-avatar .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--rosa-intenso), var(--rosa-suave));
+    font-size: 1.5rem;
+    color: white;
+}
+
+.user-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.user-role {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 1rem 0;
+}
+
+/* ==========================================
+   📱 NAVEGACIÓN LIMPIA
+   ========================================== */
+.sidebar-nav {
+    padding: 1rem 0;
+}
+
+.sidebar-nav .nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Headers minimalistas */
+.nav-header {
+    padding: 1rem 1.25rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--rosa-intenso);
+}
+
+/* Items de navegación */
+.nav-item {
+    margin: 0.25rem 0.75rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 10px;
+    transition: var(--transition);
+    font-size: 0.875rem;
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-link > i:not(.bi-chevron-down):not(.bi-chevron-right) {
+    font-size: 1.125rem;
+    margin-right: 0.75rem;
+    width: 20px;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.nav-link span {
+    flex: 1;
+}
+
+/* Hover suave */
+.nav-link:hover {
+    background: rgba(191, 84, 134, 0.08);
+    color: var(--text-primary);
+}
+
+/* Evitar linea gris/subrayado en items del sidebar al pasar mouse */
+.sidebar .nav-link,
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus,
+.sidebar .nav-link:active,
+.sidebar .nav-link:visited,
+.sidebar-flyout .nav-link,
+.sidebar-flyout .nav-link:hover,
+.sidebar-flyout .nav-link:focus,
+.sidebar-flyout .nav-link:active,
+.sidebar-flyout .nav-link:visited,
+#accessibility-content-wrapper.underline-links .sidebar .nav-link,
+#accessibility-content-wrapper.underline-links .sidebar-flyout .nav-link {
+    text-decoration: none !important;
+    border-bottom: 0 !important;
+}
+
+/* Evitar el azul por :focus/:active en el SIDEBAR (Bootstrap/UA) */
+.sidebar .nav-link:focus,
+.sidebar .nav-link:active,
+.sidebar-flyout .nav-link:focus,
+.sidebar-flyout .nav-link:active {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.sidebar .nav-link:focus-visible,
+.sidebar-flyout .nav-link:focus-visible {
+    outline: 2px solid rgba(191, 84, 134, 0.35);
+    outline-offset: 2px;
+}
+
+.sidebar .nav-link:focus:not(:focus-visible),
+.sidebar-flyout .nav-link:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ==========================================
+   ✨ INDICADOR ACTIVO - ESTILO FINANCIERO
+   ========================================== */
+.nav-link.active {
+    background: linear-gradient(90deg,
+        rgba(191, 84, 134, 0.15) 0%,
+        rgba(191, 84, 134, 0.05) 100%
+    );
+    color: var(--text-primary);
+    font-weight: 600;
+    position: relative;
+}
+
+/* Barra izquierda colorida */
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    background: linear-gradient(180deg,
+        var(--rosa-intenso) 0%,
+        var(--rosa-suave) 100%
+    );
+    border-radius: 0 2px 2px 0;
+}
+
+.nav-link.active i {
+    color: var(--rosa-intenso);
+}
+
+/* ==========================================
+   🎯 SUBMENÚS MINIMALISTAS
+   ========================================== */
+.nav-link[data-bs-toggle="collapse"] .bi-chevron-down {
+    transition: transform 0.3s ease;
+    margin-left: auto;
+    margin-right: 0;
+    width: auto;
+    font-size: 0.75rem;
+}
+
+.nav-link[data-bs-toggle="collapse"] .bi-chevron-right {
+    transition: transform 0.3s ease;
+    margin-left: auto;
+    margin-right: 0;
+    width: auto;
+    font-size: 0.75rem;
+}
+
+/* Desktop: el submenú se muestra como flyout; micro feedback sin cambiar dirección */
+.nav-link.flyout-open .bi-chevron-right {
+    transform: translateX(2px);
+    color: var(--rosa-intenso);
+}
+
+/* Mobile: mantiene comportamiento nativo de Bootstrap collapse */
+@media (max-width: 768px) {
+    .nav-link[data-bs-toggle="collapse"]:not(.collapsed) .bi-chevron-right {
+        transform: rotate(90deg);
+    }
+}
+
+.collapse {
+    transition: height 0.3s ease;
+}
+
+.collapse .nav {
+    padding: 0.25rem 0;
+    margin-left: 0.75rem;
+}
+
+.collapse .nav-item {
+    margin: 0.125rem 0;
+    
+}
+
+.collapse .nav-link {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+}
+
+.collapse .nav-link.fw-bold {
+    color: var(--text-primary);
+    background: rgba(191, 84, 134, 0.08);
+}
+
+/* En submenús, no queremos que `text-primary` ponga el texto rosado */
+.sidebar .collapse .nav-link.text-primary,
+.sidebar-flyout .nav-link.text-primary {
+    color: var(--text-primary) !important;
+}
+
+/* ==========================================
+   📊 TOPBAR
+   ========================================== */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+    overflow: visible;
+}
+
+.topbar {
+    height: var(--topbar-height);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: var(--shadow-sm);
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.btn-toggle {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.btn-toggle:hover {
+    background: rgba(191, 84, 134, 0.1);
+    color: var(--rosa-intenso);
+}
+
+.panel-toggle-logo-icon {
+    width: 40px;
+    height: 40px;
+    display: block;
+    object-fit: contain;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+
+
+
+/* ==========================================
+   📍 BREADCRUMB - DEBAJO DEL TOPBAR
+   ======================================== */
+
+.page-breadcrumb {
+    background: rgba(26, 31, 58, 0.3);
+    border-bottom: 1px solid rgba(139, 146, 176, 0.08);
+    padding: 0.875rem 2rem;
+    margin: 0;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+html[data-theme="light"] .page-breadcrumb {
+    background: rgba(248, 249, 250, 0.5);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    background: transparent;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.breadcrumb-item a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--rosa-intenso);
+    background: rgba(191, 84, 134, 0.1);
+    transform: translateY(-1px);
+}
+
+.breadcrumb-item a i {
+    font-size: 1rem;
+}
+
+/* Icono por defecto para todos los niveles del breadcrumb excepto Inicio */
+.breadcrumb-item:not(:first-child) a::before,
+.breadcrumb-item.active::before {
+    content: "\f135";
+    font-family: "bootstrap-icons";
+    font-size: 0.85rem;
+    color: var(--rosa-intenso);
+    margin-right: 0.45rem;
+    line-height: 1;
+}
+
+.breadcrumb-item.active {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: var(--text-secondary);
+    margin: 0 0.5rem;
+    font-size: 1.25rem;
+    opacity: 0.4;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Modo Claro */
+html[data-theme="light"] .breadcrumb-item a:hover {
+    box-shadow: 0 0 12px rgba(191, 84, 134, 0.2);
+}
+
+html[data-theme="light"] .breadcrumb-item {
+    color: #64748b;
+}
+
+html[data-theme="light"] .breadcrumb-item.active {
+    color: #1e293b;
+}
+
+/* ==========================================
+   🔍 BÚSQUEDA MODERNA
+   ========================================== */
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.search-box {
+    position: relative;
+    width: 300px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.search-box .form-control {
+    padding: 0.625rem 1rem 0.625rem 2.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: var(--transition);
+    font-size: 0.875rem;
+}
+
+.search-box .form-control:focus {
+    border-color: var(--rosa-intenso);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.1);
+    outline: none;
+}
+
+.search-box .form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+/* ==========================================
+   🎨 BOTONES MINIMALISTAS
+   ========================================== */
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    position: relative;
+    transition: var(--transition);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background: rgba(191, 84, 134, 0.1);
+    color: var(--rosa-intenso);
+}
+
+.badge-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--rosa-intenso);
+    border-radius: 50%;
+    border: 2px solid var(--bg-card);
+}
+
+.btn-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.btn-user:hover {
+    border-color: var(--rosa-intenso);
+}
+
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+}
+
+/* ==========================================
+   📄 CONTENIDO
+   ========================================== */
+.content-wrapper {
+    flex: 1;
+    padding: 2rem;
+    background: var(--bg-primary);
+}
+
+/* ==========================================
+   📍 BREADCRUMB
+   ========================================== */
+.breadcrumb-nav {
+    padding: 1.5rem 2rem 0;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: var(--text-secondary);
+}
+
+.breadcrumb-item a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.breadcrumb-item a:hover {
+    color: var(--rosa-intenso);
+}
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+}
+
+/* ==========================================
+   🦶 FOOTER
+   ========================================== */
+.dashboard-footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem 2rem;
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+.footer-content {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* ==========================================
+   DROPDOWN
+   ========================================== */
+.dropdown-menu {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+    min-width: 200px;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.dropdown-header strong {
+    font-weight: 600;
+}
+
+.dropdown-header .text-muted {
+    color: var(--text-secondary) !important;
+    font-size: 0.8125rem;
+}
+
+.dropdown-item {
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.dropdown-item:hover {
+    background: rgba(191, 84, 134, 0.08);
+    color: var(--text-primary);
+}
+
+.dropdown-item i {
+    font-size: 1rem;
+}
+
+.dropdown-item.text-danger {
+    color: #ef4444;
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0.5rem 0;
+}
+
+/* ==========================================
+   📱 RESPONSIVE
+   ========================================== */
+@media (max-width: 1024px) {
+    .search-box {
+        width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        /* En móvil el sidebar funciona como off-canvas; mantiene ancho real cuando está visible */
+        --sidebar-width: 260px;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    /* En móvil ignoramos el modo colapsado: el toggle actúa como show/hide */
+    .main-content.collapsed {
+        margin-left: 0;
+    }
+
+    .sidebar.collapsed {
+        width: var(--sidebar-width);
+    }
+
+    .sidebar-resizer {
+        display: none;
+    }
+
+    .search-box {
+        display: none;
+    }
+
+    .topbar {
+        padding: 0 1rem;
+    }
+
+    .topbar-left {
+        gap: 0.75rem;
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+    }
+
+    .page-breadcrumb {
+        padding: 0.625rem 1rem;
+    }
+
+    /* Solo iconos en móvil */
+    .breadcrumb-item span {
+        display: none;
+    }
+
+    .breadcrumb-item a {
+        padding: 0.25rem 0.375rem;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        margin: 0 0.25rem;
+    }
+
+    .content-wrapper {
+        padding: 1rem;
+    }
+
+    /* Tablas: permitir scroll horizontal y mejorar legibilidad */
+    .content-wrapper .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .content-wrapper .table-responsive > table {
+        margin-bottom: 0;
+    }
+
+    .content-wrapper .table-responsive table th,
+    .content-wrapper .table-responsive table td {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+}
+
+/* ==========================================
+   🎨 UTILIDADES
+   ========================================== */
+.text-primary { color: var(--rosa-intenso) !important; }
+.bg-primary { background-color: var(--rosa-intenso) !important; }
+.border-primary { border-color: var(--rosa-intenso) !important; }
+
+/* ==========================================
+   🌸 SCROLLBARS (barra rosada)
+   - Para tablas con scroll horizontal en módulos del panel
+   ========================================== */
+.content-wrapper .table-responsive,
+.clientes-table-container,
+.usuarios-table-container,
+.catalogo-table-container,
+.panel-table-container {
+    scrollbar-color: var(--rosa-intenso) rgba(217, 167, 194, 0.25);
+    scrollbar-width: thin;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar,
+.clientes-table-container::-webkit-scrollbar,
+.usuarios-table-container::-webkit-scrollbar,
+.catalogo-table-container::-webkit-scrollbar,
+.panel-table-container::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-track,
+.clientes-table-container::-webkit-scrollbar-track,
+.usuarios-table-container::-webkit-scrollbar-track,
+.catalogo-table-container::-webkit-scrollbar-track,
+.panel-table-container::-webkit-scrollbar-track {
+    background: rgba(217, 167, 194, 0.12);
+    border-radius: 999px;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-thumb,
+.clientes-table-container::-webkit-scrollbar-thumb,
+.usuarios-table-container::-webkit-scrollbar-thumb,
+.catalogo-table-container::-webkit-scrollbar-thumb,
+.panel-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, var(--rosa-intenso), var(--rosa-suave));
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-thumb:hover,
+.clientes-table-container::-webkit-scrollbar-thumb:hover,
+.usuarios-table-container::-webkit-scrollbar-thumb:hover,
+.catalogo-table-container::-webkit-scrollbar-thumb:hover,
+.panel-table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--rosa-intenso);
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-wrapper > * {
+    animation: fadeIn 0.4s ease;
+}
+
+/* ==========================================
+   🌞 MODO CLARO (LIGHT MODE)
+   ========================================== */
+html[data-theme="light"] {
+    /* Colores para modo claro */
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-hover: #f8f9fa;
+    --text-primary: #1a202c;
+    --text-secondary: #64748b;
+    --border-color: rgba(203, 213, 225, 0.5);
+}
+
+/* Sidebar en modo claro */
+html[data-theme="light"] .sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(191, 84, 134, 0.2);
+}
+
+html[data-theme="light"] .sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(191, 84, 134, 0.4);
+}
+
+/* Usuario en modo claro */
+html[data-theme="light"] .user-name {
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .user-role {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .divider {
+    background: var(--border-color);
+}
+
+/* Navegación en modo claro */
+html[data-theme="light"] .nav-header {
+    color: var(--rosa-intenso);
+}
+
+html[data-theme="light"] .nav-link {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .nav-link:hover {
+    background: rgba(191, 84, 134, 0.08);
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .nav-link.active {
+    background: linear-gradient(90deg,
+        rgba(191, 84, 134, 0.12) 0%,
+        rgba(191, 84, 134, 0.05) 100%
+    );
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .nav-link.active::before {
+    background: linear-gradient(180deg,
+        var(--rosa-intenso) 0%,
+        var(--rosa-suave) 100%
+    );
+}
+
+html[data-theme="light"] .nav-link.active i {
+    color: var(--rosa-intenso);
+}
+
+/* Topbar en modo claro */
+html[data-theme="light"] .topbar {
+    background: var(--bg-secondary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .page-title {
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .btn-toggle {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .btn-toggle:hover {
+    background: rgba(191, 84, 134, 0.1);
+    color: var(--rosa-intenso);
+}
+
+/* Búsqueda en modo claro */
+html[data-theme="light"] .search-box i {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .search-box .form-control {
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .search-box .form-control:focus {
+    border-color: var(--rosa-intenso);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.1);
+}
+
+html[data-theme="light"] .search-box .form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Botones en modo claro */
+html[data-theme="light"] .btn-icon {
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+html[data-theme="light"] .btn-icon:hover {
+    background: rgba(191, 84, 134, 0.1);
+    color: var(--rosa-intenso);
+    border-color: rgba(191, 84, 134, 0.2);
+}
+
+html[data-theme="light"] .badge-dot {
+    border-color: var(--bg-primary);
+}
+
+html[data-theme="light"] .btn-user {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .btn-user:hover {
+    border-color: var(--rosa-intenso);
+}
+
+html[data-theme="light"] .user-avatar-sm {
+    border: 1px solid var(--border-color);
+}
+
+/* Contenido en modo claro */
+html[data-theme="light"] .content-wrapper {
+    background: var(--bg-primary);
+}
+
+/* Breadcrumb en modo claro */
+html[data-theme="light"] .breadcrumb-item {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .breadcrumb-item a {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .breadcrumb-item a:hover {
+    color: var(--rosa-intenso);
+}
+
+html[data-theme="light"] .breadcrumb-item.active {
+    color: var(--text-primary);
+}
+
+/* Footer en modo claro */
+html[data-theme="light"] .dashboard-footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+html[data-theme="light"] .footer-content {
+    color: var(--text-secondary);
+}
+
+/* Dropdown en modo claro */
+html[data-theme="light"] .dropdown-menu {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .dropdown-header {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .dropdown-header .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="light"] .dropdown-item {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .dropdown-item:hover {
+    background: rgba(191, 84, 134, 0.08);
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .dropdown-divider {
+    background: var(--border-color);
+}
+
+/* Animación suave de transición entre temas */
+html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html[data-theme="light"] .sidebar,
+html[data-theme="light"] .topbar,
+html[data-theme="light"] .main-content {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ==========================================
+   ✨ INDICADOR ACTIVO PREMIUM - MODO CLARO
+   Degradado rosado estilo Freepik moderno
+   ========================================== */
+
+/* Indicador activo con degradado horizontal rosado */
+body.light-mode .sidebar .nav-link.active {
+    background: linear-gradient(
+        90deg,
+        var(--rosa-intenso) 0%,
+        var(--rosa-suave) 100%
+    );
+    color: #ffffff !important;
+    border-radius: 12px;
+    box-shadow:
+        0 8px 20px rgba(191, 84, 134, 0.35),
+        0 4px 8px rgba(191, 84, 134, 0.25);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+    position: relative;
+}
+
+/* Ícono del item activo en blanco */
+body.light-mode .sidebar .nav-link.active i {
+    color: #ffffff !important;
+}
+
+/* Texto del item activo en blanco */
+body.light-mode .sidebar .nav-link.active span {
+    color: #ffffff !important;
+}
+
+/* Efecto hover suave con desplazamiento */
+body.light-mode .sidebar .nav-link.active:hover {
+    transform: translateX(4px);
+    box-shadow:
+        0 10px 24px rgba(191, 84, 134, 0.4),
+        0 6px 10px rgba(191, 84, 134, 0.3);
+}
+
+
+/* Efecto de brillo sutil en hover */
+body.light-mode .sidebar .nav-link.active::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+body.light-mode .sidebar .nav-link.active:hover::after {
+    opacity: 1;
+}
+
+/* Asegurar que el texto y el ícono se mantengan visibles sobre el degradado */
+body.light-mode .sidebar .nav-link.active * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Submenús colapsables activos también deben verse bien */
+body.light-mode .sidebar .collapse .nav-link.fw-bold {
+    background: linear-gradient(
+        90deg,
+        rgba(191, 84, 134, 0.15) 0%,
+        rgba(217, 167, 194, 0.1) 100%
+    );
+    color: var(--rosa-intenso) !important;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+body.light-mode .sidebar .collapse .nav-link.fw-bold:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(191, 84, 134, 0.2) 0%,
+        rgba(217, 167, 194, 0.15) 100%
+    );
+    transform: translateX(2px);
+}
+
+/* ═══════════════════════════════════════════════════
+   🔔 ADMIN NOTIFICATIONS + LOGOUT MODAL
+   Añadir al FINAL de panel_admin_base.css
+   ═══════════════════════════════════════════════════ */
+
+/* ─── Overlay compartido (notificación + logout) ─── */
+.admin-notification-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 22, 0.72);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    animation: overlayFadeIn 0.25s ease forwards;
+}
+
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── Tarjeta ─── */
+.admin-notification-card {
+    background: var(--bg-card);
+    padding: 2.5rem 2.75rem 2rem;
+    border-radius: 22px;
+    text-align: center;
+    min-width: 340px;
+    max-width: 460px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    animation: cardPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cardPop {
+    from { transform: scale(0.75) translateY(20px); opacity: 0; }
+    to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+
+/* ─── Círculo de ícono ─── */
+.admin-notification-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.admin-notification-icon-circle {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    position: relative;
+    /* Ícono siempre encima del pulso */
+    z-index: 1;
+}
+
+/* Pulso exterior — detrás del ícono con z-index negativo */
+.admin-notification-icon-circle::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    z-index: -1;          /* detrás del círculo, nunca tapa el ícono */
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* El ícono (i) siempre visible encima */
+.admin-notification-icon-circle i {
+    position: relative;
+    z-index: 2;
+    line-height: 1;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1);    opacity: 0.2; }
+    50%       { transform: scale(1.15); opacity: 0.1; }
+}
+
+/* ── SUCCESS — verde vibrante ── */
+.circle-success {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border: 2px solid rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.25) inset;
+}
+.circle-success::after {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1.5px solid rgba(34, 197, 94, 0.3);
+}
+
+.admin-notification-card.success {
+    box-shadow:
+        0 0 0 1px rgba(34, 197, 94, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(34, 197, 94, 0.12);
+}
+
+/* ── ERROR — rojo intenso ── */
+.circle-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.25) inset;
+}
+.circle-error::after {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1.5px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-notification-card.error {
+    box-shadow:
+        0 0 0 1px rgba(239, 68, 68, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(239, 68, 68, 0.12);
+}
+
+/* ── WARNING — amarillo ── */
+.circle-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 2px solid rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.25) inset;
+}
+.circle-warning::after {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1.5px solid rgba(245, 158, 11, 0.3);
+}
+
+.admin-notification-card.warning {
+    box-shadow:
+        0 0 0 1px rgba(245, 158, 11, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(245, 158, 11, 0.12);
+}
+
+/* ── INFO — azul ── */
+.circle-info {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    border: 2px solid rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.25) inset;
+}
+.circle-info::after {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1.5px solid rgba(59, 130, 246, 0.3);
+}
+
+.admin-notification-card.info {
+    box-shadow:
+        0 0 0 1px rgba(59, 130, 246, 0.2),
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(59, 130, 246, 0.12);
+}
+
+/* ─── Textos ─── */
+.admin-notification-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.3px;
+}
+
+.admin-notification-message {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* ─── Botón principal (Entendido) ─── */
+.admin-notification-btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.6rem 2rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--rosa-intenso);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 14px rgba(191, 84, 134, 0.35);
+}
+
+.admin-notification-btn:hover {
+    background: #d4619a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(191, 84, 134, 0.45);
+    color: #fff;
+}
+
+/* ─── Barra de progreso ─── */
+.admin-notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    border-radius: 0 0 22px 22px;
+    animation: progressShrink 5s linear forwards;
+    transform-origin: left;
+}
+
+@keyframes progressShrink {
+    from { width: 100%; }
+    to   { width: 0%;   }
+}
+
+/* ═══════════════════════════════════════════════════
+   🚪 LOGOUT MODAL
+   ═══════════════════════════════════════════════════ */
+
+.logout-modal-card {
+    padding-bottom: 2rem;
+}
+
+.logout-circle {
+    background: rgba(191, 84, 134, 0.15);
+    color: var(--rosa-intenso);
+    border: 2px solid rgba(191, 84, 134, 0.5);
+    box-shadow: 0 0 20px rgba(191, 84, 134, 0.2) inset;
+}
+
+.logout-circle::after {
+    background: rgba(191, 84, 134, 0.2);
+    border: 1.5px solid rgba(191, 84, 134, 0.3);
+}
+
+.logout-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+    box-shadow: none;
+    margin-top: 0;
+}
+
+.btn-cancel:hover {
+    background: rgba(139, 146, 176, 0.1);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: none;
+}
+
+.btn-logout {
+    background: #ef4444;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    margin-top: 0;
+}
+
+.btn-logout:hover {
+    background: #dc2626;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+    color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════
+   🌞 MODO CLARO
+   ═══════════════════════════════════════════════════ */
+
+html[data-theme="light"] .admin-notification-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="light"] .admin-notification-card {
+    background: #ffffff;
+    border-color: rgba(203, 213, 225, 0.7);
+}
+
+html[data-theme="light"] .admin-notification-title  { color: #1a202c; }
+html[data-theme="light"] .admin-notification-message { color: #64748b; }
+
+html[data-theme="light"] .btn-cancel {
+    border-color: #cbd5e1;
+    color: #64748b;
+}
+
+html[data-theme="light"] .btn-cancel:hover {
+    background: #f1f5f9;
+    color: #1a202c;
+}
+
+/* ═══════════════════════════════════════════════════
+   🚫 OCULTAR TOASTS COMPLETAMENTE EN EL PANEL ADMIN
+   ═══════════════════════════════════════════════════ */
+.dashboard-body .toast-container {
+    display: none !important;
+}

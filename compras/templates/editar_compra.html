@@ -114,7 +114,10 @@
                         <div class="col-12 col-md-6">
                             <div class="field-wrapper">
                                 <label class="field-label" for="id_departamento">Departamento</label>
-                                <input type="text" name="departamento" id="id_departamento" class="form-control" value="{{ object.departamento|default:'' }}">
+                                <select name="departamento" id="id_departamento" class="form-select js-departamento">
+                                    <option value="">Seleccione un departamento</option>
+                                </select>
+                                <input type="hidden" name="departamento_original" id="id_departamento_original" value="{{ object.departamento|default:'' }}">
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
                             </div>
@@ -123,7 +126,10 @@
                         <div class="col-12 col-md-6">
                             <div class="field-wrapper">
                                 <label class="field-label" for="id_ciudad">Ciudad</label>
-                                <input type="text" name="ciudad" id="id_ciudad" class="form-control" value="{{ object.ciudad|default:'' }}">
+                                <select name="ciudad" id="id_ciudad" class="form-select js-ciudad" disabled>
+                                    <option value="">Seleccione una ciudad</option>
+                                </select>
+                                <input type="hidden" name="ciudad_original" id="id_ciudad_original" value="{{ object.ciudad|default:'' }}">
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
                             </div>
@@ -149,23 +155,23 @@
 
                     <div id="productos-container" class="d-flex flex-column gap-3">
                         {% for detalle in detalles %}
-                        <div class="profile-info-item producto-item">
+                        <div class="info-item producto-item">
                             <div class="row g-3 align-items-end">
                                 <div class="col-12 col-md-6">
                                     <div class="field-wrapper">
                                         <label class="field-label">Ítem *</label>
-                                        <select name="item_id[]" class="form-select" required>
+                                        <select name="item_id[]" class="form-select item-select" required>
                                             <option value="">Seleccione...</option>
                                             <optgroup label="Flores">
                                                 {% for flor in flores %}
-                                                <option value="F-{{ flor.id }}" {% if detalle.tipo_item == 'FLOR' and detalle.flor_id == flor.id %}selected{% endif %}>
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}" {% if detalle.tipo_item == 'FLOR' and detalle.flor_id == flor.id %}selected{% endif %}>
                                                     {{ flor.nombre }} (Stock: {{ flor.cantidad }})
                                                 </option>
                                                 {% endfor %}
                                             </optgroup>
                                             <optgroup label="Productos">
                                                 {% for producto in productos %}
-                                                <option value="P-{{ producto.id }}" {% if detalle.tipo_item == 'PRODUCTO' and detalle.producto_id == producto.id %}selected{% endif %}>
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}" {% if detalle.tipo_item == 'PRODUCTO' and detalle.producto_id == producto.id %}selected{% endif %}>
                                                     {{ producto.nombre }} (Stock: {{ producto.cantidad }})
                                                 </option>
                                                 {% endfor %}
@@ -179,7 +185,7 @@
                                 <div class="col-12 col-md-3">
                                     <div class="field-wrapper">
                                         <label class="field-label">Precio *</label>
-                                        <input type="text" name="precio[]" class="form-control precio-input" inputmode="decimal" placeholder="0,00" value="{{ detalle.precio }}" required>
+                                        <input type="text" name="precio[]" class="form-control precio-input" inputmode="decimal" placeholder="0,00" value="{{ detalle.precio }}" required readonly>
                                         <div class="invalid-feedback"></div>
                                         <div class="valid-feedback"></div>
                                     </div>
@@ -202,21 +208,21 @@
                             </div>
                         </div>
                         {% empty %}
-                        <div class="profile-info-item producto-item">
+                        <div class="info-item producto-item">
                             <div class="row g-3 align-items-end">
                                 <div class="col-12 col-md-6">
                                     <div class="field-wrapper">
                                         <label class="field-label">Ítem *</label>
-                                        <select name="item_id[]" class="form-select" required>
+                                        <select name="item_id[]" class="form-select item-select" required>
                                             <option value="">Seleccione...</option>
                                             <optgroup label="Flores">
                                                 {% for flor in flores %}
-                                                <option value="F-{{ flor.id }}">{{ flor.nombre }} (Stock: {{ flor.cantidad }})</option>
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">{{ flor.nombre }} (Stock: {{ flor.cantidad }})</option>
                                                 {% endfor %}
                                             </optgroup>
                                             <optgroup label="Productos">
                                                 {% for producto in productos %}
-                                                <option value="P-{{ producto.id }}">{{ producto.nombre }} (Stock: {{ producto.cantidad }})</option>
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.nombre }} (Stock: {{ producto.cantidad }})</option>
                                                 {% endfor %}
                                             </optgroup>
                                         </select>
@@ -228,7 +234,7 @@
                                 <div class="col-12 col-md-3">
                                     <div class="field-wrapper">
                                         <label class="field-label">Precio *</label>
-                                        <input type="text" name="precio[]" class="form-control precio-input" inputmode="decimal" placeholder="0,00" required>
+                                        <input type="text" name="precio[]" class="form-control precio-input" inputmode="decimal" placeholder="0,00" required readonly>
                                         <div class="invalid-feedback"></div>
                                         <div class="valid-feedback"></div>
                                     </div>
@@ -263,15 +269,15 @@
                     <div class="profile-info-card mt-4">
                         <div class="profile-info-title">
                             <i class="bi bi-receipt"></i>
-                            Totales
+                            Resumen de la Compra
                         </div>
                         <div class="profile-info-grid">
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Subtotal</span>
+                            <div class="info-item">
+                                <span class="info-label">Subtotal</span>
                                 <div class="profile-info-value" id="subtotal">${{ object.subtotal|floatformat:2 }}</div>
                             </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">Total</span>
+                            <div class="info-item">
+                                <span class="info-label">Total</span>
                                 <div class="profile-info-value" id="total">${{ object.total_compra|floatformat:2 }}</div>
                             </div>
                         </div>
@@ -293,6 +299,7 @@
 
 {% block extra_js %}
 <script src="{% static 'js/validaciones_modules.js' %}"></script>
-<script src="{% static 'js/crear_compra.js' %}"></script>
+<script src="{% static 'js/departamentos_ciudades.js' %}"></script>
+<script src="{% static 'js/crear_compra.js' %}?v=20260306"></script>
 {% endblock %}
 

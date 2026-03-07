@@ -201,6 +201,7 @@
                                     <i class="bi bi-map"></i> DEPARTAMENTO
                                 </label>
                                 {{ form.departamento }}
+                                <input type="hidden" name="departamento_original" id="id_departamento_original" value="{{ form.departamento.value|default:'' }}">
                                 {% if form.departamento.errors %}
                                     <div class="field-error">
                                         <i class="bi bi-exclamation-circle-fill"></i>
@@ -216,8 +217,8 @@
                                 <label class="field-label">
                                     <i class="bi bi-building"></i> CIUDAD / MUNICIPIO
                                 </label>
-                                <select name="ciudad" id="id_ciudad" class="form-select">
-                                    <option value="">Seleccione un departamento primero</option>
+                                <select name="ciudad" id="id_ciudad" class="form-select js-ciudad" disabled>
+                                    <option value="">Seleccione una ciudad</option>
                                 </select>
                                 <input type="hidden" name="ciudad_original" id="id_ciudad_original" value="{{ form.ciudad.value|default:'' }}">
                                 {% if form.ciudad.errors %}
@@ -267,5 +268,5 @@
 {% block extra_js %}
 {{ block.super }}
 <script src="{% static 'js/validaciones_modules.js' %}"></script>
-<script src="{% static 'js/ciudades.js' %}"></script>
+<script src="{% static 'js/departamentos_ciudades.js' %}"></script>
 {% endblock %}

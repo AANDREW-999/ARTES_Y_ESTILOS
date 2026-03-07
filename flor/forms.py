@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django import forms
 
 from .models import Flor
@@ -11,7 +13,7 @@ class FlorForm(forms.ModelForm):
             "nombre": forms.TextInput(attrs={"class": "form-control"}),
             "tipo_flor": forms.Select(attrs={"class": "form-select"}),
             "descripcion": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "precio": forms.NumberInput(attrs={"class": "form-control", "min": "0", "step": "0.01"}),
+            "precio": forms.TextInput(attrs={"class": "form-control js-money-input", "inputmode": "decimal", "autocomplete": "off"}),
             "cantidad": forms.NumberInput(attrs={"class": "form-control", "min": "0"}),
             "imagen": forms.ClearableFileInput(attrs={
                 "class": "form-control",
@@ -19,3 +21,27 @@ class FlorForm(forms.ModelForm):
                 "accept": "image/*",
             }),
         }
+
+    def clean_precio(self):
+        precio = self.cleaned_data.get("precio")
+        if isinstance(precio, Decimal):
+            return precio
+
+        raw = str(precio or "").strip()
+        if not raw:
+            raise forms.ValidationError("Este campo es obligatorio.")
+
+        # Soporta 1.000.000,00 y 1000000.00
+        if "," in raw:
+            normalizado = raw.replace(".", "").replace(",", ".")
+        else:
+            normalizado = raw
+
+        try:
+            valor = Decimal(normalizado)
+        except InvalidOperation:
+            raise forms.ValidationError("Ingresa un precio valido.")
+
+        if valor <= 0:
+            raise forms.ValidationError("El precio debe ser mayor a 0.")
+        return valor

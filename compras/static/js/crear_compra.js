@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('productos-container');
 
     // Fecha automática
     const fechaInput = document.getElementById('fecha_emision') || document.getElementById('id_fecha_emision');
@@ -26,6 +27,37 @@ document.addEventListener('DOMContentLoaded', function () {
     function parsearNumero(valor) {
         if (!valor) return 0;
         return parseFloat(String(valor).replace(/\./g, '').replace(',', '.')) || 0;
+    }
+
+    function parsearPrecioData(valor) {
+        if (!valor) return 0;
+        const str = String(valor).trim();
+        if (!str) return 0;
+
+        // Soporta formato 10000.50 y formato local 10.000,50
+        if (str.includes(',')) {
+            return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        return parseFloat(str) || 0;
+    }
+
+    function autocompletarPrecioItem(item, forzar) {
+        if (!item) return;
+        const itemSelect = item.querySelector('.item-select');
+        const precioInput = item.querySelector('.precio-input');
+        if (!itemSelect || !precioInput) return;
+
+        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+        const precioRaw = selectedOption ? selectedOption.getAttribute('data-precio') : null;
+        const precioNum = parsearPrecioData(precioRaw);
+        const precioActual = parsearNumero(precioInput.value);
+
+        if (precioNum > 0 && (forzar || !precioActual || precioActual <= 0)) {
+            precioInput.value = formatearMiles(precioNum.toFixed(2));
+        } else if (forzar && !precioNum) {
+            precioInput.value = '';
+        }
+        calcularTotales();
     }
 
     // Bloquear flechas en inputs numéricos
@@ -100,6 +132,8 @@ document.addEventListener('DOMContentLoaded', function () {
             aplicarFormatoMiles(precioInput);
         }
 
+        autocompletarPrecioItem(item, false);
+
         if (cantidadInput) {
             bloquearFlechas(cantidadInput);
             cantidadInput.addEventListener('input', calcularTotales);
@@ -122,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnAgregar = document.getElementById('btnAgregarProducto');
     if (btnAgregar) {
         btnAgregar.addEventListener('click', function () {
-            const container = document.getElementById('productos-container');
+            if (!container) return;
             const primerItem = container.querySelector('.producto-item');
             const nuevoItem = primerItem.cloneNode(true);
 
@@ -152,6 +186,18 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.producto-item').forEach(item => {
         configurarProductoItem(item);
     });
+
+    // Listener delegado para que cualquier cambio de item actualice su precio,
+    // incluso en filas nuevas clonadas.
+    if (container) {
+        container.addEventListener('change', function (event) {
+            const target = event.target;
+            if (target && target.classList.contains('item-select')) {
+                const item = target.closest('.producto-item');
+                autocompletarPrecioItem(item, true);
+            }
+        });
+    }
 
     // Limpiar antes de enviar
     const formCompra = document.getElementById('formCompra');

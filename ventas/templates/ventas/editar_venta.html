@@ -95,7 +95,7 @@
 
                     <div id="itemsContainer" class="d-flex flex-column gap-3">
                         {% for detalle in detalles %}
-                        <div class="profile-info-item item-venta">
+                        <div class="info-item item-venta">
                             <div class="row g-3 align-items-end">
                                 <div class="col-12 col-md-5">
                                     <div class="field-wrapper">
@@ -125,7 +125,7 @@
                                 <div class="col-12 col-md-3">
                                     <div class="field-wrapper">
                                         <label class="field-label">Precio *</label>
-                                        <input type="number" class="form-control precio" name="precio[]" value="{{ detalle.precio }}" min="0" step="0.01">
+                                        <input type="number" class="form-control precio" name="precio[]" value="{{ detalle.precio }}" min="0" step="0.01" readonly>
                                         <div class="invalid-feedback"></div>
                                         <div class="valid-feedback"></div>
                                     </div>
@@ -152,7 +152,7 @@
                             </div>
                         </div>
                         {% empty %}
-                        <div class="profile-info-item item-venta">
+                        <div class="info-item item-venta">
                             <div class="row g-3 align-items-end">
                                 <div class="col-12 col-md-5">
                                     <div class="field-wrapper">
@@ -182,7 +182,7 @@
                                 <div class="col-12 col-md-3">
                                     <div class="field-wrapper">
                                         <label class="field-label">Precio *</label>
-                                        <input type="number" class="form-control precio" name="precio[]" value="0" min="0" step="0.01">
+                                        <input type="number" class="form-control precio" name="precio[]" value="0" min="0" step="0.01" readonly>
                                         <div class="invalid-feedback"></div>
                                         <div class="valid-feedback"></div>
                                     </div>
@@ -217,7 +217,7 @@
                     </div>
 
                     <div class="row g-3">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="field-wrapper">
                                 <label class="field-label" for="manoObra"><i class="bi bi-tools"></i> Mano de obra</label>
                                 <input type="number" class="form-control" id="manoObra" name="mano_obra" value="{% if form.mano_obra.value %}{{ form.mano_obra.value }}{% else %}{{ venta.mano_obra }}{% endif %}" min="0" step="0.01">
@@ -228,26 +228,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-
-                        <div class="col-12 col-md-4">
-                            <div class="field-wrapper">
-                                <label class="field-label" for="ivaSelect"><i class="bi bi-percent"></i> IVA aplicable</label>
-                                <select class="form-select" id="ivaSelect" name="iva_pct">
-                                    {% with iva_val=form.iva_pct.value|default:venta.iva_pct %}
-                                        <option value="0" {% if iva_val|stringformat:'s' == '0' %}selected{% endif %}>Sin IVA (0%)</option>
-                                        <option value="5" {% if iva_val|stringformat:'s' == '5' %}selected{% endif %}>5%</option>
-                                        <option value="19" {% if iva_val|stringformat:'s' == '19' %}selected{% endif %}>19%</option>
-                                    {% endwith %}
-                                </select>
-                                <div class="invalid-feedback"></div>
-                                <div class="valid-feedback"></div>
-                                {% for error in form.iva_pct.errors %}
-                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="field-wrapper">
                                 <label class="field-label" for="{{ form.cliente.id_for_label }}"><i class="bi bi-person"></i> {{ form.cliente.label }}</label>
                                 {{ form.cliente }}
@@ -313,18 +294,14 @@
                     <div id="resumenVenta" class="profile-info-card mt-4">
                         <div class="profile-info-title">
                             <i class="bi bi-receipt"></i>
-                            Resumen de la venta
+                            Resumen de la Venta
                         </div>
                         <div class="profile-info-grid">
-                            <div class="profile-info-item">
+                            <div class="info-item">
                                 <span class="profile-info-label">Subtotal</span>
                                 <div class="profile-info-value" id="subtotalVenta">$0.00</div>
                             </div>
-                            <div class="profile-info-item">
-                                <span class="profile-info-label">IVA</span>
-                                <div class="profile-info-value" id="ivaVenta">$0.00 (0%)</div>
-                            </div>
-                            <div class="profile-info-item">
+                            <div class="info-item">
                                 <span class="profile-info-label">Total</span>
                                 <div class="profile-info-value" id="totalVenta">$0.00</div>
                             </div>

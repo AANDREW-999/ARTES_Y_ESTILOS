@@ -156,6 +156,8 @@ def compras_list(request):
         "proveedores": proveedores,
         "proveedor_nombre_filtro": proveedor_nombre,
         "fecha_desde_filtro": fecha_desde,
+        "resultados_filtrados": lista_compras.count(),
+        "hay_filtros": any([q, proveedor_nombre, fecha_desde]),
     }
     return HttpResponse(template.render(context, request))
 

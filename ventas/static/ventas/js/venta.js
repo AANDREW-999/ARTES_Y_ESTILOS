@@ -3,11 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const itemsContainer = document.getElementById("itemsContainer");
     const totalSpan = document.getElementById("totalVenta");
     const subtotalSpan = document.getElementById("subtotalVenta");
-    const ivaSpan = document.getElementById("ivaVenta");
     const manoObraInput = document.getElementById("manoObra");
     const domicilioCheckbox = document.getElementById("id_con_domicilio");
     const camposDomicilio = document.getElementById("campos_domicilio");
-    const ivaSelect = document.getElementById("ivaSelect");
     const envioInput = document.getElementById("id_precio_envio");
 
     if (!addItemBtn || !itemsContainer) {
@@ -16,7 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     addItemBtn.addEventListener("click", agregarItem);
     manoObraInput && manoObraInput.addEventListener("input", calcularTotal);
-    ivaSelect && ivaSelect.addEventListener("change", calcularTotal);
     envioInput && envioInput.addEventListener("input", calcularTotal);
 
     if (domicilioCheckbox) {
@@ -34,6 +31,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     itemsContainer.querySelectorAll(".item-venta").forEach(configurarItem);
     calcularTotal();
+
+    function parsearPrecioData(valor) {
+        if (!valor) return 0;
+        const str = String(valor).trim();
+        if (!str) return 0;
+
+        // Soporta 10000.50 y 10.000,50
+        if (str.includes(',')) {
+            return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        return parseFloat(str) || 0;
+    }
 
     function agregarItem() {
         const primerItem = itemsContainer.querySelector(".item-venta");
@@ -73,14 +82,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const removeBtn = itemEl.querySelector(".eliminar");
 
         if (select && precioInput) {
-            select.addEventListener("change", () => {
+            const autocompletarPrecio = (forzar) => {
                 const selectedOption = select.options[select.selectedIndex];
                 const precio = selectedOption ? selectedOption.getAttribute("data-precio") : null;
-                if (precio) {
-                    precioInput.value = precio;
+                const precioActual = parseFloat(precioInput.value) || 0;
+                const precioNum = parsearPrecioData(precio);
+
+                if (precioNum > 0 && (forzar || !precioActual || precioActual <= 0)) {
+                    precioInput.value = precioNum.toFixed(2);
+                } else if (forzar && !precioNum) {
+                    precioInput.value = "0";
                 }
                 calcularTotal();
-            });
+            };
+
+            select.addEventListener("change", () => autocompletarPrecio(true));
+            autocompletarPrecio(false);
         }
 
         precioInput && precioInput.addEventListener("input", calcularTotal);
@@ -119,12 +136,9 @@ document.addEventListener("DOMContentLoaded", function () {
             subtotal += parseFloat(envioInput.value) || 0;
         }
 
-        const ivaPct = parseFloat(ivaSelect?.value) || 0;
-        const ivaMonto = subtotal * (ivaPct / 100);
-        const total = subtotal + ivaMonto;
+        const total = subtotal;
 
         if (subtotalSpan) subtotalSpan.innerText = fmt(subtotal);
-        if (ivaSpan) ivaSpan.innerText = `${fmt(ivaMonto)} (${ivaPct}%)`;
         if (totalSpan) totalSpan.innerText = fmt(total);
 
         const hiddenTotal = document.getElementById("hiddenTotal");

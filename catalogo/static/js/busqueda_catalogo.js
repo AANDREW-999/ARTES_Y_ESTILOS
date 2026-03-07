@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const targetSelector = searchInput.dataset.target;
         if (!targetSelector) return;
 
+        const counterSelector = searchInput.dataset.counter;
+        const counterEl = counterSelector ? document.querySelector(counterSelector) : null;
+
         const tabla = document.querySelector(targetSelector);
         if (!tabla) return;
 
@@ -40,6 +43,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const clientEmptyRow = ensureClientEmptyRow();
 
+        const updateCounter = (count) => {
+            if (counterEl) {
+                counterEl.textContent = String(count);
+            }
+        };
+
+        // Valor inicial de resultados visibles al cargar la pagina.
+        updateCounter(dataRows.length);
+
         searchInput.addEventListener('input', function () {
             const termRaw = this.value.trim();
             const term = normalize(termRaw);
@@ -64,6 +76,8 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 clientEmptyRow.style.display = 'none';
             }
+
+            updateCounter(visibles);
         });
     });
 });

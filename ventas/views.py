@@ -49,9 +49,25 @@ def _parse_detalles_venta(request):
 
         try:
             cantidad = int(cantidad_raw)
-            precio = Decimal(precio_raw)
-        except (ValueError, InvalidOperation):
-            raise ValueError(f"Item {idx}: Formato invalido en cantidad o precio.")
+        except ValueError:
+            raise ValueError(f"Item {idx}: Formato invalido en cantidad.")
+
+        precio = None
+        if precio_raw:
+            try:
+                precio = Decimal(precio_raw)
+            except InvalidOperation:
+                raise ValueError(f"Item {idx}: Formato invalido en precio.")
+
+        if not precio or precio <= 0:
+            # Fallback: si no llega precio en el POST, tomar el precio actual del item.
+            try:
+                if tipo_item == "FLOR":
+                    precio = Flor.objects.get(pk=item_pk).precio
+                else:
+                    precio = Producto.objects.get(pk=item_pk).precio
+            except (Flor.DoesNotExist, Producto.DoesNotExist):
+                raise ValueError(f"Item {idx}: El item seleccionado ya no existe.")
 
         if cantidad <= 0:
             raise ValueError(f"Item {idx}: La cantidad debe ser mayor a 0.")
@@ -100,7 +116,15 @@ def listar_ventas(request):
 
     q = request.GET.get("q", "").strip()
     cliente_nombre = request.GET.get("cliente_nombre", "").strip()
-    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_desde = request.GET.get("fecha_desde", "").strip()
+
+    def _parse_fecha(raw_fecha):
+        for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
+            try:
+                return datetime.strptime(raw_fecha, fmt).date()
+            except ValueError:
+                continue
+        return None
 
     if q:
         filtros_q = (
@@ -113,13 +137,25 @@ def listar_ventas(request):
         ventas = ventas.filter(filtros_q)
 
     if cliente_nombre:
-        ventas = ventas.filter(cliente__nombre__icontains=cliente_nombre)
+        partes_nombre = [p for p in cliente_nombre.split() if p]
+        filtro_cliente = Q(cliente__nombre__icontains=cliente_nombre) | Q(cliente__apellido__icontains=cliente_nombre)
+
+        if len(partes_nombre) >= 2:
+            primer_token = partes_nombre[0]
+            resto_nombre = " ".join(partes_nombre[1:])
+            filtro_cliente = filtro_cliente | (
+                Q(cliente__nombre__icontains=primer_token) & Q(cliente__apellido__icontains=resto_nombre)
+            ) | (
+                Q(cliente__apellido__icontains=primer_token) & Q(cliente__nombre__icontains=resto_nombre)
+            )
+
+        ventas = ventas.filter(filtro_cliente)
 
     if fecha_desde:
-        try:
-            fecha = datetime.strptime(fecha_desde, "%Y-%m-%d").date()
+        fecha = _parse_fecha(fecha_desde)
+        if fecha:
             ventas = ventas.filter(fecha__gte=fecha)
-        except ValueError:
+        else:
             fecha_desde = ""
 
     clientes = Cliente.objects.all().order_by("nombre", "apellido")
@@ -142,6 +178,8 @@ def listar_ventas(request):
         "monto_total": monto_total,
         "total_clientes": total_clientes,
         "ventas_mes": ventas_mes,
+        "resultados_filtrados": ventas.count(),
+        "hay_filtros": any([q, cliente_nombre, fecha_desde]),
     }
     return render(request, "ventas/listar_venta.html", context)
 
@@ -186,7 +224,7 @@ def crear_venta(request):
                         _descontar_stock(data["tipo_item"], data["item_pk"], data["cantidad"])
 
                     venta.recalcular_totales()
-                    venta.save(update_fields=["subtotal_sin_iva", "iva_monto", "total"])
+                    venta.save(update_fields=["subtotal", "total"])
 
                 messages.success(request, f"Venta #{venta.id} registrada correctamente.")
                 return redirect("ventas:listar_venta")
@@ -265,7 +303,7 @@ def editar_venta(request, pk):
                         _descontar_stock(data["tipo_item"], data["item_pk"], data["cantidad"])
 
                     venta.recalcular_totales()
-                    venta.save(update_fields=["subtotal_sin_iva", "iva_monto", "total"])
+                    venta.save(update_fields=["subtotal", "total"])
 
                 messages.success(request, f"Venta #{venta.id} actualizada correctamente.")
                 return redirect("ventas:listar_venta")

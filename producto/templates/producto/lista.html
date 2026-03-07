@@ -225,7 +225,8 @@
 
                                 <a
                                     href="{% url 'producto:eliminar' producto.id %}"
-                                    class="btn-cliente-action btn-cliente-eliminar"
+                                    class="btn-cliente-action btn-cliente-eliminar js-confirm-delete-producto"
+                                    data-producto-nombre="{{ producto.nombre }}"
                                     title="Eliminar"
                                     aria-label="Eliminar producto">
                                     <i class="bi bi-trash"></i>

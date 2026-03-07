@@ -11,6 +11,133 @@
 {% block content %}
 <div class="container-fluid py-4">
 
+<<<<<<< HEAD
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header-clientes fadeInUp">
+        <div class="page-header-info">
+            <h1>
+                <i class="bi bi-truck"></i> Gestión de Proveedores
+            </h1>
+            <p>Gestiona los proveedores de la floristería Artes & Estilos.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <form method="GET" action="{% url 'proveedores:listar' %}" class="js-search-form" novalidate>
+                <input type="hidden" name="tipo_documento" value="{{ tipo_documento_filtro|default:'' }}">
+                <input type="hidden" name="ciudad" value="{{ ciudad_filtro|default:'' }}">
+                <input type="hidden" name="estado" value="{{ estado_filtro|default:'' }}">
+                <div class="search-wrapper">
+                    <input type="text" id="search-live-proveedores" name="q" value="{{ query|default:'' }}"
+                           class="search-input js-live-search" data-target="#proveedores-tbody"
+                           placeholder="Buscar por nombre, documento, ciudad o correo..." autocomplete="off">
+                    <button type="submit" class="search-btn" aria-label="Buscar">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+
+            <a href="{% url 'proveedores:agregar' %}" class="btn-cliente-nuevo">
+                <i class="bi bi-plus-circle"></i> Crear proveedor
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary"><i class="bi bi-truck"></i></div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_proveedores }}</div>
+                <div class="stat-label">Total proveedores</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_activos }}</div>
+                <div class="stat-label">Activos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary"><i class="bi bi-slash-circle-fill"></i></div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_inactivos }}</div>
+                <div class="stat-label">Inactivos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary"><i class="bi bi-geo-alt-fill"></i></div>
+            <div class="stat-content">
+                <div class="stat-value">{{ ciudades_activas }}</div>
+                <div class="stat-label">Ciudades activas</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-section-title">
+            <i class="bi bi-funnel-fill"></i>
+            Filtros del listado
+        </div>
+
+        <form method="GET" action="{% url 'proveedores:listar' %}" id="proveedores-filter-form" novalidate autocomplete="off">
+            <input type="hidden" name="q" value="{{ query|default:'' }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-3">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="filtro_tipo_doc_proveedor">Tipo documento</label>
+                        <select name="tipo_documento" id="filtro_tipo_doc_proveedor" class="form-select">
+                            <option value="">Todos</option>
+                            {% for valor, etiqueta in tipos_documento %}
+                            <option value="{{ valor }}" {% if tipo_documento_filtro == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="filtro_ciudad_proveedor">Ciudad</label>
+                        <select name="ciudad" id="filtro_ciudad_proveedor" class="form-select">
+                            <option value="">Todas</option>
+                            {% for c in ciudades_filtro %}
+                            <option value="{{ c }}" {% if ciudad_filtro == c %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="field-wrapper">
+                        <label class="field-label" for="filtro_estado_proveedor">Estado</label>
+                        <select name="estado" id="filtro_estado_proveedor" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="activo" {% if estado_filtro == 'activo' %}selected{% endif %}>Activo</option>
+                            <option value="inactivo" {% if estado_filtro == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 d-flex align-items-end gap-2 justify-content-md-start justify-content-lg-end">
+                    <a href="{% url 'proveedores:listar' %}" class="btn-cancelar" title="Limpiar filtros" aria-label="Limpiar filtros">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                    <button type="submit" class="btn-guardar" title="Aplicar filtros" aria-label="Aplicar filtros">
+                        <i class="bi bi-search"></i>
+                    </button>
+=======
+>>>>>>> 642e0d5be90e72318888f8ec2a5b5b80a24f80c6
                 </div>
             </div>
             <div class="mt-3 text-muted small">

@@ -142,9 +142,9 @@ class ClienteDeleteView(DBSafeMixin, generic.DeleteView):
     template_name = 'cliente_confirm_delete.html'
     success_url = reverse_lazy('clientes:lista_clientes')
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         messages.success(self.request, 'Cliente eliminado correctamente.')
-        return super().delete(request, *args, **kwargs)
+        return super().form_valid(form)
 
 
 def verificar_documento(request):

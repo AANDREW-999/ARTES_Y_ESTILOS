@@ -263,10 +263,10 @@
             </h3>
             <div class="alert-info-box mb-3">
                 <i class="bi bi-info-circle-fill fs-5"></i>
-                <div><small><strong>Nota:</strong> Los cambios en permisos afectan el nivel de acceso al sistema.</small></div>
+                <div><small><strong>Nota:</strong> En tu propio perfil solo puedes activar o desactivar tu cuenta.</small></div>
             </div>
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-12">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox"
                                name="is_active" id="id_is_active"
@@ -275,16 +275,9 @@
                             <strong>Cuenta activa</strong>
                         </label>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox"
-                               name="is_superuser" id="id_is_superuser"
-                               {% if form.is_superuser.value %}checked{% endif %}>
-                        <label class="form-check-label" for="id_is_superuser">
-                            <strong>Superadministrador</strong>
-                        </label>
-                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Si desactivas tu cuenta, se cerrará tu sesión y solo un superadministrador podrá reactivarla.
+                    </small>
                 </div>
             </div>
         </div>

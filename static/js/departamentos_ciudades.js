@@ -110,19 +110,29 @@
     }
 
     function getSelectedDepartmentId(departSelect) {
+        const selectedOption = departSelect.options[departSelect.selectedIndex];
+        const dataId = String(selectedOption?.dataset?.id || '').trim();
+        const idFromDataset = Number(dataId);
+        if (Number.isFinite(idFromDataset) && dataId !== '') {
+            return idFromDataset;
+        }
+
         const value = String(departSelect.value || '').trim();
-        const id = Number(value);
-        return Number.isFinite(id) && value !== '' ? id : null;
+        const idFromValue = Number(value);
+        return Number.isFinite(idFromValue) && value !== '' ? idFromValue : null;
     }
 
     function applyInitialDepartmentValue(departSelect, departments, initialValue) {
         const raw = String(initialValue || '').trim();
         if (!raw) return;
 
-        // Si ya viene como id (nuevo formato), seleccionarlo directo.
+        // Si viene como id (legacy), mapear por id y seleccionar por nombre.
         const maybeId = Number(raw);
         if (Number.isFinite(maybeId) && raw !== '') {
-            departSelect.value = String(maybeId);
+            const matchById = departments.find((d) => Number(d.id) === maybeId);
+            if (matchById) {
+                departSelect.value = String(matchById.name);
+            }
             return;
         }
 
@@ -130,7 +140,7 @@
         const target = raw.toLocaleLowerCase('es');
         const match = departments.find((d) => String(d.name).trim().toLocaleLowerCase('es') === target);
         if (match) {
-            departSelect.value = String(match.id);
+            departSelect.value = String(match.name);
         }
     }
 
@@ -171,8 +181,9 @@
         const deptOptions = [{ value: '', text: 'Seleccione un departamento' }];
         for (const d of departments) {
             deptOptions.push({
-                value: String(d.id),
+                value: d.name,
                 text: d.name,
+                dataset: { id: d.id },
             });
         }
         setSelectOptions(departSelect, deptOptions);

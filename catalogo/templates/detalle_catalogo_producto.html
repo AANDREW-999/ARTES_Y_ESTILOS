@@ -1,93 +1,120 @@
 {% extends 'master.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=20260303">
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}?v=20260306">
+<link rel="stylesheet" href="{% static 'css/detalle_modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/detalle_catalogo_producto.css' %}?v=20260307">
 {% endblock %}
 
 {% block content %}
+<div class="container py-4 catalogo-detalle-modulo">
 
-<div class="container py-4 catalogo-detail">
-
-    {% comment %} <!-- Breadcrumb (Catálogo) -->
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb mb-0">
-            {% if user.is_authenticated and user.is_staff %}
-                <li class="breadcrumb-item">
-                    <a href="{% url 'core:dashboard' %}">
-                        <i class="bi bi-house-door-fill"></i>
-                        <span>Inicio</span>
-                    </a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'catalogo:gestion_productos' %}">Catálogo</a>
-                </li>
-            {% else %}
-                <li class="breadcrumb-item">
-                    <a href="{% url 'core:landing' %}">
-                        <i class="bi bi-house-door-fill"></i>
-                        <span>Inicio</span>
-                    </a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'core:landing' %}#catalogo">Catálogo</a>
-                </li>
-            {% endif %}
-            <li class="breadcrumb-item active" aria-current="page">Detalle</li>
-        </ol>
-    </nav> {% endcomment %}
-
-    <div class="row g-4">
-        <!-- Imagen -->
-        <div class="col-md-5">
-            <div class="img-panel" style="min-height:420px;">
+    <div class="profile-header-card">
+        <div class="profile-header-content">
+            <div class="profile-avatar-wrapper" aria-hidden="true">
                 {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}"
-                         style="max-height:400px;">
+                    <img class="profile-avatar" src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
                 {% else %}
-                    <div class="empty-state">
-                        <i class="bi bi-image"></i>
-                        <p>Imagen no disponible</p>
+                    <div class="profile-avatar-placeholder">
+                        {{ producto.nombre|first|upper }}
                     </div>
                 {% endif %}
             </div>
-        </div>
 
-        <!-- Info -->
-        <div class="col-md-7">
-            <div class="detail-info-card">
-                <p class="detail-product-name">{{ producto.nombre }}</p>
-                <p class="detail-product-price">${{ producto.precio }}</p>
-
-                <h2 class="form-section-title">
-                    <i class="bi bi-info-circle"></i> Información del Arreglo
-                </h2>
-
-                <div class="detail-info-grid">
-                    <div class="detail-info-item">
-                        <span class="detail-info-label">Categoría</span>
-                        <span class="detail-info-value">{{ producto.categoria.nombre }}</span>
-                    </div>
-                    <div class="detail-info-item">
-                        <span class="detail-info-label">Tamaño</span>
-                        <span class="detail-info-value">{{ producto.tamano }}</span>
-                    </div>
-                        <div class="detail-info-item" style="grid-column: 1 / -1;">
-                        <span class="detail-info-label">Descripción</span>
-                        <span class="detail-info-value" style="white-space: pre-line; display: block;">
-                            {{ producto.descripcion|default:"Un bello detalle pensado para sorprender en cualquier ocasión. Hecho con Amor por la Floristeria Artes & Estilos. 🌹✨" }}
-                        </span>
-                    </div>
+            <div class="profile-header-info">
+                <div class="profile-name">{{ producto.nombre }}</div>
+                <div class="catalogo-rating mb-3" aria-label="Calificación 5 de 5">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <span class="profile-badge badge-active"><i class="bi bi-currency-dollar"></i> {{ producto.precio|floatformat:2|intcomma }}</span>
+                <div class="profile-badges">
+                    <span class="profile-badge badge-user"><i class="bi bi-tag"></i> {{ producto.categoria.nombre|default:'Sin categoría' }}</span>
+                    <span class="profile-badge badge-user"><i class="bi bi-bounding-box"></i> {{ producto.tamano|default:'Sin tamaño' }}</span>
                 </div>
             </div>
         </div>
     </div>
-        <!-- Botón volver -->
-    <div class="mb-4">
-        <a href="javascript:history.back()" class="btn-volver">
-            <i class="bi bi-arrow-left"></i> Volver al Catálogo
-        </a>
-    </div>
-</div>
 
+    <div class="profile-tabs-card">
+        <div class="profile-tab-content">
+            <div class="profile-section">
+                <div class="section-title">
+                    <i class="bi bi-card-checklist"></i>
+                    Información del Arreglo
+                </div>
+
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-lg-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-image"></i> Imagen</div>
+                            <div class="info-value">
+                                {% if producto.imagen %}
+                                    <img
+                                        class="catalogo-main-image"
+                                        src="{{ producto.imagen.url }}"
+                                        alt="{{ producto.nombre }}"
+                                        style="width: 100%; max-width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 14px; border: 2px solid var(--border-color); object-fit: cover;">
+                                {% else %}
+                                    <div
+                                        class="profile-avatar-placeholder"
+                                        style="width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; display:flex; align-items:center; justify-content:center;">
+                                        {{ producto.nombre|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-tag"></i> Categoría</div>
+                                    <div class="info-value">{{ producto.categoria.nombre|default:'—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-bounding-box"></i> Tamaño</div>
+                                    <div class="info-value">{{ producto.tamano|default:'—' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"></i> Precio</div>
+                                    <div class="info-value">${{ producto.precio|floatformat:2|intcomma }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <div class="info-label"><i class="bi bi-text-paragraph"></i> Descripción</div>
+                                    <div class="info-value" style="white-space: pre-line;">
+                                        {{ producto.descripcion|default:"Un bello detalle pensado para sorprender en cualquier ocasión. Hecho con Amor por la Floristeria Artes y Estilos." }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <a href="javascript:history.back()" class="btn-secondary-custom">
+                        <i class="bi bi-arrow-left"></i> Volver al Catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

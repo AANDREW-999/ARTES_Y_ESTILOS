@@ -12,6 +12,7 @@
         constructor() {
             this.sidebar         = null;
             this.sidebarToggle   = null;
+            this.sidebarToggles  = [];
             this.mainContent     = null;
             this.sidebarResizer  = null;
             this.adminOverlay    = null;
@@ -71,6 +72,7 @@
         initElements() {
             this.sidebar       = document.getElementById('sidebar');
             this.sidebarToggle = document.getElementById('sidebar-toggle');
+            this.sidebarToggles = Array.from(document.querySelectorAll('[data-sidebar-toggle]'));
             this.mainContent   = document.getElementById('main-content');
             this.sidebarResizer = document.getElementById('sidebar-resizer');
             this.adminOverlay  = document.getElementById('adminNotificationOverlay');
@@ -86,7 +88,13 @@
         // SIDEBAR (colapsable desktop + offcanvas mobile)
         // ─────────────────────────────────────────
         initSidebarCollapsible() {
-            if (!this.sidebarToggle || !this.sidebar) return;
+            if (!this.sidebar) return;
+
+            const toggles = this.sidebarToggles.length
+                ? this.sidebarToggles
+                : (this.sidebarToggle ? [this.sidebarToggle] : []);
+
+            if (!toggles.length) return;
 
             this._restoreSidebarState();
             this._restoreSidebarWidth();
@@ -96,15 +104,17 @@
             this._initSidebarFlyout();
             this._initSidebarResize();
 
-            this.sidebarToggle.addEventListener('click', () => {
-                // Mobile: comportamiento off-canvas (show/hide)
-                if (window.innerWidth <= 768) {
-                    this.sidebar.classList.toggle('show');
-                    return;
-                }
+            toggles.forEach((toggleBtn) => {
+                toggleBtn.addEventListener('click', () => {
+                    // Mobile: comportamiento off-canvas (show/hide)
+                    if (window.innerWidth <= 768) {
+                        this.sidebar.classList.toggle('show');
+                        return;
+                    }
 
-                // Desktop: colapsar/expandir
-                this._setSidebarCollapsed(!this._isSidebarCollapsed(), { persist: true });
+                    // Desktop: colapsar/expandir
+                    this._setSidebarCollapsed(!this._isSidebarCollapsed(), { persist: true });
+                });
             });
         }
 

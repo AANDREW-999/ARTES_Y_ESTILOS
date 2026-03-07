@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'clientes/css/clientes.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -28,16 +29,24 @@
         </nav>
     </div>
 
-    <div class="confirmation-card">
-        <div class="confirmation-icon confirmation-icon-danger" aria-hidden="true">
+    <div class="confirmation-card scaleIn">
+        <div class="confirmation-icon confirmation-icon-danger heartbeat" aria-hidden="true">
             <i class="bi bi-exclamation-triangle"></i>
         </div>
 
-        <div class="confirmation-title">¿Eliminar producto?</div>
+        <div class="confirmation-title glowText">¿Eliminar producto?</div>
 
-        <div class="user-info-box">
-            <div class="user-info-avatar-placeholder" aria-hidden="true">
-                {{ imagen.nombre|first|upper }}
+        <div class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-4 shakeWarning"
+             style="background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.2); border-radius: 12px;">
+            <i class="bi bi-exclamation-triangle-fill text-danger fs-4 pulseIcon"></i>
+            <div class="text-danger">
+                <strong>ATENCION:</strong> Esta accion es permanente y no se puede deshacer.
+            </div>
+        </div>
+
+        <div class="user-info-box slideInUp">
+            <div class="user-info-avatar-placeholder pulseAvatar" aria-hidden="true">
+                {{ producto.nombre|first|upper }}
             </div>
             <div>
                 <div class="fw-bold" style="color: var(--text-primary);">{{ producto.nombre }}</div>
@@ -45,14 +54,40 @@
             </div>
         </div>
 
-        <form method="post" class="d-flex flex-wrap gap-2 justify-content-center">
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="p-3 text-center tarjetaAnimada tarjetaDanger" style="animation: slideUpScale 0.5s ease 0.2s both;">
+                    <i class="bi bi-x-circle-fill text-danger mb-2 iconoAnimado"></i>
+                    <p class="mb-0 fw-bold">Eliminacion</p>
+                    <p class="mb-0 small text-danger">permanente</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 text-center tarjetaAnimada tarjetaWarning" style="animation: slideUpScale 0.5s ease 0.3s both;">
+                    <i class="bi bi-archive text-warning mb-2 iconoAnimado"></i>
+                    <p class="mb-0 fw-bold">Catalogo</p>
+                    <p class="mb-0 small text-warning">actualizado</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 text-center tarjetaAnimada tarjetaSecondary" style="animation: slideUpScale 0.5s ease 0.4s both;">
+                    <i class="bi bi-arrow-counterclockwise text-secondary mb-2 iconoAnimado"></i>
+                    <p class="mb-0 fw-bold">No se puede</p>
+                    <p class="mb-0 small text-secondary">deshacer</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post">
             {% csrf_token %}
-            <button type="submit" class="btn-confirm btn-confirm-danger">
-                <i class="bi bi-trash"></i> Confirmar eliminación
-            </button>
-            <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancel">
-                <i class="bi bi-x-lg"></i> Cancelar
-            </a>
+            <div class="d-flex justify-content-center gap-3" style="animation: fadeIn 0.5s ease 0.5s both;">
+                <a href="{% url 'catalogo:gestion_productos' %}" class="btn botonCancelar px-4 py-2">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn botonEliminar px-4 py-2">
+                    <i class="bi bi-trash"></i> Eliminar permanentemente
+                </button>
+            </div>
         </form>
     </div>
 

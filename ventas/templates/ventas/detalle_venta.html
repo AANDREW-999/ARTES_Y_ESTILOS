@@ -1,5 +1,6 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Detalle de Venta{% endblock %}
 
@@ -38,13 +39,13 @@
 
             <div class="profile-header-info">
                 <div class="profile-name">Venta #{{ venta.id }}</div>
-                <div class="profile-username">{{ venta.cliente.nombre }}</div>
+                <div class="profile-username">{{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}</div>
 
                 <div class="profile-badges">
                     <span class="profile-badge badge-user"><i class="bi bi-calendar-event"></i> {{ venta.fecha|date:'d/m/Y' }}</span>
                     <span class="profile-badge badge-active"><i class="bi bi-currency-dollar"></i> ${{ venta.total }}</span>
                     <span class="profile-badge badge-user"><i class="bi bi-bag"></i> Ítems: {{ venta.detalles.count }}</span>
-                    <span class="profile-badge badge-user"><i class="bi bi-credit-card"></i> {{ venta.get_forma_pago_display }}</span>
+                    <span class="profile-badge badge-user"><i class="bi bi-credit-card"></i> {{ venta.get_forma_pago_display|upper }}</span>
                 </div>
             </div>
 
@@ -65,45 +66,39 @@
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-6">
+
+                    <div class="col-12 col-md-3">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-person"></i> Cliente</div>
+                            <div class="info-value">{{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-tag"></i> Tipo de venta</div>
                             <div class="info-value">{{ venta.get_tipo_venta_display }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-3">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-credit-card"></i> Forma de pago</div>
-                            <div class="info-value">{{ venta.get_forma_pago_display }}</div>
+                            <div class="info-value">{{ venta.get_forma_pago_display|upper }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 col-md-3">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-calendar-event"></i> Fecha de venta</div>
+                            <div class="info-value">{{ venta.fecha|date:'d/m/Y' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-card-text"></i> Descripción</div>
                             <div class="info-value">{{ venta.descripcion|default:'—' }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-6">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-tools"></i> Mano de obra</div>
-                            <div class="info-value">${{ venta.mano_obra }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-6">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-receipt"></i> Subtotal</div>
-                            <div class="info-value">${{ venta.subtotal }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-6">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-currency-dollar"></i> Total</div>
-                            <div class="info-value"><strong>${{ venta.total }}</strong></div>
                         </div>
                     </div>
 
@@ -113,10 +108,41 @@
                             <div class="info-value">
                                 {% if venta.con_domicilio %}
                                     Sí{% if venta.direccion %} — {{ venta.direccion }}{% endif %}
+                                    <br>Costo de envío: ${{ venta.precio_envio|floatformat:2|intcomma }}
+                                    {% if venta.nombre_domiciliario %}<br>Nombre domiciliario: {{ venta.nombre_domiciliario }}{% endif %}
+                                    {% if venta.telefono_domiciliario %}<br>Teléfono domiciliario: {{ venta.telefono_domiciliario }}{% endif %}
                                 {% else %}
                                     No
                                 {% endif %}
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-md-3">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-wallet2"></i> Medio de pago</div>
+                            <div class="info-value">{{ venta.medio_pago|default:venta.get_forma_pago_display|upper }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-tools"></i> Mano de obra</div>
+                            <div class="info-value">${{ venta.mano_obra|floatformat:2|intcomma }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-receipt"></i> Subtotal</div>
+                            <div class="info-value">${{ venta.subtotal|floatformat:2|intcomma }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-currency-dollar"></i> Total</div>
+                            <div class="info-value"><strong>${{ venta.total|floatformat:2|intcomma }}</strong></div>
                         </div>
                     </div>
                 </div>
@@ -159,11 +185,6 @@
                         </table>
                     </div>
                 </div>
-
-                <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
-                    <a href="{% url 'ventas:editar' venta.id %}" class="btn-edit-profile">
-                        <i class="bi bi-pencil"></i> Editar
-                    </a>
                     <a href="{% url 'ventas:listar_venta' %}" class="btn-secondary-custom">
                         <i class="bi bi-arrow-left"></i> Volver
                     </a>

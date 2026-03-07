@@ -56,11 +56,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const trimmed = valor.trim();
-                if (!/^\d+(?:[\.,]\d{1,2})?$/.test(trimmed)) {
-                    return { valido: false, mensaje: 'Formato inválido (ej: 12000 o 12000.50)' };
+                const formatoLocal = /^\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?$/.test(trimmed);
+                const formatoSimple = /^\d+(?:[\.,]\d{1,2})?$/.test(trimmed);
+
+                if (!formatoLocal && !formatoSimple) {
+                    return { valido: false, mensaje: 'Formato inválido (ej: 12000, 12000.50 o 8.000,00)' };
                 }
 
-                const normalizado = trimmed.replace(',', '.');
+                let normalizado = trimmed;
+                // Si el valor viene en formato local (miles con punto, decimal con coma), normalizar.
+                if (formatoLocal) {
+                    normalizado = normalizado.replace(/\./g, '');
+                }
+                normalizado = normalizado.replace(',', '.');
+
                 const numero = Number(normalizado);
                 if (!Number.isFinite(numero)) {
                     return { valido: false, mensaje: 'El precio debe ser un número válido' };
@@ -216,8 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         ciudad: {
             selector: ['#id_ciudad'],
-            soloLetras: true,
-            permitirCaracteresEspeciales: false,
+            permitirCaracteresEspeciales: true,
             validar: function(valor, input) {
                 const departamento = document.querySelector('#id_departamento')?.value;
 
@@ -229,8 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (input && input.maxLength > 0 && valor.length > input.maxLength) {
                         return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                     }
-                    if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
-                        return { valido: false, mensaje: 'Solo letras permitidas' };
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s\.,]+$/.test(valor)) {
+                        return { valido: false, mensaje: 'Solo letras, espacios, punto (.) y coma (,) permitidos' };
                     }
                 } else {
                     // Si no hay departamento, ciudad es opcional
@@ -243,8 +251,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (input && input.maxLength > 0 && valor.length > input.maxLength) {
                         return { valido: false, mensaje: `Debe tener máximo ${input.maxLength} caracteres` };
                     }
-                    if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(valor)) {
-                        return { valido: false, mensaje: 'Solo letras permitidas' };
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s\.,]+$/.test(valor)) {
+                        return { valido: false, mensaje: 'Solo letras, espacios, punto (.) y coma (,) permitidos' };
                     }
                 }
                 return { valido: true, mensaje: 'Ciudad válida' };

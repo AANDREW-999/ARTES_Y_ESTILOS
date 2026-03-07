@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const raw = String(rawValue || '').trim();
         if (!raw) return null;
 
+        // Caso miles sin decimales: 8.000 -> 8000
+        if (/^\d{1,3}(?:\.\d{3})+$/.test(raw)) {
+            const normalizedThousands = raw.replace(/\./g, '');
+            const numThousands = Number(normalizedThousands);
+            return Number.isFinite(numThousands) ? numThousands : null;
+        }
+
         // Caso local: 1.234.567,89
         if (raw.includes(',')) {
             const normalized = raw.replace(/\./g, '').replace(',', '.');

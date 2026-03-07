@@ -29,7 +29,7 @@
 <div class="page-header-catalogo">
     <div class="page-header-info">
         <h1><i class="bi bi-box-seam"></i> Gestión de Catálogo</h1>
-        <p>Administra los productos de la floristería.</p>
+        <p>Administra los catálogos de la floristería Artes & Estilos.</p>
     </div>
     <div class="page-header-actions">
         <form action="{% url 'catalogo:gestion_productos' %}" method="GET" class="js-search-form" novalidate>
@@ -183,7 +183,7 @@
                 <td class="ps-4"><strong>{{ p.nombre }}</strong></td>
                 <td><span class="badge-catalogo">{{ p.categoria.nombre }}</span></td>
                 <td>{{ p.tamano }}</td>
-                <td><strong style="color:#BF5486">${{ p.precio|intcomma }}</strong></td>
+                <td><strong style="color:#BF5486">${{ p.precio|floatformat:2|intcomma }}</strong></td>
                 <td>
                     {% if p.activo %}
                         <span class="badge bg-success">Activo</span>
@@ -204,16 +204,18 @@
                 <td><small style="color:var(--text-secondary)">{{ p.descripcion|default:'-'|truncatechars:30 }}</small></td>
                 <td>
                     <div class="acciones-wrapper">
-                        <a href="{% url 'catalogo:editar_producto' p.id %}"
-                           class="btn-action btn-action-editar" title="Editar">
-                            <i class="bi bi-pencil-fill"></i>
-                        </a>
                         <a href="{% url 'catalogo:detalle_producto' p.id %}"
                            class="btn-action btn-action-ver" title="Ver">
                             <i class="bi bi-eye-fill"></i>
                         </a>
+                        <a href="{% url 'catalogo:editar_producto' p.id %}"
+                           class="btn-action btn-action-editar" title="Editar">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
                         <a href="{% url 'catalogo:eliminar_producto' p.id %}"
-                           class="btn-action btn-action-eliminar" title="Eliminar">
+                           class="btn-action btn-action-eliminar js-confirm-delete-producto"
+                           data-producto-nombre="{{ p.nombre }}"
+                           title="Eliminar">
                             <i class="bi bi-trash-fill"></i>
                         </a>
                     </div>
@@ -271,6 +273,32 @@ document.addEventListener('DOMContentLoaded', function () {
             precioMax.classList.add('is-invalid');
             precioMax.focus();
         }
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteLinks = document.querySelectorAll('.js-confirm-delete-producto');
+    if (!deleteLinks.length) return;
+
+    deleteLinks.forEach((link) => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const url = this.getAttribute('href');
+            const nombre = this.dataset.productoNombre || 'este producto';
+            const msg = `Vas a eliminar "${nombre}". Esta accion no se puede deshacer.`;
+
+            if (window._dashboard && typeof window._dashboard.showAdminConfirm === 'function') {
+                window._dashboard.showAdminConfirm('warning', msg, () => {
+                    window.location.href = url;
+                });
+                return;
+            }
+
+            if (window.confirm(msg)) {
+                window.location.href = url;
+            }
+        });
     });
 });
 </script>

@@ -1,5 +1,6 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
+{% load humanize %}
 {% block title %}Listado de Ventas{% endblock %}
 
 {% block extra_css %}
@@ -31,7 +32,7 @@
             <h1>
                 <i class="bi bi-cart"></i> Gestión de Ventas
             </h1>
-            <p>Administra y consulta todas las ventas registradas.</p>
+            <p>Administra y consulta todas las ventas registradas de Artes & Estilos.</p>
         </div>
 
         <div class="page-header-actions">
@@ -69,7 +70,7 @@
                 <i class="bi bi-cash-stack"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">${{ monto_total|floatformat:0|default:"—" }}</div>
+                <div class="stat-value">${{ monto_total|default_if_none:0|floatformat:0|intcomma }}</div>
                 <div class="stat-label">Monto Total</div>
             </div>
         </div>
@@ -156,49 +157,45 @@
             <table class="clientes-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Ítems</th>
-                        <th>Total</th>
+                        <th>Numero de Venta</th>
                         <th>Fecha</th>
+                        <th>Descripción</th>
                         <th>Cliente</th>
+                        <th>Domicilio</th>
+                        <th class="text-end">Total</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="ventas-tbody" class="js-live-table">
                     {% for venta in ventas %}
-                    <tr class="slideIn" data-search-row="1" data-search-text="#{{ venta.id }} {{ venta.cliente.nombre|default:'' }} {{ venta.cliente.apellido|default:'' }} {{ venta.cliente.documento|default:'' }} {{ venta.fecha|date:'d/m/Y' }}">
+                    <tr class="slideIn" data-search-row="1" data-search-text="#{{ venta.id }} {{ venta.cliente.nombre|default:'' }} {{ venta.cliente.apellido|default:'' }} {{ venta.cliente.documento|default:'' }} {{ venta.descripcion|default:'' }} {{ venta.fecha|date:'d/m/Y' }} {% if venta.con_domicilio %}con domicilio{% else %}sin domicilio{% endif %}">
                         <td>
-                            <strong>#{{ venta.id }}</strong>
-                        </td>
-
-                        <td>
-                            {% with detalles=venta.detalles.all %}
-                                <span class="stock-qty">{{ detalles|length }}</span>
-                                {% with first=detalles|first %}
-                                    {% if first %}
-                                        <small class="text-muted">· {{ first.item_nombre }}</small>
-                                    {% endif %}
-                                {% endwith %}
-                            {% endwith %}
-                        </td>
-
-                        <td>
-                            <strong>${{ venta.total }}</strong>
+                            <div class="cliente-avatar-wrapper">
+                                <div class="cliente-avatar-placeholder" aria-hidden="true">V</div>
+                                <div class="cliente-info">
+                                    <strong>#{{ venta.id }}</strong>
+                                    <small>{{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}</small>
+                                </div>
+                            </div>
                         </td>
 
                         <td>{{ venta.fecha|date:'d/m/Y' }}</td>
 
+                        <td>{{ venta.descripcion|default:"Sin descripción"|truncatewords:8 }}</td>
+
                         <td>
-                            <div class="cliente-avatar-wrapper">
-                                <div class="cliente-avatar-placeholder" aria-hidden="true">
-                                    {{ venta.cliente.nombre|first|upper }}
-                                </div>
-                                <div class="cliente-info">
-                                    <strong>{{ venta.cliente.nombre }}</strong>
-                                    <small>Venta #{{ venta.id }}</small>
-                                </div>
-                            </div>
+                            {{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}
                         </td>
+
+                        <td>
+                            {% if venta.con_domicilio %}
+                                <span class="badge bg-success">Sí</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end"><strong>${{ venta.total|floatformat:2|intcomma }}</strong></td>
 
                         <td class="text-end">
                             <div class="acciones-cliente-wrapper">
@@ -230,7 +227,7 @@
                     </tr>
                     {% empty %}
                     <tr data-empty-server="1">
-                        <td colspan="6" class="empty-state">
+                        <td colspan="7" class="empty-state">
                             <i class="bi bi-cart-x"></i>
                             <p>No se encontraron ventas con los filtros aplicados.</p>
                         </td>

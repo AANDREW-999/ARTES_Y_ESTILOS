@@ -119,3 +119,4 @@ document.addEventListener('DOMContentLoaded', function() {
   btnClose && btnClose.addEventListener('click', closeLightbox);
   window.addEventListener('resize', () => { if (overlay.classList.contains('show')) fitImageNatural(imgEl); });
 })();
+

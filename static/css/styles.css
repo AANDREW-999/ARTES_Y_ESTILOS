@@ -423,13 +423,24 @@ hr {
   opacity: 1;
   transform: translateY(0);
 }
+/* Esta clase se activará con JS cuando lleguemos al footer */
+.whatsapp-float.subir {
+  transform: translateY(-70px); /* Ajusta este número según el alto de tu footer */
+  transition: transform 0.3s ease;
+}
 
+/* Si estás en móvil, que suba un poco menos */
+@media (max-width: 576px) {
+  .whatsapp-float.subir {
+    transform: translateY(-50px);
+  }
+}
 .whatsapp-float {
   position: fixed;
   width: 60px;
-  height: 60px;
-  bottom: 40px; /* Distancia del borde inferior */
-  right: 40px;  /* Distancia del borde derecho */
+  height: 61px;
+  bottom: 90px; /* Distancia del borde inferior */
+  right: 25px;  /* Distancia del borde derecho */
   background: linear-gradient(135deg, #e082d3 0%, #c058b8 100%); /* Degradado similar a tu imagen */
   color: #FFF;
   border-radius: 50px;
@@ -456,3 +467,4 @@ hr {
 .whatsapp-float i {
   line-height: 0;
 }
+

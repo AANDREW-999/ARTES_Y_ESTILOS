@@ -683,20 +683,6 @@ html[data-theme="dark"] .badge-cliente {
     gap: 1.5rem;
 }
 
-.profile-info-item {
-    padding: 1.25rem;
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-
-.profile-info-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: #BF5486;
-}
-
 .profile-info-label {
     display: block;
     font-size: 0.8125rem;
@@ -1358,7 +1344,6 @@ html[data-theme="dark"] .badge-cliente {
 .stat-card,
 .confirmation-card,
 .page-header-clientes,
-.profile-info-item,
 .user-info-box {
     transition: background-color 0.3s ease,
                 border-color 0.3s ease,

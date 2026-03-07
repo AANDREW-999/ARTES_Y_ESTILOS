@@ -49,9 +49,25 @@ def _parse_detalles_venta(request):
 
         try:
             cantidad = int(cantidad_raw)
-            precio = Decimal(precio_raw)
-        except (ValueError, InvalidOperation):
-            raise ValueError(f"Item {idx}: Formato invalido en cantidad o precio.")
+        except ValueError:
+            raise ValueError(f"Item {idx}: Formato invalido en cantidad.")
+
+        precio = None
+        if precio_raw:
+            try:
+                precio = Decimal(precio_raw)
+            except InvalidOperation:
+                raise ValueError(f"Item {idx}: Formato invalido en precio.")
+
+        if not precio or precio <= 0:
+            # Fallback: si no llega precio en el POST, tomar el precio actual del item.
+            try:
+                if tipo_item == "FLOR":
+                    precio = Flor.objects.get(pk=item_pk).precio
+                else:
+                    precio = Producto.objects.get(pk=item_pk).precio
+            except (Flor.DoesNotExist, Producto.DoesNotExist):
+                raise ValueError(f"Item {idx}: El item seleccionado ya no existe.")
 
         if cantidad <= 0:
             raise ValueError(f"Item {idx}: La cantidad debe ser mayor a 0.")
@@ -186,7 +202,7 @@ def crear_venta(request):
                         _descontar_stock(data["tipo_item"], data["item_pk"], data["cantidad"])
 
                     venta.recalcular_totales()
-                    venta.save(update_fields=["subtotal_sin_iva", "iva_monto", "total"])
+                    venta.save(update_fields=["subtotal", "total"])
 
                 messages.success(request, f"Venta #{venta.id} registrada correctamente.")
                 return redirect("ventas:listar_venta")
@@ -265,7 +281,7 @@ def editar_venta(request, pk):
                         _descontar_stock(data["tipo_item"], data["item_pk"], data["cantidad"])
 
                     venta.recalcular_totales()
-                    venta.save(update_fields=["subtotal_sin_iva", "iva_monto", "total"])
+                    venta.save(update_fields=["subtotal", "total"])
 
                 messages.success(request, f"Venta #{venta.id} actualizada correctamente.")
                 return redirect("ventas:listar_venta")

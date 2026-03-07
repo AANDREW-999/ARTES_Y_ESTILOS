@@ -439,8 +439,8 @@ hr {
   position: fixed;
   width: 60px;
   height: 61px;
-  bottom: 90px; /* Distancia del borde inferior */
-  right: 25px;  /* Distancia del borde derecho */
+  bottom: 120px; /* Distancia del borde inferior */
+  right: 35px;  /* Distancia del borde derecho */
   background: linear-gradient(135deg, #e082d3 0%, #c058b8 100%); /* Degradado similar a tu imagen */
   color: #FFF;
   border-radius: 50px;

@@ -37,6 +37,8 @@ class Venta(models.Model):
     descripcion = models.TextField(blank=True)
     con_domicilio = models.BooleanField(default=False)
     direccion     = models.CharField(max_length=200, blank=True, null=True)
+    nombre_domiciliario = models.CharField(max_length=120, blank=True, null=True)
+    telefono_domiciliario = models.CharField(max_length=20, blank=True, null=True)
     precio_envio  = models.DecimalField(
         max_digits=10, decimal_places=2, default=0,
         validators=[MinValueValidator(0)]

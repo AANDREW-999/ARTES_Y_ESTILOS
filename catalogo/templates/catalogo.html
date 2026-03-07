@@ -1,6 +1,7 @@
 
 {% extends 'master.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/catalogo.css' %}" />
@@ -38,7 +39,7 @@
                         <p class="card-text small mb-4">{{ p.descripcion|truncatechars:90 }}</p>
                         
                         <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <span class="fw-bold fs-4" style="color: #5d4037;">${{ p.precio }}</span>
+                            <span class="fw-bold fs-4" style="color: #5d4037;">${{ p.precio|floatformat:2|intcomma }}</span>
                             
                             <a href="{% url 'catalogo:detalle_producto' p.id %}" class="btn btn-rosa shadow-sm">
                                 Ver detalle

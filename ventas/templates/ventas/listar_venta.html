@@ -1,5 +1,6 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
+{% load humanize %}
 {% block title %}Listado de Ventas{% endblock %}
 
 {% block extra_css %}
@@ -69,7 +70,7 @@
                 <i class="bi bi-cash-stack"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">${{ monto_total|floatformat:0|default:"—" }}</div>
+                <div class="stat-value">${{ monto_total|default_if_none:0|floatformat:2|intcomma }}</div>
                 <div class="stat-label">Monto Total</div>
             </div>
         </div>

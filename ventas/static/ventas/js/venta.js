@@ -3,9 +3,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const itemsContainer = document.getElementById("itemsContainer");
     const totalSpan = document.getElementById("totalVenta");
     const subtotalSpan = document.getElementById("subtotalVenta");
+    const formVenta = document.getElementById("formVenta");
     const manoObraInput = document.getElementById("manoObra");
     const domicilioCheckbox = document.getElementById("id_con_domicilio");
     const camposDomicilio = document.getElementById("campos_domicilio");
+    const direccionInput = document.getElementById("id_direccion");
+    const nombreDomiciliarioInput = document.getElementById("id_nombre_domiciliario");
+    const telefonoDomiciliarioInput = document.getElementById("id_telefono_domiciliario");
     const envioInput = document.getElementById("id_precio_envio");
 
     if (!addItemBtn || !itemsContainer) {
@@ -16,11 +20,36 @@ document.addEventListener("DOMContentLoaded", function () {
     manoObraInput && manoObraInput.addEventListener("input", calcularTotal);
     envioInput && envioInput.addEventListener("input", calcularTotal);
 
+    if (manoObraInput) {
+        manoObraInput.addEventListener("focus", () => {
+            const numero = parsearMonedaInput(manoObraInput.value);
+            manoObraInput.value = numero ? numero.toFixed(2) : "";
+        });
+
+        manoObraInput.addEventListener("blur", () => {
+            const numero = parsearMonedaInput(manoObraInput.value);
+            manoObraInput.value = numero ? formatearMonedaInput(numero) : "0,00";
+            calcularTotal();
+        });
+
+        const inicial = parsearMonedaInput(manoObraInput.value);
+        manoObraInput.value = formatearMonedaInput(inicial);
+    }
+
+    if (formVenta) {
+        formVenta.addEventListener("submit", () => {
+            if (!manoObraInput) return;
+            const numero = parsearMonedaInput(manoObraInput.value);
+            manoObraInput.value = numero.toFixed(2);
+        });
+    }
+
     if (domicilioCheckbox) {
         domicilioCheckbox.addEventListener("change", () => {
             if (camposDomicilio) {
                 camposDomicilio.classList.toggle("d-none", !domicilioCheckbox.checked);
             }
+            actualizarValidacionDomicilio();
             calcularTotal();
         });
     }
@@ -28,6 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (domicilioCheckbox && camposDomicilio) {
         camposDomicilio.classList.toggle("d-none", !domicilioCheckbox.checked);
     }
+
+    actualizarValidacionDomicilio();
 
     itemsContainer.querySelectorAll(".item-venta").forEach(configurarItem);
     calcularTotal();
@@ -42,6 +73,24 @@ document.addEventListener("DOMContentLoaded", function () {
             return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
         }
         return parseFloat(str) || 0;
+    }
+
+    function parsearMonedaInput(valor) {
+        if (!valor) return 0;
+        const str = String(valor).trim();
+        if (!str) return 0;
+
+        if (str.includes(",")) {
+            return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+        }
+        return parseFloat(str) || 0;
+    }
+
+    function formatearMonedaInput(numero) {
+        return Number(numero || 0).toLocaleString("es-CO", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
     }
 
     function agregarItem() {
@@ -130,7 +179,7 @@ document.addEventListener("DOMContentLoaded", function () {
             subtotal += sub;
         });
 
-        subtotal += parseFloat(manoObraInput?.value) || 0;
+        subtotal += parsearMonedaInput(manoObraInput?.value);
 
         if (domicilioCheckbox?.checked && envioInput) {
             subtotal += parseFloat(envioInput.value) || 0;
@@ -145,6 +194,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (hiddenTotal) {
             hiddenTotal.value = total.toFixed(2);
         }
+    }
+
+    function actualizarValidacionDomicilio() {
+        const conDomicilio = Boolean(domicilioCheckbox?.checked);
+        [direccionInput, nombreDomiciliarioInput, telefonoDomiciliarioInput, envioInput].forEach((input) => {
+            if (!input) return;
+            input.required = conDomicilio;
+        });
     }
 
     function fmt(n) {

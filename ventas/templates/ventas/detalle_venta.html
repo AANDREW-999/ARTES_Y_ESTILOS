@@ -1,5 +1,6 @@
 {% extends 'panel_admin_base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Detalle de Venta{% endblock %}
 
@@ -89,7 +90,7 @@
                     <div class="col-12 col-md-6">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-tools"></i> Mano de obra</div>
-                            <div class="info-value">${{ venta.mano_obra }}</div>
+                            <div class="info-value">${{ venta.mano_obra|floatformat:2|intcomma }}</div>
                         </div>
                     </div>
 
@@ -113,6 +114,9 @@
                             <div class="info-value">
                                 {% if venta.con_domicilio %}
                                     Sí{% if venta.direccion %} — {{ venta.direccion }}{% endif %}
+                                    <br>Costo de envío: ${{ venta.precio_envio|floatformat:2|intcomma }}
+                                    {% if venta.nombre_domiciliario %}<br>Nombre domiciliario: {{ venta.nombre_domiciliario }}{% endif %}
+                                    {% if venta.telefono_domiciliario %}<br>Teléfono domiciliario: {{ venta.telefono_domiciliario }}{% endif %}
                                 {% else %}
                                     No
                                 {% endif %}

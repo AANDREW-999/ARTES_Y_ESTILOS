@@ -1,5 +1,6 @@
 {% extends 'master.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=20260303">
@@ -57,7 +58,7 @@
         <div class="col-md-7">
             <div class="detail-info-card">
                 <p class="detail-product-name">{{ producto.nombre }}</p>
-                <p class="detail-product-price">${{ producto.precio }}</p>
+                <p class="detail-product-price">${{ producto.precio|floatformat:2|intcomma }}</p>
 
                 <h2 class="form-section-title">
                     <i class="bi bi-info-circle"></i> Información del Arreglo

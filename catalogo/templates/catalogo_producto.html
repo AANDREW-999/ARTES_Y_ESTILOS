@@ -183,7 +183,7 @@
                 <td class="ps-4"><strong>{{ p.nombre }}</strong></td>
                 <td><span class="badge-catalogo">{{ p.categoria.nombre }}</span></td>
                 <td>{{ p.tamano }}</td>
-                <td><strong style="color:#BF5486">${{ p.precio|intcomma }}</strong></td>
+                <td><strong style="color:#BF5486">${{ p.precio|floatformat:2|intcomma }}</strong></td>
                 <td>
                     {% if p.activo %}
                         <span class="badge bg-success">Activo</span>

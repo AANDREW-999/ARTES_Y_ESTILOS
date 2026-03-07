@@ -142,7 +142,8 @@
                         <div class="field-wrapper">
                             <label class="field-label"><i class="bi bi-text-paragraph"></i> Descripción</label>
                             <textarea name="descripcion" class="field-input field-input-textarea"
-                                      rows="4">{{ producto.descripcion }}</textarea>
+                                rows="4">{{ producto.descripcion |default:"Un bello detalle pensado para sorprender en cualquier ocasión. Hecho con Amor por la Floristeria Artes & Estilos. 🌹✨" }}
+                            </textarea>
                         </div>
                     </div>
 

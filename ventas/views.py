@@ -187,9 +187,11 @@ def listar_ventas(request):
 def crear_venta(request):
     flores = Flor.objects.all().order_by("nombre")
     productos = Producto.objects.all().order_by("nombre")
+    mostrar_campos_domicilio = False
 
     if request.method == "POST":
         form = VentaForm(request.POST)
+        mostrar_campos_domicilio = request.POST.get("con_domicilio") in ("on", "true", "1")
 
         try:
             detalles = _parse_detalles_venta(request)
@@ -198,7 +200,12 @@ def crear_venta(request):
             return render(
                 request,
                 "ventas/agregar_venta.html",
-                {"form": form, "flores": flores, "productos": productos},
+                {
+                    "form": form,
+                    "flores": flores,
+                    "productos": productos,
+                    "mostrar_campos_domicilio": mostrar_campos_domicilio,
+                },
             )
 
         if form.is_valid():
@@ -240,7 +247,12 @@ def crear_venta(request):
     return render(
         request,
         "ventas/agregar_venta.html",
-        {"form": form, "flores": flores, "productos": productos},
+        {
+            "form": form,
+            "flores": flores,
+            "productos": productos,
+            "mostrar_campos_domicilio": mostrar_campos_domicilio,
+        },
     )
 
 
@@ -248,9 +260,11 @@ def editar_venta(request, pk):
     venta = get_object_or_404(Venta.objects.prefetch_related("detalles__flor", "detalles__producto"), pk=pk)
     flores = Flor.objects.all().order_by("nombre")
     productos = Producto.objects.all().order_by("nombre")
+    mostrar_campos_domicilio = bool(venta.con_domicilio)
 
     if request.method == "POST":
         form = VentaForm(request.POST, instance=venta)
+        mostrar_campos_domicilio = request.POST.get("con_domicilio") in ("on", "true", "1")
 
         try:
             nuevos_detalles = _parse_detalles_venta(request)
@@ -265,6 +279,7 @@ def editar_venta(request, pk):
                     "detalles": venta.detalles.all(),
                     "flores": flores,
                     "productos": productos,
+                    "mostrar_campos_domicilio": mostrar_campos_domicilio,
                 },
             )
 
@@ -325,6 +340,7 @@ def editar_venta(request, pk):
             "detalles": venta.detalles.all(),
             "flores": flores,
             "productos": productos,
+            "mostrar_campos_domicilio": mostrar_campos_domicilio,
         },
     )
 

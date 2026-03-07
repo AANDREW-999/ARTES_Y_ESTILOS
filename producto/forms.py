@@ -31,9 +31,11 @@ class ProductoForm(forms.ModelForm):
         if not raw:
             raise forms.ValidationError("Este campo es obligatorio.")
 
-        # Soporta 1.000.000,00 y 1000000.00
+        # Soporta 1.000.000,00, 1000000.00 y 8.000 (miles sin decimales)
         if "," in raw:
             normalizado = raw.replace(".", "").replace(",", ".")
+        elif raw.count(".") >= 1 and raw.replace(".", "").isdigit():
+            normalizado = raw.replace(".", "")
         else:
             normalizado = raw
 
@@ -45,3 +47,7 @@ class ProductoForm(forms.ModelForm):
         if valor <= 0:
             raise forms.ValidationError("El precio debe ser mayor a 0.")
         return valor
+
+    def clean_descripcion(self):
+        descripcion = (self.cleaned_data.get("descripcion") or "").strip()
+        return descripcion or "Sin descripcion"

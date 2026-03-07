@@ -10,6 +10,7 @@ class CategoriaForm(forms.ModelForm):
 		widgets = {
 			'nombre': forms.TextInput(attrs={
 				'class': 'form-control',
+				'id': 'id_categoria_nombre',
 				'placeholder': 'Ej. Cumpleaños',
 				'maxlength': '100',
 				'autocomplete': 'off',

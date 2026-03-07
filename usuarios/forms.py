@@ -161,10 +161,10 @@ class EditarPerfilForm(forms.ModelForm):
 
     SOLUCIÓN:
         En __init__, cuando editing_user == instance (el usuario
-        edita su propio perfil), eliminamos is_active, is_staff e
+        edita su propio perfil), eliminamos solo is_staff e
         is_superuser del formulario con self.fields.pop().
-        Django nunca los toca al procesar el POST, y los valores
-        del usuario en la BD se preservan intactos.
+        Dejamos is_active disponible para que el usuario pueda
+        activar/desactivar su propia cuenta de forma controlada.
 
         Cuando editing_user != instance (superadmin edita a otro),
         los campos permanecen disponibles para que editar_usuario.html
@@ -224,7 +224,7 @@ class EditarPerfilForm(forms.ModelForm):
             and self.editing_user.pk == self.instance.pk
         )
         if es_auto_edicion:
-            for campo in ("is_active", "is_staff", "is_superuser"):
+            for campo in ("is_staff", "is_superuser"):
                 self.fields.pop(campo, None)
 
         # Cargar valores actuales del Perfil relacionado

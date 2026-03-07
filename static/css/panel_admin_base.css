@@ -95,13 +95,13 @@ body {
     right: 3px;
     width: 2px;
     border-radius: 2px;
-    background: rgba(139, 146, 176, 0.15);
+    background: transparent;
     opacity: 0;
     transition: var(--transition);
 }
 
 .sidebar:hover .sidebar-resizer::after {
-    opacity: 1;
+    opacity: 0;
 }
 
 .sidebar.collapsed .sidebar-resizer {
@@ -129,7 +129,7 @@ body.sidebar-resizing .main-content {
 }
 
 .sidebar.collapsed .sidebar-header {
-    padding: 1rem 0.5rem;
+    padding: 1rem 0;
 }
 
 .sidebar.collapsed .user-avatar {
@@ -358,6 +358,30 @@ body.sidebar-resizing .main-content {
     border-bottom: 1px solid var(--border-color);
 }
 
+.sidebar-menu-toggle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.90rem 0 0.1rem;
+    width: 100%;
+    padding: 0;
+    text-align: center;
+}
+
+.sidebar .sidebar-toggle-btn {
+    margin-inline: auto;
+}
+
+.sidebar.collapsed .sidebar-menu-toggle-wrap {
+    margin: 0.90rem 0 0.6rem;
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-toggle-btn {
+    margin-inline: auto;
+}
+
 .user-avatar {
     width: 50px;
     height: 50px;
@@ -468,6 +492,23 @@ body.sidebar-resizing .main-content {
 .nav-link:hover {
     background: rgba(191, 84, 134, 0.08);
     color: var(--text-primary);
+}
+
+/* Evitar linea gris/subrayado en items del sidebar al pasar mouse */
+.sidebar .nav-link,
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus,
+.sidebar .nav-link:active,
+.sidebar .nav-link:visited,
+.sidebar-flyout .nav-link,
+.sidebar-flyout .nav-link:hover,
+.sidebar-flyout .nav-link:focus,
+.sidebar-flyout .nav-link:active,
+.sidebar-flyout .nav-link:visited,
+#accessibility-content-wrapper.underline-links .sidebar .nav-link,
+#accessibility-content-wrapper.underline-links .sidebar-flyout .nav-link {
+    text-decoration: none !important;
+    border-bottom: 0 !important;
 }
 
 /* Evitar el azul por :focus/:active en el SIDEBAR (Bootstrap/UA) */
@@ -631,6 +672,13 @@ body.sidebar-resizing .main-content {
 .btn-toggle:hover {
     background: rgba(191, 84, 134, 0.1);
     color: var(--rosa-intenso);
+}
+
+.panel-toggle-logo-icon {
+    width: 40px;
+    height: 40px;
+    display: block;
+    object-fit: contain;
 }
 
 .page-title {

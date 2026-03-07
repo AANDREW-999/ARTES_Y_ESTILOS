@@ -204,13 +204,13 @@
                 <td><small style="color:var(--text-secondary)">{{ p.descripcion|default:'-'|truncatechars:30 }}</small></td>
                 <td>
                     <div class="acciones-wrapper">
-                        <a href="{% url 'catalogo:editar_producto' p.id %}"
-                           class="btn-action btn-action-editar" title="Editar">
-                            <i class="bi bi-pencil-fill"></i>
-                        </a>
                         <a href="{% url 'catalogo:detalle_producto' p.id %}"
                            class="btn-action btn-action-ver" title="Ver">
                             <i class="bi bi-eye-fill"></i>
+                        </a>
+                        <a href="{% url 'catalogo:editar_producto' p.id %}"
+                           class="btn-action btn-action-editar" title="Editar">
+                            <i class="bi bi-pencil-fill"></i>
                         </a>
                         <a href="{% url 'catalogo:eliminar_producto' p.id %}"
                            class="btn-action btn-action-eliminar" title="Eliminar">

@@ -11,6 +11,7 @@
 {% block content %}
 <div class="container-fluid py-4">
 
+<<<<<<< HEAD
     <!-- Breadcrumb -->
     <div class="page-breadcrumb mb-4">
         <nav aria-label="breadcrumb">
@@ -135,6 +136,8 @@
                     <button type="submit" class="btn-guardar" title="Aplicar filtros" aria-label="Aplicar filtros">
                         <i class="bi bi-search"></i>
                     </button>
+=======
+>>>>>>> 642e0d5be90e72318888f8ec2a5b5b80a24f80c6
                 </div>
             </div>
             <div class="mt-3 text-muted small">
@@ -143,93 +146,60 @@
         </form>
     </div>
 
-    <!-- Tabla -->
-    <div class="clientes-table-container fadeInUp" style="animation-delay: 0.2s;">
-        <div class="table-responsive">
-            <table class="clientes-table">
-                <thead>
-                    <tr>
-                        <th>DOCUMENTO</th>
-                        <th>PROVEEDOR</th>
-                        <th>CIUDAD</th>
-                        <th>TELÉFONO</th>
-                        <th>CORREO</th>
-                        <th>ESTADO</th>
-                        <th class="text-end">ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody id="proveedores-tbody" class="js-live-table">
-                    {% for proveedor in proveedores %}
-                    <tr class="slideIn" data-search-row="1" data-search-text="{{ proveedor.nombre_proveedor }} {{ proveedor.numero_documento }} {{ proveedor.correo_electronico|default:'' }} {{ proveedor.ciudad|default:'' }} {{ proveedor.tipo_documento }} {% if proveedor.activo %}activo{% else %}inactivo{% endif %}">
-                        <td>
-                            <span class="badge-cliente">
-                                {{ proveedor.tipo_documento }} {{ proveedor.numero_documento }}
-                            </span>
-                        </td>
-
-                        <td>
-                            <div class="cliente-avatar-wrapper">
-                                <div class="cliente-avatar-placeholder">
-                                    {{ proveedor.nombre_proveedor|first|upper }}
-                                </div>
-                                <div class="cliente-info">
-                                    <strong>{{ proveedor.nombre_proveedor }}</strong>
-                                    <small>{{ proveedor.direccion|default:'—' }}</small>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td>{{ proveedor.ciudad|default:'—' }}</td>
-                        <td>{{ proveedor.telefono|default:'—' }}</td>
-                        <td>{{ proveedor.correo_electronico|default:'—' }}</td>
-                        <td>
-                            {% if proveedor.activo %}
-                                <span class="badge bg-success">Activo</span>
-                            {% else %}
-                                <span class="badge bg-danger">Inactivo</span>
-                            {% endif %}
-                        </td>
-
-                        <td class="text-end">
-                            <div class="acciones-cliente-wrapper">
-                                <a
-                                    href="{% url 'proveedores:detalle' proveedor.id %}"
-                                    class="btn-cliente-action btn-cliente-ver"
-                                    title="Ver"
-                                    aria-label="Ver proveedor">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-
-                                <a
-                                    href="{% url 'proveedores:editar' proveedor.id %}"
-                                    class="btn-cliente-action btn-cliente-editar"
-                                    title="Editar"
-                                    aria-label="Editar proveedor">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <a
-                                    href="{% url 'proveedores:eliminar' proveedor.id %}"
-                                    class="btn-cliente-action btn-cliente-eliminar"
-                                    title="Eliminar"
-                                    aria-label="Eliminar proveedor">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr data-empty-server="1">
-                        <td colspan="7" class="empty-state">
-                            <i class="bi bi-truck"></i>
-                            <p>No se encontraron proveedores{% if hay_filtros %} con los filtros aplicados{% else %} registrados aun{% endif %}.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="card shadow">
+    <div class="card-body table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Tipo Doc</th>
+                    <th>Numero</th>
+                    <th>Nombre</th>
+                    <th>Ciudad</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in proveedores %}
+                <tr>
+                    <td>{{ proveedor.tipo_documento }}</td>
+                    <td>{{ proveedor.numero_documento }}</td>
+                    <td>{{ proveedor.nombre_proveedor }}</td>
+                    <td>{{ proveedor.ciudad }}</td>
+                    <td>{{ proveedor.telefono }}</td>
+                    <td>{{ proveedor.correo_electronico }}</td>
+                    <td>
+                        {% if proveedor.activo %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'proveedores:detalle' proveedor.id %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'proveedores:editar' proveedor.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'proveedores:eliminar' proveedor.id %}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        No hay proveedores registrados
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 
 </div>
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>

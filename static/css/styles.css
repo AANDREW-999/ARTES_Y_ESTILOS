@@ -423,3 +423,48 @@ hr {
   opacity: 1;
   transform: translateY(0);
 }
+/* Esta clase se activará con JS cuando lleguemos al footer */
+.whatsapp-float.subir {
+  transform: translateY(-70px); /* Ajusta este número según el alto de tu footer */
+  transition: transform 0.3s ease;
+}
+
+/* Si estás en móvil, que suba un poco menos */
+@media (max-width: 576px) {
+  .whatsapp-float.subir {
+    transform: translateY(-50px);
+  }
+}
+.whatsapp-float {
+  position: fixed;
+  width: 60px;
+  height: 61px;
+  bottom: 120px; /* Distancia del borde inferior */
+  right: 35px;  /* Distancia del borde derecho */
+  background: linear-gradient(135deg, #e082d3 0%, #c058b8 100%); /* Degradado similar a tu imagen */
+  color: #FFF;
+  border-radius: 50px;
+  text-align: center;
+  font-size: 30px;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+  z-index: 1000; /* Para que siempre esté por encima de todo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 3px solid #6a1b4d; /* El borde oscuro que se ve en tu imagen */
+}
+
+/* Efecto al pasar el mouse */
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  color: #fff;
+  box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Ajuste para el icono de Bootstrap */
+.whatsapp-float i {
+  line-height: 0;
+}
+

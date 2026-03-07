@@ -49,8 +49,8 @@ INSTALLED_APPS = [
     'clientes',
     'accesibilidad',
     'compras',
+    'flor',      # ← must be here
     'ventas',
-    'flor',
     'producto',
     'categoria',
 ]

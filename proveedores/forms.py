@@ -4,47 +4,12 @@ import re
 
 from .models import Proveedor
 
-DEPARTAMENTOS = [
-    ('', 'Seleccione un departamento'),
-    ('Amazonas', 'Amazonas'),
-    ('Antioquia', 'Antioquia'),
-    ('Arauca', 'Arauca'),
-    ('Atlántico', 'Atlántico'),
-    ('Bolívar', 'Bolívar'),
-    ('Boyacá', 'Boyacá'),
-    ('Caldas', 'Caldas'),
-    ('Caquetá', 'Caquetá'),
-    ('Casanare', 'Casanare'),
-    ('Cauca', 'Cauca'),
-    ('Cesar', 'Cesar'),
-    ('Chocó', 'Chocó'),
-    ('Córdoba', 'Córdoba'),
-    ('Cundinamarca', 'Cundinamarca'),
-    ('Guainía', 'Guainía'),
-    ('Guaviare', 'Guaviare'),
-    ('Huila', 'Huila'),
-    ('La Guajira', 'La Guajira'),
-    ('Magdalena', 'Magdalena'),
-    ('Meta', 'Meta'),
-    ('Nariño', 'Nariño'),
-    ('Norte de Santander', 'Norte de Santander'),
-    ('Putumayo', 'Putumayo'),
-    ('Quindío', 'Quindío'),
-    ('Risaralda', 'Risaralda'),
-    ('San Andrés y Providencia', 'San Andrés y Providencia'),
-    ('Santander', 'Santander'),
-    ('Sucre', 'Sucre'),
-    ('Tolima', 'Tolima'),
-    ('Valle del Cauca', 'Valle del Cauca'),
-    ('Vaupés', 'Vaupés'),
-    ('Vichada', 'Vichada'),
-]
-
 class ProveedorForm(forms.ModelForm):
-    departamento = forms.ChoiceField(
-        choices=DEPARTAMENTOS,
+    # Se renderiza como <select> pero se guarda como texto (CharField).
+    # Las opciones se cargan dinámicamente desde la API con JS.
+    departamento = forms.CharField(
         required=True,
-        widget=forms.Select(attrs={'class': 'form-select'})
+        widget=forms.Select(attrs={'class': 'form-select js-departamento'})
     )
 
     class Meta:
@@ -92,7 +57,7 @@ class ProveedorForm(forms.ModelForm):
                 'placeholder': 'correo@ejemplo.com',
                 'maxlength': '254'
             }),
-            'ciudad': forms.Select(attrs={'class': 'form-select'}),
+            'ciudad': forms.Select(attrs={'class': 'form-select js-ciudad', 'disabled': 'disabled'}),
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

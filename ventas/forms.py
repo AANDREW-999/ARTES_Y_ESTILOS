@@ -1,6 +1,6 @@
 from django import forms
 from django.core.validators import MinValueValidator
-from .models import Venta, IVA_CHOICES
+from .models import Venta
 
 
 class VentaForm(forms.ModelForm):
@@ -13,7 +13,6 @@ class VentaForm(forms.ModelForm):
             'fecha',
             'forma_pago',
             'mano_obra',
-            'iva_pct',
             'con_domicilio',
             'direccion',
             'precio_envio',
@@ -30,7 +29,6 @@ class VentaForm(forms.ModelForm):
             'mano_obra':  forms.NumberInput(attrs={
                 'class': 'form-control', 'min': '0', 'step': '0.01'
             }),
-            'iva_pct':    forms.Select(attrs={'class': 'form-select'}),
             'con_domicilio': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'direccion':  forms.TextInput(attrs={'class': 'form-control'}),
             'precio_envio': forms.NumberInput(attrs={

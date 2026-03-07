@@ -25,7 +25,7 @@
                     <a href="{% url 'flor:lista' %}">Flores</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">
-                    {% if object %}Editar flor{% else %}Nueva flor{% endif %}
+                    {% if object %}Editar Flor{% else %}Nueva Flor{% endif %}
                 </li>
             </ol>
         </nav>
@@ -170,6 +170,7 @@
 
 {% block extra_js %}
 <script src="{% static 'js/validaciones_modules.js' %}"></script>
+<script src="{% static 'js/money_input_format.js' %}?v=20260306"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script src="{% static 'js/cropper_producto.js' %}"></script>
 {% endblock %}

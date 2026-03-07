@@ -703,20 +703,6 @@
     gap: 1.5rem;
 }
 
-.profile-info-item {
-    padding: 1.25rem;
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-
-.profile-info-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: #BF5486;
-}
-
 .profile-info-label {
     display: block;
     font-size: 0.8125rem;
@@ -1152,13 +1138,8 @@ html[data-theme="light"] .page-header {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-html[data-theme="light"] .profile-info-item,
 html[data-theme="light"] .user-info-box {
     background: #f8f9fa;
-}
-
-html[data-theme="light"] .profile-info-item:hover {
-    box-shadow: 0 4px 12px rgba(191, 84, 134, 0.15);
 }
 
 /* Campos de formulario en modo claro */
@@ -1350,7 +1331,6 @@ html[data-theme="light"] .form-text {
 .stat-card,
 .confirmation-card,
 .page-header,
-.profile-info-item,
 .user-info-box {
     transition: background-color 0.3s ease,
                 border-color 0.3s ease,
@@ -1929,17 +1909,6 @@ html[data-theme="dark"] .stat-value {
 
 html[data-theme="dark"] .stat-label {
     color: var(--text-secondary);
-}
-
-/* Profile items en modo oscuro */
-html[data-theme="dark"] .profile-info-item {
-    background: var(--bg-secondary);
-    border-color: var(--border-color);
-}
-
-html[data-theme="dark"] .profile-info-item:hover {
-    background: var(--bg-hover);
-    box-shadow: 0 4px 12px rgba(191, 84, 134, 0.2);
 }
 
 html[data-theme="dark"] .profile-info-label {

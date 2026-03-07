@@ -45,7 +45,7 @@ class Compra(models.Model):
     
     # Ubicación y Proceso
     departamento = models.CharField(max_length=45, verbose_name="Departamento", blank=True)
-    ciudad = models.CharField(max_length=45, verbose_name="Ciudad", blank=True)
+    ciudad = models.CharField(max_length=100, verbose_name="Ciudad", blank=True)
     
     # Tipo de producto
     tipo_producto = models.CharField(max_length=20, choices=TIPO_PRODUCTO_CHOICES, verbose_name="Tipo de Producto", blank=True)

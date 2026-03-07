@@ -35,9 +35,9 @@
         </div>
 
         <div class="page-header-actions">
-            <form method="GET" action="{% url 'ventas:listar_venta' %}" class="js-search-form" novalidate>
-                <input type="hidden" name="cliente_nombre" value="{{ cliente_nombre_filtro|default:'' }}">
-                <input type="hidden" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
+            <form method="GET" action="{% url 'ventas:listar_venta' %}" class="js-search-form" id="search-form-ventas" novalidate>
+                <input type="hidden" id="search-cliente-nombre" name="cliente_nombre" value="{{ cliente_nombre_filtro|default:'' }}">
+                <input type="hidden" id="search-fecha-desde" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
                 <div class="search-wrapper">
                     <input type="text" id="search-live-ventas" name="q" value="{{ query|default:'' }}"
                            class="search-input js-live-search" data-target="#ventas-tbody"
@@ -100,7 +100,7 @@
             Filtros
         </div>
 
-        <form method="GET" id="filtroForm" action="" novalidate autocomplete="off">
+        <form method="GET" id="filtroForm" action="{% url 'ventas:listar_venta' %}" novalidate autocomplete="off">
             <input type="hidden" name="q" value="{{ query|default:'' }}">
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-5">
@@ -143,6 +143,9 @@
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
+            </div>
+            <div class="mt-3 text-muted small">
+                Mostrando <strong>{{ resultados_filtrados }}</strong> resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
             </div>
         </form>
     </div>
@@ -240,4 +243,26 @@
 
 </div>
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.getElementById('search-form-ventas');
+    const clienteInput = document.getElementById('cliente_nombre');
+    const fechaInput = document.getElementById('fecha_desde');
+    const hiddenCliente = document.getElementById('search-cliente-nombre');
+    const hiddenFecha = document.getElementById('search-fecha-desde');
+
+    function syncSearchFilters() {
+        if (hiddenCliente && clienteInput) {
+            hiddenCliente.value = clienteInput.value || '';
+        }
+        if (hiddenFecha && fechaInput) {
+            hiddenFecha.value = fechaInput.value || '';
+        }
+    }
+
+    if (clienteInput) clienteInput.addEventListener('input', syncSearchFilters);
+    if (fechaInput) fechaInput.addEventListener('change', syncSearchFilters);
+    if (searchForm) searchForm.addEventListener('submit', syncSearchFilters);
+});
+</script>
 {% endblock %}

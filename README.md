@@ -1,248 +1,179 @@
-<h1 align="center">Arte y Estilos Gestión Floral</h1>
-<p align="center">Sistema web de gestión integral para la floristería Arte y Estilos</p>
+<h1 align="center">Arte & Estilos · Gestión Floral</h1>
+<p align="center">Plataforma web para la administración y vitrina digital de la Floristería <strong>Arte & Estilos</strong>.</p>
 
 <p align="center">
-  <!-- Stack Django -->
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
   <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
   <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5" />
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
-  <img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
-  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git" />
-  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail SMTP" />
+  <img src="https://img.shields.io/badge/Gmail%20SMTP-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail SMTP" />
 </p>
 
 ---
 
-## 📋 Descripción
+## 🌸 Descripción
 
-Sistema web de gestión integral para la floristería **Arte y Estilos**, diseñado para digitalizar y optimizar los procesos del negocio de manera sencilla e intuitiva.
+**Arte & Estilos · Gestión Floral** es un sistema web desarrollado con **Django** para digitalizar la operación de una floristería: catálogo, gestión de usuarios, clientes, compras, proveedores y ventas; con una interfaz moderna y una identidad visual **floral**.
 
-### ✨ Características Principales
+El proyecto combina:
 
-- 🌸 **Gestión de clientes** - Registro y administración de clientes
-- 📦 **Control de compras** - Gestión de compras y proveedores
-- 🏪 **Administración de proveedores** - Catálogo de proveedores
-- 👥 **Sistema de usuarios** - Autenticación y perfiles personalizados
-- 📧 **Recuperación de contraseña** - Correos HTML con diseño floral elegante
-- 🎨 **Interfaz moderna** - Diseño responsive con Bootstrap
-- ♿ **Accesibilidad** - Funciones de accesibilidad integradas
+- **Landing / Vitrina** para mostrar el catálogo y la marca.
+- **Autenticación completa** (login, registro y recuperación de contraseña por email).
+- **Panel Administrativo** con gestión de módulos (CRUD) y **selector de tema oscuro/claro**.
 
 ---
 
-## 🚀 Instalación
+## ✨ Características destacadas
 
-### Requisitos Previos
+### 🖥️ Experiencia de Usuario (UI/UX)
 
-- Python 3.10 o superior
-- pip (gestor de paquetes de Python)
-- Git
+- **Identidad floral**: paleta cálida, tipografías elegantes y componentes inspirados en una estética boutique.
+- **Index (Landing)**: vitrina floral con componentes de catálogo, secciones informativas y contacto.
+- **Login/Registro/Recuperación**: pantallas de autenticación con estética “nocturna” (fondos tipo slideshow) y efecto glassmorphism para una lectura cómoda.
+- **Modo oscuro/claro en el Panel Administrativo**: alternancia con persistencia (guardado en el navegador) para trabajar cómodo de día o de noche.
+- **Interfaz responsive**: optimizada para escritorio y móvil con Bootstrap.
+- **Notificaciones (toasts)** y feedback visual en formularios.
 
-### Pasos de Instalación
+### 🔐 Autenticación y cuentas
 
-1. **Clonar el repositorio:**
+- **Usuario personalizado** con documento y correo único.
+- **Registro** de usuarios.
+- **Gestión de usuarios** desde el panel (crear, editar, activar/desactivar, convertir a superadmin, eliminación controlada).
+- **Perfiles** con foto, datos de contacto y campos adicionales.
+
+### 📧 Recuperación de contraseña (Email)
+
+- Flujo completo de **solicitud → confirmación → actualización**.
+- Envío de correo con **plantillas HTML y texto plano** (estilo floral).
+- Backend de correo configurable: por defecto **consola** (desarrollo) y opcional **SMTP** (producción).
+
+### 🧾 Operación del negocio
+
+- **Clientes**: registro, edición, detalle y eliminación.
+- **Proveedores**: administración de proveedores (activos/inactivos).
+- **Compras**: compras con detalles por ítem (flor o producto), subtotal y total.
+- **Ventas**: ventas con detalles, recálculo de totales, IVA configurable, domicilios y mano de obra.
+- **Catálogo**: productos del catálogo asociados a categorías e imagen.
+
+### ♿ Accesibilidad
+
+- Módulo de accesibilidad integrado mediante template tags (widget embebible).
+
+---
+
+## 🧩 Módulos y modelos (resumen)
+
+Este repositorio está organizado por apps de Django. Principales entidades:
+
+- **Usuarios**
+  - `Usuario` (custom user basado en `AbstractUser`) + `Perfil` (1:1)
+- **Clientes**
+  - `Cliente`
+- **Proveedores**
+  - `Proveedor`
+- **Compras**
+  - `Compra` + `DetalleCompra` (líneas por flor o producto)
+- **Ventas**
+  - `Venta` + `DetalleVenta` (líneas por flor o producto, IVA y totales)
+- **Categorías**
+  - `Categoria`
+- **Catálogo**
+  - `Producto` (producto del catálogo con categoría e imagen)
+- **Inventario complementario**
+  - `Flor` (stock y tipo de flor)
+  - `Producto` (app `producto`: chocolates, globos, tarjetas, etc.)
+
+---
+
+## 🚀 Instalación (local)
+
+### Requisitos
+
+- **Python 3.10+**
+- **pip**
+- **Git**
+
+### Pasos
+
+1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/ARTES_Y_ESTILOS.git
+   git clone https://github.com/AANDREW-999/ARTES_Y_ESTILOS.git
    cd ARTES_Y_ESTILOS
    ```
 
-2. **Crear entorno virtual:**
+2. Crea y activa un entorno virtual:
    ```bash
    python -m venv venv
    ```
 
-3. **Activar entorno virtual:**
-   - Windows (PowerShell):
-     ```powershell
-     .\venv\Scripts\Activate.ps1
-     ```
-   - Windows (CMD):
-     ```cmd
-     venv\Scripts\activate.bat
-     ```
-   - Linux/Mac:
-     ```bash
-     source venv/bin/activate
-     ```
+   Windows (PowerShell):
+   ```powershell
+   .\venv\Scripts\Activate.ps1
+   ```
 
-4. **Instalar dependencias:**
+   Linux/Mac:
+   ```bash
+   source venv/bin/activate
+   ```
+
+3. Instala dependencias:
    ```bash
    pip install -r requirements.txt
    ```
 
-5. **Configurar variables de entorno:**
-   ```bash
-   # Copiar el archivo de ejemplo
-   copy .env.example .env
-   ```
-   
-   Edita el archivo `.env` con tus credenciales de Gmail. Ver [Configuración de Email](#-configuración-de-email).
-
-6. **Aplicar migraciones:**
+4. Aplica migraciones:
    ```bash
    python manage.py migrate
    ```
 
-7. **Crear superusuario:**
+5. Crea un superusuario:
    ```bash
    python manage.py createsuperuser
    ```
 
-8. **Ejecutar servidor de desarrollo:**
+6. Ejecuta el servidor:
    ```bash
    python manage.py runserver
    ```
 
-9. **Acceder a la aplicación:**
-   - Aplicación: http://localhost:8000
-   - Panel de administración: http://localhost:8000/admin
+7. Abre en el navegador:
+   - App: http://localhost:8000
 
 ---
 
-## 📧 Configuración de Email
+## 📧 Configuración de Email (opcional)
 
-El sistema incluye recuperación de contraseña con correos HTML elegantes usando Gmail SMTP.
+El proyecto permite cambiar entre backend de consola (por defecto) y SMTP mediante variables de entorno leídas desde `.env` (con `python-decouple`).
 
-### Configuración Rápida
+### Opción A — Desarrollo (recomendado)
 
-1. **Lee la guía completa:** `CONFIGURACION_EMAIL.md`
+- No necesitas configurar nada: por defecto el correo se escribe en consola.
 
-2. **Crea una cuenta Gmail** (o usa una existente)
+### Opción B — SMTP (Gmail)
 
-3. **Genera una contraseña de aplicación:**
-   - Ve a: https://myaccount.google.com/apppasswords
-   - Activa la verificación en dos pasos
-   - Genera una contraseña para "Correo"
+1. Crea (o edita) el archivo `.env` en la raíz del proyecto.
+2. Agrega:
 
-4. **Configura el archivo `.env`:**
    ```env
    EMAIL_BACKEND=smtp
    EMAIL_HOST=smtp.gmail.com
    EMAIL_PORT=587
    EMAIL_USE_TLS=True
    EMAIL_HOST_USER=tu_correo@gmail.com
-   EMAIL_HOST_PASSWORD=tu_contraseña_aplicacion
-   DEFAULT_FROM_EMAIL=Arte y Estilos <tu_correo@gmail.com>
+   EMAIL_HOST_PASSWORD=tu_contraseña_de_aplicación
+   DEFAULT_FROM_EMAIL=Arte & Estilos <tu_correo@gmail.com>
    ```
 
-5. **Prueba la configuración:**
-   ```bash
-   python test_email_config.py
-   ```
-
-### Documentación Completa
-
-- 📘 `LEEME_PRIMERO.md` - Índice y guía rápida
-- 📗 `CONFIGURACION_EMAIL.md` - Guía de configuración paso a paso
-- 📕 `RESUMEN_IMPLEMENTACION.md` - Resumen técnico completo
-- 📙 `DISEÑO_CORREO.md` - Detalles del diseño HTML
-- 📔 `BUENAS_PRACTICAS.md` - Seguridad y mejores prácticas
+> Recomendación: usa una **contraseña de aplicación** y ten **2FA** habilitado.
 
 ---
 
-## 🛠️ Tecnologías
+## 🧪 Tests
 
-### Backend
-- **Python 3.13** - Lenguaje de programación
-- **Django 4.2** - Framework web
-- **SQLite** - Base de datos
-
-### Frontend
-- **HTML5** - Estructura
-- **CSS3** - Estilos
-- **JavaScript** - Interactividad
-- **Bootstrap 5** - Framework CSS
-
-### Utilidades
-- **python-decouple** - Gestión de variables de entorno
-- **Pillow** - Procesamiento de imágenes
-- **django-bootstrap-v5** - Integración de Bootstrap
-
-### Email
-- **Gmail SMTP** - Servidor de correo
-- **EmailMultiAlternatives** - Envío de correos HTML
-
----
-
-## 📁 Estructura del Proyecto
-
-```
-ARTES_Y_ESTILOS/
-├── ARTES_Y_ESTILOS/          # Configuración principal
-│   ├── settings.py           # Configuración de Django
-│   ├── urls.py               # URLs principales
-│   └── wsgi.py               # WSGI config
-├── usuarios/                 # App de usuarios
-│   ├── models.py             # Modelo Usuario y Perfil
-│   ├── views.py              # Vistas (incluye recuperación)
-│   ├── forms.py              # Formularios
-│   └── templates/            # Templates
-│       └── recuperar_password/
-│           ├── email_recuperar_password.html
-│           ├── email_recuperar_password.txt
-│           └── ...
-├── core/                     # App principal
-├── clientes/                 # Gestión de clientes
-├── proveedores/              # Gestión de proveedores
-├── compras/                  # Gestión de compras
-├── accesibilidad/            # Funciones de accesibilidad
-├── static/                   # Archivos estáticos
-├── media/                    # Archivos subidos
-├── templates/                # Templates globales
-├── .env                      # Variables de entorno (NO SUBIR A GIT)
-├── .env.example              # Ejemplo de configuración
-├── .gitignore                # Archivos ignorados por Git
-├── manage.py                 # Comando de Django
-├── requirements.txt          # Dependencias
-├── test_email_config.py      # Script de prueba de email
-└── *.md                      # Documentación
-```
-
----
-
-## 🔐 Seguridad
-
-### Variables de Entorno
-
-El archivo `.env` contiene información sensible y **NUNCA** debe subirse a Git:
-
-```env
-# ⚠️ NO SUBIR A GIT
-EMAIL_HOST_USER=tu_correo@gmail.com
-EMAIL_HOST_PASSWORD=tu_contraseña_aplicacion
-SECRET_KEY=tu_clave_secreta
-```
-
-### Buenas Prácticas Implementadas
-
-✅ Contraseñas de aplicación (no passwords reales)  
-✅ Variables en `.env` (no en código)  
-✅ `.env` en `.gitignore`  
-✅ Sistema de tokens seguro de Django  
-✅ Validación de contraseñas  
-✅ CSRF protection habilitado  
-✅ Sesiones seguras  
-
----
-
-## 🧪 Testing
-
-### Script de Prueba de Email
-
-```bash
-python test_email_config.py
-```
-
-Verifica:
-- ✅ Configuración de email
-- ✅ Templates de correo
-- ✅ Archivo `.env`
-- ✅ Envío de correo de prueba
-
-### Tests de Django
+Ejecuta el set de pruebas de Django:
 
 ```bash
 python manage.py test
@@ -250,88 +181,55 @@ python manage.py test
 
 ---
 
-## 📚 Documentación
+## 🗂️ Estructura del proyecto (alto nivel)
 
-### Para Desarrolladores
-
-- **`LEEME_PRIMERO.md`** - Índice y guía de inicio
-- **`CONFIGURACION_EMAIL.md`** - Configurar Gmail SMTP
-- **`RESUMEN_IMPLEMENTACION.md`** - Detalles técnicos
-- **`DISEÑO_CORREO.md`** - Diseño del correo HTML
-- **`BUENAS_PRACTICAS.md`** - Seguridad y mantenimiento
-
-### Para Usuarios
-
-- Panel de administración con interfaz intuitiva
-- Formularios con validación en tiempo real
-- Mensajes de éxito/error claros
-- Diseño responsive para todos los dispositivos
+```
+ARTES_Y_ESTILOS/
+├── ARTES_Y_ESTILOS/         # Configuración del proyecto (settings/urls/asgi/wsgi)
+├── core/                    # Landing (index), contacto, emails de contacto, páginas base
+├── usuarios/                # Auth, perfiles, gestión de usuarios y recuperación por email
+├── clientes/                # CRUD de clientes
+├── proveedores/             # CRUD de proveedores
+├── compras/                 # Compras + detalles (flor/producto)
+├── ventas/                  # Ventas + detalles (flor/producto)
+├── categoria/               # Categorías
+├── catalogo/                # Catálogo público/gestión de productos del catálogo
+├── flor/                    # Inventario de flores
+├── producto/                # Inventario de complementos (chocolates, globos, etc.)
+├── accesibilidad/           # Widget/funciones de accesibilidad
+├── templates/               # Base templates (master / panel admin)
+├── static/                  # Estáticos globales
+├── media/                   # Subidas (fotos de perfiles, flores, productos, etc.)
+└── db.sqlite3               # BD local por defecto
+```
 
 ---
 
-## 👥 Autores
+## 🔐 Seguridad (mínimos recomendados)
 
-- **David Pedraza** - Desarrollo
-- **Andres Pedraza** - Desarrollo
-- **Mateo Becerra** - Desarrollo
-- **Michael Ruiz** - Desarrollo
-- **Nixon Zapata** - Desarrollo
-- **Daniel Caceres** - Desarrollo
+- Mantén `.env` fuera de Git (ya está en `.gitignore`).
+- Evita reutilizar contraseñas personales en SMTP: utiliza **contraseñas de aplicación**.
+- Django incluye protección CSRF, sesiones y validación de formularios.
+
+---
+
+## 👥 Equipo
+
+**Arte & Estilos · Gestión Floral** fue construido por un equipo con enfoque full‑stack, cuidando tanto la operación como la experiencia visual.
+
+- **Andrés González** — Full Stack Developer
+- **Nixon Zapata** — Full Stack Developer
+- **David Pedraza** — Full Stack Developer
+- **Mateo Becerra** — Full Stack Developer
+- **Alison** — Frontend Developer
+- **Daniel Cáceres** — Backend Developer
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto es privado y pertenece a **Arte y Estilos Gestión Floral**.
+Proyecto privado. Propiedad de **Arte & Estilos · Gestión Floral**.
 
 ---
 
-## 🆘 Soporte
-
-### Problemas Comunes
-
-#### Error de autenticación SMTP
-- Verifica que la contraseña de aplicación sea correcta
-- Asegúrate de tener 2FA activado en Gmail
-
-#### No llegan los correos
-- Revisa la carpeta de SPAM
-- Verifica que el email esté registrado en el sistema
-
-#### Error de módulos
-```bash
-pip install -r requirements.txt
-```
-
-### Más Ayuda
-
-- Revisa la documentación en los archivos `.md`
-- Ejecuta `python test_email_config.py` para diagnosticar
-- Consulta `BUENAS_PRACTICAS.md` para solución de problemas
-
----
-
-## 🎉 Características Destacadas
-
-### Sistema de Correos HTML
-
-- 🎨 Diseño floral elegante con identidad visual
-- 📱 Responsive design para móviles
-- ✉️ Compatible con todos los clientes de correo
-- 🔐 Sistema de tokens seguro
-- 💌 Personalización con nombre de usuario
-- 🌸 Emojis florales y gradientes rosa
-
-### Interfaz de Usuario
-
-- 🎯 Diseño intuitivo y fácil de usar
-- ⚡ Carga rápida y optimizada
-- 📊 Dashboard con estadísticas
-- 🔍 Búsqueda y filtros avanzados
-- ♿ Funciones de accesibilidad
-
----
-
-<p align="center">
-  🌸 Hecho con ❤️ para Arte y Estilos Gestión Floral 🌸
-</p>
+<p align="center">🌸 Hecho con cariño, código y flores para Arte & Estilos 🌸</p>

@@ -1,5 +1,6 @@
 from django import forms
 import re
+from datetime import date
 from decimal import Decimal, InvalidOperation
 from .models import Venta
 
@@ -61,12 +62,35 @@ class VentaForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Acepta formatos comunes si el navegador/envio no mantiene YYYY-MM-DD.
+        self.fields['fecha'].input_formats = ['%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y']
+        self.fields['fecha'].widget.format = '%Y-%m-%d'
+
+        # En venta nueva, mostrar por defecto la fecha de hoy.
+        instance = getattr(self, 'instance', None)
+        is_new_instance = not instance or not getattr(instance, 'pk', None)
+        if not self.is_bound and is_new_instance:
+            self.initial.setdefault('fecha', date.today())
+
     def clean_mano_obra(self):
         raw = (self.cleaned_data.get('mano_obra') or '').strip()
         if not raw:
             return Decimal('0')
 
-        normalizado = raw.replace('.', '').replace(',', '.')
+        # Acepta formatos comunes sin inflar el valor:
+        # - es-CO: 5.000,00
+        # - en-US/simple: 5000.00 / 5000
+        if re.fullmatch(r"\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?", raw):
+            normalizado = raw.replace('.', '').replace(',', '.')
+        elif re.fullmatch(r"\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?", raw):
+            normalizado = raw.replace(',', '')
+        elif re.fullmatch(r"\d+(?:[\.,]\d{1,2})?", raw):
+            normalizado = raw.replace(',', '.')
+        else:
+            raise forms.ValidationError('Ingresa un valor válido para mano de obra.')
+
         try:
             val = Decimal(normalizado)
         except (InvalidOperation, ValueError):

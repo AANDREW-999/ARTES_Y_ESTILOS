@@ -180,6 +180,6 @@ class FlorDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView
     def test_func(self):
         return self.request.user.is_staff
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         messages.success(self.request, "Flor eliminada correctamente.")
-        return super().delete(request, *args, **kwargs)
+        return super().form_valid(form)

@@ -36,9 +36,9 @@
         <div class="page-header-info">
             <h1>
                 <i class="bi bi-cart-fill"></i>
-                Compras
+                Gestión de Compras
             </h1>
-            <p>Administra y consulta compras registradas</p>
+            <p>Administra y consulta compras registradas de Artes & Estilos.</p>
         </div>
         <div class="page-header-actions">
             <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
@@ -76,7 +76,7 @@
                 <i class="bi bi-cash-stack"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">${{ monto_total|default_if_none:0|floatformat:2|intcomma }}</div>
+                <div class="stat-value">${{ monto_total|default_if_none:0|floatformat:0|intcomma }}</div>
                 <div class="stat-label">Monto Total</div>
             </div>
         </div>
@@ -190,13 +190,13 @@
                         <td class="text-end">
                             <div class="acciones-cliente-wrapper">
                                 <a href="{% url 'compras:compra_detail' compra.id %}" class="btn-cliente-action btn-cliente-ver" title="Ver detalle">
-                                    <i class="bi bi-eye"></i> Ver
+                                    <i class="bi bi-eye"></i>
                                 </a>
                                 <a href="{% url 'compras:editar_compra' compra.id %}" class="btn-cliente-action btn-cliente-editar" title="Editar">
-                                    <i class="bi bi-pencil"></i> Editar
+                                    <i class="bi bi-pencil"></i>
                                 </a>
                                 <a href="{% url 'compras:eliminar_compra' compra.id %}" class="btn-cliente-action btn-cliente-eliminar" title="Eliminar">
-                                    <i class="bi bi-trash"></i> Eliminar
+                                    <i class="bi bi-trash"></i>
                                 </a>
                             </div>
                         </td>

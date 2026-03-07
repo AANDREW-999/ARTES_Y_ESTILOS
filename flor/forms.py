@@ -4,6 +4,7 @@ from django import forms
 
 from .models import Flor
 
+import re
 
 class FlorForm(forms.ModelForm):
     precio = forms.CharField(
@@ -37,17 +38,21 @@ class FlorForm(forms.ModelForm):
         if isinstance(precio, Decimal):
             return precio
 
-        raw = str(precio or "").strip()
+        raw = str(precio or "").strip().replace(" ", "")
         if not raw:
             raise forms.ValidationError("Este campo es obligatorio.")
 
-        # Soporta 1.000.000,00, 1000000.00 y 8.000 (miles sin decimales)
-        if "," in raw:
+        # 1) 1.234.567,89  (ES)
+        if re.fullmatch(r"\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?", raw):
             normalizado = raw.replace(".", "").replace(",", ".")
-        elif raw.count(".") >= 1 and raw.replace(".", "").isdigit():
-            normalizado = raw.replace(".", "")
+        # 2) 1,234,567.89  (EN)
+        elif re.fullmatch(r"\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?", raw):
+            normalizado = raw.replace(",", "")
+        # 3) 1234567,89 o 1234567.89 o 9000
+        elif re.fullmatch(r"\d+(?:[.,]\d{1,2})?", raw):
+            normalizado = raw.replace(",", ".")
         else:
-            normalizado = raw
+            raise forms.ValidationError("Ingresa un precio valido.")
 
         try:
             valor = Decimal(normalizado)

@@ -66,13 +66,8 @@
 
                         <div class="col-12 col-md-4">
                             <div class="field-wrapper">
-                                <label class="field-label" for="id_fecha">Fecha</label>
-                                <input
-                                    type="date"
-                                    class="form-control"
-                                    id="id_fecha"
-                                    name="fecha"
-                                    value="{% if form.fecha.value %}{{ form.fecha.value }}{% else %}{{ venta.fecha|date:'Y-m-d' }}{% endif %}">
+                                <label class="field-label" for="{{ form.fecha.id_for_label }}">Fecha</label>
+                                {{ form.fecha }}
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
                                 {% for error in form.fecha.errors %}

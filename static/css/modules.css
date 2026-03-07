@@ -1069,6 +1069,164 @@ html[data-theme="dark"] .badge-cliente {
     border-color: var(--text-secondary);
 }
 
+@keyframes scaleIn {
+    from {
+        transform: scale(0.94);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.06); }
+}
+
+@keyframes shakeWarning {
+    0%, 100% { transform: translateX(0); }
+    15%, 45%, 75% { transform: translateX(-6px); }
+    30%, 60%, 90% { transform: translateX(6px); }
+}
+
+@keyframes pulseIcon {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.08); }
+}
+
+@keyframes glowText {
+    0%, 100% { text-shadow: 0 0 6px rgba(220, 53, 69, 0.25); }
+    50% { text-shadow: 0 0 18px rgba(220, 53, 69, 0.45); }
+}
+
+@keyframes slideUpScale {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes floatIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes pulseAvatar {
+    0%, 100% { box-shadow: 0 0 10px rgba(191, 84, 134, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(191, 84, 134, 0.6); }
+}
+
+.scaleIn {
+    animation: scaleIn 0.35s ease;
+}
+
+.heartbeat {
+    animation: heartbeat 2s ease infinite;
+}
+
+.shakeWarning {
+    animation: shakeWarning 0.6s ease;
+}
+
+.pulseIcon {
+    animation: pulseIcon 1.5s ease infinite;
+}
+
+.glowText {
+    animation: glowText 2.2s ease infinite;
+}
+
+.slideInUp {
+    animation: fadeInUp 0.4s ease;
+}
+
+.pulseAvatar {
+    animation: pulseAvatar 2s ease infinite;
+}
+
+.tarjetaAnimada {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tarjetaDanger {
+    background: rgba(220, 53, 69, 0.05);
+    border: 1px solid rgba(220, 53, 69, 0.14);
+}
+
+.tarjetaWarning {
+    background: rgba(255, 193, 7, 0.07);
+    border: 1px solid rgba(255, 193, 7, 0.18);
+}
+
+.tarjetaSecondary {
+    background: rgba(108, 117, 125, 0.06);
+    border: 1px solid rgba(108, 117, 125, 0.14);
+}
+
+.tarjetaAnimada:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+}
+
+.iconoAnimado {
+    font-size: 2rem;
+    transition: all 0.3s ease;
+    animation: floatIcon 3s ease infinite;
+}
+
+.tarjetaAnimada:hover .iconoAnimado {
+    transform: scale(1.16) rotate(4deg);
+    animation: none;
+}
+
+.botonCancelar {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.botonCancelar:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: #BF5486;
+    transform: translateY(-2px);
+}
+
+.botonEliminar {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.botonEliminar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(220, 53, 69, 0.45);
+    background: #c82333;
+    color: #fff;
+}
+
+.botonEliminar:hover i {
+    animation: heartbeat 1s ease infinite;
+}
+
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;

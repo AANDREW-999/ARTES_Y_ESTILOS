@@ -33,7 +33,7 @@
                 <i class="bi bi-people-fill"></i>
                 Gestión de Usuarios
             </h1>
-            <p>Visualiza tu perfil y los demás usuarios del sistema</p>
+            <p>Visualiza tu perfil y los demás usuarios del sistema de Artes & Estilos.</p>
         </div>
         <div class="page-header-actions">
             <a href="{% url 'usuarios:crear_usuario' %}" class="btn-primary-custom">
@@ -171,6 +171,7 @@
 
                                 <a href="{% url 'usuarios:eliminar_usuario' usuario_actual.id %}"
                                    class="btn-action btn-eliminar"
+                                              data-username="{{ usuario_actual.username }}"
                                    title="Eliminar mi cuenta">
                                     <i class="bi bi-trash-fill"></i>
                                     <span>Eliminar</span>

@@ -32,7 +32,7 @@
             <h1>
                 <i class="bi bi-cart"></i> Gestión de Ventas
             </h1>
-            <p>Administra y consulta todas las ventas registradas.</p>
+            <p>Administra y consulta todas las ventas registradas de Artes & Estilos.</p>
         </div>
 
         <div class="page-header-actions">
@@ -70,7 +70,7 @@
                 <i class="bi bi-cash-stack"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">${{ monto_total|default_if_none:0|floatformat:2|intcomma }}</div>
+                <div class="stat-value">${{ monto_total|default_if_none:0|floatformat:0|intcomma }}</div>
                 <div class="stat-label">Monto Total</div>
             </div>
         </div>
@@ -204,7 +204,7 @@
                                     class="btn-cliente-action btn-cliente-ver"
                                     title="Ver"
                                     aria-label="Ver venta">
-                                    <i class="bi bi-eye"></i> Ver
+                                    <i class="bi bi-eye"></i>
                                 </a>
 
                                 <a
@@ -212,7 +212,7 @@
                                     class="btn-cliente-action btn-cliente-editar"
                                     title="Editar"
                                     aria-label="Editar venta">
-                                    <i class="bi bi-pencil"></i> Editar
+                                    <i class="bi bi-pencil"></i>
                                 </a>
 
                                 <a
@@ -220,7 +220,7 @@
                                     class="btn-cliente-action btn-cliente-eliminar"
                                     title="Eliminar"
                                     aria-label="Eliminar venta">
-                                    <i class="bi bi-trash"></i> Eliminar
+                                    <i class="bi bi-trash"></i>
                                 </a>
                             </div>
                         </td>

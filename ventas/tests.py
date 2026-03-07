@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.test import TestCase
 from django.urls import reverse
@@ -133,3 +133,64 @@ class VentaStockTests(TestCase):
 		self.producto.refresh_from_db()
 		self.assertEqual(self.flor.cantidad, 10)
 		self.assertEqual(self.producto.cantidad, 6)
+
+
+class VentaFiltroListadoTests(TestCase):
+	def setUp(self):
+		self.user = Usuario.objects.create_user(
+			username="venta_filtro_tester",
+			password="test12345",
+			documento="1234570",
+			email="venta_filtro@example.com",
+		)
+		self.user.is_staff = True
+		self.user.save(update_fields=["is_staff"])
+
+		self.client.force_login(self.user)
+
+		self.cliente_1 = Cliente.objects.create(
+			documento="8001001",
+			tipo_documento="CC",
+			nombre="Ana",
+			apellido="Garcia",
+		)
+		self.cliente_2 = Cliente.objects.create(
+			documento="8001002",
+			tipo_documento="CC",
+			nombre="Luis",
+			apellido="Perez",
+		)
+
+		Venta.objects.create(
+			cliente=self.cliente_1,
+			tipo_venta="EI",
+			fecha=date.today() - timedelta(days=10),
+			forma_pago="efectivo",
+			subtotal=10000,
+			total=10000,
+		)
+		Venta.objects.create(
+			cliente=self.cliente_2,
+			tipo_venta="EI",
+			fecha=date.today(),
+			forma_pago="efectivo",
+			subtotal=20000,
+			total=20000,
+		)
+
+	def test_filtra_por_nombre_completo_cliente(self):
+		response = self.client.get(reverse("ventas:listar_venta"), {"cliente_nombre": "Ana Garcia"})
+
+		self.assertEqual(response.status_code, 200)
+		ventas = list(response.context["ventas"])
+		self.assertEqual(len(ventas), 1)
+		self.assertEqual(ventas[0].cliente_id, self.cliente_1.id)
+
+	def test_filtra_por_fecha_desde(self):
+		fecha_filtro = (date.today() - timedelta(days=2)).isoformat()
+		response = self.client.get(reverse("ventas:listar_venta"), {"fecha_desde": fecha_filtro})
+
+		self.assertEqual(response.status_code, 200)
+		ventas = list(response.context["ventas"])
+		self.assertEqual(len(ventas), 1)
+		self.assertEqual(ventas[0].cliente_id, self.cliente_2.id)

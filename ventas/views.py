@@ -116,7 +116,15 @@ def listar_ventas(request):
 
     q = request.GET.get("q", "").strip()
     cliente_nombre = request.GET.get("cliente_nombre", "").strip()
-    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_desde = request.GET.get("fecha_desde", "").strip()
+
+    def _parse_fecha(raw_fecha):
+        for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
+            try:
+                return datetime.strptime(raw_fecha, fmt).date()
+            except ValueError:
+                continue
+        return None
 
     if q:
         filtros_q = (
@@ -129,13 +137,25 @@ def listar_ventas(request):
         ventas = ventas.filter(filtros_q)
 
     if cliente_nombre:
-        ventas = ventas.filter(cliente__nombre__icontains=cliente_nombre)
+        partes_nombre = [p for p in cliente_nombre.split() if p]
+        filtro_cliente = Q(cliente__nombre__icontains=cliente_nombre) | Q(cliente__apellido__icontains=cliente_nombre)
+
+        if len(partes_nombre) >= 2:
+            primer_token = partes_nombre[0]
+            resto_nombre = " ".join(partes_nombre[1:])
+            filtro_cliente = filtro_cliente | (
+                Q(cliente__nombre__icontains=primer_token) & Q(cliente__apellido__icontains=resto_nombre)
+            ) | (
+                Q(cliente__apellido__icontains=primer_token) & Q(cliente__nombre__icontains=resto_nombre)
+            )
+
+        ventas = ventas.filter(filtro_cliente)
 
     if fecha_desde:
-        try:
-            fecha = datetime.strptime(fecha_desde, "%Y-%m-%d").date()
+        fecha = _parse_fecha(fecha_desde)
+        if fecha:
             ventas = ventas.filter(fecha__gte=fecha)
-        except ValueError:
+        else:
             fecha_desde = ""
 
     clientes = Cliente.objects.all().order_by("nombre", "apellido")
@@ -158,6 +178,8 @@ def listar_ventas(request):
         "monto_total": monto_total,
         "total_clientes": total_clientes,
         "ventas_mes": ventas_mes,
+        "resultados_filtrados": ventas.count(),
+        "hay_filtros": any([q, cliente_nombre, fecha_desde]),
     }
     return render(request, "ventas/listar_venta.html", context)
 

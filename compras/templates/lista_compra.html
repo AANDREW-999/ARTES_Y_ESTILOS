@@ -150,6 +150,9 @@
                     </button>
                 </div>
             </div>
+            <div class="mt-3 text-muted small">
+                Mostrando <strong>{{ resultados_filtrados }}</strong> resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
+            </div>
         </form>
     </div>
 

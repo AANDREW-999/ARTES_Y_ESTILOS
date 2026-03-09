@@ -974,6 +974,25 @@ html[data-theme="light"] .breadcrumb-item.active {
     min-width: 200px;
 }
 
+/* Selects nativos: lista desplegable coherente en temas dark/light */
+.form-select option,
+.form-select optgroup {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .form-select option,
+html[data-theme="dark"] .form-select optgroup {
+    background: #1a1f3a;
+    color: #ffffff;
+}
+
+html[data-theme="light"] .form-select option,
+html[data-theme="light"] .form-select optgroup {
+    background: #ffffff;
+    color: #212529;
+}
+
 .dropdown-header {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--border-color);

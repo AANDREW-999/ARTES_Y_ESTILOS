@@ -165,27 +165,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function calcularTotal() {
         let subtotal = 0;
+        let totalItems = 0;
 
         itemsContainer.querySelectorAll(".item-venta").forEach((itemEl) => {
             const cantidad = parseFloat(itemEl.querySelector(".cantidad")?.value) || 0;
             const precio = parseFloat(itemEl.querySelector(".precio")?.value) || 0;
             const sub = cantidad * precio;
 
+            // Subtotal visual: suma de precios unitarios de cada item seleccionado.
+            subtotal += precio;
+            // Total base de items: precio por cantidad.
+            totalItems += sub;
+
             const subtotalEl = itemEl.querySelector(".subtotal");
             if (subtotalEl) {
                 subtotalEl.innerText = fmt(sub);
             }
-
-            subtotal += sub;
         });
 
-        subtotal += parsearMonedaInput(manoObraInput?.value);
+        let total = totalItems;
+
+        total += parsearMonedaInput(manoObraInput?.value);
 
         if (domicilioCheckbox?.checked && envioInput) {
-            subtotal += parseFloat(envioInput.value) || 0;
+            total += parseFloat(envioInput.value) || 0;
         }
-
-        const total = subtotal;
 
         if (subtotalSpan) subtotalSpan.innerText = fmt(subtotal);
         if (totalSpan) totalSpan.innerText = fmt(total);

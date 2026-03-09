@@ -101,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Calcular totales
     function calcularTotales() {
         let subtotal = 0;
+        let total = 0;
 
         document.querySelectorAll('.producto-item').forEach(item => {
             const precioInput = item.querySelector('.precio-input');
@@ -109,10 +110,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const precio = parsearNumero(precioInput ? precioInput.value : '0');
             const cantidad = parseInt(cantidadInput ? cantidadInput.value : '1') || 0;
 
-            subtotal += precio * cantidad;
+            // Subtotal: suma de precios unitarios (sin multiplicar por cantidad)
+            subtotal += precio;
+            // Total: suma completa por cantidad
+            total += precio * cantidad;
         });
-
-        const total = subtotal;
 
         document.getElementById('subtotal').textContent = '$' + formatearMiles(subtotal.toFixed(2));
         document.getElementById('total').textContent = '$' + formatearMiles(total.toFixed(2));

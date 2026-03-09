@@ -91,20 +91,8 @@
                                     <option value="EFECTIVO" {% if object.forma_pago == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
                                     <option value="TRANSFERENCIA" {% if object.forma_pago == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
                                     <option value="TARJETA" {% if object.forma_pago == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-                                <div class="valid-feedback"></div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <div class="field-wrapper">
-                                <label class="field-label" for="id_medio_pago">Medio de pago</label>
-                                <select name="medio_pago" id="id_medio_pago" class="form-select">
-                                    <option value="" {% if not object.medio_pago %}selected{% endif %}>Seleccione...</option>
-                                    <option value="EFECTIVO" {% if object.medio_pago == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
-                                    <option value="TRANSFERENCIA" {% if object.medio_pago == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
-                                    <option value="TARJETA" {% if object.medio_pago == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                                    <option value="NEQUI" {% if object.forma_pago == 'NEQUI' %}selected{% endif %}>Nequi</option>
+                                    <option value="DAVIPLATA" {% if object.forma_pago == 'DAVIPLATA' %}selected{% endif %}>Daviplata</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
@@ -157,7 +145,7 @@
                         {% for detalle in detalles %}
                         <div class="info-item producto-item">
                             <div class="row g-3 align-items-end">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-5">
                                     <div class="field-wrapper">
                                         <label class="field-label">Ítem *</label>
                                         <select name="item_id[]" class="form-select item-select" required>
@@ -200,7 +188,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 col-md-1 d-flex justify-content-end">
+                                <div class="col-12 col-md-2 d-flex justify-content-md-end">
                                     <button type="button" class="btn-cliente-action btn-cliente-eliminar btn-eliminar-producto" title="Eliminar artículo" aria-label="Eliminar artículo">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -210,7 +198,7 @@
                         {% empty %}
                         <div class="info-item producto-item">
                             <div class="row g-3 align-items-end">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-5">
                                     <div class="field-wrapper">
                                         <label class="field-label">Ítem *</label>
                                         <select name="item_id[]" class="form-select item-select" required>
@@ -249,7 +237,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 col-md-1 d-flex justify-content-end">
+                                <div class="col-12 col-md-2 d-flex justify-content-md-end">
                                     <button type="button" class="btn-cliente-action btn-cliente-eliminar btn-eliminar-producto" title="Eliminar artículo" aria-label="Eliminar artículo">
                                         <i class="bi bi-trash"></i>
                                     </button>

@@ -42,8 +42,10 @@
         </div>
         <div class="page-header-actions">
             <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
-                <input type="hidden" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
-                <input type="hidden" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
+                <input type="hidden" id="search-proveedor-nombre" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
+                <input type="hidden" id="search-fecha-desde" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
+                <input type="hidden" id="search-precio-min" name="precio_min" value="{{ precio_min_filtro|default:'' }}">
+                <input type="hidden" id="search-precio-max" name="precio_max" value="{{ precio_max_filtro|default:'' }}">
                 <div class="search-wrapper">
                     <input type="text" id="search-live-compras" name="q" value="{{ query|default:'' }}"
                            class="search-input js-live-search" data-target="#compras-tbody"
@@ -110,7 +112,7 @@
         <form method="GET" id="filtroForm" action="" novalidate autocomplete="off">
             <input type="hidden" name="q" value="{{ query|default:'' }}">
             <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-5">
+                <div class="col-12 col-md-4 col-lg-4">
                     <div class="field-wrapper">
                         <label class="field-label" for="proveedor_nombre">Proveedor</label>
                         <input
@@ -130,7 +132,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3 col-lg-3">
                     <div class="field-wrapper">
                         <label class="field-label" for="fecha_desde">Fecha desde</label>
                         <input
@@ -142,7 +144,36 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-3 d-flex justify-content-end gap-2">
+                <div class="col-12 col-md-3 col-lg-3">
+                    <div class="d-flex gap-2">
+                        <div class="field-wrapper flex-fill">
+                            <label class="field-label" for="precio_min">Precio min.</label>
+                            <input
+                                type="number"
+                                name="precio_min"
+                                id="precio_min"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                value="{{ precio_min_filtro|default:'' }}"
+                                placeholder="0">
+                        </div>
+                        <div class="field-wrapper flex-fill">
+                            <label class="field-label" for="precio_max">Precio max.</label>
+                            <input
+                                type="number"
+                                name="precio_max"
+                                id="precio_max"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                value="{{ precio_max_filtro|default:'' }}"
+                                placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2 col-lg-2 d-flex justify-content-md-end align-items-end gap-2">
                     <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">
                         <i class="bi bi-arrow-counterclockwise"></i>
                     </a>
@@ -216,4 +247,31 @@
 
 </div>
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.querySelector('.js-search-form');
+    const proveedorInput = document.getElementById('proveedor_nombre');
+    const fechaInput = document.getElementById('fecha_desde');
+    const precioMinInput = document.getElementById('precio_min');
+    const precioMaxInput = document.getElementById('precio_max');
+
+    const hiddenProveedor = document.getElementById('search-proveedor-nombre');
+    const hiddenFecha = document.getElementById('search-fecha-desde');
+    const hiddenPrecioMin = document.getElementById('search-precio-min');
+    const hiddenPrecioMax = document.getElementById('search-precio-max');
+
+    function syncSearchFilters() {
+        if (hiddenProveedor && proveedorInput) hiddenProveedor.value = proveedorInput.value || '';
+        if (hiddenFecha && fechaInput) hiddenFecha.value = fechaInput.value || '';
+        if (hiddenPrecioMin && precioMinInput) hiddenPrecioMin.value = precioMinInput.value || '';
+        if (hiddenPrecioMax && precioMaxInput) hiddenPrecioMax.value = precioMaxInput.value || '';
+    }
+
+    if (proveedorInput) proveedorInput.addEventListener('input', syncSearchFilters);
+    if (fechaInput) fechaInput.addEventListener('change', syncSearchFilters);
+    if (precioMinInput) precioMinInput.addEventListener('input', syncSearchFilters);
+    if (precioMaxInput) precioMaxInput.addEventListener('input', syncSearchFilters);
+    if (searchForm) searchForm.addEventListener('submit', syncSearchFilters);
+});
+</script>
 {% endblock %}

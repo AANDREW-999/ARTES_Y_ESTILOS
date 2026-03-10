@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/item_picker.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -85,27 +86,36 @@
 
                     <div id="itemsContainer" class="d-flex flex-column gap-3">
                         <div class="info-item item-venta">
-                            <div class="row g-3 align-items-end">
+                            <div class="row g-3 align-items-start">
                                 <div class="col-12 col-md-5">
                                     <div class="field-wrapper">
                                         <label class="field-label">Ítem *</label>
-                                        <select name="arreglo_id[]" class="form-select item-select" required>
+                                        <select name="arreglo_id[]" class="form-select item-select d-none" required>
                                             <option value="">Seleccione...</option>
                                             <optgroup label="Flores">
                                                 {% for flor in flores %}
-                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}" data-stock="{{ flor.cantidad }}" data-tipo="Flor" data-imagen="{% if flor.imagen %}{{ flor.imagen.url }}{% endif %}">
                                                     {{ flor.nombre }} (Stock: {{ flor.cantidad }})
                                                 </option>
                                                 {% endfor %}
                                             </optgroup>
                                             <optgroup label="Productos">
                                                 {% for producto in productos %}
-                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}" data-stock="{{ producto.cantidad }}" data-tipo="Producto" data-imagen="{% if producto.imagen %}{{ producto.imagen.url }}{% endif %}">
                                                     {{ producto.nombre }} (Stock: {{ producto.cantidad }})
                                                 </option>
                                                 {% endfor %}
                                             </optgroup>
                                         </select>
+                                        <div class="item-selected-preview d-none">
+                                            <div class="item-selected-content"></div>
+                                            <button type="button" class="btn btn-outline-secondary item-picker-icon js-open-picker" aria-label="Cambiar ítem" title="Cambiar ítem">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-secondary w-100 js-open-picker item-picker-trigger">
+                                            <i class="bi bi-grid-3x3-gap"></i> Seleccionar ítem
+                                        </button>
                                         <div class="invalid-feedback"></div>
                                         <div class="valid-feedback"></div>
                                     </div>
@@ -129,8 +139,8 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 col-md-2 d-flex justify-content-md-end">
-                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar eliminar" title="Eliminar ítem" aria-label="Eliminar ítem">
+                                <div class="col-12 col-md-2 d-flex justify-content-md-end item-actions-cell">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar eliminar item-delete-btn" title="Eliminar ítem" aria-label="Eliminar ítem">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -142,6 +152,14 @@
                         <button type="button" class="btn-cliente-nuevo" id="addItem">
                             <i class="bi bi-plus-circle"></i> Agregar ítem
                         </button>
+                    </div>
+
+                    <div id="itemPickerPanel" class="item-picker-panel d-none mt-3">
+                        <div class="item-picker-header">
+                            <strong>Selecciona flores o productos</strong>
+                            <small>Stock con indicador de color: bajo, medio o alto</small>
+                        </div>
+                        <div class="item-picker-grid" id="itemPickerGrid"></div>
                     </div>
 
                     <div class="form-section-title mt-4">
@@ -252,7 +270,7 @@
                             Resumen de la Venta
                         </div>
                         <div class="profile-info-grid">
-                            <div class="info-item">
+                            <div class="info-value">
                                 <span class="profile-info-label">Subtotal</span>
                                 <div class="profile-info-value" id="subtotalVenta">$0.00</div>
                             </div>

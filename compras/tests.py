@@ -107,3 +107,69 @@ class CompraStockTests(TestCase):
 		self.producto.refresh_from_db()
 		self.assertEqual(self.flor.cantidad, 0)
 		self.assertEqual(self.producto.cantidad, 0)
+
+
+class CompraFiltroListadoTests(TestCase):
+	def setUp(self):
+		self.user = Usuario.objects.create_user(
+			username="compra_filtro_tester",
+			password="test12345",
+			documento="1234567",
+			email="compra_filtro@example.com",
+		)
+		self.user.is_staff = True
+		self.user.save(update_fields=["is_staff"])
+
+		self.client.force_login(self.user)
+
+		proveedor_1 = Proveedor.objects.create(
+			tipo_documento="NIT",
+			numero_documento="900000101",
+			nombre_proveedor="Proveedor Uno",
+			direccion="Calle 11",
+			telefono="3000000101",
+			ciudad="Bogota",
+			activo=True,
+		)
+		proveedor_2 = Proveedor.objects.create(
+			tipo_documento="NIT",
+			numero_documento="900000102",
+			nombre_proveedor="Proveedor Dos",
+			direccion="Calle 12",
+			telefono="3000000102",
+			ciudad="Bogota",
+			activo=True,
+		)
+
+		Compra.objects.create(
+			proveedor=proveedor_1,
+			fecha_emision=date.today(),
+			descripcion="Compra baja",
+			subtotal=12000,
+			total_compra=12000,
+			usuario=self.user,
+		)
+		Compra.objects.create(
+			proveedor=proveedor_2,
+			fecha_emision=date.today(),
+			descripcion="Compra alta",
+			subtotal=28000,
+			total_compra=28000,
+			usuario=self.user,
+		)
+
+	def test_filtra_por_precio_min(self):
+		response = self.client.get(reverse("compras:lista_compra"), {"precio_min": "20000"})
+
+		self.assertEqual(response.status_code, 200)
+		compras = list(response.context["compras"])
+		self.assertEqual(len(compras), 1)
+		self.assertEqual(float(compras[0].total_compra), 28000.0)
+
+	def test_filtra_por_precio_max(self):
+		response = self.client.get(reverse("compras:lista_compra"), {"precio_max": "15000"})
+
+		self.assertEqual(response.status_code, 200)
+		compras = list(response.context["compras"])
+		self.assertEqual(len(compras), 1)
+		self.assertEqual(float(compras[0].total_compra), 12000.0)

@@ -114,6 +114,19 @@ def compras_list(request):
     q = request.GET.get("q", "").strip()
     proveedor_nombre = request.GET.get("proveedor_nombre", "").strip()
     fecha_desde = request.GET.get("fecha_desde", "")
+    precio_min = request.GET.get("precio_min", "").strip()
+    precio_max = request.GET.get("precio_max", "").strip()
+
+    def _parse_decimal(raw_numero):
+        valor = (raw_numero or "").strip()
+        if not valor:
+            return None
+        try:
+            if "," in valor:
+                valor = valor.replace(".", "").replace(",", ".")
+            return Decimal(valor)
+        except (InvalidOperation, ValueError, TypeError):
+            return None
 
     if q:
         filtros_q = (
@@ -134,6 +147,19 @@ def compras_list(request):
             lista_compras = lista_compras.filter(fecha_emision__gte=fecha)
         except ValueError:
             fecha_desde = ""
+
+    precio_min_val = _parse_decimal(precio_min)
+    precio_max_val = _parse_decimal(precio_max)
+
+    if precio_min and precio_min_val is None:
+        precio_min = ""
+    if precio_max and precio_max_val is None:
+        precio_max = ""
+
+    if precio_min_val is not None:
+        lista_compras = lista_compras.filter(total_compra__gte=precio_min_val)
+    if precio_max_val is not None:
+        lista_compras = lista_compras.filter(total_compra__lte=precio_max_val)
 
     template = loader.get_template("lista_compra.html")
     proveedores = Proveedor.objects.all().order_by("nombre_proveedor")
@@ -156,8 +182,10 @@ def compras_list(request):
         "proveedores": proveedores,
         "proveedor_nombre_filtro": proveedor_nombre,
         "fecha_desde_filtro": fecha_desde,
+        "precio_min_filtro": precio_min,
+        "precio_max_filtro": precio_max,
         "resultados_filtrados": lista_compras.count(),
-        "hay_filtros": any([q, proveedor_nombre, fecha_desde]),
+        "hay_filtros": any([q, proveedor_nombre, fecha_desde, precio_min, precio_max]),
     }
     return HttpResponse(template.render(context, request))
 

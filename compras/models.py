@@ -8,6 +8,8 @@ FORMA_PAGO_CHOICES = [
     ('EFECTIVO', 'Efectivo'),
     ('TRANSFERENCIA', 'Transferencia'),
     ('TARJETA', 'Tarjeta Debito/Credito'),
+    ('NEQUI', 'Nequi'),
+    ('DAVIPLATA', 'Daviplata'),
 ]
 
 MEDIO_PAGO_CHOICES = [

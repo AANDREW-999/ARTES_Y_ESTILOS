@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="{% static 'css/item_picker.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -33,7 +34,7 @@
             <div class="form-card">
                 <div class="form-section-title">
                     <i class="bi bi-cart-plus"></i>
-                    Nueva compra
+                    Nueva Compra
                 </div>
 
                 {% if form.errors %}
@@ -48,23 +49,20 @@
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <div class="field-wrapper">
-                                <label class="field-label" for="id_proveedor">Proveedor *</label>
-                                <select name="proveedor" id="id_proveedor" class="form-select" required>
-                                    <option value="">Seleccione Proveedor</option>
-                                    {% for proveedor in proveedores %}
-                                    <option value="{{ proveedor.id }}" {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ proveedor.nombre_proveedor }}
-                                    </option>
-                                    {% endfor %}
+                                <label class="field-label" for="id_forma_pago">Forma de pago</label>
+                                <select name="forma_pago" id="id_forma_pago" class="form-select">
+                                    <option value="" {% if not form.forma_pago.value %}selected{% endif %}>Seleccione...</option>
+                                    <option value="EFECTIVO" {% if form.forma_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
+                                    <option value="TRANSFERENCIA" {% if form.forma_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+                                    <option value="TARJETA" {% if form.forma_pago.value == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                                    <option value="NEQUI" {% if form.forma_pago.value == 'NEQUI' %}selected{% endif %}>Nequi</option>
+                                    <option value="DAVIPLATA" {% if form.forma_pago.value == 'DAVIPLATA' %}selected{% endif %}>Daviplata</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
-                                {% for error in form.proveedor.errors %}
+                                {% for error in form.forma_pago.errors %}
                                     <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
                                 {% endfor %}
-                                {% if not proveedores %}
-                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> No hay proveedores activos disponibles.</div>
-                                {% endif %}
                             </div>
                         </div>
 
@@ -86,37 +84,25 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                             <div class="field-wrapper">
-                                <label class="field-label" for="id_forma_pago">Forma de pago</label>
-                                <select name="forma_pago" id="id_forma_pago" class="form-select">
-                                    <option value="" {% if not form.forma_pago.value %}selected{% endif %}>Seleccione...</option>
-                                    <option value="EFECTIVO" {% if form.forma_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
-                                    <option value="TRANSFERENCIA" {% if form.forma_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
-                                    <option value="TARJETA" {% if form.forma_pago.value == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
+                                <label class="field-label" for="id_proveedor">Proveedor *</label>
+                                <select name="proveedor" id="id_proveedor" class="form-select" required>
+                                    <option value="">Seleccione Proveedor</option>
+                                    {% for proveedor in proveedores %}
+                                    <option value="{{ proveedor.id }}" {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ proveedor.nombre_proveedor }}
+                                    </option>
+                                    {% endfor %}
                                 </select>
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
-                                {% for error in form.forma_pago.errors %}
+                                {% for error in form.proveedor.errors %}
                                     <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
                                 {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <div class="field-wrapper">
-                                <label class="field-label" for="id_medio_pago">Medio de pago</label>
-                                <select name="medio_pago" id="id_medio_pago" class="form-select">
-                                    <option value="" {% if not form.medio_pago.value %}selected{% endif %}>Seleccione...</option>
-                                    <option value="EFECTIVO" {% if form.medio_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
-                                    <option value="TRANSFERENCIA" {% if form.medio_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
-                                    <option value="TARJETA" {% if form.medio_pago.value == 'TARJETA' %}selected{% endif %}>Tarjeta Débito/Crédito</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-                                <div class="valid-feedback"></div>
-                                {% for error in form.medio_pago.errors %}
-                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
-                                {% endfor %}
+                                {% if not proveedores %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> No hay proveedores activos disponibles.</div>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -164,29 +150,38 @@
                     </div>
 
                     <div class="form-section-title mt-4">
-                        <i class="bi bi-list-ul"></i>
-                        Artículos
+                        <i class="bi bi-bag-check"></i>
+                        Ítems de la Compra
                     </div>
 
                     <div id="productos-container" class="d-flex flex-column gap-3">
                         <div class="info-item producto-item">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-12 col-md-6">
+                            <div class="row g-3 align-items-start">
+                                <div class="col-12 col-md-5">
                                     <div class="field-wrapper">
                                         <label class="field-label">Ítem *</label>
-                                        <select name="item_id[]" class="form-select item-select" required>
+                                        <select name="item_id[]" class="form-select item-select d-none" required>
                                             <option value="">Seleccione...</option>
                                             <optgroup label="Flores">
                                                 {% for flor in flores %}
-                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}">{{ flor.nombre }} (Stock: {{ flor.cantidad }})</option>
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}" data-stock="{{ flor.cantidad }}" data-tipo="Flor" data-imagen="{% if flor.imagen %}{{ flor.imagen.url }}{% endif %}">{{ flor.nombre }} (Stock: {{ flor.cantidad }})</option>
                                                 {% endfor %}
                                             </optgroup>
                                             <optgroup label="Productos">
                                                 {% for producto in productos %}
-                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.nombre }} (Stock: {{ producto.cantidad }})</option>
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}" data-stock="{{ producto.cantidad }}" data-tipo="Producto" data-imagen="{% if producto.imagen %}{{ producto.imagen.url }}{% endif %}">{{ producto.nombre }} (Stock: {{ producto.cantidad }})</option>
                                                 {% endfor %}
                                             </optgroup>
                                         </select>
+                                        <div class="item-selected-preview d-none">
+                                            <div class="item-selected-content"></div>
+                                            <button type="button" class="btn btn-outline-secondary item-picker-icon js-open-picker" aria-label="Cambiar artículo" title="Cambiar artículo">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-secondary w-100 js-open-picker item-picker-trigger">
+                                            <i class="bi bi-grid-3x3-gap"></i> Seleccionar artículo
+                                        </button>
                                         <div class="invalid-feedback"></div>
                                         <div class="valid-feedback"></div>
                                     </div>
@@ -210,8 +205,8 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 col-md-1 d-flex justify-content-end">
-                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar btn-eliminar-producto" title="Eliminar artículo" aria-label="Eliminar artículo">
+                                <div class="col-12 col-md-2 d-flex justify-content-md-end item-actions-cell">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar btn-eliminar-producto item-delete-btn" title="Eliminar artículo" aria-label="Eliminar artículo">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -224,6 +219,14 @@
                             <i class="bi bi-plus-circle"></i>
                             Agregar artículo
                         </button>
+                    </div>
+
+                    <div id="itemPickerPanel" class="item-picker-panel d-none mt-3">
+                        <div class="item-picker-header">
+                            <strong>Selecciona flores o productos</strong>
+                            <small>Stock con indicador de color: bajo, medio o alto</small>
+                        </div>
+                        <div class="item-picker-grid" id="itemPickerGrid"></div>
                     </div>
 
                     <div class="profile-info-card mt-4">
@@ -244,11 +247,11 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
-                        <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">Cancelar</a>
                         <button type="submit" class="btn-guardar">
                             <i class="bi bi-save"></i>
-                            Guardar
+                            Guardar Compra
                         </button>
+                        <a href="{% url 'compras:lista_compra' %}" class="btn-cancelar">Cancelar</a>
                     </div>
                 </form>
             </div>

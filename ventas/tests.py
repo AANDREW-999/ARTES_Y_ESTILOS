@@ -194,3 +194,22 @@ class VentaFiltroListadoTests(TestCase):
 		ventas = list(response.context["ventas"])
 		self.assertEqual(len(ventas), 1)
 		self.assertEqual(ventas[0].cliente_id, self.cliente_2.id)
+
+	def test_filtra_por_precio_min(self):
+		response = self.client.get(reverse("ventas:listar_venta"), {"precio_min": "15000"})
+
+		self.assertEqual(response.status_code, 200)
+		ventas = list(response.context["ventas"])
+		self.assertEqual(len(ventas), 1)
+		self.assertEqual(ventas[0].cliente_id, self.cliente_2.id)
+
+	def test_filtra_por_rango_precio(self):
+		response = self.client.get(
+			reverse("ventas:listar_venta"),
+			{"precio_min": "9000", "precio_max": "12000"},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		ventas = list(response.context["ventas"])
+		self.assertEqual(len(ventas), 1)
+		self.assertEqual(ventas[0].cliente_id, self.cliente_1.id)

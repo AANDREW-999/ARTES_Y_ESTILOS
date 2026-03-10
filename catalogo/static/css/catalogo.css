@@ -781,6 +781,35 @@ html[data-bs-theme="dark"] .badge-catalogo {
     text-decoration: none;
 }
 
+.filtro-actions {
+    align-items: flex-end;
+    flex-wrap: nowrap;
+}
+
+.filtro-footer {
+    margin-top: 1rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.filtro-indicador {
+    margin: 0;
+    align-self: center;
+}
+
+.btn-filtro-icon {
+    width: 46px;
+    min-width: 46px;
+    height: 44px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
 /* ========================================
    MODAL DE CONFIRMACIÓN (Eliminar)
    ======================================== */
@@ -845,6 +874,9 @@ html[data-bs-theme="dark"] .badge-catalogo {
     .acciones-wrapper     { flex-direction: column; align-items: stretch; }
     .btn-catalogo-nuevo,
     .btn-secondary-custom { width: 100%; justify-content: center; }
+    .filtro-footer { flex-direction: column; align-items: stretch; }
+    .filtro-indicador { align-self: flex-start; }
+    .filtro-actions { justify-content: flex-start; }
     .catalogo-table { font-size: 0.8125rem; }
     .catalogo-table thead th,
     .catalogo-table tbody td { padding: 0.75rem 0.5rem; }

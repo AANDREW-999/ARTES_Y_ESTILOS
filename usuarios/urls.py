@@ -19,7 +19,7 @@ urlpatterns = [
     path('panel/perfil/editar/', views.editar_perfil_view, name='editar_perfil'),
 
     # ========================================
-    # 👥 GESTIÓN DE USUARIOS (SOLO SUPERADMINS)
+    # 👥 GESTIÓN DE USUARIOS (panel; acciones sensibles restringidas por vista)
     # ========================================
     path('panel/usuarios/', views.lista_usuarios_view, name='lista_usuarios'),
     path('panel/usuarios/crear/', views.crear_usuario_view, name='crear_usuario'),

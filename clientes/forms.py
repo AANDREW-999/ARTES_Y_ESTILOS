@@ -5,50 +5,19 @@ from .models import Cliente
 import re
 
 
-DEPARTAMENTOS = [
-    ('', 'Seleccione un departamento'),
-    ('Amazonas', 'Amazonas'),
-    ('Antioquia', 'Antioquia'),
-    ('Arauca', 'Arauca'),
-    ('Atlántico', 'Atlántico'),
-    ('Bolívar', 'Bolívar'),
-    ('Boyacá', 'Boyacá'),
-    ('Caldas', 'Caldas'),
-    ('Caquetá', 'Caquetá'),
-    ('Casanare', 'Casanare'),
-    ('Cauca', 'Cauca'),
-    ('Cesar', 'Cesar'),
-    ('Chocó', 'Chocó'),
-    ('Córdoba', 'Córdoba'),
-    ('Cundinamarca', 'Cundinamarca'),
-    ('Guainía', 'Guainía'),
-    ('Guaviare', 'Guaviare'),
-    ('Huila', 'Huila'),
-    ('La Guajira', 'La Guajira'),
-    ('Magdalena', 'Magdalena'),
-    ('Meta', 'Meta'),
-    ('Nariño', 'Nariño'),
-    ('Norte de Santander', 'Norte de Santander'),
-    ('Putumayo', 'Putumayo'),
-    ('Quindío', 'Quindío'),
-    ('Risaralda', 'Risaralda'),
-    ('San Andrés y Providencia', 'San Andrés y Providencia'),
-    ('Santander', 'Santander'),
-    ('Sucre', 'Sucre'),
-    ('Tolima', 'Tolima'),
-    ('Valle del Cauca', 'Valle del Cauca'),
-    ('Vaupés', 'Vaupés'),
-    ('Vichada', 'Vichada'),
-]
-
-
 class ClienteForm(forms.ModelForm):
     """Formulario para crear y editar clientes."""
 
-    departamento = forms.ChoiceField(
-        choices=DEPARTAMENTOS,
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-select'})
+    # Se renderiza como <select> pero se guarda como texto (CharField).
+    # Las opciones se cargan dinámicamente desde la API con JS.
+    departamento = forms.CharField(
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select js-departamento'})
+    )
+
+    ciudad = forms.CharField(
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select js-ciudad', 'disabled': 'disabled'})
     )
 
     class Meta:
@@ -93,10 +62,6 @@ class ClienteForm(forms.ModelForm):
             'direccion': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese dirección completa'
-            }),
-            'ciudad': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese ciudad'
             }),
         }
 

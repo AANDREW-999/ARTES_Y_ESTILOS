@@ -44,12 +44,18 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 .dashboard-body {
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
     line-height: 1.6;
+    min-height: 100%;
 }
 
 /* ==========================================
@@ -89,13 +95,13 @@
     right: 3px;
     width: 2px;
     border-radius: 2px;
-    background: rgba(139, 146, 176, 0.15);
+    background: transparent;
     opacity: 0;
     transition: var(--transition);
 }
 
 .sidebar:hover .sidebar-resizer::after {
-    opacity: 1;
+    opacity: 0;
 }
 
 .sidebar.collapsed .sidebar-resizer {
@@ -123,7 +129,7 @@ body.sidebar-resizing .main-content {
 }
 
 .sidebar.collapsed .sidebar-header {
-    padding: 1rem 0.5rem;
+    padding: 1rem 0;
 }
 
 .sidebar.collapsed .user-avatar {
@@ -352,6 +358,30 @@ body.sidebar-resizing .main-content {
     border-bottom: 1px solid var(--border-color);
 }
 
+.sidebar-menu-toggle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.90rem 0 0.1rem;
+    width: 100%;
+    padding: 0;
+    text-align: center;
+}
+
+.sidebar .sidebar-toggle-btn {
+    margin-inline: auto;
+}
+
+.sidebar.collapsed .sidebar-menu-toggle-wrap {
+    margin: 0.90rem 0 0.6rem;
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-toggle-btn {
+    margin-inline: auto;
+}
+
 .user-avatar {
     width: 50px;
     height: 50px;
@@ -462,6 +492,23 @@ body.sidebar-resizing .main-content {
 .nav-link:hover {
     background: rgba(191, 84, 134, 0.08);
     color: var(--text-primary);
+}
+
+/* Evitar linea gris/subrayado en items del sidebar al pasar mouse */
+.sidebar .nav-link,
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus,
+.sidebar .nav-link:active,
+.sidebar .nav-link:visited,
+.sidebar-flyout .nav-link,
+.sidebar-flyout .nav-link:hover,
+.sidebar-flyout .nav-link:focus,
+.sidebar-flyout .nav-link:active,
+.sidebar-flyout .nav-link:visited,
+#accessibility-content-wrapper.underline-links .sidebar .nav-link,
+#accessibility-content-wrapper.underline-links .sidebar-flyout .nav-link {
+    text-decoration: none !important;
+    border-bottom: 0 !important;
 }
 
 /* Evitar el azul por :focus/:active en el SIDEBAR (Bootstrap/UA) */
@@ -587,6 +634,7 @@ body.sidebar-resizing .main-content {
     display: flex;
     flex-direction: column;
     transition: var(--transition);
+    overflow: visible;
 }
 
 .topbar {
@@ -624,6 +672,13 @@ body.sidebar-resizing .main-content {
 .btn-toggle:hover {
     background: rgba(191, 84, 134, 0.1);
     color: var(--rosa-intenso);
+}
+
+.panel-toggle-logo-icon {
+    width: 40px;
+    height: 40px;
+    display: block;
+    object-fit: contain;
 }
 
 .page-title {
@@ -693,6 +748,22 @@ html[data-theme="light"] .page-breadcrumb {
 
 .breadcrumb-item a i {
     font-size: 1rem;
+}
+
+/* Icono por defecto para todos los niveles del breadcrumb excepto Inicio */
+.breadcrumb-item:not(:first-child) a::before,
+.breadcrumb-item.active::before {
+    content: "\f135";
+    font-family: "bootstrap-icons";
+    font-size: 0.85rem;
+    color: var(--rosa-intenso);
+    margin-right: 0.45rem;
+    line-height: 1;
+}
+
+.breadcrumb-item.active {
+    display: flex;
+    align-items: center;
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
@@ -882,6 +953,7 @@ html[data-theme="light"] .breadcrumb-item.active {
     border-top: 1px solid var(--border-color);
     padding: 1.5rem 2rem;
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 .footer-content {
@@ -1029,6 +1101,25 @@ html[data-theme="light"] .breadcrumb-item.active {
     .content-wrapper {
         padding: 1rem;
     }
+
+    /* Tablas: permitir scroll horizontal y mejorar legibilidad */
+    .content-wrapper .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .content-wrapper .table-responsive > table {
+        margin-bottom: 0;
+    }
+
+    .content-wrapper .table-responsive table th,
+    .content-wrapper .table-responsive table td {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
 }
 
 /* ==========================================
@@ -1037,6 +1128,56 @@ html[data-theme="light"] .breadcrumb-item.active {
 .text-primary { color: var(--rosa-intenso) !important; }
 .bg-primary { background-color: var(--rosa-intenso) !important; }
 .border-primary { border-color: var(--rosa-intenso) !important; }
+
+/* ==========================================
+   🌸 SCROLLBARS (barra rosada)
+   - Para tablas con scroll horizontal en módulos del panel
+   ========================================== */
+.content-wrapper .table-responsive,
+.clientes-table-container,
+.usuarios-table-container,
+.catalogo-table-container,
+.panel-table-container {
+    scrollbar-color: var(--rosa-intenso) rgba(217, 167, 194, 0.25);
+    scrollbar-width: thin;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar,
+.clientes-table-container::-webkit-scrollbar,
+.usuarios-table-container::-webkit-scrollbar,
+.catalogo-table-container::-webkit-scrollbar,
+.panel-table-container::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-track,
+.clientes-table-container::-webkit-scrollbar-track,
+.usuarios-table-container::-webkit-scrollbar-track,
+.catalogo-table-container::-webkit-scrollbar-track,
+.panel-table-container::-webkit-scrollbar-track {
+    background: rgba(217, 167, 194, 0.12);
+    border-radius: 999px;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-thumb,
+.clientes-table-container::-webkit-scrollbar-thumb,
+.usuarios-table-container::-webkit-scrollbar-thumb,
+.catalogo-table-container::-webkit-scrollbar-thumb,
+.panel-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, var(--rosa-intenso), var(--rosa-suave));
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.content-wrapper .table-responsive::-webkit-scrollbar-thumb:hover,
+.clientes-table-container::-webkit-scrollbar-thumb:hover,
+.usuarios-table-container::-webkit-scrollbar-thumb:hover,
+.catalogo-table-container::-webkit-scrollbar-thumb:hover,
+.panel-table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--rosa-intenso);
+}
 
 /* Animación suave */
 @keyframes fadeIn {

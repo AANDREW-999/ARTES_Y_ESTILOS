@@ -11,7 +11,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
-from .utils import build_login_message
+from .utils import build_login_message, build_form_messages
 from .decorators import panel_login_required, superadmin_required
 
 User = get_user_model()
@@ -334,24 +334,32 @@ def lista_usuarios_view(request):
     return render(request, 'usuarios/lista_usuarios.html', context)
 
 
-@superadmin_required
+@panel_login_required
 def crear_usuario_view(request):
     """
     Crea un nuevo usuario en el sistema.
-    Solo accesible para superadmins.
+    Accesible para usuarios del panel (staff).
+    Solo superadmins pueden asignar rol de superadministrador.
     """
+    puede_asignar_superadmin = request.user.is_superuser
+
     if request.method == 'POST':
         post_data    = request.POST.copy()
         is_active    = request.POST.get('is_active')    == 'on'
-        is_staff     = request.POST.get('is_staff')     == 'on'
-        is_superuser = request.POST.get('is_superuser') == 'on'
+        is_superuser = (request.POST.get('is_superuser') == 'on') if puede_asignar_superadmin else False
+
+        # Defensa en profundidad: aunque manipulen el POST, un admin no puede escalar privilegios.
+        if not puede_asignar_superadmin:
+            post_data['is_superuser'] = ''
 
         form = RegistroForm(post_data, request.FILES)
 
         if form.is_valid():
             try:
                 usuario              = form.save(commit=False)
-                usuario.is_staff     = is_staff
+                # En este sistema solo existen administradores y superadministradores.
+                # Por defecto todos los usuarios del panel deben tener acceso (is_staff=True).
+                usuario.is_staff     = True
                 usuario.is_active    = is_active
                 usuario.is_superuser = is_superuser
                 usuario.save()
@@ -382,35 +390,20 @@ def crear_usuario_view(request):
                     extra_tags='level-error field-general'
                 )
         else:
-            error_mostrado = False
+            # Mostrar errores reales del form (incluye password1/password2)
+            for msg in build_form_messages(form):
+                messages.error(request, msg['text'], extra_tags=msg['tags'])
 
-            if 'documento' in form.errors:
-                messages.error(request,
-                    f'El documento {request.POST.get("documento", "")} ya está registrado.',
-                    extra_tags='level-error field-documento')
-                error_mostrado = True
-
-            if 'email' in form.errors:
-                messages.error(request,
-                    f'El correo electrónico {request.POST.get("email", "")} ya está registrado.',
-                    extra_tags='level-error field-email')
-                error_mostrado = True
-
-            if 'username' in form.errors:
-                messages.error(request,
-                    f'El nombre de usuario "{request.POST.get("username", "")}" ya está en uso.',
-                    extra_tags='level-error field-username')
-                error_mostrado = True
-
-            if not error_mostrado:
-                messages.warning(request,
-                    '⚠️ Revisa los campos resaltados y corrige los errores.',
-                    extra_tags='level-warning field-general')
+            messages.warning(
+                request,
+                '⚠️ Revisa los campos resaltados y corrige los errores.',
+                extra_tags='level-warning field-general'
+            )
 
     else:
         form         = RegistroForm()
         is_active    = True
-        is_staff     = False
+        is_staff     = True
         is_superuser = False
 
     context = {
@@ -418,8 +411,9 @@ def crear_usuario_view(request):
         'titulo':        'Crear Nuevo Usuario',
         'boton_texto':   'Crear Usuario',
         'is_active':     is_active if request.method == 'POST' else True,
-        'is_staff':      is_staff  if request.method == 'POST' else False,
+        'is_staff':      is_staff  if request.method == 'POST' else True,
         'is_superuser':  is_superuser if request.method == 'POST' else False,
+        'puede_asignar_superadmin': puede_asignar_superadmin,
     }
     return render(request, 'usuarios/crear_usuario.html', context)
 
@@ -443,6 +437,7 @@ def editar_usuario_view(request, user_id):
     if request.method == 'POST':
         documento_original = usuario.documento
         documento_nuevo    = request.POST.get('documento', '')
+        estado_anterior_activo = usuario.is_active
 
         # Nota: Validacion de confirmacion de cambio de documento desactivada a pedido.
         # if documento_original != documento_nuevo:
@@ -471,12 +466,57 @@ def editar_usuario_view(request, user_id):
 
         if form.is_valid():
             try:
-                form.save()
+                usuario_actualizado = form.save()
+
+                # Misma logica de activacion/desactivacion que en vistas de admin.
+                if estado_anterior_activo != usuario_actualizado.is_active and usuario_actualizado.email:
+                    if not usuario_actualizado.is_active:
+                        subject = 'Cuenta desactivada - Panel Administrativo Artes y Estilos'
+                        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+                        try:
+                            context = {
+                                'nombre': usuario_actualizado.get_full_name() or usuario_actualizado.username,
+                                'email': usuario_actualizado.email,
+                            }
+                            body_text = render_to_string('usuarios/email_cuenta_desactivada.txt', context)
+                            body_html = render_to_string('usuarios/email_cuenta_desactivada.html', context)
+                            email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario_actualizado.email])
+                            email.attach_alternative(body_html, 'text/html')
+                            email.send(fail_silently=True)
+                        except Exception:
+                            pass
+                    else:
+                        subject = 'Cuenta activada - Panel Administrativo Artes y Estilos'
+                        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+                        try:
+                            context = {
+                                'nombre': usuario_actualizado.get_full_name() or usuario_actualizado.username,
+                                'email': usuario_actualizado.email,
+                            }
+                            body_text = render_to_string('usuarios/email_cuenta_activada.txt', context)
+                            body_html = render_to_string('usuarios/email_cuenta_activada.html', context)
+                            email = EmailMultiAlternatives(subject=subject, body=body_text, from_email=from_email, to=[usuario_actualizado.email])
+                            email.attach_alternative(body_html, 'text/html')
+                            email.send(fail_silently=True)
+                        except Exception:
+                            pass
+
                 messages.success(
                     request,
                     '✅ Tu perfil ha sido actualizado correctamente.',
                     extra_tags='level-success field-general'
                 )
+
+                # Si se desactiva su propia cuenta, se cierra sesion de inmediato.
+                if not usuario_actualizado.is_active:
+                    auth_logout(request)
+                    messages.warning(
+                        request,
+                        'Tu cuenta fue desactivada. No puedes ingresar hasta que un superadministrador la reactive.',
+                        extra_tags='level-warning field-inactive'
+                    )
+                    return redirect('usuarios:panel_inactivo')
+
                 return redirect('usuarios:perfil')
             except Exception as e:
                 messages.error(
@@ -570,12 +610,6 @@ def visualizar_usuario_view(request, user_id):
 @superadmin_required
 def activar_usuario_view(request, user_id):
     usuario = get_object_or_404(User, id=user_id)
-
-    if usuario.is_superuser:
-        messages.error(request,
-            '⛔ No puedes activar a un superadministrador desde esta sección.',
-            extra_tags='level-error field-general')
-        return redirect('usuarios:lista_usuarios')
 
     if not usuario.is_staff:
         messages.error(request,
@@ -684,7 +718,7 @@ def eliminar_usuario_view(request, user_id):
             messages.warning(request,
                 f'⚠️ Tu cuenta {username} ha sido eliminada permanentemente.',
                 extra_tags='level-warning field-general')
-            return redirect('core:index')
+            return redirect('core:landing')
         else:
             messages.error(request,
                 '⛔ Debes escribir "ELIMINAR" para confirmar esta acción.',

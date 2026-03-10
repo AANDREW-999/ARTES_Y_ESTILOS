@@ -59,6 +59,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Confirmacion flotante al eliminar usuario
+    const eliminarButtons = document.querySelectorAll('.btn-eliminar');
+    eliminarButtons.forEach(btn => {
+        if (!btn.closest('form')) {
+            btn.addEventListener('click', function(e) {
+                const username = this.getAttribute('data-username') || 'este usuario';
+                const targetUrl = this.getAttribute('href');
+                if (!targetUrl) return;
+
+                e.preventDefault();
+
+                const mensaje = `¿Estas seguro de eliminar a ${username}? Esta accion no se puede deshacer.`;
+
+                if (window._dashboard?.showAdminConfirm) {
+                    window._dashboard.showAdminConfirm(
+                        'error',
+                        mensaje,
+                        () => { window.location.href = targetUrl; },
+                        () => {}
+                    );
+                } else if (window.confirm(mensaje)) {
+                    window.location.href = targetUrl;
+                }
+            });
+        }
+    });
+
     // ==========================================
     // ANIMACIONES EN HOVER
     // ==========================================

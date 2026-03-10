@@ -12,6 +12,7 @@
         constructor() {
             this.sidebar         = null;
             this.sidebarToggle   = null;
+            this.sidebarToggles  = [];
             this.mainContent     = null;
             this.sidebarResizer  = null;
             this.adminOverlay    = null;
@@ -30,6 +31,9 @@
             this._boundDocClick = null;
             this._boundDocKeydown = null;
             this._boundWinScroll = null;
+
+            // Responsive tables
+            this._tablesObserver = null;
 
             // Detectar si el foco viene de mouse o teclado (para no abrir flyout por click)
             this._lastInputWasPointer = false;
@@ -53,6 +57,7 @@
             this.initActiveMenuDetection();
             this.initSubMenus();
             this.initResponsive();
+            this.initResponsiveTables();
             this.initLogoutModal();
             this.convertDjangoMessages(); // siempre al final
 
@@ -67,6 +72,7 @@
         initElements() {
             this.sidebar       = document.getElementById('sidebar');
             this.sidebarToggle = document.getElementById('sidebar-toggle');
+            this.sidebarToggles = Array.from(document.querySelectorAll('[data-sidebar-toggle]'));
             this.mainContent   = document.getElementById('main-content');
             this.sidebarResizer = document.getElementById('sidebar-resizer');
             this.adminOverlay  = document.getElementById('adminNotificationOverlay');
@@ -82,7 +88,13 @@
         // SIDEBAR (colapsable desktop + offcanvas mobile)
         // ─────────────────────────────────────────
         initSidebarCollapsible() {
-            if (!this.sidebarToggle || !this.sidebar) return;
+            if (!this.sidebar) return;
+
+            const toggles = this.sidebarToggles.length
+                ? this.sidebarToggles
+                : (this.sidebarToggle ? [this.sidebarToggle] : []);
+
+            if (!toggles.length) return;
 
             this._restoreSidebarState();
             this._restoreSidebarWidth();
@@ -92,15 +104,17 @@
             this._initSidebarFlyout();
             this._initSidebarResize();
 
-            this.sidebarToggle.addEventListener('click', () => {
-                // Mobile: comportamiento off-canvas (show/hide)
-                if (window.innerWidth <= 768) {
-                    this.sidebar.classList.toggle('show');
-                    return;
-                }
+            toggles.forEach((toggleBtn) => {
+                toggleBtn.addEventListener('click', () => {
+                    // Mobile: comportamiento off-canvas (show/hide)
+                    if (window.innerWidth <= 768) {
+                        this.sidebar.classList.toggle('show');
+                        return;
+                    }
 
-                // Desktop: colapsar/expandir
-                this._setSidebarCollapsed(!this._isSidebarCollapsed(), { persist: true });
+                    // Desktop: colapsar/expandir
+                    this._setSidebarCollapsed(!this._isSidebarCollapsed(), { persist: true });
+                });
             });
         }
 
@@ -919,6 +933,96 @@
                     this._restoreSidebarWidth();
                 }
             });
+        }
+
+        // ─────────────────────────────────────────
+        // RESPONSIVE TABLES
+        // Envuelve tablas en `.table-responsive` para móviles
+        // sin tener que modificar cada plantilla.
+        // ─────────────────────────────────────────
+        initResponsiveTables() {
+            const root = document.querySelector('.content-wrapper');
+            if (!root) return;
+
+            const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+
+            const wrapAll = () => {
+                if (!isMobile()) return;
+                root.querySelectorAll('table').forEach((table) => {
+                    this._wrapTableInResponsive(table);
+                });
+            };
+
+            const unwrapAll = () => {
+                // Solo removemos wrappers generados automáticamente
+                root.querySelectorAll('.table-responsive[data-auto-table-responsive="true"]').forEach((wrapper) => {
+                    const table = wrapper.querySelector('table');
+                    if (!table) return;
+                    const parent = wrapper.parentNode;
+                    if (!parent) return;
+
+                    parent.insertBefore(table, wrapper);
+                    wrapper.remove();
+                });
+            };
+
+            // Estado inicial según breakpoint
+            if (isMobile()) wrapAll();
+            else unwrapAll();
+
+            if (!('MutationObserver' in window)) return;
+            if (this._tablesObserver) return;
+
+            this._tablesObserver = new MutationObserver((mutations) => {
+                let shouldRewrap = false;
+                for (const mutation of mutations) {
+                    for (const node of mutation.addedNodes) {
+                        if (!(node instanceof Element)) continue;
+                        if (node.matches('table') || node.querySelector?.('table')) {
+                            shouldRewrap = true;
+                            break;
+                        }
+                    }
+                    if (shouldRewrap) break;
+                }
+                if (shouldRewrap) wrapAll();
+            });
+
+            this._tablesObserver.observe(root, { childList: true, subtree: true });
+
+            // En cambios de tamaño: activar/desactivar wrappers
+            window.addEventListener('resize', () => {
+                if (isMobile()) {
+                    wrapAll();
+                } else {
+                    unwrapAll();
+                }
+            });
+        }
+
+        _wrapTableInResponsive(table) {
+            if (!table || !(table instanceof Element)) return;
+
+            // Evitar envolver tablas fuera del contenido principal
+            if (table.closest('.sidebar, .sidebar-flyout')) return;
+
+            // Si ya está dentro de un contenedor responsive, no tocar
+            if (table.closest('.table-responsive, .table-responsive-sm, .table-responsive-md, .table-responsive-lg, .table-responsive-xl, .table-responsive-xxl')) {
+                return;
+            }
+
+            // Si el desarrollador ya definió un contenedor de scroll propio
+            if (table.closest('[data-table-scroll], .table-scroll, .table-container-scroll')) return;
+
+            const parent = table.parentNode;
+            if (!parent) return;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-responsive';
+            wrapper.setAttribute('data-auto-table-responsive', 'true');
+
+            parent.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
         }
     }
 

@@ -49,8 +49,10 @@ INSTALLED_APPS = [
     'clientes',
     'accesibilidad',
     'compras',
+    'flor',      # ← must be here
     'ventas',
-    'arreglo',
+    'producto',
+    'categoria',
 ]
 
 MIDDLEWARE = [

@@ -16,12 +16,6 @@ FORMA_PAGO_CHOICES = [
     ('daviplata',     'Daviplata'),
 ]
 
-IVA_CHOICES = [
-    (0,  'Sin IVA (0%)'),
-    (5,  '5%'),
-    (19, '19%'),
-]
-
 
 class Venta(models.Model):
     cliente = models.ForeignKey(
@@ -38,10 +32,13 @@ class Venta(models.Model):
         validators=[MinValueValidator(0)],
         help_text='Costo de mano de obra'
     )
+
     forma_pago  = models.CharField(max_length=30, choices=FORMA_PAGO_CHOICES)
     descripcion = models.TextField(blank=True)
     con_domicilio = models.BooleanField(default=False)
     direccion     = models.CharField(max_length=200, blank=True, null=True)
+    nombre_domiciliario = models.CharField(max_length=120, blank=True, null=True)
+    telefono_domiciliario = models.CharField(max_length=20, blank=True, null=True)
     precio_envio  = models.DecimalField(
         max_digits=10, decimal_places=2, default=0,
         validators=[MinValueValidator(0)]
@@ -51,10 +48,7 @@ class Venta(models.Model):
     telefono_domiciliario = models.CharField(max_length=20, blank=True, null=True,
                                               verbose_name='Teléfono del domiciliario')
 
-    subtotal_sin_iva = models.DecimalField(
-        max_digits=12, decimal_places=2, default=0, editable=False
-    )
-    iva_monto = models.DecimalField(
+    subtotal = models.DecimalField(
         max_digits=12, decimal_places=2, default=0, editable=False
     )
     total = models.DecimalField(
@@ -65,18 +59,18 @@ class Venta(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def recalcular_totales(self):
+
+        """Recalcula subtotal y total desde los detalles (sin IVA)."""
+
         from decimal import Decimal
         subtotal = sum(d.subtotal for d in self.detalles.all())
         subtotal += self.mano_obra or Decimal('0')
         if self.con_domicilio:
             subtotal += self.precio_envio or Decimal('0')
-        self.subtotal_sin_iva = subtotal
-        self.iva_monto        = Decimal('0')
-        self.total            = subtotal 
-        
-    @property
-    def total_arreglo(self):
-        return sum(d.subtotal for d in self.detalles.all())
+
+
+        self.subtotal = subtotal
+        self.total = subtotal
 
     def save(self, *args, **kwargs):
         if self.pk:
@@ -98,10 +92,14 @@ class DetalleVenta(models.Model):
         on_delete=models.CASCADE,
         related_name='detalles'
     )
-    arreglo = models.ForeignKey(
-        'arreglo.Arreglo',
-        on_delete=models.PROTECT
-    )
+    TIPO_ITEM_CHOICES = [
+        ('FLOR', 'Flor'),
+        ('PRODUCTO', 'Producto'),
+    ]
+
+    tipo_item = models.CharField(max_length=20, choices=TIPO_ITEM_CHOICES)
+    flor = models.ForeignKey('flor.Flor', on_delete=models.PROTECT, null=True, blank=True)
+    producto = models.ForeignKey('producto.Producto', on_delete=models.PROTECT, null=True, blank=True)
     cantidad = models.PositiveIntegerField(default=1)
     precio   = models.DecimalField(
         max_digits=10, decimal_places=2,
@@ -113,11 +111,25 @@ class DetalleVenta(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        # Coherencia mínima entre tipo_item y FK
+        if self.tipo_item == 'FLOR':
+            self.producto = None
+        elif self.tipo_item == 'PRODUCTO':
+            self.flor = None
+
         self.subtotal = self.cantidad * self.precio
         super().save(*args, **kwargs)
 
+    @property
+    def item(self):
+        return self.flor or self.producto
+
+    @property
+    def item_nombre(self):
+        return getattr(self.item, 'nombre', '') if self.item else ''
+
     def __str__(self):
-        return f"{self.arreglo.nombre_flor} × {self.cantidad}"
+        return f"{self.item_nombre} × {self.cantidad}"
 
     class Meta:
         ordering = ['-created_at']

@@ -53,12 +53,10 @@ html {
 @media (max-width: 575.98px) { #hero { margin-bottom: -1.5rem; } }
 #hero .mt-3.d-flex.gap-2 {
   justify-content: center;
-  position: relative;
-  margin-top: -28px; /* sube los botones para que queden en la mitad inferior del carrusel */
-  z-index: 2;
+  margin-top: 1rem;
 }
 @media (max-width: 575.98px) {
-  #hero .mt-3.d-flex.gap-2 { margin-top: -18px; }
+  #hero .mt-3.d-flex.gap-2 { margin-top: .75rem; }
 }
 /* fondo general lo define el global core_styles.css */
 
@@ -179,44 +177,34 @@ footer a:hover {
 }
 
 /* Carrusel adaptable al tamaño de imagen */
-#carouselAye .carousel-inner { border-radius: 1rem; overflow: hidden; }
-#carouselAye .carousel-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--beige-claro);
-  min-height: 300px; /* asegura un alto base sin salto visual */
+/* Hero media estático (reemplaza carrusel) */
+.hero-media {
+  width: min(100%, 640px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: transparent;
+  border-radius: 1.25rem;
+  margin-inline: 0;
+  transform: translateZ(0);
 }
-#carouselAye .carousel-item img {
-  width: auto;          /* mantener proporción natural */
-  height: auto;         /* mantener proporción natural */
-  max-width: 100%;      /* no desbordar ancho del contenedor */
-  max-height: 60vh;     /* límite vertical en pantallas comunes */
-  object-fit: contain;  /* evitar recortes, mostrar imagen completa */
-}
-@media (max-width: 991.98px) {
-  #carouselAye .carousel-item { min-height: 240px; }
-  #carouselAye .carousel-item img { max-height: 50vh; }
-}
-@media (max-width: 575.98px) {
-  #carouselAye .carousel-item { min-height: 200px; }
-  #carouselAye .carousel-item img { max-height: 45vh; }
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center center;
+  animation: heroMediaIn 650ms cubic-bezier(.22,.9,.24,1) both;
 }
 
-/* Transición profesional: fade + pan/zoom */
-#carouselAye.carousel-fade .carousel-item { transition: opacity .6s ease; }
-#carouselAye .carousel-item img { transition: transform .8s ease, opacity .8s ease; }
-#carouselAye .carousel-item.next-reveal img,
-#carouselAye .carousel-item.prev-reveal img {
-  opacity: 0.85;
-  transform: scale(1.02) translateX(12px); /* pequeño pan/zoom de entrada */
+/* Botones centrados respecto a la imagen (no respecto a toda la columna) */
+#hero .hero-actions {
+  width: min(100%, 640px);
 }
-#carouselAye .carousel-item.active img {
-  opacity: 1;
-  transform: scale(1) translateX(0);
+
+@keyframes heroMediaIn {
+  from { opacity: 0; transform: scale(.985); }
+  to   { opacity: 1; transform: scale(1); }
 }
-/* al mantener presionado, aceleramos el paso pero mantenemos suavidad */
-#carouselAye.hold-advance .carousel-item img { transition-duration: .5s; }
 
 /* Tarjetas lado derecho con paleta floral y hover profesional */
 .card-floral {
@@ -336,14 +324,7 @@ section[id] { scroll-margin-top: 120px; }
 /* Catalogo: fondo elegante + tarjetas con profundidad */
 .catalogo-section {
   position: relative;
-  background: linear-gradient(180deg, #fff6f9 0%, #ffffff 45%, #f9f2ee 100%);
-}
-.catalogo-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(800px 220px at 20% 10%, rgba(217,167,194,.25) 0%, rgba(217,167,194,0) 60%);
-  pointer-events: none;
+  background: transparent;
 }
 .catalogo-section .container { position: relative; z-index: 1; }
 
@@ -387,6 +368,64 @@ section[id] { scroll-margin-top: 120px; }
   background: linear-gradient(180deg, #ffffff 0%, #fff9f6 100%);
 }
 
+.catalogo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+}
+
+.catalogo-head .card-title {
+  font-size: 1.38rem;
+  line-height: 1.2;
+}
+
+.catalogo-categoria-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: #8e3f69;
+  background: linear-gradient(135deg, rgba(191,84,134,.14), rgba(217,167,194,.22));
+  border: 1px solid rgba(191,84,134,.24);
+  white-space: nowrap;
+}
+
+.catalogo-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: .2rem;
+  padding: .28rem .55rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255,193,7,.14), rgba(255,193,7,.05));
+  border: 1px solid rgba(255,193,7,.35);
+}
+
+.catalogo-rating i {
+  color: #f7b500;
+  font-size: .82rem;
+}
+
+.catalogo-desc {
+  color: #6a4d58;
+  line-height: 1.45;
+  min-height: 3.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 575.98px) {
+  .catalogo-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 /* Stagger suave para las tarjetas del catalogo */
 .catalogo-grid > .reveal { transition-delay: .06s; }
 .catalogo-grid > .reveal:nth-child(2) { transition-delay: .12s; }
@@ -399,10 +438,12 @@ section[id] { scroll-margin-top: 120px; }
   .btn,
   .feature-card,
   .catalogo-card,
-  #mainNavbar,
-  #carouselAye .carousel-item img,
-  #carouselAye.carousel-fade .carousel-item {
+  #mainNavbar {
     transition: none !important;
+    animation: none !important;
+  }
+
+  .hero-media img {
     animation: none !important;
   }
 }

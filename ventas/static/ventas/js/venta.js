@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+<<<<<<< HEAD
 
     const addItemBtn        = document.getElementById("addItem");
     const tableBody         = document.querySelector("#itemsTable tbody");
@@ -8,12 +9,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const domicilioCheckbox = document.getElementById("id_con_domicilio");
     const camposDomicilio   = document.getElementById("campos_domicilio");
     const envioInput        = document.getElementById("id_precio_envio");
+=======
+    const addItemBtn = document.getElementById("addItem");
+    const itemsContainer = document.getElementById("itemsContainer");
+    const totalSpan = document.getElementById("totalVenta");
+    const subtotalSpan = document.getElementById("subtotalVenta");
+    const formVenta = document.getElementById("formVenta");
+    const manoObraInput = document.getElementById("manoObra");
+    const domicilioCheckbox = document.getElementById("id_con_domicilio");
+    const camposDomicilio = document.getElementById("campos_domicilio");
+    const direccionInput = document.getElementById("id_direccion");
+    const nombreDomiciliarioInput = document.getElementById("id_nombre_domiciliario");
+    const telefonoDomiciliarioInput = document.getElementById("id_telefono_domiciliario");
+    const envioInput = document.getElementById("id_precio_envio");
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
 
-    if (!addItemBtn || !tableBody) {
-        console.error("venta.js: no se encontró #addItem o #itemsTable tbody");
+    if (!addItemBtn || !itemsContainer) {
         return;
     }
 
+<<<<<<< HEAD
     const AJAX_URL = (typeof BUSCAR_ARREGLO_URL !== "undefined")
         ? BUSCAR_ARREGLO_URL
         : "/ventas/ajax/arreglos/";
@@ -21,14 +36,47 @@ document.addEventListener("DOMContentLoaded", function () {
     addItemBtn.addEventListener("click", () => agregarFila());
     manoObraInput && manoObraInput.addEventListener("input", calcularTotal);
     envioInput    && envioInput.addEventListener("input", calcularTotal);
+=======
+    addItemBtn.addEventListener("click", agregarItem);
+    manoObraInput && manoObraInput.addEventListener("input", calcularTotal);
+    envioInput && envioInput.addEventListener("input", calcularTotal);
+
+    if (manoObraInput) {
+        manoObraInput.addEventListener("focus", () => {
+            const numero = parsearMonedaInput(manoObraInput.value);
+            manoObraInput.value = numero ? numero.toFixed(2) : "";
+        });
+
+        manoObraInput.addEventListener("blur", () => {
+            const numero = parsearMonedaInput(manoObraInput.value);
+            manoObraInput.value = numero ? formatearMonedaInput(numero) : "0,00";
+            calcularTotal();
+        });
+
+        const inicial = parsearMonedaInput(manoObraInput.value);
+        manoObraInput.value = formatearMonedaInput(inicial);
+    }
+
+    if (formVenta) {
+        formVenta.addEventListener("submit", () => {
+            if (!manoObraInput) return;
+            const numero = parsearMonedaInput(manoObraInput.value);
+            manoObraInput.value = numero.toFixed(2);
+        });
+    }
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
 
     if (domicilioCheckbox) {
         domicilioCheckbox.addEventListener("change", () => {
-            camposDomicilio.style.display = domicilioCheckbox.checked ? "flex" : "none";
+            if (camposDomicilio) {
+                camposDomicilio.classList.toggle("d-none", !domicilioCheckbox.checked);
+            }
+            actualizarValidacionDomicilio();
             calcularTotal();
         });
     }
 
+<<<<<<< HEAD
     // ── Inicialización ──────────────────────────────────────────────────────
     if (typeof ITEMS_EXISTENTES !== "undefined" && ITEMS_EXISTENTES.length > 0) {
         ITEMS_EXISTENTES.forEach(item => agregarFila(item));
@@ -64,9 +112,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 </button>
             </td>
         `;
+=======
+    if (domicilioCheckbox && camposDomicilio) {
+        camposDomicilio.classList.toggle("d-none", !domicilioCheckbox.checked);
+    }
 
-        tableBody.appendChild(tr);
+    actualizarValidacionDomicilio();
 
+    itemsContainer.querySelectorAll(".item-venta").forEach(configurarItem);
+    calcularTotal();
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
+
+    function parsearPrecioData(valor) {
+        if (!valor) return 0;
+        const str = String(valor).trim();
+        if (!str) return 0;
+
+<<<<<<< HEAD
         if (item) {
             const cantidad = parseInt(item.cantidad)  || 1;
             const precio   = parseFloat(item.precio)  || 0;
@@ -84,12 +146,40 @@ document.addEventListener("DOMContentLoaded", function () {
             tr.remove();
             calcularTotal();
             mostrarFilaVacia();
+=======
+        // Soporta 10000.50 y 10.000,50
+        if (str.includes(',')) {
+            return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        return parseFloat(str) || 0;
+    }
+
+    function parsearMonedaInput(valor) {
+        if (!valor) return 0;
+        const str = String(valor).trim();
+        if (!str) return 0;
+
+        if (str.includes(",")) {
+            return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+        }
+        return parseFloat(str) || 0;
+    }
+
+    function formatearMonedaInput(numero) {
+        return Number(numero || 0).toLocaleString("es-CO", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
         });
+    }
 
-        tr.querySelectorAll(".cantidad, .precio").forEach(el =>
-            el.addEventListener("input", calcularTotal)
-        );
+    function agregarItem() {
+        const primerItem = itemsContainer.querySelector(".item-venta");
+        if (!primerItem) {
+            return;
+        }
 
+<<<<<<< HEAD
         activarAutocomplete(tr);
     }
 
@@ -100,9 +190,47 @@ document.addEventListener("DOMContentLoaded", function () {
         const hiddenId   = row.querySelector(".arreglo-id");
         const priceInput = row.querySelector(".precio");
         const box        = row.querySelector(".autocomplete-box");
+=======
+        const nuevoItem = primerItem.cloneNode(true);
 
-        let debounceTimer = null;
+        const select = nuevoItem.querySelector(".item-select");
+        const precioInput = nuevoItem.querySelector(".precio");
+        const cantidadInput = nuevoItem.querySelector(".cantidad");
+        const subtotal = nuevoItem.querySelector(".subtotal");
 
+        if (select) {
+            select.selectedIndex = 0;
+        }
+        if (precioInput) {
+            precioInput.value = "0";
+        }
+        if (cantidadInput) {
+            cantidadInput.value = "1";
+        }
+        if (subtotal) {
+            subtotal.innerText = "$0.00";
+        }
+
+        itemsContainer.appendChild(nuevoItem);
+        configurarItem(nuevoItem);
+        calcularTotal();
+    }
+
+    function configurarItem(itemEl) {
+        const select = itemEl.querySelector(".item-select");
+        const precioInput = itemEl.querySelector(".precio");
+        const cantidadInput = itemEl.querySelector(".cantidad");
+        const removeBtn = itemEl.querySelector(".eliminar");
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
+
+        if (select && precioInput) {
+            const autocompletarPrecio = (forzar) => {
+                const selectedOption = select.options[select.selectedIndex];
+                const precio = selectedOption ? selectedOption.getAttribute("data-precio") : null;
+                const precioActual = parseFloat(precioInput.value) || 0;
+                const precioNum = parsearPrecioData(precio);
+
+<<<<<<< HEAD
         input.addEventListener("input", function () {
             clearTimeout(debounceTimer);
             const query = this.value.trim();
@@ -180,9 +308,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ── Cálculo del total (sin IVA) ─────────────────────────────────────────
 
+=======
+                if (precioNum > 0 && (forzar || !precioActual || precioActual <= 0)) {
+                    precioInput.value = precioNum.toFixed(2);
+                } else if (forzar && !precioNum) {
+                    precioInput.value = "0";
+                }
+                calcularTotal();
+            };
+
+            select.addEventListener("change", () => autocompletarPrecio(true));
+            autocompletarPrecio(false);
+        }
+
+        precioInput && precioInput.addEventListener("input", calcularTotal);
+        cantidadInput && cantidadInput.addEventListener("input", calcularTotal);
+
+        if (removeBtn) {
+            removeBtn.addEventListener("click", () => {
+                const totalItems = itemsContainer.querySelectorAll(".item-venta").length;
+                if (totalItems > 1) {
+                    itemEl.remove();
+                    calcularTotal();
+                }
+            });
+        }
+    }
+
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
     function calcularTotal() {
         let subtotalItems = 0;
 
+<<<<<<< HEAD
         tableBody.querySelectorAll("tr:not(#emptyRow)").forEach(tr => {
             const cant = parseFloat(tr.querySelector(".cantidad")?.value) || 0;
             const prec = parseFloat(tr.querySelector(".precio")?.value)   || 0;
@@ -195,9 +352,26 @@ document.addEventListener("DOMContentLoaded", function () {
         const manoObra = parseFloat(manoObraInput?.value) || 0;
         const envio    = (domicilioCheckbox?.checked && envioInput)
                          ? (parseFloat(envioInput.value) || 0) : 0;
+=======
+        itemsContainer.querySelectorAll(".item-venta").forEach((itemEl) => {
+            const cantidad = parseFloat(itemEl.querySelector(".cantidad")?.value) || 0;
+            const precio = parseFloat(itemEl.querySelector(".precio")?.value) || 0;
+            const sub = cantidad * precio;
+
+            const subtotalEl = itemEl.querySelector(".subtotal");
+            if (subtotalEl) {
+                subtotalEl.innerText = fmt(sub);
+            }
+
+            subtotal += sub;
+        });
+
+        subtotal += parsearMonedaInput(manoObraInput?.value);
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
 
         const total = subtotalItems + manoObra + envio;
 
+<<<<<<< HEAD
         if (subtotalSpan) subtotalSpan.innerText = fmt(total);
         if (totalSpan)    totalSpan.innerText     = fmt(total);
 
@@ -224,7 +398,31 @@ document.addEventListener("DOMContentLoaded", function () {
         return "$" + n.toLocaleString("es-CO", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
+=======
+        const total = subtotal;
+
+        if (subtotalSpan) subtotalSpan.innerText = fmt(subtotal);
+        if (totalSpan) totalSpan.innerText = fmt(total);
+
+        const hiddenTotal = document.getElementById("hiddenTotal");
+        if (hiddenTotal) {
+            hiddenTotal.value = total.toFixed(2);
+        }
+    }
+
+    function actualizarValidacionDomicilio() {
+        const conDomicilio = Boolean(domicilioCheckbox?.checked);
+        [direccionInput, nombreDomiciliarioInput, telefonoDomiciliarioInput, envioInput].forEach((input) => {
+            if (!input) return;
+            input.required = conDomicilio;
+>>>>>>> 676227af4abcbde8abdf4e8dcbc0b11e02bf60b7
         });
     }
 
+    function fmt(n) {
+        return "$" + n.toLocaleString("es-CO", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    }
 });

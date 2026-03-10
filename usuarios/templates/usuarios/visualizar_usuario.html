@@ -117,7 +117,7 @@
                                             <i class="bi bi-envelope-fill"></i>
                                             Correo Electrónico
                                         </label>
-                                        <div class="info-value">{{ user.email }}</div>
+                                            <div class="info-value">{{ usuario.email }}</div>
                                     </div>
                                 </div>
                                 
@@ -127,7 +127,7 @@
                                             <i class="bi bi-card-text"></i>
                                             Documento
                                         </label>
-                                        <div class="info-value">{{ user.documento }}</div>
+                                            <div class="info-value">{{ usuario.documento }}</div>
                                     </div>
                                 </div>
                                 
@@ -137,7 +137,7 @@
                                             <i class="bi bi-person-fill"></i>
                                             Nombre Completo
                                         </label>
-                                        <div class="info-value">{{ user.first_name }} {{ user.last_name }}</div>
+                                            <div class="info-value">{{ usuario.first_name }} {{ usuario.last_name }}</div>
                                     </div>
                                 </div>
 
@@ -147,7 +147,7 @@
                                             <i class="bi bi-telephone-fill"></i>
                                             Teléfono
                                         </label>
-                                        <div class="info-value">{{ user.perfil.telefono|default:"No especificado" }}</div>
+                                            <div class="info-value">{{ perfil.telefono|default:"No especificado" }}</div>
                                     </div>
                                 </div>
 
@@ -158,8 +158,8 @@
                                             Fecha de Nacimiento
                                         </label>
                                         <div class="info-value">
-                                            {% if user.perfil.fecha_nacimiento %}
-                                                {{ user.perfil.fecha_nacimiento|date:"d/m/Y" }}
+                                                {% if perfil.fecha_nacimiento %}
+                                                    {{ perfil.fecha_nacimiento|date:"d/m/Y" }}
                                             {% else %}
                                                 No especificada
                                             {% endif %}
@@ -173,7 +173,7 @@
                                             <i class="bi bi-calendar-check"></i>
                                             Miembro Desde
                                         </label>
-                                        <div class="info-value">{{ user.date_joined|date:"d/m/Y" }}</div>
+                                            <div class="info-value">{{ usuario.date_joined|date:"d/m/Y" }}</div>
                                     </div>
                                 </div>
 
@@ -183,22 +183,21 @@
                                             <i class="bi bi-geo-alt-fill"></i>
                                             Dirección
                                         </label>
-                                        <div class="info-value">{{ user.perfil.direccion|default:"No especificada" }}</div>
+                                            <div class="info-value">{{ perfil.direccion|default:"No especificada" }}</div>
                                     </div>
                                 </div>
                                 
-                                {% if user.perfil.biografia %}
+                                    {% if perfil.biografia %}
                                 <div class="col-12">
                                     <div class="info-item">
                                         <label class="info-label">
                                             <i class="bi bi-file-text-fill"></i>
                                             Biografía
                                         </label>
-                                        <div class="info-value">{{ user.perfil.biografia }}</div>
+                                            <div class="info-value">{{ perfil.biografia }}</div>
                                     </div>
                                 </div>
                                 {% endif %}
-                                <div class="tab-pane fade show active" id="info" role="tabpanel">
                             </div>
                         </div>
                     </div>

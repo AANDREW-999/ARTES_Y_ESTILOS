@@ -1,0 +1,40 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}Listado de Proveedores{% endblock %}
+
+{% block content %}
+
+<div class="card p-3 mb-4">
+    <form method="GET" action="{% url 'reporte' %}" target="_blank">
+        <div class="row">
+            <div class="col-md-4">
+                <label>Desde:</label>
+                <input type="date" name="inicio" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Hasta:</label>
+                <input type="date" name="fin" class="form-control" required>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-danger">
+                    Generar PDF por Rango
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% block extra_css %}
+<style>
+    @page { size: letter; margin: 2cm; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+    th { background-color: #eee; }
+</style>
+{% endblock %}
+<h1>Reporte de Proveedores</h1>
+<p style="text-align: center;">
+    Periodo: {{ inicio }} al {{ fin }}
+</p>
+
+{% endblock %}

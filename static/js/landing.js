@@ -11,7 +11,7 @@
 
     if (!('IntersectionObserver' in window)) {
       // Fallback: mostrar todo inmediatamente
-      elements.forEach(el => el.classList.add('revealed'));
+      elements.forEach(el => el.classList.add('revealed', 'in-view'));
       return;
     }
 

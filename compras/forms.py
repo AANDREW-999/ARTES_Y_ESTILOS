@@ -20,9 +20,11 @@ class CompraForm(forms.ModelForm):
 class DetalleCompraForm(forms.ModelForm):
     class Meta:
         model = DetalleCompra
-        fields = ['rif', 'precio', 'cantidad']
+        fields = ['tipo_item', 'flor', 'producto', 'precio', 'cantidad']
         widgets = {
-            'rif': forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'RIF'}),
+            'tipo_item': forms.Select(attrs={'class': 'form-control form-control-sm'}),
+            'flor': forms.Select(attrs={'class': 'form-control form-control-sm'}),
+            'producto': forms.Select(attrs={'class': 'form-control form-control-sm'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control form-control-sm precio-input', 'step': '0.01', 'min': '0'}),
             'cantidad': forms.NumberInput(attrs={'class': 'form-control form-control-sm cantidad-input', 'min': '1', 'value': '1'}),
         }

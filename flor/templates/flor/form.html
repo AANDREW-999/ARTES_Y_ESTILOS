@@ -1,0 +1,176 @@
+{% extends 'panel_admin_base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Editar Flor{% else %}Nueva Flor{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modules.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'core:dashboard' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'flor:lista' %}">Flores</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% if object %}Editar Flor{% else %}Nueva Flor{% endif %}
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9 col-xl-8">
+            <div class="form-card">
+                <div class="form-section-title">
+                    <i class="bi bi-flower1"></i>
+                    {% if object %}Editar flor{% else %}Nueva flor{% endif %}
+                </div>
+
+                <form id="product-form" method="post" enctype="multipart/form-data" novalidate autocomplete="off">
+                    {% csrf_token %}
+
+                    <input type="hidden" id="cropped-image-data" name="cropped_image_data">
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.nombre.id_for_label }}">Nombre</label>
+                                {{ form.nombre }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.nombre.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.tipo_flor.id_for_label }}">Tipo</label>
+                                {{ form.tipo_flor }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.tipo_flor.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.precio.id_for_label }}">Precio</label>
+                                {{ form.precio }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.precio.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.cantidad.id_for_label }}">Stock</label>
+                                {{ form.cantidad }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.cantidad.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                                {{ form.descripcion }}
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.descripcion.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field-wrapper mb-1">
+                                <label class="field-label" for="{{ form.imagen.id_for_label }}">Imagen</label>
+                                {% if object and object.imagen %}
+                                    <div class="current-image-block">
+                                        <div class="current-image-label">Imagen actual</div>
+                                        <div class="current-image-frame">
+                                            <img class="current-image-img" src="{{ object.imagen.url }}" alt="{{ object.nombre }}">
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <input
+                                    type="file"
+                                    id="image-input"
+                                    name="imagen"
+                                    class="form-control"
+                                    accept="image/*">
+                                <p class="cropper-hint">
+                                    <i class="bi bi-info-circle"></i>
+                                    Al seleccionar una imagen podrás recortarla antes de guardar.
+                                </p>
+                                <div class="cropper-section" id="cropper-wrapper">
+                                    <img id="image-preview" src="" alt="Vista previa">
+                                    <div class="cropper-toolbar">
+                                        <button type="button" class="btn-crop-action" id="btn-rotate-left">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Rotar
+                                        </button>
+                                        <button type="button" class="btn-crop-action" id="btn-rotate-right">
+                                            <i class="bi bi-arrow-clockwise"></i> Rotar
+                                        </button>
+                                        <button type="button" class="btn-crop-action" id="btn-flip-h">
+                                            <i class="bi bi-symmetry-vertical"></i> Voltear H
+                                        </button>
+                                        <button type="button" class="btn-crop-action" id="btn-flip-v">
+                                            <i class="bi bi-symmetry-horizontal"></i> Voltear V
+                                        </button>
+                                        <div class="crop-preview-box" id="crop-preview"></div>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback"></div>
+                                <div class="valid-feedback"></div>
+                                {% for error in form.imagen.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                        <a href="{% url 'flor:lista' %}" class="btn-cancelar">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/validaciones_modules.js' %}"></script>
+<script src="{% static 'js/money_input_format.js' %}?v=20260306"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="{% static 'js/cropper_producto.js' %}"></script>
+{% endblock %}

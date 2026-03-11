@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
 <link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -220,9 +221,13 @@
 
                         <td>
                             {% if venta.con_domicilio %}
-                                <span class="badge bg-success">Sí</span>
+                                <span class="badge-estado badge-activo">
+                                    <i class="bi bi-check-circle-fill"></i> Si Aplica Domicilio
+                                </span>
                             {% else %}
-                                <span class="badge bg-secondary">No</span>
+                                <span class="badge-estado badge-inactivo">
+                                    <i class="bi bi-x-circle-fill"></i> No Aplica Domicilio
+                                </span>
                             {% endif %}
                         </td>
 

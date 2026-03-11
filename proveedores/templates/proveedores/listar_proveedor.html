@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
 <link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -177,9 +178,13 @@
                         <td>{{ proveedor.correo_electronico|default:'—' }}</td>
                         <td>
                             {% if proveedor.activo %}
-                                <span class="badge bg-success">Activo</span>
+                                <span class="badge-estado badge-activo">
+                                    <i class="bi bi-check-circle-fill"></i> Activo
+                                </span>
                             {% else %}
-                                <span class="badge bg-danger">Inactivo</span>
+                                <span class="badge-estado badge-inactivo">
+                                    <i class="bi bi-x-circle-fill"></i> Inactivo
+                                </span>
                             {% endif %}
                         </td>
                         <td class="text-end">

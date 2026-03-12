@@ -16,6 +16,7 @@ staticfiles/
 
 # Backups de base de datos
 backup/
+*.sqlite3
 *.sql
 *.dump
 *.backup

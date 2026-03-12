@@ -19,7 +19,7 @@
     {% bootstrap_css %}
     {% bootstrap_javascript %}
 
-    <link rel="stylesheet" href="{% static 'css/panel_admin_base.css' %}?v=20260307-2">
+    <link rel="stylesheet" href="{% static 'css/panel_admin_base.css' %}?v=20260311-2">
 
     <!-- ESTILOS DEL MÓDULO DE USUARIOS (para unificar apariencia en clientes) -->
     <link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}?v=20260227">
@@ -233,9 +233,10 @@
             </div>
 
             <div class="topbar-right">
-                <div class="search-box">
+                <div class="search-box" data-admin-create-actions='[{"label":"Crear usuario","href":"{% url "usuarios:crear_usuario" %}"},{"label":"Agregar categoría","href":"{% url "categoria:agregar" %}"},{"label":"Crear flor","href":"{% url "flor:crear" %}"},{"label":"Crear producto","href":"{% url "producto:crear" %}"},{"label":"Agregar catálogo","href":"{% url "catalogo:agregar_producto" %}"},{"label":"Crear compra","href":"{% url "compras:crear_compra" %}"},{"label":"Crear venta","href":"{% url "ventas:crear" %}"},{"label":"Crear cliente","href":"{% url "clientes:crear_cliente" %}"},{"label":"Agregar proveedor","href":"{% url "proveedores:agregar" %}"}]'>
                     <i class="bi bi-search"></i>
-                    <input type="text" class="form-control" placeholder="Buscar...">
+                    <input type="text" class="form-control" id="adminSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false" aria-label="Buscar módulos o acciones">
+                    <div id="adminSearchResults" class="admin-search-results" role="listbox" aria-label="Resultados de búsqueda" style="display:none;"></div>
                 </div>
 
                 <button class="btn btn-icon" id="theme-toggle" title="Cambiar tema">
@@ -277,41 +278,13 @@
     ════════════════════════════════════ -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="{% static 'js/panel_admin_base.js' %}?v=20260307"></script>
+
+    <script src="{% static 'js/panel_admin_base.js' %}?v=20260311-2"></script>
+    <script src="{% static 'js/admin_security_actions.js' %}?v=20260311"></script>
 
     {% block extra_js %}{% endblock %}
 
-    <!-- Tema oscuro / claro -->
-    <script>
-        (function () {
-            'use strict';
-            const themeToggle = document.getElementById('theme-toggle');
-            const themeIcon   = document.getElementById('theme-icon');
-            const html        = document.documentElement;
-            const body        = document.body;
-
-            applyTheme(localStorage.getItem('adminTheme') || 'dark');
-
-            themeToggle.addEventListener('click', function () {
-                const next = (html.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
-                applyTheme(next);
-                localStorage.setItem('adminTheme', next);
-            });
-
-            function applyTheme(theme) {
-                html.setAttribute('data-theme', theme);
-                if (theme === 'light') {
-                    body.classList.add('light-mode');
-                    themeIcon.className = 'bi bi-sun-fill';
-                    themeToggle.title = 'Cambiar a modo oscuro';
-                } else {
-                    body.classList.remove('light-mode');
-                    themeIcon.className = 'bi bi-moon-stars-fill';
-                    themeToggle.title = 'Cambiar a modo claro';
-                }
-            }
-        })();
-    </script>
+    
 
     {% accesibilidad_widget %}
 

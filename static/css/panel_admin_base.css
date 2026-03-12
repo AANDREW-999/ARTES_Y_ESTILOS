@@ -837,6 +837,67 @@ html[data-theme="light"] .breadcrumb-item.active {
     color: var(--text-secondary);
 }
 
+/* Resultados del buscador del panel (autocompletado) */
+.admin-search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 1200;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-card);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.admin-search-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+/* Evitar estilos por defecto de enlaces (azul/visitado/subrayado) */
+.admin-search-item:link,
+.admin-search-item:visited,
+.admin-search-item:hover,
+.admin-search-item:active {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.admin-search-item:focus,
+.admin-search-item:focus-visible {
+    outline: none;
+}
+
+.admin-search-item:last-child {
+    border-bottom: none;
+}
+
+.admin-search-item:hover,
+.admin-search-item.is-active {
+    background: rgba(191, 84, 134, 0.12);
+}
+
+.admin-search-item .admin-search-meta {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.admin-search-empty {
+    padding: 0.75rem 0.85rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
 /* ==========================================
    🎨 BOTONES MINIMALISTAS
    ========================================== */

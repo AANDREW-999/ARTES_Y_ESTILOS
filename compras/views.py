@@ -212,6 +212,7 @@ def compra_detail(request, id):
         Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__flor", "detalles__producto"),
         id=id,
     )
+    una_compra.calcular_totales()
     template = loader.get_template("compra_detail.html")
     return HttpResponse(template.render({"compra": una_compra, "detalles": una_compra.detalles.all()}, request))
 

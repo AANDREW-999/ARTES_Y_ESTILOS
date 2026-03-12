@@ -34,34 +34,7 @@
 </div>
 
 <!-- Toasts -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999;">
-    <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert">
-        <div class="d-flex">
-            <div class="toast-body d-flex align-items-center">
-                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                <span id="successToastMessage"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-    <div id="errorToast" class="toast align-items-center text-bg-danger border-0 shadow-lg" role="alert">
-        <div class="d-flex">
-            <div class="toast-body d-flex align-items-center">
-                <i class="bi bi-x-circle-fill me-2 fs-5"></i>
-                <span id="errorToastMessage"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
-{% if messages %}
-<div id="django-messages" style="display:none;">
-    {% for message in messages %}
-    <div data-message-level="{{ message.tags }}" data-message-text="{{ message }}"></div>
-    {% endfor %}
-</div>
-{% endif %}
+{# Notificaciones: se manejan globalmente por panel_admin_base.html + admin_notification.html #}
 
 <div class="container-fluid py-5">
     <div class="row justify-content-center">
@@ -233,46 +206,7 @@
 
                     <!-- Tab: Seguridad -->
                     <div class="tab-pane fade" id="security" role="tabpanel">
-                        <div class="profile-section">
-                            <h3 class="section-title">
-                                <i class="bi bi-shield-lock-fill"></i>
-                                Configuración de Seguridad
-                            </h3>
-
-                            <div class="security-card">
-                                <div class="security-icon">
-                                    <i class="bi bi-key-fill"></i>
-                                </div>
-                                <div class="security-content">
-                                    <h4 class="security-title">Contraseña</h4>
-                                    <p class="security-description">
-                                        Mantén tu cuenta segura actualizando tu contraseña regularmente.
-                                        Se recomienda usar una combinación de letras, números y símbolos.
-                                    </p>
-                                    <a href="{% url 'usuarios:password_reset' %}" class="btn btn-warning">
-                                        <i class="bi bi-key-fill"></i>
-                                        Cambiar Contraseña
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="security-info-grid">
-                                <div class="security-info-item">
-                                    <i class="bi bi-clock-history"></i>
-                                    <div>
-                                        <strong>Última Actualización</strong>
-                                        <p>{{ user.date_joined|date:"d/m/Y H:i" }}</p>
-                                    </div>
-                                </div>
-                                <div class="security-info-item">
-                                    <i class="bi bi-shield-check"></i>
-                                    <div>
-                                        <strong>Estado de la Cuenta</strong>
-                                        <p>Verificada y Activa</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {% include 'usuarios/partials/seguridad_contenido.html' %}
                     </div>
 
                 </div>

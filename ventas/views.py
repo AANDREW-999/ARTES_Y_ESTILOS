@@ -378,6 +378,8 @@ def detalle_venta(request, pk):
         Venta.objects.prefetch_related("detalles__flor", "detalles__producto").select_related("cliente"),
         pk=pk,
     )
+    venta.recalcular_totales()
+    venta.save(update_fields=["subtotal", "total"])
     return render(request, "ventas/detalle_venta.html", {"venta": venta})
 
 

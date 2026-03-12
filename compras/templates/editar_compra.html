@@ -100,30 +100,6 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <div class="field-wrapper">
-                                <label class="field-label" for="id_departamento">Departamento</label>
-                                <select name="departamento" id="id_departamento" class="form-select js-departamento">
-                                    <option value="">Seleccione un departamento</option>
-                                </select>
-                                <input type="hidden" name="departamento_original" id="id_departamento_original" value="{{ object.departamento|default:'' }}">
-                                <div class="invalid-feedback"></div>
-                                <div class="valid-feedback"></div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <div class="field-wrapper">
-                                <label class="field-label" for="id_ciudad">Ciudad</label>
-                                <select name="ciudad" id="id_ciudad" class="form-select js-ciudad" disabled>
-                                    <option value="">Seleccione una ciudad</option>
-                                </select>
-                                <input type="hidden" name="ciudad_original" id="id_ciudad_original" value="{{ object.ciudad|default:'' }}">
-                                <div class="invalid-feedback"></div>
-                                <div class="valid-feedback"></div>
-                            </div>
-                        </div>
-
                         <div class="col-12">
                             <div class="field-wrapper">
                                 <label class="field-label" for="id_descripcion">Descripción</label>
@@ -314,7 +290,6 @@
 
 {% block extra_js %}
 <script src="{% static 'js/validaciones_modules.js' %}"></script>
-<script src="{% static 'js/departamentos_ciudades.js' %}?v=20260307"></script>
 <script src="{% static 'js/crear_compra.js' %}?v=20260306"></script>
 {% endblock %}
 

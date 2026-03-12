@@ -53,12 +53,14 @@
         // ─────────────────────────────────────────
         init() {
             this.initElements();
+            this.initThemeToggle();
             this.initSidebarCollapsible();
             this.initActiveMenuDetection();
             this.initSubMenus();
             this.initResponsive();
             this.initResponsiveTables();
             this.initLogoutModal();
+            this.initAdminSearch();
             this.convertDjangoMessages(); // siempre al final
 
             // Señales globales de interacción
@@ -68,6 +70,7 @@
                 if (e.key === 'Tab' || e.key.startsWith('Arrow')) this._lastInputWasPointer = false;
             });
         }
+
 
         initElements() {
             this.sidebar       = document.getElementById('sidebar');
@@ -82,6 +85,260 @@
             this.adminActions  = document.getElementById('adminNotificationActions');
             this.adminCancel   = document.getElementById('adminNotificationCancel');
             this.adminConfirm  = document.getElementById('adminNotificationConfirm');
+
+            // Buscador
+            this.adminSearchInput = document.getElementById('adminSearchInput');
+            this.adminSearchResults = document.getElementById('adminSearchResults');
+        }
+
+        // ─────────────────────────────────────────
+        // TEMA (Oscuro / Claro)
+        // ─────────────────────────────────────────
+        initThemeToggle() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon   = document.getElementById('theme-icon');
+            const html        = document.documentElement;
+            const body        = document.body;
+
+            if (!themeToggle || !themeIcon) return;
+
+            const applyTheme = (theme) => {
+                html.setAttribute('data-theme', theme);
+                if (theme === 'light') {
+                    body.classList.add('light-mode');
+                    themeIcon.className = 'bi bi-sun-fill';
+                    themeToggle.title = 'Cambiar a modo oscuro';
+                } else {
+                    body.classList.remove('light-mode');
+                    themeIcon.className = 'bi bi-moon-stars-fill';
+                    themeToggle.title = 'Cambiar a modo claro';
+                }
+            };
+
+            applyTheme(localStorage.getItem('adminTheme') || 'dark');
+
+            themeToggle.addEventListener('click', () => {
+                const next = (html.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
+                applyTheme(next);
+                localStorage.setItem('adminTheme', next);
+            });
+        }
+
+        // ─────────────────────────────────────────
+        // BUSCADOR (Topbar)
+        // - Busca módulos (links del sidebar)
+        // - Si escribes "crear" o "agregar", sugiere acciones de creación
+        // ─────────────────────────────────────────
+        initAdminSearch() {
+            if (!this.adminSearchInput || !this.adminSearchResults) return;
+
+            const input = this.adminSearchInput;
+            const results = this.adminSearchResults;
+
+            const searchBox = input.closest('.search-box');
+
+            const normalize = (text) => {
+                return (text || '')
+                    .toString()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/\p{Diacritic}/gu, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            };
+
+            const getSidebarItems = () => {
+                const links = Array.from(document.querySelectorAll('.sidebar-nav .nav-link'));
+                return links
+                    .map((a) => {
+                        const href = a.getAttribute('href') || '';
+                        if (!href || href === '#') return null;
+                        const label = (a.querySelector('span')?.textContent || a.textContent || '').replace(/\s+/g, ' ').trim();
+                        if (!label) return null;
+                        return {
+                            type: 'module',
+                            label,
+                            href,
+                            search: normalize(label),
+                        };
+                    })
+                    .filter(Boolean);
+            };
+
+            const getCreateActions = () => {
+                // Preferir data-attribute del template (evita JS inline)
+                let list = [];
+                const raw = searchBox?.getAttribute('data-admin-create-actions') || '';
+                if (raw) {
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) list = parsed;
+                    } catch (_) {
+                        // si falla, caer al fallback
+                    }
+                }
+
+                if (!list.length && Array.isArray(window.__adminCreateActions)) {
+                    list = window.__adminCreateActions;
+                }
+
+                return list
+                    .map((x) => {
+                        const label = (x?.label || '').toString().trim();
+                        const href = (x?.href || '').toString().trim();
+                        if (!label || !href) return null;
+                        return {
+                            type: 'create',
+                            label,
+                            href,
+                            search: normalize(label),
+                        };
+                    })
+                    .filter(Boolean);
+            };
+
+            const createVerbs = new Set(['crear', 'agregar', 'nuevo', 'nueva', 'anadir', 'añadir']);
+
+            const state = {
+                items: [],
+                activeIndex: -1,
+            };
+
+            const hide = () => {
+                results.style.display = 'none';
+                results.innerHTML = '';
+                state.items = [];
+                state.activeIndex = -1;
+            };
+
+            const setActive = (index) => {
+                state.activeIndex = index;
+                Array.from(results.querySelectorAll('.admin-search-item')).forEach((el, i) => {
+                    el.classList.toggle('is-active', i === index);
+                });
+            };
+
+            const navigateTo = (href) => {
+                if (!href) return;
+                window.location.href = href;
+            };
+
+            const render = (items) => {
+                results.innerHTML = '';
+                state.items = items;
+                state.activeIndex = -1;
+
+                if (!items.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'admin-search-empty';
+                    empty.textContent = 'Sin resultados';
+                    results.appendChild(empty);
+                    results.style.display = 'block';
+                    return;
+                }
+
+                items.forEach((item, idx) => {
+                    const a = document.createElement('a');
+                    a.className = 'admin-search-item';
+                    a.href = item.href;
+                    a.setAttribute('role', 'option');
+                    a.setAttribute('data-index', String(idx));
+
+                    const label = document.createElement('span');
+                    label.textContent = item.label;
+
+                    const meta = document.createElement('span');
+                    meta.className = 'admin-search-meta';
+                    meta.textContent = item.type === 'create' ? 'Crear' : 'Ir';
+
+                    a.appendChild(label);
+                    a.appendChild(meta);
+
+                    a.addEventListener('mouseenter', () => setActive(idx));
+                    a.addEventListener('mousedown', (e) => {
+                        // mousedown para navegar antes de que blur cierre resultados
+                        e.preventDefault();
+                        navigateTo(item.href);
+                    });
+
+                    results.appendChild(a);
+                });
+
+                results.style.display = 'block';
+            };
+
+            const search = (rawQuery) => {
+                const query = normalize(rawQuery);
+                if (!query) {
+                    hide();
+                    return;
+                }
+
+                const tokens = query.split(' ').filter(Boolean);
+                const isCreateIntent = tokens.some((t) => createVerbs.has(t)) || query.startsWith('crea') || query.startsWith('agre');
+
+                if (isCreateIntent) {
+                    const filterTokens = tokens.filter((t) => !createVerbs.has(t));
+                    const actions = getCreateActions();
+                    const filtered = actions.filter((a) => filterTokens.every((t) => a.search.includes(t)));
+                    render(filtered.slice(0, 10));
+                    return;
+                }
+
+                const modules = getSidebarItems();
+                const filtered = modules
+                    .filter((m) => tokens.every((t) => m.search.includes(t)))
+                    .slice(0, 10);
+
+                render(filtered);
+            };
+
+            // Eventos
+            input.addEventListener('input', () => search(input.value));
+            input.addEventListener('focus', () => search(input.value));
+
+            input.addEventListener('keydown', (e) => {
+                if (results.style.display === 'none') {
+                    if (e.key === 'Enter') search(input.value);
+                    return;
+                }
+
+                const max = state.items.length - 1;
+                if (e.key === 'Escape') {
+                    hide();
+                    return;
+                }
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const next = state.activeIndex < 0 ? 0 : Math.min(max, state.activeIndex + 1);
+                    setActive(next);
+                    return;
+                }
+
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const prev = state.activeIndex <= 0 ? 0 : state.activeIndex - 1;
+                    setActive(prev);
+                    return;
+                }
+
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const active = state.activeIndex >= 0 ? state.items[state.activeIndex] : state.items[0];
+                    if (active && active.href) navigateTo(active.href);
+                    return;
+                }
+            });
+
+            // Click fuera cierra resultados
+            document.addEventListener('mousedown', (e) => {
+                const target = e.target;
+                if (!(target instanceof Node)) return;
+                if (target === input) return;
+                if (results.contains(target)) return;
+                hide();
+            });
         }
 
         // ─────────────────────────────────────────

@@ -43,7 +43,7 @@
 
                 <div class="profile-badges">
                     <span class="profile-badge badge-user"><i class="bi bi-calendar-event"></i> {{ venta.fecha|date:'d/m/Y' }}</span>
-                    <span class="profile-badge badge-active"><i class="bi bi-currency-dollar"></i> ${{ venta.total }}</span>
+                    <span class="profile-badge badge-active"><i class="bi bi-currency-dollar"></i> {{ venta.total }}</span>
                     <span class="profile-badge badge-user"><i class="bi bi-bag"></i> Ítems: {{ venta.detalles.count }}</span>
                     <span class="profile-badge badge-user"><i class="bi bi-credit-card"></i> {{ venta.get_forma_pago_display|upper }}</span>
                 </div>
@@ -62,7 +62,7 @@
             <div class="profile-section">
                 <div class="section-title">
                     <i class="bi bi-card-checklist"></i>
-                    Información de la venta
+                    Información de la Venta
                 </div>
 
                 <div class="row g-3">
@@ -95,13 +95,6 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-card-text"></i> Descripción</div>
-                            <div class="info-value">{{ venta.descripcion|default:'—' }}</div>
-                        </div>
-                    </div>
-
                     <div class="col-12">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-truck"></i> Domicilio</div>
@@ -112,34 +105,34 @@
                                     {% if venta.nombre_domiciliario %}<br>Nombre domiciliario: {{ venta.nombre_domiciliario }}{% endif %}
                                     {% if venta.telefono_domiciliario %}<br>Teléfono domiciliario: {{ venta.telefono_domiciliario }}{% endif %}
                                 {% else %}
-                                    No
+                                    No aplica domicilio
                                 {% endif %}
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-12 col-md-3">
+
+                    <div class="col-12">
                         <div class="info-item">
-                            <div class="info-label"><i class="bi bi-wallet2"></i> Medio de pago</div>
-                            <div class="info-value">{{ venta.medio_pago|default:venta.get_forma_pago_display|upper }}</div>
+                            <div class="info-label"><i class="bi bi-card-text"></i> Descripción</div>
+                            <div class="info-value">{{ venta.descripcion|default:'—' }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-tools"></i> Mano de obra</div>
                             <div class="info-value">${{ venta.mano_obra|floatformat:2|intcomma }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
-                            <div class="info-label"><i class="bi bi-receipt"></i> Subtotal</div>
+                            <div class="info-label"><i class="bi bi-receipt"></i> Subtotal (solo ítems)</div>
                             <div class="info-value">${{ venta.subtotal|floatformat:2|intcomma }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-currency-dollar"></i> Total</div>
                             <div class="info-value"><strong>${{ venta.total|floatformat:2|intcomma }}</strong></div>
@@ -161,7 +154,7 @@
                                     <th>Tipo</th>
                                     <th class="text-end">Precio</th>
                                     <th class="text-end">Cantidad</th>
-                                    <th class="text-end">Subtotal</th>
+                                    <th class="text-end">Subtotal por ítem (cantidad x precio)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -169,9 +162,9 @@
                                 <tr class="slideIn">
                                     <td>{{ detalle.item_nombre|default:'—' }}</td>
                                     <td>{{ detalle.get_tipo_item_display }}</td>
-                                    <td class="text-end">${{ detalle.precio }}</td>
+                                    <td class="text-end">${{ detalle.precio|floatformat:2|intcomma }}</td>
                                     <td class="text-end">{{ detalle.cantidad }}</td>
-                                    <td class="text-end"><strong>${{ detalle.subtotal }}</strong></td>
+                                    <td class="text-end"><strong>${{ detalle.subtotal|floatformat:2|intcomma }}</strong></td>
                                 </tr>
                                 {% empty %}
                                 <tr>

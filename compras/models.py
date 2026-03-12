@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from decimal import Decimal
 from proveedores.models import Proveedor
 
 # --- Definiciones de Choices para Compra ---
@@ -45,10 +46,6 @@ class Compra(models.Model):
     # Usuario que creó la compra
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Usuario")
     
-    # Ubicación y Proceso
-    departamento = models.CharField(max_length=45, verbose_name="Departamento", blank=True)
-    ciudad = models.CharField(max_length=100, verbose_name="Ciudad", blank=True)
-    
     # Tipo de producto
     tipo_producto = models.CharField(max_length=20, choices=TIPO_PRODUCTO_CHOICES, verbose_name="Tipo de Producto", blank=True)
     
@@ -66,7 +63,7 @@ class Compra(models.Model):
     def calcular_totales(self):
         """Calcula automáticamente los totales de la compra"""
         detalles = self.detalles.all()
-        self.subtotal = sum(d.cantidad * d.precio for d in detalles)
+        self.subtotal = sum((d.subtotal for d in detalles), Decimal('0'))
         self.total_compra = self.subtotal
         self.save()
 

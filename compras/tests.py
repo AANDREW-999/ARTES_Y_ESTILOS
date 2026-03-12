@@ -108,6 +108,14 @@ class CompraStockTests(TestCase):
 		self.assertEqual(self.flor.cantidad, 0)
 		self.assertEqual(self.producto.cantidad, 0)
 
+	def test_subtotal_y_total_compra_se_guardan_correctamente(self):
+		response = self._crear_compra(cant_flor=5, cant_producto=2)
+		self.assertEqual(response.status_code, 302)
+
+		compra = Compra.objects.latest("id")
+		self.assertEqual(float(compra.subtotal), 60000.0)
+		self.assertEqual(float(compra.total_compra), 60000.0)
+
 
 class CompraFiltroListadoTests(TestCase):
 	def setUp(self):

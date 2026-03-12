@@ -87,14 +87,21 @@
                         <div class="col-12">
                             <div class="field-wrapper">
                                 <label class="field-label" for="id_proveedor">Proveedor *</label>
-                                <select name="proveedor" id="id_proveedor" class="form-select" required>
-                                    <option value="">Seleccione Proveedor</option>
-                                    {% for proveedor in proveedores %}
-                                    <option value="{{ proveedor.id }}" {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ proveedor.nombre_proveedor }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <select name="proveedor" id="id_proveedor" class="form-select" required>
+                                        <option value="">Seleccione Proveedor</option>
+                                        {% for proveedor in proveedores %}
+                                        <option value="{{ proveedor.id }}" {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ proveedor.nombre_proveedor }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <a href="{% url 'proveedores:agregar_proveedor' %}"
+                                       class="btn btn-outline-primary text-nowrap"
+                                       title="Crear proveedor">
+                                        <i class="bi bi-plus-circle"></i> Nuevo
+                                    </a>
+                                </div>
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
                                 {% for error in form.proveedor.errors %}

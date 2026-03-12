@@ -134,6 +134,33 @@ class VentaStockTests(TestCase):
 		self.assertEqual(self.flor.cantidad, 10)
 		self.assertEqual(self.producto.cantidad, 6)
 
+	def test_subtotal_y_total_se_guardan_correctamente(self):
+		response = self.client.post(
+			reverse("ventas:crear"),
+			{
+				"tipo_venta": "EI",
+				"cliente": self.cliente.id,
+				"fecha": date.today().isoformat(),
+				"forma_pago": "efectivo",
+				"mano_obra": "5000",
+				"con_domicilio": "on",
+				"direccion": "Calle 123",
+				"nombre_domiciliario": "Juan Domicilio",
+				"telefono_domiciliario": "3001234567",
+				"precio_envio": "2000",
+				"descripcion": "Venta con adicionales",
+				"arreglo_id[]": [f"F-{self.flor.id}", f"P-{self.producto.id}"],
+				"cantidad[]": ["3", "2"],
+				"precio[]": ["10000", "5000"],
+			},
+		)
+
+		self.assertEqual(response.status_code, 302)
+
+		venta = Venta.objects.latest("id")
+		self.assertEqual(float(venta.subtotal), 40000.0)
+		self.assertEqual(float(venta.total), 47000.0)
+
 
 class VentaFiltroListadoTests(TestCase):
 	def setUp(self):

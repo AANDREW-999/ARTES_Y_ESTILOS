@@ -42,7 +42,7 @@
 
                 <div class="profile-badges">
                     <span class="profile-badge badge-user"><i class="bi bi-calendar-event"></i> {{ compra.fecha_emision|date:'d/m/Y' }}</span>
-                    <span class="profile-badge badge-active"><i class="bi bi-currency-dollar"></i> ${{ compra.total_compra|floatformat:2|intcomma }}</span>
+                    <span class="profile-badge badge-active"><i class="bi bi-currency-dollar"></i> {{ compra.total_compra|floatformat:2|intcomma }}</span>
                     <span class="profile-badge badge-user"><i class="bi bi-bag"></i> Ítems: {{ detalles|length }}</span>
                     <span class="profile-badge badge-user"><i class="bi bi-credit-card"></i> {{ compra.forma_pago|default:'—'|upper }}</span>
                 </div>
@@ -61,63 +61,28 @@
             <div class="profile-section">
                 <div class="section-title">
                     <i class="bi bi-card-checklist"></i>
-                    Información de la compra
+                    Información de la Compra
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-truck"></i> Proveedor</div>
                             <div class="info-value">{{ compra.proveedor.nombre_proveedor|default:'—' }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-credit-card"></i> Forma de pago</div>
                             <div class="info-value">{{ compra.forma_pago|default:'—'|upper }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-wallet2"></i> Medio de pago</div>
-                            <div class="info-value">{{ compra.medio_pago|default:'—'|upper }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-calendar-event"></i> Fecha de compra</div>
                             <div class="info-value">{{ compra.fecha_emision|date:'d/m/Y' }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-3">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-geo-alt"></i> Departamento</div>
-                            <div class="info-value" id="departamento-nombre" data-departamento="{{ compra.departamento|default:'' }}">{{ compra.departamento|default:'—' }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-3">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-building"></i> Ciudad</div>
-                            <div class="info-value" id="ciudad-nombre" data-ciudad="{{ compra.ciudad|default:'' }}">{{ compra.ciudad|default:'—' }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-3">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-receipt"></i> Subtotal</div>
-                            <div class="info-value">${{ compra.subtotal|floatformat:2|intcomma }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-3">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-currency-dollar"></i> Total</div>
-                            <div class="info-value"><strong>${{ compra.total_compra|floatformat:2|intcomma }}</strong></div>
                         </div>
                     </div>
 
@@ -125,6 +90,20 @@
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-card-text"></i> Descripción</div>
                             <div class="info-value">{{ compra.descripcion|default:'—' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-receipt"></i> Subtotal (solo ítems)</div>
+                            <div class="info-value">${{ compra.subtotal|floatformat:2|intcomma }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-currency-dollar"></i> Total</div>
+                            <div class="info-value"><strong>${{ compra.total_compra|floatformat:2|intcomma }}</strong></div>
                         </div>
                     </div>
 
@@ -144,7 +123,7 @@
                                     <th>Tipo</th>
                                     <th class="text-end">Precio</th>
                                     <th class="text-end">Cantidad</th>
-                                    <th class="text-end">Subtotal</th>
+                                    <th class="text-end">Subtotal por ítem (cantidad x precio)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -176,39 +155,4 @@
         </div>
     </div>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', async function () {
-    const depEl = document.getElementById('departamento-nombre');
-    const cityEl = document.getElementById('ciudad-nombre');
-
-    const depRaw = depEl?.dataset?.departamento?.trim();
-    const cityRaw = cityEl?.dataset?.ciudad?.trim();
-
-    const esIdNumerico = (valor) => /^\d+$/.test(valor || '');
-
-    try {
-        if (depEl && esIdNumerico(depRaw)) {
-            const resDep = await fetch(`https://api-colombia.com/api/v1/Department/${depRaw}`);
-            if (resDep.ok) {
-                const depData = await resDep.json();
-                if (depData?.name) depEl.textContent = depData.name;
-            }
-        }
-    } catch (error) {
-        // Si falla la API, se conserva el valor almacenado en BD.
-    }
-
-    try {
-        if (cityEl && esIdNumerico(cityRaw)) {
-            const resCity = await fetch(`https://api-colombia.com/api/v1/City/${cityRaw}`);
-            if (resCity.ok) {
-                const cityData = await resCity.json();
-                if (cityData?.name) cityEl.textContent = cityData.name;
-            }
-        }
-    } catch (error) {
-        // Si falla la API, se conserva el valor almacenado en BD.
-    }
-});
-</script>
 {% endblock %}

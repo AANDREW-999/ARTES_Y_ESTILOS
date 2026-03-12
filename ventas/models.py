@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from decimal import Decimal
 
 
 TIPO_VENTA_CHOICES = [
@@ -55,15 +56,15 @@ class Venta(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def recalcular_totales(self):
-        """Recalcula subtotal y total desde los detalles (sin IVA)."""
-        from decimal import Decimal
-        subtotal = sum(d.subtotal for d in self.detalles.all())
-        subtotal += self.mano_obra or Decimal('0')
-        if self.con_domicilio:
-            subtotal += self.precio_envio or Decimal('0')
+        """Recalcula subtotal (solo items) y total (items + adicionales)."""
+        subtotal_items = sum((d.subtotal for d in self.detalles.all()), Decimal('0'))
+        total = subtotal_items + (self.mano_obra or Decimal('0'))
 
-        self.subtotal = subtotal
-        self.total = subtotal
+        if self.con_domicilio:
+            total += self.precio_envio or Decimal('0')
+
+        self.subtotal = subtotal_items
+        self.total = total
 
     def save(self, *args, **kwargs):
         if self.pk:

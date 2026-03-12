@@ -69,6 +69,7 @@
             });
         }
 
+
         initElements() {
             this.sidebar       = document.getElementById('sidebar');
             this.sidebarToggle = document.getElementById('sidebar-toggle');

@@ -1,5 +1,10 @@
+import shutil
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -9,12 +14,57 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.db import connections
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message, build_form_messages
 from .decorators import panel_login_required, superadmin_required
 
 User = get_user_model()
+
+
+def _default_db_engine():
+    return settings.DATABASES.get('default', {}).get('ENGINE', '')
+
+
+def _is_sqlite_default_db():
+    return _default_db_engine().endswith('sqlite3')
+
+
+def _default_db_path():
+    db_name = settings.DATABASES.get('default', {}).get('NAME')
+    return Path(str(db_name)).resolve()
+
+
+def _backup_directory():
+    backup_dir = Path(settings.BASE_DIR) / 'backups'
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    return backup_dir
+
+
+def _sqlite_backup_to_file(source_path: Path, destination_path: Path):
+    source_conn = sqlite3.connect(str(source_path))
+    try:
+        destination_conn = sqlite3.connect(str(destination_path))
+        try:
+            source_conn.backup(destination_conn)
+        finally:
+            destination_conn.close()
+    finally:
+        source_conn.close()
+
+
+def _validate_sqlite_file(file_path: Path):
+    with open(file_path, 'rb') as uploaded_file:
+        header = uploaded_file.read(16)
+    if header != b'SQLite format 3\x00':
+        raise ValueError('El archivo no tiene un encabezado valido de SQLite.')
+
+    conn = sqlite3.connect(str(file_path))
+    try:
+        conn.execute('PRAGMA schema_version;').fetchone()
+    finally:
+        conn.close()
 
 
 # =====================================================
@@ -207,7 +257,126 @@ def logout_view(request):
 
 @panel_login_required
 def perfil_view(request):
-    return render(request, 'usuarios/perfil.html')
+    db_path = _default_db_path()
+    context = {
+        'db_engine': _default_db_engine(),
+        'db_is_sqlite': _is_sqlite_default_db(),
+        'db_name': db_path.name,
+    }
+    return render(request, 'usuarios/perfil.html', context)
+
+
+@superadmin_required
+def generar_backup_db_view(request):
+    if request.method != 'POST':
+        return redirect('usuarios:perfil')
+
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if not _is_sqlite_default_db():
+        message = '⛔ El modulo de respaldo automatico solo esta habilitado para SQLite en este momento.'
+        if is_ajax:
+            return JsonResponse({'message': message}, status=400)
+        messages.error(request, message, extra_tags='level-error field-general')
+        return redirect('usuarios:perfil')
+
+    db_path = _default_db_path()
+    if not db_path.exists():
+        message = '⛔ No se encontro el archivo de base de datos para generar la copia de seguridad.'
+        if is_ajax:
+            return JsonResponse({'message': message}, status=400)
+        messages.error(request, message, extra_tags='level-error field-general')
+        return redirect('usuarios:perfil')
+
+    backup_dir = _backup_directory()
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    backup_filename = f'backup_{timestamp}.sqlite3'
+    backup_path = backup_dir / backup_filename
+
+    try:
+        _sqlite_backup_to_file(db_path, backup_path)
+    except Exception as exc:
+        message = f'❌ No fue posible generar el backup: {exc}'
+        if is_ajax:
+            return JsonResponse({'message': message}, status=500)
+        messages.error(request, message, extra_tags='level-error field-general')
+        return redirect('usuarios:perfil')
+
+    response = FileResponse(open(backup_path, 'rb'), as_attachment=True, filename=backup_filename)
+    response['Content-Type'] = 'application/x-sqlite3'
+    return response
+
+
+@superadmin_required
+def restaurar_backup_db_view(request):
+    if request.method != 'POST':
+        return redirect('usuarios:perfil')
+
+    if not _is_sqlite_default_db():
+        messages.error(
+            request,
+            '⛔ La restauracion automatica solo esta habilitada para SQLite en este momento.',
+            extra_tags='level-error field-general'
+        )
+        return redirect('usuarios:perfil')
+
+    uploaded_file = request.FILES.get('backup_file')
+    if not uploaded_file:
+        messages.warning(
+            request,
+            '⚠️ Debes seleccionar un archivo .sqlite3 para restaurar la base de datos.',
+            extra_tags='level-warning field-general'
+        )
+        return redirect('usuarios:perfil')
+
+    allowed_extensions = {'.sqlite3', '.sqlite', '.db'}
+    suffix = Path(uploaded_file.name).suffix.lower()
+    if suffix not in allowed_extensions:
+        messages.error(
+            request,
+            '⛔ Archivo invalido. Solo se permiten extensiones .sqlite3, .sqlite o .db.',
+            extra_tags='level-error field-general'
+        )
+        return redirect('usuarios:perfil')
+
+    backup_dir = _backup_directory()
+    tmp_path = backup_dir / f'_tmp_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}{suffix}'
+
+    try:
+        with open(tmp_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+
+        _validate_sqlite_file(tmp_path)
+
+        db_path = _default_db_path()
+        if not db_path.exists():
+            raise FileNotFoundError('No existe la base de datos actual para restaurar.')
+
+        emergency_filename = f'pre_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}.sqlite3'
+        emergency_path = backup_dir / emergency_filename
+
+        _sqlite_backup_to_file(db_path, emergency_path)
+
+        connections.close_all()
+        shutil.copy2(tmp_path, db_path)
+
+        messages.success(
+            request,
+            f'✅ Base de datos restaurada correctamente. Se guardo una copia de seguridad previa: {emergency_filename}.',
+            extra_tags='level-success field-general'
+        )
+    except Exception as exc:
+        messages.error(
+            request,
+            f'❌ No fue posible restaurar la base de datos: {exc}',
+            extra_tags='level-error field-general'
+        )
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+    return redirect('usuarios:perfil')
 
 
 @panel_login_required

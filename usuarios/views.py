@@ -15,6 +15,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.db import connections
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.contrib.auth.models import AnonymousUser
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message, build_form_messages
@@ -65,6 +67,28 @@ def _validate_sqlite_file(file_path: Path):
         conn.execute('PRAGMA schema_version;').fetchone()
     finally:
         conn.close()
+
+
+def _safe_next_url(request):
+    next_url = (request.GET.get('next') or request.POST.get('next') or '').strip()
+    if not next_url:
+        return ''
+
+    if url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+
+    return ''
+
+
+def _redirect_next_or(request, default_view_name: str):
+    next_url = _safe_next_url(request)
+    if next_url:
+        return redirect(next_url)
+    return redirect(default_view_name)
 
 
 # =====================================================
@@ -266,10 +290,22 @@ def perfil_view(request):
     return render(request, 'usuarios/perfil.html', context)
 
 
+@panel_login_required
+def seguridad_view(request):
+    """Módulo de Seguridad dentro de Usuarios (mismo contenido que en Perfil > Seguridad)."""
+    db_path = _default_db_path()
+    context = {
+        'db_engine': _default_db_engine(),
+        'db_is_sqlite': _is_sqlite_default_db(),
+        'db_name': db_path.name,
+    }
+    return render(request, 'usuarios/seguridad.html', context)
+
+
 @superadmin_required
 def generar_backup_db_view(request):
     if request.method != 'POST':
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
@@ -278,7 +314,7 @@ def generar_backup_db_view(request):
         if is_ajax:
             return JsonResponse({'message': message}, status=400)
         messages.error(request, message, extra_tags='level-error field-general')
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     db_path = _default_db_path()
     if not db_path.exists():
@@ -286,7 +322,7 @@ def generar_backup_db_view(request):
         if is_ajax:
             return JsonResponse({'message': message}, status=400)
         messages.error(request, message, extra_tags='level-error field-general')
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     backup_dir = _backup_directory()
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -300,7 +336,7 @@ def generar_backup_db_view(request):
         if is_ajax:
             return JsonResponse({'message': message}, status=500)
         messages.error(request, message, extra_tags='level-error field-general')
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     response = FileResponse(open(backup_path, 'rb'), as_attachment=True, filename=backup_filename)
     response['Content-Type'] = 'application/x-sqlite3'
@@ -310,7 +346,7 @@ def generar_backup_db_view(request):
 @superadmin_required
 def restaurar_backup_db_view(request):
     if request.method != 'POST':
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     if not _is_sqlite_default_db():
         messages.error(
@@ -318,7 +354,7 @@ def restaurar_backup_db_view(request):
             '⛔ La restauracion automatica solo esta habilitada para SQLite en este momento.',
             extra_tags='level-error field-general'
         )
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     uploaded_file = request.FILES.get('backup_file')
     if not uploaded_file:
@@ -327,7 +363,7 @@ def restaurar_backup_db_view(request):
             '⚠️ Debes seleccionar un archivo .sqlite3 para restaurar la base de datos.',
             extra_tags='level-warning field-general'
         )
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     allowed_extensions = {'.sqlite3', '.sqlite', '.db'}
     suffix = Path(uploaded_file.name).suffix.lower()
@@ -337,7 +373,7 @@ def restaurar_backup_db_view(request):
             '⛔ Archivo invalido. Solo se permiten extensiones .sqlite3, .sqlite o .db.',
             extra_tags='level-error field-general'
         )
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:perfil')
 
     backup_dir = _backup_directory()
     tmp_path = backup_dir / f'_tmp_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}{suffix}'
@@ -358,14 +394,40 @@ def restaurar_backup_db_view(request):
 
         _sqlite_backup_to_file(db_path, emergency_path)
 
+        # Guardamos datos del usuario actual para restaurar autenticación
+        # sobre la base ya reemplazada.
+        current_user_id = request.user.id
+        auth_backend = request.session.get('_auth_user_backend')
+        if not auth_backend:
+            auth_backend = settings.AUTHENTICATION_BACKENDS[0]
+
         connections.close_all()
         shutil.copy2(tmp_path, db_path)
+        connections.close_all()
 
+        # El reemplazo de SQLite puede eliminar la fila de sesión activa.
+        # Forzamos nueva sesión para que SessionMiddleware no intente
+        # actualizar una sesión que ya no existe.
+        request.session.flush()
+        request.user = AnonymousUser()
+
+        refreshed_user = User.objects.filter(id=current_user_id, is_active=True).first()
+        if not refreshed_user:
+            messages.warning(
+                request,
+                '⚠️ La base fue restaurada, pero tu usuario no existe o esta inactivo en el respaldo cargado. Debes iniciar sesion nuevamente.',
+                extra_tags='level-warning field-general'
+            )
+            return redirect('usuarios:login')
+
+        # Reautenticamos al usuario sobre la base restaurada.
+        auth_login(request, refreshed_user, backend=auth_backend)
         messages.success(
             request,
             f'✅ Base de datos restaurada correctamente. Se guardo una copia de seguridad previa: {emergency_filename}.',
             extra_tags='level-success field-general'
         )
+        return _redirect_next_or(request, 'usuarios:perfil')
     except Exception as exc:
         messages.error(
             request,
@@ -376,7 +438,7 @@ def restaurar_backup_db_view(request):
         if tmp_path.exists():
             tmp_path.unlink()
 
-    return redirect('usuarios:perfil')
+    return _redirect_next_or(request, 'usuarios:perfil')
 
 
 @panel_login_required

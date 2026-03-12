@@ -33,6 +33,11 @@ urlpatterns = [
     path('panel/usuarios/<int:user_id>/eliminar/', views.eliminar_usuario_view, name='eliminar_usuario'),
 
     # ========================================
+    # 🔒 SEGURIDAD (módulo del panel)
+    # ========================================
+    path('panel/seguridad/', views.seguridad_view, name='seguridad'),
+
+    # ========================================
     # 🔧 RECUPERACIÓN DE CONTRASEÑA
     # ========================================
     path('panel/recuperar-password/', views.RecuperarPasswordView.as_view(), name='password_reset'),

@@ -147,8 +147,15 @@
 
                 <li class="nav-item">
                     <a href="{% url 'usuarios:lista_usuarios' %}"
-                       class="nav-link {% if request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name != 'perfil' %}active{% endif %}">
+                       class="nav-link {% if request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'lista_usuarios' or request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'crear_usuario' or request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'visualizar_usuario' or request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'editar_usuario' or request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'desactivar_usuario' or request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'activar_usuario' or request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'convertir_superadmin' or request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'eliminar_usuario' %}active{% endif %}">
                         <i class="bi bi-people"></i><span>Usuarios</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'usuarios:seguridad' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'usuarios' and request.resolver_match.url_name == 'seguridad' %}active{% endif %}">
+                        <i class="bi bi-shield-lock"></i><span>Seguridad</span>
                     </a>
                     <div class="divider"></div>
                 </li>

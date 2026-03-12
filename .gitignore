@@ -14,6 +14,12 @@ media
 data/
 staticfiles/
 
+# Backups de base de datos
+backup/
+*.sql
+*.dump
+*.backup
+
 ### Python Testing ###
 test_email_config.py
 

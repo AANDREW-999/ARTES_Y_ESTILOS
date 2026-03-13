@@ -8,6 +8,7 @@ from django.db.models import Q, Sum
 from django.urls import reverse_lazy
 from django.views import generic
 
+from core.notifications import crear_notificacion
 from .forms import ProductoForm
 from .models import Producto
 
@@ -140,6 +141,12 @@ class ProductoCreateView(LoginRequiredMixin, UserPassesTestMixin, generic.Create
         if imagen:
             form.instance.imagen = imagen
         messages.success(self.request, "Producto creado correctamente.")
+        crear_notificacion(
+            categoria="movimiento",
+            estilo="success",
+            titulo="Producto creado",
+            mensaje=f"Se creo el producto {form.instance.nombre}.",
+        )
         return super().form_valid(form)
 
 
@@ -158,6 +165,12 @@ class ProductoUpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.Update
         if imagen:
             form.instance.imagen = imagen
         messages.success(self.request, "Producto actualizado correctamente.")
+        crear_notificacion(
+            categoria="movimiento",
+            estilo="info",
+            titulo="Producto actualizado",
+            mensaje=f"Se actualizo el producto {form.instance.nombre}.",
+        )
         return super().form_valid(form)
 
 
@@ -181,5 +194,12 @@ class ProductoDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.Delete
         return self.request.user.is_staff
 
     def form_valid(self, form):
+        nombre = self.object.nombre
+        crear_notificacion(
+            categoria="movimiento",
+            estilo="error",
+            titulo="Producto eliminado",
+            mensaje=f"Se elimino el producto {nombre}.",
+        )
         messages.success(self.request, "Producto eliminado correctamente.")
         return super().form_valid(form)

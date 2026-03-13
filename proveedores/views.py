@@ -9,6 +9,7 @@ from .models import Proveedor
 from .forms import ProveedorForm
 from django.utils import timezone
 from .utils import render_to_pdf
+from core.notifications import crear_notificacion
 
 
 @login_required
@@ -67,7 +68,13 @@ def agregar_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
         if form.is_valid():
-            form.save()
+            proveedor = form.save()
+            crear_notificacion(
+                categoria='movimiento',
+                estilo='success',
+                titulo='Proveedor creado',
+                mensaje=f'Se creo el proveedor {proveedor.nombre_proveedor}.',
+            )
             messages.success(request, 'Proveedor creado correctamente.')
             return redirect('proveedores:listar')
         messages.error(request, 'Por favor, revisa los campos del formulario.')
@@ -87,7 +94,13 @@ def editar_proveedor(request, pk):
     if request.method == 'POST':
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
-            form.save()
+            proveedor = form.save()
+            crear_notificacion(
+                categoria='movimiento',
+                estilo='info',
+                titulo='Proveedor actualizado',
+                mensaje=f'Se actualizo el proveedor {proveedor.nombre_proveedor}.',
+            )
             messages.success(request, 'Proveedor actualizado correctamente.')
             return redirect('proveedores:listar')
         messages.error(request, 'Por favor, revisa los campos del formulario.')
@@ -107,6 +120,12 @@ def eliminar_proveedor(request, pk):
 
     if request.method == 'POST':
         nombre = proveedor.nombre_proveedor
+        crear_notificacion(
+            categoria='movimiento',
+            estilo='error',
+            titulo='Proveedor eliminado',
+            mensaje=f'Se elimino el proveedor {nombre}.',
+        )
         proveedor.delete()
         messages.success(request, f'Proveedor "{nombre}" eliminado correctamente.')
         return redirect('proveedores:listar')

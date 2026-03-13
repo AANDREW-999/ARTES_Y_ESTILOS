@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.core.files.base import ContentFile
 from django.contrib import messages
 from .models import Producto
+from core.notifications import crear_notificacion
 
 from categoria.models import Categoria
 
@@ -143,6 +144,12 @@ def agregar_producto(request):
                 activo=activo,
                 imagen=imagen
             )
+            crear_notificacion(
+                categoria='movimiento',
+                estilo='success',
+                titulo='Producto de catalogo creado',
+                mensaje=f'Se creo el producto {nombre}.',
+            )
             messages.success(request, 'Producto creado correctamente.')
             return redirect('catalogo:gestion_productos')
         except Exception:
@@ -181,6 +188,12 @@ def editar_producto(request, id):
                 producto.imagen = imagen
 
             producto.save()
+            crear_notificacion(
+                categoria='movimiento',
+                estilo='info',
+                titulo='Producto de catalogo actualizado',
+                mensaje=f'Se actualizo el producto {producto.nombre}.',
+            )
             messages.success(request, 'Producto actualizado correctamente.')
             return redirect('catalogo:gestion_productos')
         except Exception:
@@ -198,6 +211,13 @@ def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     if request.method == 'POST':
         try:
+            nombre = producto.nombre
+            crear_notificacion(
+                categoria='movimiento',
+                estilo='error',
+                titulo='Producto de catalogo eliminado',
+                mensaje=f'Se elimino el producto {nombre}.',
+            )
             producto.delete()
             messages.success(request, 'Producto eliminado correctamente.')
         except Exception:

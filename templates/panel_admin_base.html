@@ -20,6 +20,7 @@
     {% bootstrap_javascript %}
 
     <link rel="stylesheet" href="{% static 'css/panel_admin_base.css' %}?v=20260311-2">
+    <link rel="stylesheet" href="{% static 'css/notifications.css' %}?v=20260312-4">
 
     <!-- ESTILOS DEL MÓDULO DE USUARIOS (para unificar apariencia en clientes) -->
     <link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}?v=20260227">
@@ -250,11 +251,52 @@
                     <i class="bi bi-moon-stars-fill" id="theme-icon"></i>
                 </button>
 
-                <div class="dropdown">
-                    <button class="btn btn-icon" data-bs-toggle="dropdown" aria-label="Notificaciones">
+                <div class="dropdown admin-notifications-dropdown" id="adminNotificationsDropdown" data-read-url="{% url 'core:marcar_notificaciones_leidas' %}">
+                    <button type="button" class="btn btn-icon" id="adminNotificationsButton" aria-label="Notificaciones" title="Abrir notificaciones" aria-expanded="false">
                         <i class="bi bi-alarm"></i>
-                        <span class="badge-dot"></span>
+                        <span class="badge-dot {% if panel_notificaciones_no_leidas == 0 %}is-hidden{% endif %}" id="adminNotificationsDot"></span>
                     </button>
+
+                    <div class="dropdown-menu dropdown-menu-end admin-notifications-menu" aria-labelledby="adminNotificationsButton">
+                        <div class="admin-notifications-head">
+                            <h6>Notificaciones</h6>
+                            <div class="admin-notifications-actions">
+                                {% comment %} <button type="button" class="admin-head-action" id="adminToggleAllNotifications">Ver todas</button> {% endcomment %}
+                                <button type="button" class="admin-head-action admin-mark-read" id="adminMarkNotificationsRead">Marcar leidas</button>
+                            </div>
+                        </div>
+
+                        <div class="admin-notifications-list" id="adminNotificationsList">
+                            {% for notificacion in panel_notificaciones %}
+                            <div class="admin-item-notification">
+                                <span class="admin-item-icon icon-{{ notificacion.estilo }}">
+                                    {% if notificacion.categoria == 'stock' %}
+                                        {% if notificacion.nivel_stock == 'agotado' %}
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-box-seam"></i>
+                                        {% endif %}
+                                    {% elif notificacion.categoria == 'cuenta' %}
+                                        <i class="bi bi-person-check-fill"></i>
+                                    {% elif notificacion.estilo == 'error' %}
+                                        <i class="bi bi-trash-fill"></i>
+                                    {% elif notificacion.estilo == 'success' %}
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-info-circle-fill"></i>
+                                    {% endif %}
+                                </span>
+                                <div class="admin-item-content">
+                                    <div class="admin-item-title">{{ notificacion.titulo }}</div>
+                                    <div class="admin-item-detail">{{ notificacion.mensaje }}</div>
+                                </div>
+                                <span class="admin-item-date">{{ notificacion.creada_en|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            {% empty %}
+                            <div class="admin-notifications-empty">Aun no hay notificaciones.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>  
             </div>
         </div>
@@ -287,6 +329,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <script src="{% static 'js/panel_admin_base.js' %}?v=20260311-2"></script>
+    <script src="{% static 'js/notifications.js' %}?v=20260312-4"></script>
     <script src="{% static 'js/admin_security_actions.js' %}?v=20260311"></script>
 
     {% block extra_js %}{% endblock %}

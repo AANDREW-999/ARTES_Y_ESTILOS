@@ -17,6 +17,7 @@ from django.template.loader import render_to_string
 from django.db import connections
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import AnonymousUser
+from core.notifications import crear_notificacion
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message, build_form_messages
@@ -612,6 +613,12 @@ def crear_usuario_view(request):
                     f'✅ Usuario {usuario.username} creado correctamente.',
                     extra_tags='level-success field-general'
                 )
+                crear_notificacion(
+                    categoria='movimiento',
+                    estilo='success',
+                    titulo='Usuario creado',
+                    mensaje=f'Se creo el usuario {usuario.username}.',
+                )
                 return redirect('usuarios:lista_usuarios')
 
             except Exception as e:
@@ -738,6 +745,21 @@ def editar_usuario_view(request, user_id):
                     extra_tags='level-success field-general'
                 )
 
+                crear_notificacion(
+                    categoria='movimiento',
+                    estilo='info',
+                    titulo='Perfil actualizado',
+                    mensaje=f'Se actualizo el perfil de {usuario_actualizado.username}.',
+                )
+
+                if estado_anterior_activo != usuario_actualizado.is_active:
+                    crear_notificacion(
+                        categoria='cuenta',
+                        estilo='success' if usuario_actualizado.is_active else 'error',
+                        titulo='Cuenta activada' if usuario_actualizado.is_active else 'Cuenta desactivada',
+                        mensaje=f'La cuenta de {usuario_actualizado.username} fue {"activada" if usuario_actualizado.is_active else "desactivada"}.',
+                    )
+
                 # Si se desactiva su propia cuenta, se cierra sesion de inmediato.
                 if not usuario_actualizado.is_active:
                     auth_logout(request)
@@ -804,6 +826,13 @@ def desactivar_usuario_view(request, user_id):
         usuario.is_active = False
         usuario.save()
 
+        crear_notificacion(
+            categoria='cuenta',
+            estilo='error',
+            titulo='Cuenta desactivada',
+            mensaje=f'La cuenta de {usuario.username} fue desactivada.',
+        )
+
         if usuario.email:
             subject = 'Cuenta desactivada - Panel Administrativo Artes y Estilos'
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
@@ -851,6 +880,13 @@ def activar_usuario_view(request, user_id):
     if request.method == 'POST':
         usuario.is_active = True
         usuario.save()
+
+        crear_notificacion(
+            categoria='cuenta',
+            estilo='success',
+            titulo='Cuenta activada',
+            mensaje=f'La cuenta de {usuario.username} fue activada.',
+        )
 
         if usuario.email:
             subject = 'Cuenta activada - Panel Administrativo Artes y Estilos'

@@ -15,6 +15,7 @@ from datetime import date, datetime
 from flor.models import Flor
 from producto.models import Producto
 from proveedores.models import Proveedor
+from core.notifications import crear_notificacion, crear_notificacion_stock
 
 from .forms import CompraForm
 from .models import Compra, DetalleCompra
@@ -94,6 +95,7 @@ def _sumar_stock_item(tipo_item, item_pk, cantidad):
     item = _bloquear_item(tipo_item, item_pk)
     item.cantidad += cantidad
     item.save(update_fields=["cantidad"])
+    crear_notificacion_stock(item.nombre, item.cantidad, "Compra")
 
 
 def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
@@ -104,6 +106,7 @@ def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
         )
     item.cantidad -= cantidad
     item.save(update_fields=["cantidad"])
+    crear_notificacion_stock(item.nombre, item.cantidad, contexto)
 
 
 def compras_list(request):
@@ -251,6 +254,13 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
 
                 compra.calcular_totales()
 
+                crear_notificacion(
+                    categoria="movimiento",
+                    estilo="success",
+                    titulo="Compra creada",
+                    mensaje=f"Se registro la compra #{compra.id} con {len(detalles)} item(s).",
+                )
+
             messages.success(self.request, f"Compra registrada exitosamente con {len(detalles)} item(s).")
             return redirect(self.success_url)
         except (Flor.DoesNotExist, Producto.DoesNotExist):
@@ -330,6 +340,13 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
 
                 compra.calcular_totales()
 
+                crear_notificacion(
+                    categoria="movimiento",
+                    estilo="info",
+                    titulo="Compra actualizada",
+                    mensaje=f"Se actualizo la compra #{compra.id} con {len(nuevos_detalles)} item(s).",
+                )
+
             messages.success(self.request, f"Compra actualizada exitosamente con {len(nuevos_detalles)} item(s).")
             return redirect(self.success_url)
         except (Flor.DoesNotExist, Producto.DoesNotExist):
@@ -371,6 +388,13 @@ class CompraDeleteView(LoginRequiredMixin, generic.DeleteView):
                         "la eliminacion de compra",
                     )
                 compra.delete()
+
+                crear_notificacion(
+                    categoria="movimiento",
+                    estilo="error",
+                    titulo="Compra eliminada",
+                    mensaje=f"Se elimino la compra #{compra.id}.",
+                )
 
             messages.success(request, f"La compra {compra.id} ha sido eliminada exitosamente.")
         except ValueError as exc:

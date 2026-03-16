@@ -84,34 +84,35 @@
                             </div>
                         </div>
 
-                        <div class="col-12">
-                            <div class="field-wrapper">
-                                <label class="field-label" for="id_proveedor">Proveedor *</label>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <select name="proveedor" id="id_proveedor" class="form-select" required>
-                                        <option value="">Seleccione Proveedor</option>
-                                        {% for proveedor in proveedores %}
-                                        <option value="{{ proveedor.id }}" {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
-                                            {{ proveedor.nombre_proveedor }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                    <a href="{% url 'proveedores:agregar_proveedor' %}"
-                                       class="btn btn-outline-primary text-nowrap"
-                                       title="Crear proveedor">
-                                        <i class="bi bi-plus-circle"></i> Nuevo
-                                    </a>
-                                </div>
-                                <div class="invalid-feedback"></div>
-                                <div class="valid-feedback"></div>
-                                {% for error in form.proveedor.errors %}
-                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
-                                {% endfor %}
-                                {% if not proveedores %}
-                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> No hay proveedores activos disponibles.</div>
-                                {% endif %}
-                            </div>
-                        </div>
+          <div class="col-12">
+    <div class="field-wrapper">
+        <label class="field-label" for="id_proveedor">Proveedor *</label>
+        <div class="d-flex gap-2 align-items-center">
+            <select name="proveedor" id="id_proveedor" class="form-select" required>
+                <option value="">Seleccione Proveedor</option>
+                {% for proveedor in proveedores %}
+                <option value="{{ proveedor.id }}" {% if form.proveedor.value == proveedor.id|stringformat:"s" %}selected{% endif %}>
+                    {{ proveedor.nombre_proveedor }}
+                </option>
+                {% endfor %}
+            </select>
+            <a href="{% url 'proveedores:agregar' %}"
+               class="btn-cliente-nuevo text-nowrap text-decoration-none"
+               title="Crear proveedor">
+                <i class="bi bi-plus-circle"></i>
+                Nuevo
+            </a>
+        </div>
+        <div class="invalid-feedback"></div>
+        <div class="valid-feedback"></div>
+        {% for error in form.proveedor.errors %}
+            <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+        {% endfor %}
+        {% if not proveedores %}
+            <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> No hay proveedores activos disponibles.</div>
+        {% endif %}
+    </div>
+</div>
 
                         <div class="col-12">
                             <div class="field-wrapper">

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprobante Auxiliar de Factura Electrónica</title>
+
+</head>
+<body>
+<div class="page">
+
+  <!-- ══════════════════════════════════════
+       CABECERA: LOGO + TÍTULOS
+  ══════════════════════════════════════ -->
+  <div class="header">
+
+    <!-- ✅ AQUÍ VA TU LOGO
+         Opción A (placeholder actual, sin logo):
+           Deja el bloque .logo-area tal como está.
+
+         Opción B (con logo real):
+           Reemplaza todo el <div class="logo-area"> por:
+           <img src="tu_logo.png" class="logo-img" alt="Logo empresa">
+    -->
+    <div>
+      <div class="logo-area">LOGO</div>
+      <div class="logo-note">← Pon aquí tu logo</div>
+    </div>
+
+    <div class="header-titles">
+      <h1>Comprobante Auxiliar de Factura Electrónica</h1>
+      <h2>Factura de Operación Interna</h2>
+      <div class="header-url">
+        Consulte la clasificación en https://pfgtcfp.mef.gob.pa/Consultas/FacturasPorCUFE<br>
+        CUFE: f001200800549-464781-647001-1023111230060072146091001645856683377<br>
+        Protocolo de autorización: 00619511049536-2-202120230600000030332637096
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════
+       EMISOR / CLIENTE
+  ══════════════════════════════════════ -->
+  <div class="parties">
+    <div class="party">
+      <div class="party-row">
+        <span class="party-label">Emisor</span>
+        <span class="party-value">DHL PANAMA S.A.</span>
+      </div>
+      <div class="party-row">
+        <span class="party-label">RUC</span>
+        <span class="party-value">3456-162-67319 DV07</span>
+      </div>
+      <div class="party-row">
+        <span class="party-label">Dirección</span>
+        <span class="party-value">Costa del Este, Avenida Centenario<br>Diagonal a estación TERPEL</span>
+      </div>
+    </div>
+    <div class="party">
+      <div class="party-row">
+        <span class="party-label">Cliente</span>
+        <span class="party-value">AVLEN QUINTERO</span>
+      </div>
+      <div class="party-row">
+        <span class="party-label">RUC / Cédula</span>
+        <span class="party-value">71397026</span>
+      </div>
+      <div class="party-row">
+        <span class="party-label">Dirección</span>
+        <span class="party-value">Av. Centenario 122,<br>PH Sol del Este apto 106</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       DATOS DE FACTURA
+  ══════════════════════════════════════ -->
+  <div class="doc-info">
+    <div class="doc-row">
+      <div class="doc-cell"><b>Número de factura:</b></div>
+      <div class="doc-cell">PC72295</div>
+      <div class="doc-cell accent">Según Liquidación de Aduana No. 5781846</div>
+    </div>
+    <div class="doc-row">
+      <div class="doc-cell"><b>Fecha de Emisión:</b></div>
+      <div class="doc-cell">23/11/2023</div>
+      <div class="doc-cell"><b>Guía No:</b> 10218778810</div>
+    </div>
+    <div class="doc-row">
+      <div class="doc-cell"><b>Tipo de Contribuyente:</b></div>
+      <div class="doc-cell">Jurídico / Natural</div>
+      <div class="doc-cell"><b>Master:</b> 22857973</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TABLA 1: Información del Envío
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">Información del Envío</div>
+    <table class="data-table">
+      <tr>
+        <td>VALOR FOB</td>
+        <td class="col-value">B/ 15,500.00</td>
+      </tr>
+      <tr>
+        <td>VALOR FLETE</td>
+        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;51.00</td>
+      </tr>
+      <tr>
+        <td>VALOR SEGURO</td>
+        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;155.00</td>
+      </tr>
+      <tr>
+        <td>VALOR CIF</td>
+        <td class="col-value">B/&nbsp;&nbsp;5,706.20</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TABLA 2: Impuestos del Envío
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">Información de Pago de Impuestos del Envío</div>
+    <table class="data-table">
+      <tr>
+        <td>TASA FORMAL</td>
+        <td class="col-value">B/&nbsp;&nbsp;100.00</td>
+      </tr>
+      <tr>
+        <td>ITEM TASA</td>
+        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7.00</td>
+      </tr>
+    </table>
+    <div class="subtotal-row">
+      <span class="st-label">SUB-TOTAL</span>
+      <span class="st-value">B/ 107.00</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TABLA 3: Servicios
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">Información de Pago por Servicios DHL</div>
+    <table class="data-table">
+      <tr>
+        <td>LIQUIDACION FORMAL ALTO VALOR</td>
+        <td class="col-value">B/&nbsp;&nbsp;185.00</td>
+      </tr>
+      <tr>
+        <td>DESEMBOLSO CONTADO</td>
+        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7.00</td>
+      </tr>
+      <tr>
+        <td>I.T.B.M.S. (7%)</td>
+        <td class="col-value">B/&nbsp;&nbsp;&nbsp;13.44</td>
+      </tr>
+    </table>
+    <div class="subtotal-row">
+      <span class="st-label">SUB-TOTAL</span>
+      <span class="st-value">B/ 205.44</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TOTAL FINAL
+  ══════════════════════════════════════ -->
+  <div class="total-bar">
+    <div class="total-label">TOTAL, DE CARGOS A PAGAR</div>
+    <div class="total-value">B/ 312.44</div>
+  </div>
+
+</div>
+</body>
+</html>

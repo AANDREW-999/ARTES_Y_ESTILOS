@@ -7,92 +7,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
 <link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
-<style>
-/* ── Botón Reporte ── */
-.btn-reporte {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.5rem 1.1rem;
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .2s, transform .15s;
-    white-space: nowrap;
-    text-decoration: none;
-}
-.btn-reporte:hover {
-    opacity: .88;
-    transform: translateY(-1px);
-    color: #fff;
-}
 
-/* ── Modal Reporte ── */
-.reporte-modal-content {
-    background: #1e2235;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 14px;
-    color: #e2e8f0;
-}
-.reporte-modal-header {
-    background: rgba(124,58,237,.18);
-    border-bottom: 1px solid rgba(255,255,255,.07);
-    padding: 1rem 1.4rem;
-    border-radius: 14px 14px 0 0;
-}
-.reporte-modal-header .modal-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #e2e8f0;
-}
-.reporte-modal-body {
-    padding: 1.4rem;
-}
-.reporte-modal-footer {
-    border-top: 1px solid rgba(255,255,255,.07);
-    padding: 0.85rem 1.4rem;
-    display: flex;
-    gap: .6rem;
-    justify-content: flex-end;
-    border-radius: 0 0 14px 14px;
-}
-.reporte-modal-content .field-label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: #a0aec0;
-    margin-bottom: .35rem;
-    display: block;
-}
-.reporte-modal-content .form-control,
-.reporte-modal-content select.form-control {
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.1);
-    color: #e2e8f0;
-    border-radius: 8px;
-    padding: .5rem .85rem;
-    width: 100%;
-    font-size: .875rem;
-    transition: border-color .2s, box-shadow .2s;
-}
-.reporte-modal-content .form-control:focus,
-.reporte-modal-content select.form-control:focus {
-    outline: none;
-    border-color: #a855f7;
-    box-shadow: 0 0 0 3px rgba(168,85,247,.18);
-    background: rgba(255,255,255,.09);
-    color: #e2e8f0;
-}
-.reporte-modal-content select.form-control option {
-    background: #1e2235;
-    color: #e2e8f0;
-}
-</style>
 {% endblock %}
 
 
@@ -125,6 +40,11 @@
             </h1>
             <p>Administra y consulta compras registradas de Artes &amp; Estilos.</p>
         </div>
+            <!-- ✅ BOTÓN REPORTE -->
+            <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
+                <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                Reporte
+            </button>
         <div class="page-header-actions">
             <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
                 <input type="hidden" id="search-proveedor-nombre" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
@@ -141,11 +61,7 @@
                 </div>
             </form>
 
-            <!-- ✅ BOTÓN REPORTE -->
-            <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
-                <i class="bi bi-file-earmark-bar-graph-fill"></i>
-                Reporte
-            </button>
+        
 
             <a href="{% url 'compras:crear_compra' %}" class="btn-cliente-nuevo">
                 <i class="bi bi-plus-circle"></i>

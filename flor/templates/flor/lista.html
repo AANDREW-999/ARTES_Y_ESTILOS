@@ -35,6 +35,10 @@
             </h1>
             <p>Gestiona las flores disponibles para la floristeria Artes & Estilos.</p>
         </div>
+            <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
+                <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                Reporte
+            </button>
 
         <div class="page-header-actions">
             <form action="{% url 'flor:lista' %}" method="GET" class="js-search-form" novalidate>

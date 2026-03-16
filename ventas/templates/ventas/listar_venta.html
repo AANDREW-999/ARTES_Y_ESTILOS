@@ -199,7 +199,7 @@
                     </tr>
                 </thead>
                 <tbody id="ventas-tbody" class="js-live-table">
-                    {% for venta in ventas %}
+                   {% for venta in ventas %}
                     <tr class="slideIn" data-search-row="1" data-search-text="#{{ venta.id }} {{ venta.cliente.nombre|default:'' }} {{ venta.cliente.apellido|default:'' }} {{ venta.cliente.documento|default:'' }} {{ venta.descripcion|default:'' }} {{ venta.fecha|date:'d/m/Y' }} {% if venta.con_domicilio %}con domicilio{% else %}sin domicilio{% endif %}">
                         <td>
                             <div class="cliente-avatar-wrapper">

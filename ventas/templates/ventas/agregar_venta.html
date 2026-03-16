@@ -180,16 +180,26 @@
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
-                            <div class="field-wrapper">
-                                <label class="field-label" for="{{ form.cliente.id_for_label }}"><i class="bi bi-person"></i> {{ form.cliente.label }}</label>
-                                {{ form.cliente }}
-                                <div class="invalid-feedback"></div>
-                                <div class="valid-feedback"></div>
-                                {% for error in form.cliente.errors %}
-                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
+    <div class="field-wrapper">
+        <label class="field-label" for="{{ form.cliente.id_for_label }}">
+            <i class="bi bi-person"></i> {{ form.cliente.label }}
+        </label>
+        <div class="d-flex gap-2 align-items-center">
+            {{ form.cliente }}
+            <a href="{% url 'clientes:crear_cliente' %}"
+               class="btn-cliente-nuevo text-nowrap text-decoration-none"
+               title="Crear cliente">
+                <i class="bi bi-plus-circle"></i>
+                Nuevo
+            </a>
+        </div>
+        <div class="invalid-feedback"></div>
+        <div class="valid-feedback"></div>
+        {% for error in form.cliente.errors %}
+            <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+        {% endfor %}
+    </div>
+</div>
 
                         <div class="col-12">
                             <div class="field-wrapper">

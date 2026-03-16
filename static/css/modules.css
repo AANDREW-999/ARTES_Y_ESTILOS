@@ -1648,87 +1648,33 @@ html[data-theme="dark"] .field-warning i {
     }
 }
 
-/* ── Botón Reporte ── */
 .btn-reporte {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.5rem 1.1rem;
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .2s, transform .15s;
-    white-space: nowrap;
-    text-decoration: none;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    padding: 0.5rem 1.1rem !important;
+    background: linear-gradient(135deg, #BF5486, #D9A7C2) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: opacity .2s, transform .15s !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
 }
 .btn-reporte:hover {
-    opacity: .88;
-    transform: translateY(-1px);
-    color: #fff;
+    opacity: .88 !important;
+    transform: translateY(-1px) !important;
+    color: #fff !important;
 }
 
-/* ── Modal Reporte ── */
-.reporte-modal-content {
-    background: #1e2235;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 14px;
-    color: #e2e8f0;
+/* Quitar fondo oscuro del modal */
+.modal-backdrop {
+    display: none !important;
 }
-.reporte-modal-header {
-    background: rgba(124,58,237,.18);
-    border-bottom: 1px solid rgba(255,255,255,.07);
-    padding: 1rem 1.4rem;
-    border-radius: 14px 14px 0 0;
-}
-.reporte-modal-header .modal-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #e2e8f0;
-}
-.reporte-modal-body {
-    padding: 1.4rem;
-}
-.reporte-modal-footer {
-    border-top: 1px solid rgba(255,255,255,.07);
-    padding: 0.85rem 1.4rem;
-    display: flex;
-    gap: .6rem;
-    justify-content: flex-end;
-    border-radius: 0 0 14px 14px;
-}
-.reporte-modal-content .field-label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: #a0aec0;
-    margin-bottom: .35rem;
-    display: block;
-}
-.reporte-modal-content .form-control,
-.reporte-modal-content select.form-control {
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.1);
-    color: #e2e8f0;
-    border-radius: 8px;
-    padding: .5rem .85rem;
-    width: 100%;
-    font-size: .875rem;
-    transition: border-color .2s, box-shadow .2s;
-}
-.reporte-modal-content .form-control:focus,
-.reporte-modal-content select.form-control:focus {
-    outline: none;
-    border-color: #a855f7;
-    box-shadow: 0 0 0 3px rgba(168,85,247,.18);
-    background: rgba(255,255,255,.09);
-    color: #e2e8f0;
-}
-.reporte-modal-content select.form-control option {
-    background: #1e2235;
-    color: #e2e8f0;
+
+.modal {
+    background: rgba(177, 77, 168, 0) !important;
 }

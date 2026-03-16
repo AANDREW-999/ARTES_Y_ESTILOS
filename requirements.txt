@@ -9,6 +9,7 @@ sqlparse==0.5.4
 typing_extensions==4.15.0
 tzdata==2025.2
 xhtml2pdf==0.2.16
+weasyprint==58.1.0
 
 # Para instalar los Paquetes en el VENV de Artes & Estilos:
 # pip install -r requirements.txt

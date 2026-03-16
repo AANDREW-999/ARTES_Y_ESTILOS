@@ -32,43 +32,43 @@
     </div>
 
     <!-- Header -->
-    <div class="page-header-clientes">
-        <div class="page-header-info">
-            <h1>
-                <i class="bi bi-cart-fill"></i>
-                Gestión de Compras
-            </h1>
-            <p>Administra y consulta compras registradas de Artes &amp; Estilos.</p>
-        </div>
-            <!-- ✅ BOTÓN REPORTE -->
-            <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
-                <i class="bi bi-file-earmark-bar-graph-fill"></i>
-                Reporte
-            </button>
-        <div class="page-header-actions">
-            <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
-                <input type="hidden" id="search-proveedor-nombre" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
-                <input type="hidden" id="search-fecha-desde"      name="fecha_desde"      value="{{ fecha_desde_filtro|default:'' }}">
-                <input type="hidden" id="search-precio-min"        name="precio_min"       value="{{ precio_min_filtro|default:'' }}">
-                <input type="hidden" id="search-precio-max"        name="precio_max"       value="{{ precio_max_filtro|default:'' }}">
-                <div class="search-wrapper">
-                    <input type="text" id="search-live-compras" name="q" value="{{ query|default:'' }}"
-                           class="search-input js-live-search" data-target="#compras-tbody"
-                           placeholder="Buscar por compra, proveedor o documento..." autocomplete="off">
-                    <button type="submit" class="search-btn">
-                        <i class="bi bi-search"></i> Buscar
-                    </button>
-                </div>
-            </form>
+ <div class="page-header-clientes">
+    <div class="page-header-info">
+        <h1>
+            <i class="bi bi-cart-fill"></i>
+            Gestión de Compras
+        </h1>
+        <p>Administra y consulta compras registradas de Artes &amp; Estilos.</p>
+       </div>
 
-        
+    <div class="page-header-actions">
+           <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
+            <i class="bi bi-file-earmark-bar-graph-fill"></i>
+            Reporte
+        </button>
+        <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
+            <input type="hidden" id="search-proveedor-nombre" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
+            <input type="hidden" id="search-fecha-desde"      name="fecha_desde"      value="{{ fecha_desde_filtro|default:'' }}">
+            <input type="hidden" id="search-precio-min"        name="precio_min"       value="{{ precio_min_filtro|default:'' }}">
+            <input type="hidden" id="search-precio-max"        name="precio_max"       value="{{ precio_max_filtro|default:'' }}">
+            <div class="search-wrapper">
+                <input type="text" id="search-live-compras" name="q" value="{{ query|default:'' }}"
+                       class="search-input js-live-search" data-target="#compras-tbody"
+                       placeholder="Buscar por compra, proveedor o documento..." autocomplete="off">
+                <button type="submit" class="search-btn">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
 
-            <a href="{% url 'compras:crear_compra' %}" class="btn-cliente-nuevo">
-                <i class="bi bi-plus-circle"></i>
-                Nueva compra
-            </a>
-        </div>
+     
+
+        <a href="{% url 'compras:crear_compra' %}" class="btn-cliente-nuevo">
+            <i class="bi bi-plus-circle"></i>
+            Nueva compra
+        </a>
     </div>
+</div>
 
     <!-- Stats -->
     <div class="stats-grid">

@@ -1,13 +1,16 @@
 from decimal import Decimal, InvalidOperation
+import os
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Q, Sum, Avg
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import generic
@@ -20,6 +23,9 @@ import io
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
+# ── PDF ──
+from xhtml2pdf import pisa
+
 from flor.models import Flor
 from producto.models import Producto
 from proveedores.models import Proveedor
@@ -28,6 +34,7 @@ from usuarios.decorators import panel_login_required
 
 from .forms import CompraForm
 from .models import Compra, DetalleCompra
+import base64
 
 
 # ────────────────────────────────────────────────
@@ -118,10 +125,12 @@ def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
     crear_notificacion_stock(item.nombre, item.cantidad, contexto)
 
 
+# ────────────────────────────────────────────────
+#  LISTA DE COMPRAS
+# ────────────────────────────────────────────────
 
 @login_required
 @panel_login_required
-
 def compras_list(request):
     lista_compras = Compra.objects.select_related("proveedor", "usuario").prefetch_related(
         "detalles__flor", "detalles__producto"
@@ -209,11 +218,12 @@ def compras_list(request):
     return HttpResponse(template.render(context, request))
 
 
-
+# ────────────────────────────────────────────────
+#  DETALLE DE COMPRA
+# ────────────────────────────────────────────────
 
 @login_required
 @panel_login_required
-
 def compra_detail(request, id):
     una_compra = get_object_or_404(
         Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__flor", "detalles__producto"),
@@ -225,26 +235,17 @@ def compra_detail(request, id):
 
 
 # ────────────────────────────────────────────────
-#  ✅ REPORTE DE COMPRAS
-#     Renderiza reporte_compras.html (imprimible / PDF desde browser)
-#     o descarga Excel con ?formato=excel
+#  REPORTE DE COMPRAS
 # ────────────────────────────────────────────────
 
 MESES = {
-    1: "Enero",   2: "Febrero",    3: "Marzo",     4: "Abril",
-    5: "Mayo",    6: "Junio",      7: "Julio",      8: "Agosto",
+    1: "Enero",   2: "Febrero",  3: "Marzo",     4: "Abril",
+    5: "Mayo",    6: "Junio",    7: "Julio",      8: "Agosto",
     9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
 }
 
 
 def reporte(request):
-    """
-    GET params:
-        mes     → int 1-12  (opcional; sin mes = todo el año)
-        anio    → int        (obligatorio; fallback = año actual)
-        formato → 'html'     (default, muestra template imprimible)
-                  'excel'    (descarga .xlsx)
-    """
     anio    = request.GET.get("anio")
     mes     = request.GET.get("mes")
     formato = request.GET.get("formato", "html")
@@ -272,21 +273,27 @@ def reporte(request):
 
     qs = qs.order_by("fecha_emision")
 
-    agg           = qs.aggregate(total=Sum("total_compra"), promedio=Avg("total_compra"))
-    monto_total   = agg["total"]    or Decimal("0")
-    promedio      = agg["promedio"] or Decimal("0")
-    total_reg     = qs.count()
-    total_prov    = qs.values("proveedor").distinct().count()
+    agg         = qs.aggregate(total=Sum("total_compra"), promedio=Avg("total_compra"))
+    monto_total = agg["total"]    or Decimal("0")
+    promedio    = agg["promedio"] or Decimal("0")
+    total_reg   = qs.count()
+    total_prov  = qs.values("proveedor").distinct().count()
 
     periodo   = f"{mes_nombre} {anio}".strip() if mes_nombre else str(anio)
     fecha_gen = datetime.now().strftime("%d/%m/%Y %H:%M")
     usuario   = (request.user.get_full_name() or request.user.username
                  if request.user.is_authenticated else "")
 
-    if formato == "excel":
-        return _reporte_excel(qs, periodo, monto_total)
+    logo_url = os.path.join(
+        settings.BASE_DIR, "compras", "static", "img", "LogoAE.png"
+    ).replace("\\", "/")
+    
+    logo_base64 = ""
+    logo_path = os.path.join(settings.BASE_DIR, "compras", "static", "img", "LogoAE.png")
+    if os.path.exists(logo_path):
+     with open(logo_path, "rb") as f:
+        logo_base64 = base64.b64encode(f.read()).decode("utf-8")
 
-    # ── HTML imprimible → template ──
     context = {
         "compras":           qs,
         "periodo":           periodo,
@@ -300,13 +307,33 @@ def reporte(request):
         "usuario":           usuario,
         "hay_filtros":       bool(mes_nombre),
         "proveedor_filtro":  request.GET.get("proveedor_nombre", ""),
+        "logo_url":          logo_url,
+        "logo_base64": logo_base64,
     }
+
+    if formato == "excel":
+        return _reporte_excel(qs, periodo, monto_total)
+
+    if formato == "pdf":
+        html_string = render_to_string("reporte.html", context, request=request)
+        buffer      = io.BytesIO()
+        pisa_status = pisa.CreatePDF(html_string, dest=buffer)
+
+        if pisa_status.err:
+            return HttpResponse("Error al generar el PDF", status=500)
+
+        buffer.seek(0)
+        filename = f"reporte_compras_{periodo.replace(' ', '_')}.pdf"
+        response = HttpResponse(buffer, content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
+
+    # HTML normal
     return render(request, "reporte.html", context)
 
 
-
 # ────────────────────────────────────────────────
-#  Excel helper
+#  EXCEL HELPER
 # ────────────────────────────────────────────────
 
 def _reporte_excel(qs, periodo, total_general):
@@ -385,11 +412,10 @@ def _thin_border():
 
 
 # ────────────────────────────────────────────────
-#  CLASS-BASED VIEWS (sin cambios)
+#  CLASS-BASED VIEWS
 # ────────────────────────────────────────────────
 
 @method_decorator(panel_login_required, name="dispatch")
-
 class CompraCreateView(LoginRequiredMixin, generic.CreateView):
     model         = Compra
     form_class    = CompraForm
@@ -430,14 +456,12 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
                     _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
                 compra.calcular_totales()
 
-
                 crear_notificacion(
                     categoria="movimiento",
                     estilo="success",
                     titulo="Compra creada",
                     mensaje=f"Se registro la compra #{compra.id} con {len(detalles)} item(s).",
                 )
-
 
             messages.success(self.request, f"Compra registrada exitosamente con {len(detalles)} item(s).")
             return redirect(self.success_url)
@@ -485,11 +509,8 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
             with transaction.atomic():
                 compra = form.save()
 
-
                 detalles_actuales = list(compra.detalles.select_related("flor", "producto"))
 
-                # Ajuste de stock por diferencia (delta):
-                # evita fallar al guardar "sin cambios" y no toca stock innecesariamente.
                 stock_actual_por_item = {}
                 for detalle in detalles_actuales:
                     item_pk = detalle.flor_id if detalle.tipo_item == "FLOR" else detalle.producto_id
@@ -503,19 +524,16 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                     key = (data["tipo_item"], data["item_pk"])
                     stock_nuevo_por_item[key] = stock_nuevo_por_item.get(key, 0) + int(data["cantidad"])
 
-                # Si disminuye cantidad de un item en la compra, se debe restar la diferencia del inventario.
                 for key, cantidad_actual in stock_actual_por_item.items():
                     cantidad_nueva = stock_nuevo_por_item.get(key, 0)
                     if cantidad_actual > cantidad_nueva:
                         tipo_item, item_pk = key
                         _restar_stock_item(
-                            tipo_item,
-                            item_pk,
+                            tipo_item, item_pk,
                             cantidad_actual - cantidad_nueva,
                             "la edicion de compra",
                         )
 
-                # Si aumenta cantidad de un item en la compra, se suma la diferencia al inventario.
                 for key, cantidad_nueva in stock_nuevo_por_item.items():
                     cantidad_actual = stock_actual_por_item.get(key, 0)
                     if cantidad_nueva > cantidad_actual:
@@ -535,7 +553,6 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                     detalle.save()
                     _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
                 compra.calcular_totales()
-
 
                 crear_notificacion(
                     categoria="movimiento",
@@ -579,7 +596,6 @@ class CompraDeleteView(LoginRequiredMixin, generic.DeleteView):
                     if item_pk:
                         _restar_stock_item(detalle.tipo_item, item_pk, detalle.cantidad, "la eliminacion de compra")
                 compra.delete()
-
 
                 crear_notificacion(
                     categoria="movimiento",

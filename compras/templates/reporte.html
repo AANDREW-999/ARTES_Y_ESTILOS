@@ -1,178 +1,189 @@
 <!DOCTYPE html>
+{% load static %}
+{% load humanize %}
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Comprobante Auxiliar de Factura Electrónica</title>
+<title>Reporte de Compras</title>
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        color: #1a1a1a;
+        background: #e8e8e8;
+        padding: 20px;
+    }
+
+    .page {
+        width: 750px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 24px 28px;
+    }
+
+    .divider {
+        height: 1px;
+        background: #BBBBBB;
+        margin: 6px 0;
+    }
+
+    .section { margin-bottom: 6px; }
+
+    .section-header {
+        background: #D9D9D9;
+        text-align: center;
+        font-weight: bold;
+        font-size: 10px;
+        padding: 4px 8px;
+        border: 1px solid #BBBBBB;
+        border-bottom: none;
+        font-family: Arial, sans-serif;
+    }
+
+    table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+    table.data-table td {
+        padding: 3px 8px;
+        border: 1px solid #BBBBBB;
+        vertical-align: middle;
+        line-height: 1.4;
+    }
+    table.data-table thead td {
+        background: #D9D9D9;
+        font-weight: bold;
+    }
+    table.data-table tr.even td { background: #F5F5F5; }
+    table.data-table .col-value {
+        text-align: right;
+        white-space: nowrap;
+        width: 100px;
+    }
+
+    .footer {
+        margin-top: 16px;
+        text-align: center;
+        font-size: 7px;
+        color: #666;
+        border-top: 1px solid #BBBBBB;
+        padding-top: 5px;
+        line-height: 1.6;
+        font-family: Arial, sans-serif;
+    }
+
+    @media print {
+        body { background: none; padding: 0; }
+        .page { width: 100%; padding: 15mm 18mm; }
+    }
+</style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ══════════════════════════════════════
-       CABECERA: LOGO + TÍTULOS
-  ══════════════════════════════════════ -->
-  <div class="header">
-
-    <!-- ✅ AQUÍ VA TU LOGO
-         Opción A (placeholder actual, sin logo):
-           Deja el bloque .logo-area tal como está.
-
-         Opción B (con logo real):
-           Reemplaza todo el <div class="logo-area"> por:
-           <img src="tu_logo.png" class="logo-img" alt="Logo empresa">
-    -->
-    <div>
-      <div class="logo-area">LOGO</div>
-      <div class="logo-note">← Pon aquí tu logo</div>
-    </div>
-
-    <div class="header-titles">
-      <h1>Comprobante Auxiliar de Factura Electrónica</h1>
-      <h2>Factura de Operación Interna</h2>
-      <div class="header-url">
-        Consulte la clasificación en https://pfgtcfp.mef.gob.pa/Consultas/FacturasPorCUFE<br>
-        CUFE: f001200800549-464781-647001-1023111230060072146091001645856683377<br>
-        Protocolo de autorización: 00619511049536-2-202120230600000030332637096
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- ══════════════════════════════════════
-       EMISOR / CLIENTE
-  ══════════════════════════════════════ -->
-  <div class="parties">
-    <div class="party">
-      <div class="party-row">
-        <span class="party-label">Emisor</span>
-        <span class="party-value">DHL PANAMA S.A.</span>
-      </div>
-      <div class="party-row">
-        <span class="party-label">RUC</span>
-        <span class="party-value">3456-162-67319 DV07</span>
-      </div>
-      <div class="party-row">
-        <span class="party-label">Dirección</span>
-        <span class="party-value">Costa del Este, Avenida Centenario<br>Diagonal a estación TERPEL</span>
-      </div>
-    </div>
-    <div class="party">
-      <div class="party-row">
-        <span class="party-label">Cliente</span>
-        <span class="party-value">AVLEN QUINTERO</span>
-      </div>
-      <div class="party-row">
-        <span class="party-label">RUC / Cédula</span>
-        <span class="party-value">71397026</span>
-      </div>
-      <div class="party-row">
-        <span class="party-label">Dirección</span>
-        <span class="party-value">Av. Centenario 122,<br>PH Sol del Este apto 106</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       DATOS DE FACTURA
-  ══════════════════════════════════════ -->
-  <div class="doc-info">
-    <div class="doc-row">
-      <div class="doc-cell"><b>Número de factura:</b></div>
-      <div class="doc-cell">PC72295</div>
-      <div class="doc-cell accent">Según Liquidación de Aduana No. 5781846</div>
-    </div>
-    <div class="doc-row">
-      <div class="doc-cell"><b>Fecha de Emisión:</b></div>
-      <div class="doc-cell">23/11/2023</div>
-      <div class="doc-cell"><b>Guía No:</b> 10218778810</div>
-    </div>
-    <div class="doc-row">
-      <div class="doc-cell"><b>Tipo de Contribuyente:</b></div>
-      <div class="doc-cell">Jurídico / Natural</div>
-      <div class="doc-cell"><b>Master:</b> 22857973</div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       TABLA 1: Información del Envío
-  ══════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-header">Información del Envío</div>
-    <table class="data-table">
-      <tr>
-        <td>VALOR FOB</td>
-        <td class="col-value">B/ 15,500.00</td>
-      </tr>
-      <tr>
-        <td>VALOR FLETE</td>
-        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;51.00</td>
-      </tr>
-      <tr>
-        <td>VALOR SEGURO</td>
-        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;155.00</td>
-      </tr>
-      <tr>
-        <td>VALOR CIF</td>
-        <td class="col-value">B/&nbsp;&nbsp;5,706.20</td>
-      </tr>
+    <!-- ══ CABECERA ══ -->
+    <table style="width:100%; border-bottom:2px solid #BBBBBB; margin-bottom:8px;">
+        <tr>
+            <td style="width:130px; vertical-align:middle; padding-bottom:6px;">
+    {% if logo_base64 %}
+        <img src="data:image/png;base64,{{ logo_base64 }}" 
+             alt="Logo" style="width:110px; height:auto;">
+    {% endif %}
+</td>
+            <td style="text-align:center; vertical-align:middle; padding:0 10px 6px 10px;">
+                <b style="font-size:13px; font-family:Arial, sans-serif;">Reporte de Compras — Artes &amp; Estilos</b><br>
+                <span style="font-size:11px; font-family:Arial, sans-serif;">Período: {{ periodo }}</span><br>
+                <span style="font-size:7px; color:#555; font-family:Arial, sans-serif;">
+                    Generado el {{ fecha_generacion }} &nbsp;|&nbsp; Usuario: {{ usuario }}
+                </span>
+            </td>
+        </tr>
     </table>
-  </div>
 
-  <!-- ══════════════════════════════════════
-       TABLA 2: Impuestos del Envío
-  ══════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-header">Información de Pago de Impuestos del Envío</div>
-    <table class="data-table">
-      <tr>
-        <td>TASA FORMAL</td>
-        <td class="col-value">B/&nbsp;&nbsp;100.00</td>
-      </tr>
-      <tr>
-        <td>ITEM TASA</td>
-        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7.00</td>
-      </tr>
+    <!-- ══ RESUMEN ══ -->
+    <table style="width:100%; border:1px solid #BBBBBB; margin-bottom:8px; font-size:10px; font-family:Arial, sans-serif;">
+        <tr>
+            <td style="width:50%; padding:6px 10px; vertical-align:top; border-right:1px solid #BBBBBB;">
+                <b>Período:</b> {{ periodo }}<br>
+                <b>Total registros:</b> {{ total_registros }}<br>
+                <b>Proveedores únicos:</b> {{ total_proveedores }}
+            </td>
+            <td style="width:50%; padding:6px 10px; vertical-align:top;">
+                <b>Monto total:</b> ${{ monto_total|floatformat:2|intcomma }}<br>
+                <b>Promedio por compra:</b> ${{ promedio_compra|floatformat:2|intcomma }}<br>
+                <b>Fecha generación:</b> {{ fecha_generacion }}
+            </td>
+        </tr>
     </table>
-    <div class="subtotal-row">
-      <span class="st-label">SUB-TOTAL</span>
-      <span class="st-value">B/ 107.00</span>
-    </div>
-  </div>
 
-  <!-- ══════════════════════════════════════
-       TABLA 3: Servicios
-  ══════════════════════════════════════ -->
-  <div class="section">
-    <div class="section-header">Información de Pago por Servicios DHL</div>
-    <table class="data-table">
-      <tr>
-        <td>LIQUIDACION FORMAL ALTO VALOR</td>
-        <td class="col-value">B/&nbsp;&nbsp;185.00</td>
-      </tr>
-      <tr>
-        <td>DESEMBOLSO CONTADO</td>
-        <td class="col-value">B/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7.00</td>
-      </tr>
-      <tr>
-        <td>I.T.B.M.S. (7%)</td>
-        <td class="col-value">B/&nbsp;&nbsp;&nbsp;13.44</td>
-      </tr>
+    <!-- ══ TABLA DE COMPRAS ══ -->
+    <div class="section">
+        <div class="section-header">Detalle de Compras</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <td style="width:35px;">#</td>
+                    <td style="width:65px;">Fecha</td>
+                    <td>Proveedor</td>
+                    <td>Descripción</td>
+                    <td class="col-value">Ítems</td>
+                    <td class="col-value">Total</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compra in compras %}
+                <tr {% if forloop.counter|divisibleby:2 %}class="even"{% endif %}>
+                    <td>{{ compra.id }}</td>
+                    <td>{{ compra.fecha_emision|date:"d/m/Y" }}</td>
+                    <td>{{ compra.proveedor.nombre_proveedor|default:"N/A" }}</td>
+                    <td>{{ compra.descripcion|default:"Sin descripción"|truncatewords:8 }}</td>
+                    <td class="col-value">{{ compra.detalles.count }}</td>
+                    <td class="col-value">${{ compra.total_compra|floatformat:2|intcomma }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align:center; padding:10px; color:#888;">
+                        No hay compras para el período seleccionado.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- subtotal -->
+        <table style="width:100%; border:1px solid #BBBBBB; border-top:none; background:#EEEEEE; font-size:10px; font-family:Arial, sans-serif;">
+            <tr>
+                <td style="text-align:right; padding:3px 8px; border-right:1px solid #BBBBBB; font-weight:bold;">
+                    SUB-TOTAL
+                </td>
+                <td style="width:100px; text-align:right; padding:3px 8px; font-weight:bold;">
+                    ${{ monto_total|floatformat:2|intcomma }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ══ TOTAL FINAL ══ -->
+    <table style="width:100%; border:1px solid #BBBBBB; margin-top:8px; font-size:10px; font-family:Arial, sans-serif;">
+        <tr>
+            <td style="text-align:center; font-weight:bold; padding:4px 12px; border-right:1px solid #BBBBBB;">
+                TOTAL GENERAL DE COMPRAS
+            </td>
+            <td style="width:120px; text-align:right; font-weight:bold; padding:4px 10px;">
+                ${{ monto_total|floatformat:2|intcomma }}
+            </td>
+        </tr>
     </table>
-    <div class="subtotal-row">
-      <span class="st-label">SUB-TOTAL</span>
-      <span class="st-value">B/ 205.44</span>
-    </div>
-  </div>
 
-  <!-- ══════════════════════════════════════
-       TOTAL FINAL
-  ══════════════════════════════════════ -->
-  <div class="total-bar">
-    <div class="total-label">TOTAL, DE CARGOS A PAGAR</div>
-    <div class="total-value">B/ 312.44</div>
-  </div>
+    <!-- ══ PIE ══ -->
+    <div class="footer">
+        ARTES &amp; ESTILOS — Sistema de Gestión Interno<br>
+        Reporte generado automáticamente el {{ fecha_generacion }} por {{ usuario }}<br>
+        Período consultado: {{ periodo }}
+    </div>
 
 </div>
 </body>

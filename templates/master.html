@@ -47,26 +47,26 @@
     <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto align-items-lg-center fw-semibold">
         <li class="nav-item">
-          <a class="nav-link" href="#hero"><i class="bi bi-house"></i> Inicio</a>
+          <a class="nav-link" href="#hero"><i class="bi bi-house" aria-hidden="true"></i> Inicio</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#catalogo"><i class="bi bi-bag-heart"></i> Cátalogo</a>
+          <a class="nav-link" href="#catalogo"><i class="bi bi-bag-heart" aria-hidden="true"></i> Cátalogo</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#contacto"><i class="bi bi-envelope"></i> Contacto</a>
+          <a class="nav-link" href="#contacto"><i class="bi bi-envelope" aria-hidden="true"></i> Contacto</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#sobre"><i class="bi bi-people"></i> Nosotros</a>
+          <a class="nav-link" href="#sobre"><i class="bi bi-people" aria-hidden="true"></i> Nosotros</a>
         </li>
 
         {% if user.is_authenticated %}
             {% if user.is_staff %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'core:dashboard' %}">
-                <i class="bi bi-speedometer2"></i> Panel Admin
+                <i class="bi bi-speedometer2" aria-hidden="true"></i> Panel Admin
               </a>
             </li>
             {% endif %}
@@ -77,7 +77,7 @@
                   {% if user.perfil.foto_perfil %}
                     <img src="{{ user.perfil.foto_perfil.url }}" alt="{{ user.get_full_name }}" class="rounded-circle user-avatar-nav" width="32" height="32">
                   {% else %}
-                    <i class="bi bi-person-circle fs-5"></i>
+                    <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
                   {% endif %}
                   <strong>{{ user.get_full_name|default:user.username }}</strong>
                   {% if user.is_superuser %}
@@ -87,7 +87,7 @@
                   {% endif %}
               </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                  <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person"></i> Mi Perfil</a></li>
+                  <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person" aria-hidden="true"></i> Mi Perfil</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <form method="POST" action="{% url 'usuarios:logout' %}">
@@ -147,7 +147,7 @@
                             {% elif 'error' in message.tags or 'danger' in message.tags %}bi-exclamation-triangle-fill
                             {% elif 'warning' in message.tags %}bi-exclamation-circle-fill
                             {% else %}bi-info-circle-fill
-                            {% endif %} me-2 fs-5"></i>
+                            {% endif %} me-2 fs-5" aria-hidden="true"></i>
                   <span>{{ message }}</span>
                 </div>
                 <button type="button" class="btn-close {% if 'warning' not in message.tags %}btn-close-white{% endif %} me-2 m-auto"
@@ -174,15 +174,15 @@
           <hr style="border: none; background-color: transparent;">
           <div class="d-flex gap-3 social-wrap">
 <a href="https://api.whatsapp.com/send?phone=%2B573217195520" target="_blank" rel="noopener" class="social-link btn-social whatsapp" aria-label="WhatsApp">
-    <i class="bi bi-whatsapp"></i>
+  <i class="bi bi-whatsapp" aria-hidden="true"></i>
 </a>
 
 <a href="https://www.facebook.com/ArteyEstilosFloristeria/" target="_blank" rel="noopener" class="social-link btn-social facebook" aria-label="Facebook">
-    <i class="bi bi-facebook"></i>
+  <i class="bi bi-facebook" aria-hidden="true"></i>
 </a>
 
 <a href="https://www.instagram.com/TU_USUARIO/" target="_blank" rel="noopener" class="social-link btn-social instagram" aria-label="Instagram">
-    <i class="bi bi-instagram"></i>
+  <i class="bi bi-instagram" aria-hidden="true"></i>
 </a>
 </div>
         </div>
@@ -190,19 +190,19 @@
           <h6 class="fw-bold mb-2">Enlaces rápidos</h6>
           <ul class="list-unstyled d-grid gap-2 quick-links">
             <li class="nav-item"> 
-              <a class="footer-link" href="#hero"><i class="bi bi-house"></i> Inicio</a>
+              <a class="footer-link" href="#hero"><i class="bi bi-house" aria-hidden="true"></i> Inicio</a>
             </li>
             
             <li class="nav-item">
-              <a class="footer-link" href="#catalogo"><i class="bi bi-bag-heart"></i> Catálogo</a>
+              <a class="footer-link" href="#catalogo"><i class="bi bi-bag-heart" aria-hidden="true"></i> Catálogo</a>
             </li>
             
             <li class="nav-item">
-              <a class="footer-link" href="#contacto"><i class="bi bi-envelope"></i> Contacto</a>
+              <a class="footer-link" href="#contacto"><i class="bi bi-envelope" aria-hidden="true"></i> Contacto</a>
             </li>
 
             <li class="nav-item">
-              <a class="footer-link" href="#sobre"><i class="bi bi-people"></i> Nosotros</a>
+              <a class="footer-link" href="#sobre"><i class="bi bi-people" aria-hidden="true"></i> Nosotros</a>
             </li>
 
         </div>
@@ -236,7 +236,7 @@
    rel="noopener" 
    class="whatsapp-float" 
    aria-label="WhatsApp Flotante">
-   <i class="bi bi-whatsapp"></i>
+  <i class="bi bi-whatsapp" aria-hidden="true"></i>
 </a>
 
 

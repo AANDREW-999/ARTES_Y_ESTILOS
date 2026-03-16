@@ -13,6 +13,26 @@
   /* Sombra y radios */
   --shadow-soft: 0 10px 25px rgba(0,0,0,.08);
   --radius-lg: 16px;
+
+  /* Escala visual global (simula 80% con zoom del navegador al 100%) */
+  --ui-scale: 0.8;
+}
+
+/*
+  Escala global del sitio:
+  - `zoom` funciona en Chromium (Chrome/Edge).
+  - Fallback para navegadores sin `zoom` (p.ej. Firefox).
+*/
+html {
+  zoom: var(--ui-scale);
+}
+
+@supports not (zoom: 1) {
+  html {
+    transform: scale(var(--ui-scale));
+    transform-origin: 0 0;
+    width: calc(100% / var(--ui-scale));
+  }
 }
 
 html, body {

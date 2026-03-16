@@ -10,5 +10,5 @@ typing_extensions==4.15.0
 tzdata==2025.2
 xhtml2pdf==0.2.16
 
-# Para instalar los Paquetes en el VENV:
+# Para instalar los Paquetes en el VENV de Artes & Estilos:
 # pip install -r requirements.txt

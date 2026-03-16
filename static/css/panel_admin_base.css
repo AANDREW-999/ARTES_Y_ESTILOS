@@ -33,6 +33,26 @@
 
     /* Transiciones */
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Escala visual global (simula 80% con zoom del navegador al 100%) */
+    --ui-scale: 0.8;
+}
+
+/*
+  Escala global del panel:
+  - `zoom` funciona en Chromium (Chrome/Edge).
+  - Fallback para navegadores sin `zoom` (p.ej. Firefox).
+*/
+html {
+    zoom: var(--ui-scale);
+}
+
+@supports not (zoom: 1) {
+    html {
+        transform: scale(var(--ui-scale));
+        transform-origin: 0 0;
+        width: calc(100% / var(--ui-scale));
+    }
 }
 
 /* ==========================================
@@ -66,7 +86,7 @@ body {
     top: 0;
     left: 0;
     width: var(--sidebar-width);
-    height: 100vh;
+    height: calc(100vh / var(--ui-scale));
     background: var(--bg-secondary);
     border-right: 1px solid var(--border-color);
     transition: var(--transition);
@@ -630,7 +650,7 @@ body.sidebar-resizing .main-content {
    ========================================== */
 .main-content {
     margin-left: var(--sidebar-width);
-    min-height: 100vh;
+    min-height: calc(100vh / var(--ui-scale));
     display: flex;
     flex-direction: column;
     transition: var(--transition);

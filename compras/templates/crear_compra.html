@@ -49,8 +49,8 @@
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <div class="field-wrapper">
-                                <label class="field-label" for="id_forma_pago">Forma de pago</label>
-                                <select name="forma_pago" id="id_forma_pago" class="form-select">
+                                <label class="field-label" for="id_forma_pago">Forma de pago *</label>
+                                <select name="forma_pago" id="id_forma_pago" class="form-select" required>
                                     <option value="" {% if not form.forma_pago.value %}selected{% endif %}>Seleccione...</option>
                                     <option value="EFECTIVO" {% if form.forma_pago.value == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
                                     <option value="TRANSFERENCIA" {% if form.forma_pago.value == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
@@ -75,6 +75,7 @@
                                     id="fecha_emision"
                                     class="form-control"
                                     required
+                                    max="{% now 'Y-m-d' %}"
                                     value="{{ form.fecha_emision.value|default:'' }}">
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>

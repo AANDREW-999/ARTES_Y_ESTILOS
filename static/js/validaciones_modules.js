@@ -211,6 +211,72 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { valido: true, mensaje: 'Fecha válida' };
             }
         },
+        fecha_operacion: {
+            selector: ['#id_fecha', '#fecha_emision', '#id_fecha_emision'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor, input) {
+                const esCompra = !!document.getElementById('formCompra');
+                if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return {
+                            valido: false,
+                            mensaje: esCompra ? 'La fecha de emision es obligatoria.' : 'La fecha es obligatoria.'
+                        };
+                    }
+                    return { valido: true, mensaje: 'Opcional' };
+                }
+
+                const fecha = new Date(valor);
+                if (Number.isNaN(fecha.getTime())) {
+                    return { valido: false, mensaje: 'Fecha invalida.' };
+                }
+
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                fecha.setHours(0, 0, 0, 0);
+
+                if (fecha > hoy) {
+                    return { valido: false, mensaje: 'La fecha no puede ser futura.' };
+                }
+
+                const limite = new Date('1900-01-01');
+                limite.setHours(0, 0, 0, 0);
+                if (fecha < limite) {
+                    return { valido: false, mensaje: 'La fecha es demasiado antigua.' };
+                }
+
+                return { valido: true, mensaje: 'Fecha válida' };
+            }
+        },
+        forma_pago_compra: {
+            selector: ['#id_forma_pago'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                // Solo aplicar esta regla estricta en formularios de compra.
+                if (!document.getElementById('formCompra')) {
+                    return { valido: true, mensaje: 'OK' };
+                }
+
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'La forma de pago es obligatoria.' };
+                }
+                return { valido: true, mensaje: 'Forma de pago válida' };
+            }
+        },
+        proveedor_compra: {
+            selector: ['#id_proveedor'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!document.getElementById('formCompra')) {
+                    return { valido: true, mensaje: 'OK' };
+                }
+
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'Debe seleccionar un proveedor.' };
+                }
+                return { valido: true, mensaje: 'Proveedor válido' };
+            }
+        },
         // ========================================
         // NUEVAS VALIDACIONES
         // ========================================
@@ -742,17 +808,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!formularioValido) {
                 e.preventDefault();
 
-                const alertaAnterior = document.querySelector('.alert-danger-box');
-                if (alertaAnterior) alertaAnterior.remove();
+                if (document.getElementById('formCompra') && window._dashboard && typeof window._dashboard.showAdminNotification === 'function') {
+                    window._dashboard.showAdminNotification('warning', 'Por favor, corrija los errores del formulario.');
+                } else {
+                    const alertaAnterior = document.querySelector('.alert-danger-box');
+                    if (alertaAnterior) alertaAnterior.remove();
 
-                const alerta = document.createElement('div');
-                alerta.className = 'alert-danger-box mb-4';
-                alerta.innerHTML = `
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <div>Por favor, corrija los errores en el formulario antes de guardar.</div>
-                `;
+                    const alerta = document.createElement('div');
+                    alerta.className = 'alert-danger-box mb-4';
+                    alerta.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>Por favor, corrija los errores en el formulario antes de guardar.</div>
+                    `;
 
-                formulario.insertBefore(alerta, formulario.firstChild);
+                    formulario.insertBefore(alerta, formulario.firstChild);
+                }
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });

@@ -1,10 +1,12 @@
 import base64
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from usuarios.decorators import panel_login_required
+from core.notifications import crear_notificacion
 
 from .forms import CategoriaForm
 from .models import Categoria
@@ -26,6 +28,7 @@ def _procesar_imagen(request, nombre_categoria: str):
 	return request.FILES.get('imagen') or None
 
 
+@login_required
 @panel_login_required
 def lista_categoria(request):
 	query = request.GET.get('q', '').strip()
@@ -64,6 +67,7 @@ def lista_categoria(request):
 	})
 
 
+@login_required
 @panel_login_required
 def agregar_categoria(request):
 	if request.method == 'POST':
@@ -74,6 +78,12 @@ def agregar_categoria(request):
 			if imagen:
 				categoria.imagen = imagen
 			categoria.save()
+			crear_notificacion(
+				categoria='movimiento',
+				estilo='success',
+				titulo='Categoria creada',
+				mensaje=f'Se creo la categoria {categoria.nombre}.',
+			)
 			messages.success(request, 'Categoría creada correctamente.')
 			return redirect('categoria:lista')
 		messages.error(request, 'Por favor, revisa los campos del formulario.')
@@ -86,6 +96,7 @@ def agregar_categoria(request):
 	})
 
 
+@login_required
 @panel_login_required
 def editar_categoria(request, pk: int):
 	categoria = get_object_or_404(Categoria, pk=pk)
@@ -98,6 +109,12 @@ def editar_categoria(request, pk: int):
 			if imagen:
 				categoria.imagen = imagen
 			categoria.save()
+			crear_notificacion(
+				categoria='movimiento',
+				estilo='info',
+				titulo='Categoria actualizada',
+				mensaje=f'Se actualizo la categoria {categoria.nombre}.',
+			)
 			messages.success(request, 'Categoría actualizada correctamente.')
 			return redirect('categoria:lista')
 		messages.error(request, 'Por favor, revisa los campos del formulario.')
@@ -111,6 +128,7 @@ def editar_categoria(request, pk: int):
 	})
 
 
+@login_required
 @panel_login_required
 def eliminar_categoria(request, pk: int):
 	categoria = get_object_or_404(Categoria, pk=pk)
@@ -118,6 +136,12 @@ def eliminar_categoria(request, pk: int):
 	if request.method == 'POST':
 		nombre = categoria.nombre
 		try:
+			crear_notificacion(
+				categoria='movimiento',
+				estilo='error',
+				titulo='Categoria eliminada',
+				mensaje=f'Se elimino la categoria {nombre}.',
+			)
 			categoria.delete()
 			messages.success(request, f'Categoría "{nombre}" eliminada correctamente.')
 		except Exception:
@@ -129,6 +153,7 @@ def eliminar_categoria(request, pk: int):
 	})
 
 
+@login_required
 @panel_login_required
 def detalle_categoria(request, pk: int):
 	categoria = get_object_or_404(Categoria, pk=pk)

@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import date, datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q, Sum
 from django.http import JsonResponse
@@ -10,6 +11,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from clientes.models import Cliente
 from flor.models import Flor
 from producto.models import Producto
+from core.notifications import crear_notificacion, crear_notificacion_stock
+from usuarios.decorators import panel_login_required
 
 from .forms import VentaForm
 from .models import DetalleVenta, Venta
@@ -103,14 +106,18 @@ def _descontar_stock(tipo_item, item_pk, cantidad):
         )
     item.cantidad -= cantidad
     item.save(update_fields=["cantidad"])
+    crear_notificacion_stock(item.nombre, item.cantidad, "Venta")
 
 
 def _devolver_stock(tipo_item, item_pk, cantidad):
     item = _lock_item(tipo_item, item_pk)
     item.cantidad += cantidad
     item.save(update_fields=["cantidad"])
+    crear_notificacion_stock(item.nombre, item.cantidad, "Reversion de venta")
 
 
+@login_required
+@panel_login_required
 def listar_ventas(request):
     ventas = Venta.objects.select_related("cliente").prefetch_related("detalles__flor", "detalles__producto")
 
@@ -212,6 +219,8 @@ def listar_ventas(request):
     return render(request, "ventas/listar_venta.html", context)
 
 
+@login_required
+@panel_login_required
 def crear_venta(request):
     flores = Flor.objects.all().order_by("nombre")
     productos = Producto.objects.all().order_by("nombre")
@@ -261,6 +270,13 @@ def crear_venta(request):
                     venta.recalcular_totales()
                     venta.save(update_fields=["subtotal", "total"])
 
+                    crear_notificacion(
+                        categoria="movimiento",
+                        estilo="success",
+                        titulo="Venta creada",
+                        mensaje=f"Se registro la venta #{venta.id} con {len(detalles)} item(s).",
+                    )
+
                 messages.success(request, f"Venta #{venta.id} registrada correctamente.")
                 return redirect("ventas:listar_venta")
             except (Flor.DoesNotExist, Producto.DoesNotExist):
@@ -284,6 +300,8 @@ def crear_venta(request):
     )
 
 
+@login_required
+@panel_login_required
 def editar_venta(request, pk):
     venta = get_object_or_404(Venta.objects.prefetch_related("detalles__flor", "detalles__producto"), pk=pk)
     flores = Flor.objects.all().order_by("nombre")
@@ -348,6 +366,13 @@ def editar_venta(request, pk):
                     venta.recalcular_totales()
                     venta.save(update_fields=["subtotal", "total"])
 
+                    crear_notificacion(
+                        categoria="movimiento",
+                        estilo="info",
+                        titulo="Venta actualizada",
+                        mensaje=f"Se actualizo la venta #{venta.id} con {len(nuevos_detalles)} item(s).",
+                    )
+
                 messages.success(request, f"Venta #{venta.id} actualizada correctamente.")
                 return redirect("ventas:listar_venta")
             except (Flor.DoesNotExist, Producto.DoesNotExist):
@@ -373,6 +398,8 @@ def editar_venta(request, pk):
     )
 
 
+@login_required
+@panel_login_required
 def detalle_venta(request, pk):
     venta = get_object_or_404(
         Venta.objects.prefetch_related("detalles__flor", "detalles__producto").select_related("cliente"),
@@ -383,6 +410,8 @@ def detalle_venta(request, pk):
     return render(request, "ventas/detalle_venta.html", {"venta": venta})
 
 
+@login_required
+@panel_login_required
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta.objects.prefetch_related("detalles__flor", "detalles__producto"), pk=pk)
 
@@ -402,6 +431,13 @@ def eliminar_venta(request, pk):
                     )
                 venta.delete()
 
+                crear_notificacion(
+                    categoria="movimiento",
+                    estilo="error",
+                    titulo="Venta eliminada",
+                    mensaje=f"Se elimino la venta #{pk}.",
+                )
+
             messages.success(request, f"Venta #{pk} eliminada correctamente.")
             return redirect("ventas:listar_venta")
         except Exception as exc:
@@ -410,6 +446,8 @@ def eliminar_venta(request, pk):
     return render(request, "ventas/eliminar_venta.html", {"venta": venta})
 
 
+@login_required
+@panel_login_required
 def buscar_cliente(request):
     q = request.GET.get("q", "").strip()
     clientes = Cliente.objects.filter(nombre__icontains=q)[:10]
@@ -417,6 +455,8 @@ def buscar_cliente(request):
     return JsonResponse({"clientes": data})
 
 
+@login_required
+@panel_login_required
 def buscar_arreglo(request):
     q = request.GET.get("q", "").strip()
 

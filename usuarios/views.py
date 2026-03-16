@@ -17,6 +17,7 @@ from django.template.loader import render_to_string
 from django.db import connections
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import AnonymousUser
+from core.notifications import crear_notificacion
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message, build_form_messages
@@ -279,6 +280,7 @@ def logout_view(request):
 # 👤 GESTIÓN DE PERFIL PERSONAL
 # =====================================================
 
+@login_required
 @panel_login_required
 def perfil_view(request):
     db_path = _default_db_path()
@@ -290,6 +292,7 @@ def perfil_view(request):
     return render(request, 'usuarios/perfil.html', context)
 
 
+@login_required
 @panel_login_required
 def seguridad_view(request):
     """Módulo de Seguridad dentro de Usuarios (mismo contenido que en Perfil > Seguridad)."""
@@ -441,6 +444,7 @@ def restaurar_backup_db_view(request):
     return _redirect_next_or(request, 'usuarios:perfil')
 
 
+@login_required
 @panel_login_required
 def editar_perfil_view(request):
     """
@@ -543,6 +547,7 @@ class RestablecerPasswordCompletoView(PasswordResetCompleteView):
 # 👥 GESTIÓN DE USUARIOS
 # =====================================================
 
+@login_required
 @panel_login_required
 def lista_usuarios_view(request):
     """
@@ -565,6 +570,7 @@ def lista_usuarios_view(request):
     return render(request, 'usuarios/lista_usuarios.html', context)
 
 
+@login_required
 @panel_login_required
 def crear_usuario_view(request):
     """
@@ -612,6 +618,12 @@ def crear_usuario_view(request):
                     f'✅ Usuario {usuario.username} creado correctamente.',
                     extra_tags='level-success field-general'
                 )
+                crear_notificacion(
+                    categoria='movimiento',
+                    estilo='success',
+                    titulo='Usuario creado',
+                    mensaje=f'Se creo el usuario {usuario.username}.',
+                )
                 return redirect('usuarios:lista_usuarios')
 
             except Exception as e:
@@ -649,6 +661,7 @@ def crear_usuario_view(request):
     return render(request, 'usuarios/crear_usuario.html', context)
 
 
+@login_required
 @panel_login_required
 def editar_usuario_view(request, user_id):
     """
@@ -738,6 +751,21 @@ def editar_usuario_view(request, user_id):
                     extra_tags='level-success field-general'
                 )
 
+                crear_notificacion(
+                    categoria='movimiento',
+                    estilo='info',
+                    titulo='Perfil actualizado',
+                    mensaje=f'Se actualizo el perfil de {usuario_actualizado.username}.',
+                )
+
+                if estado_anterior_activo != usuario_actualizado.is_active:
+                    crear_notificacion(
+                        categoria='cuenta',
+                        estilo='success' if usuario_actualizado.is_active else 'error',
+                        titulo='Cuenta activada' if usuario_actualizado.is_active else 'Cuenta desactivada',
+                        mensaje=f'La cuenta de {usuario_actualizado.username} fue {"activada" if usuario_actualizado.is_active else "desactivada"}.',
+                    )
+
                 # Si se desactiva su propia cuenta, se cierra sesion de inmediato.
                 if not usuario_actualizado.is_active:
                     auth_logout(request)
@@ -804,6 +832,13 @@ def desactivar_usuario_view(request, user_id):
         usuario.is_active = False
         usuario.save()
 
+        crear_notificacion(
+            categoria='cuenta',
+            estilo='error',
+            titulo='Cuenta desactivada',
+            mensaje=f'La cuenta de {usuario.username} fue desactivada.',
+        )
+
         if usuario.email:
             subject = 'Cuenta desactivada - Panel Administrativo Artes y Estilos'
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
@@ -828,6 +863,7 @@ def desactivar_usuario_view(request, user_id):
     return render(request, 'usuarios/desactivar_usuario.html', {'usuario': usuario})
 
 
+@login_required
 @panel_login_required
 def visualizar_usuario_view(request, user_id):
     usuario = get_object_or_404(User.objects.select_related('perfil'), id=user_id)
@@ -851,6 +887,13 @@ def activar_usuario_view(request, user_id):
     if request.method == 'POST':
         usuario.is_active = True
         usuario.save()
+
+        crear_notificacion(
+            categoria='cuenta',
+            estilo='success',
+            titulo='Cuenta activada',
+            mensaje=f'La cuenta de {usuario.username} fue activada.',
+        )
 
         if usuario.email:
             subject = 'Cuenta activada - Panel Administrativo Artes y Estilos'
@@ -927,6 +970,7 @@ def convertir_superadmin_view(request, user_id):
     return render(request, 'usuarios/convertir_superadmin.html', {'usuario': usuario})
 
 
+@login_required
 @panel_login_required
 def eliminar_usuario_view(request, user_id):
     """

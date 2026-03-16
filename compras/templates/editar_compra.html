@@ -75,6 +75,7 @@
                                     id="fecha_emision"
                                     class="form-control"
                                     required
+                                    max="{% now 'Y-m-d' %}"
                                     value="{{ object.fecha_emision|date:'Y-m-d' }}">
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
@@ -86,8 +87,8 @@
 
                         <div class="col-12 col-md-6">
                             <div class="field-wrapper">
-                                <label class="field-label" for="id_forma_pago">Forma de pago</label>
-                                <select name="forma_pago" id="id_forma_pago" class="form-select">
+                                <label class="field-label" for="id_forma_pago">Forma de pago *</label>
+                                <select name="forma_pago" id="id_forma_pago" class="form-select" required>
                                     <option value="" {% if not object.forma_pago %}selected{% endif %}>Seleccione...</option>
                                     <option value="EFECTIVO" {% if object.forma_pago == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
                                     <option value="TRANSFERENCIA" {% if object.forma_pago == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
@@ -97,6 +98,9 @@
                                 </select>
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
+                                {% for error in form.forma_pago.errors %}
+                                    <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i> {{ error }}</div>
+                                {% endfor %}
                             </div>
                         </div>
 

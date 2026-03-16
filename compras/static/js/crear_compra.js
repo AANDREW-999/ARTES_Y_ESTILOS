@@ -61,6 +61,70 @@ document.addEventListener('DOMContentLoaded', function () {
         console.warn('[compra] ' + mensaje);
     }
 
+    function setFieldValidation(input, isValid, message) {
+        if (!input) return;
+        const wrapper = input.closest('.field-wrapper');
+        const invalid = wrapper ? wrapper.querySelector('.invalid-feedback') : null;
+        const valid = wrapper ? wrapper.querySelector('.valid-feedback') : null;
+
+        input.classList.remove('is-valid', 'is-invalid');
+        if (invalid) {
+            invalid.style.display = 'none';
+            invalid.textContent = '';
+        }
+        if (valid) {
+            valid.style.display = 'none';
+            valid.textContent = '';
+        }
+
+        if (isValid) {
+            input.classList.add('is-valid');
+            if (valid && message) {
+                valid.textContent = message;
+                valid.style.display = 'block';
+            }
+        } else {
+            input.classList.add('is-invalid');
+            if (invalid) {
+                invalid.textContent = message || 'Campo inválido.';
+                invalid.style.display = 'block';
+            }
+        }
+    }
+
+    function validarFechaNoFutura(input) {
+        if (!input) return true;
+        const valor = String(input.value || '').trim();
+        if (!valor) {
+            setFieldValidation(input, false, 'La fecha de emision es obligatoria.');
+            return false;
+        }
+
+        const fecha = new Date(valor);
+        if (Number.isNaN(fecha.getTime())) {
+            setFieldValidation(input, false, 'Fecha invalida.');
+            return false;
+        }
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        fecha.setHours(0, 0, 0, 0);
+        if (fecha > hoy) {
+            setFieldValidation(input, false, 'La fecha no puede ser futura.');
+            return false;
+        }
+
+        const limite = new Date('1900-01-01');
+        limite.setHours(0, 0, 0, 0);
+        if (fecha < limite) {
+            setFieldValidation(input, false, 'La fecha es demasiado antigua.');
+            return false;
+        }
+
+        setFieldValidation(input, true, 'Fecha válida');
+        return true;
+    }
+
     function getStockClass(stockRaw) {
         const stock = parseInt(stockRaw, 10) || 0;
         if (stock <= 5) return 'stock-low text-danger';
@@ -327,24 +391,107 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const formCompra = document.getElementById('formCompra');
     if (formCompra) {
+        const proveedorInput = document.getElementById('id_proveedor');
+        const formaPagoInput = document.getElementById('id_forma_pago');
+
+        if (proveedorInput) {
+            proveedorInput.addEventListener('change', function () {
+                const ok = String(this.value || '').trim() !== '';
+                setFieldValidation(this, ok, ok ? 'Proveedor válido' : 'Debe seleccionar un proveedor.');
+            });
+        }
+
+        if (formaPagoInput) {
+            formaPagoInput.addEventListener('change', function () {
+                const ok = String(this.value || '').trim() !== '';
+                setFieldValidation(this, ok, ok ? 'Forma de pago válida' : 'La forma de pago es obligatoria.');
+            });
+        }
+
+        if (fechaInput) {
+            fechaInput.addEventListener('change', function () {
+                validarFechaNoFutura(this);
+            });
+        }
+
         formCompra.addEventListener('submit', function (e) {
+            let formOk = true;
             let productosValidos = 0;
+            let primerInvalido = null;
+
+            if (proveedorInput) {
+                const ok = String(proveedorInput.value || '').trim() !== '';
+                setFieldValidation(proveedorInput, ok, ok ? 'Proveedor válido' : 'Debe seleccionar un proveedor.');
+                if (!ok) {
+                    formOk = false;
+                    if (!primerInvalido) primerInvalido = proveedorInput;
+                }
+            }
+
+            if (formaPagoInput) {
+                const ok = String(formaPagoInput.value || '').trim() !== '';
+                setFieldValidation(formaPagoInput, ok, ok ? 'Forma de pago válida' : 'La forma de pago es obligatoria.');
+                if (!ok) {
+                    formOk = false;
+                    if (!primerInvalido) primerInvalido = formaPagoInput;
+                }
+            }
+
+            if (fechaInput) {
+                const ok = validarFechaNoFutura(fechaInput);
+                if (!ok) {
+                    formOk = false;
+                    if (!primerInvalido) primerInvalido = fechaInput;
+                }
+            }
+
+            document.querySelectorAll('.item-select').forEach((input) => {
+                const ok = String(input.value || '').trim() !== '';
+                setFieldValidation(input, ok, ok ? '' : 'Debe seleccionar un artículo.');
+                if (!ok) {
+                    formOk = false;
+                    if (!primerInvalido) primerInvalido = input;
+                }
+            });
 
             document.querySelectorAll('.precio-input').forEach((input) => {
                 const valorLimpio = parsearNumero(input.value);
                 input.type = 'number';
                 input.value = valorLimpio > 0 ? valorLimpio : '';
                 if (valorLimpio > 0) productosValidos++;
+                const ok = valorLimpio > 0;
+                setFieldValidation(input, ok, ok ? '' : 'El precio debe ser mayor a 0.');
+                if (!ok) {
+                    formOk = false;
+                    if (!primerInvalido) primerInvalido = input;
+                }
             });
 
             document.querySelectorAll('.cantidad-input').forEach((input) => {
                 const cantidad = parseInt(input.value, 10) || 0;
                 input.value = cantidad > 0 ? cantidad : '';
+                const ok = cantidad > 0;
+                setFieldValidation(input, ok, ok ? '' : 'La cantidad debe ser mayor a 0.');
+                if (!ok) {
+                    formOk = false;
+                    if (!primerInvalido) primerInvalido = input;
+                }
             });
 
             if (productosValidos === 0) {
-                e.preventDefault();
+                formOk = false;
                 mostrarAlertaAdmin('warning', 'Debe agregar al menos un producto con precio valido.');
+            }
+
+            if (!formOk) {
+                e.preventDefault();
+                if (primerInvalido) {
+                    primerInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => primerInvalido.focus(), 250);
+                }
+                if (productosValidos > 0) {
+                    mostrarAlertaAdmin('warning', 'Por favor, corrija los errores del formulario.');
+                }
                 return false;
             }
         });

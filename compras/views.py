@@ -282,7 +282,8 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if form.errors:
+            messages.error(self.request, "Por favor, corrija los errores en el formulario.")
         return super().form_invalid(form)
 
 
@@ -318,17 +319,39 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
 
                 detalles_actuales = list(compra.detalles.select_related("flor", "producto"))
 
+                # Ajuste de stock por diferencia (delta):
+                # evita fallar al guardar "sin cambios" y no toca stock innecesariamente.
+                stock_actual_por_item = {}
                 for detalle in detalles_actuales:
                     item_pk = detalle.flor_id if detalle.tipo_item == "FLOR" else detalle.producto_id
                     if not item_pk:
                         continue
+                    key = (detalle.tipo_item, item_pk)
+                    stock_actual_por_item[key] = stock_actual_por_item.get(key, 0) + int(detalle.cantidad)
 
-                    _restar_stock_item(
-                        detalle.tipo_item,
-                        item_pk,
-                        detalle.cantidad,
-                        "la edicion de compra",
-                    )
+                stock_nuevo_por_item = {}
+                for data in nuevos_detalles:
+                    key = (data["tipo_item"], data["item_pk"])
+                    stock_nuevo_por_item[key] = stock_nuevo_por_item.get(key, 0) + int(data["cantidad"])
+
+                # Si disminuye cantidad de un item en la compra, se debe restar la diferencia del inventario.
+                for key, cantidad_actual in stock_actual_por_item.items():
+                    cantidad_nueva = stock_nuevo_por_item.get(key, 0)
+                    if cantidad_actual > cantidad_nueva:
+                        tipo_item, item_pk = key
+                        _restar_stock_item(
+                            tipo_item,
+                            item_pk,
+                            cantidad_actual - cantidad_nueva,
+                            "la edicion de compra",
+                        )
+
+                # Si aumenta cantidad de un item en la compra, se suma la diferencia al inventario.
+                for key, cantidad_nueva in stock_nuevo_por_item.items():
+                    cantidad_actual = stock_actual_por_item.get(key, 0)
+                    if cantidad_nueva > cantidad_actual:
+                        tipo_item, item_pk = key
+                        _sumar_stock_item(tipo_item, item_pk, cantidad_nueva - cantidad_actual)
 
                 compra.detalles.all().delete()
 
@@ -369,7 +392,8 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if form.errors:
+            messages.error(self.request, "Por favor, corrija los errores en el formulario.")
         return super().form_invalid(form)
 
 

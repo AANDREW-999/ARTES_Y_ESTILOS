@@ -10,9 +10,11 @@ from .forms import ProveedorForm
 from django.utils import timezone
 from .utils import render_to_pdf
 from core.notifications import crear_notificacion
+from usuarios.decorators import panel_login_required
 
 
 @login_required
+@panel_login_required
 def listar_proveedores(request):
     q = request.GET.get('q', '').strip()
     tipo_documento = request.GET.get('tipo_documento', '').strip()
@@ -64,6 +66,7 @@ def listar_proveedores(request):
 
 
 @login_required
+@panel_login_required
 def agregar_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -88,6 +91,7 @@ def agregar_proveedor(request):
 
 
 @login_required
+@panel_login_required
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
@@ -115,6 +119,7 @@ def editar_proveedor(request, pk):
 
 
 @login_required
+@panel_login_required
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
@@ -137,6 +142,7 @@ def eliminar_proveedor(request, pk):
 
 
 @login_required
+@panel_login_required
 def detalle_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
@@ -149,6 +155,7 @@ def detalle_proveedor(request, pk):
 
 # ✅ Corregido: clase duplicada eliminada, se conserva solo la más completa
 @method_decorator(login_required, name='dispatch')
+@method_decorator(panel_login_required, name='dispatch')
 class ReporteProveedoresPDF(View):
     def get(self, request, *args, **kwargs):
         fecha_inicio = request.GET.get('inicio')
@@ -171,6 +178,7 @@ class ReporteProveedoresPDF(View):
         return render_to_pdf('proveedores/reporte.html', data)
 
 @login_required
+@panel_login_required
 def verificar_documento(request):
     """Vista AJAX para verificar si un documento de proveedor ya existe."""
     documento = request.GET.get('documento', '')

@@ -1,12 +1,14 @@
 import base64
 from django.shortcuts import render, redirect, get_object_or_404
 from decimal import Decimal, InvalidOperation
+from django.contrib.auth.decorators import login_required
 
 from django.db.models import Q
 from django.core.files.base import ContentFile
 from django.contrib import messages
 from .models import Producto
 from core.notifications import crear_notificacion
+from usuarios.decorators import panel_login_required
 
 from categoria.models import Categoria
 
@@ -50,6 +52,8 @@ def _procesar_imagen(request, nombre_producto):
 
 
 # 1. LISTAR (con búsqueda por nombre, categoría y descripción)
+@login_required
+@panel_login_required
 def lista_productos(request):
     query = request.GET.get('q', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
@@ -120,6 +124,8 @@ def lista_productos(request):
 
 
 # 2. AGREGAR
+@login_required
+@panel_login_required
 def agregar_producto(request):
     if request.method == 'POST':
         try:
@@ -162,6 +168,8 @@ def agregar_producto(request):
 
 
 # 3. EDITAR
+@login_required
+@panel_login_required
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
 
@@ -207,6 +215,8 @@ def editar_producto(request, id):
 
 
 # 4. ELIMINAR
+@login_required
+@panel_login_required
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     if request.method == 'POST':
@@ -230,6 +240,8 @@ def eliminar_producto(request, id):
 
 
 # 5. DETALLE
+@login_required
+@panel_login_required
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     return render(request, 'detalle_catalogo_producto.html', {'producto': producto})

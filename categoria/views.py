@@ -1,6 +1,7 @@
 import base64
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -27,6 +28,7 @@ def _procesar_imagen(request, nombre_categoria: str):
 	return request.FILES.get('imagen') or None
 
 
+@login_required
 @panel_login_required
 def lista_categoria(request):
 	query = request.GET.get('q', '').strip()
@@ -65,6 +67,7 @@ def lista_categoria(request):
 	})
 
 
+@login_required
 @panel_login_required
 def agregar_categoria(request):
 	if request.method == 'POST':
@@ -93,6 +96,7 @@ def agregar_categoria(request):
 	})
 
 
+@login_required
 @panel_login_required
 def editar_categoria(request, pk: int):
 	categoria = get_object_or_404(Categoria, pk=pk)
@@ -124,6 +128,7 @@ def editar_categoria(request, pk: int):
 	})
 
 
+@login_required
 @panel_login_required
 def eliminar_categoria(request, pk: int):
 	categoria = get_object_or_404(Categoria, pk=pk)
@@ -148,6 +153,7 @@ def eliminar_categoria(request, pk: int):
 	})
 
 
+@login_required
 @panel_login_required
 def detalle_categoria(request, pk: int):
 	categoria = get_object_or_404(Categoria, pk=pk)

@@ -82,10 +82,13 @@ def index(request):
     return render(request, 'core/index.html', context)
 
 
+@login_required
+@panel_login_required
 def PanelAdmin_base(request):
     return render(request, 'panel_admin_base.html')
 
 
+@login_required
 @panel_login_required
 def dashboard_view(request):
     """
@@ -126,6 +129,7 @@ def error_404(request, exception):
 
 
 @login_required
+@panel_login_required
 @require_POST
 def marcar_notificaciones_leidas(request):
     actualizadas = Notificacion.objects.filter(leida=False).update(leida=True)

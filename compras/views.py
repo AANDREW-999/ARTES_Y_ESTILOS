@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Q, Sum
@@ -8,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import generic
 
 from datetime import date, datetime
@@ -16,6 +18,7 @@ from flor.models import Flor
 from producto.models import Producto
 from proveedores.models import Proveedor
 from core.notifications import crear_notificacion, crear_notificacion_stock
+from usuarios.decorators import panel_login_required
 
 from .forms import CompraForm
 from .models import Compra, DetalleCompra
@@ -109,6 +112,8 @@ def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
     crear_notificacion_stock(item.nombre, item.cantidad, contexto)
 
 
+@login_required
+@panel_login_required
 def compras_list(request):
     lista_compras = Compra.objects.select_related("proveedor", "usuario").prefetch_related(
         "detalles__flor", "detalles__producto"
@@ -193,6 +198,8 @@ def compras_list(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
+@panel_login_required
 def compra_detail(request, id):
     una_compra = get_object_or_404(
         Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__flor", "detalles__producto"),
@@ -208,6 +215,7 @@ def compra_detail(request, id):
     return HttpResponse(template.render(context, request))
 
 
+@method_decorator(panel_login_required, name="dispatch")
 class CompraCreateView(LoginRequiredMixin, generic.CreateView):
     model = Compra
     form_class = CompraForm
@@ -278,6 +286,7 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
         return super().form_invalid(form)
 
 
+@method_decorator(panel_login_required, name="dispatch")
 class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Compra
     form_class = CompraForm
@@ -364,6 +373,7 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
         return super().form_invalid(form)
 
 
+@method_decorator(panel_login_required, name="dispatch")
 class CompraDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Compra
     template_name = "eliminar_compra.html"

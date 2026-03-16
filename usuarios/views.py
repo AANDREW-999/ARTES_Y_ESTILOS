@@ -280,6 +280,7 @@ def logout_view(request):
 # 👤 GESTIÓN DE PERFIL PERSONAL
 # =====================================================
 
+@login_required
 @panel_login_required
 def perfil_view(request):
     db_path = _default_db_path()
@@ -291,6 +292,7 @@ def perfil_view(request):
     return render(request, 'usuarios/perfil.html', context)
 
 
+@login_required
 @panel_login_required
 def seguridad_view(request):
     """Módulo de Seguridad dentro de Usuarios (mismo contenido que en Perfil > Seguridad)."""
@@ -442,6 +444,7 @@ def restaurar_backup_db_view(request):
     return _redirect_next_or(request, 'usuarios:perfil')
 
 
+@login_required
 @panel_login_required
 def editar_perfil_view(request):
     """
@@ -544,6 +547,7 @@ class RestablecerPasswordCompletoView(PasswordResetCompleteView):
 # 👥 GESTIÓN DE USUARIOS
 # =====================================================
 
+@login_required
 @panel_login_required
 def lista_usuarios_view(request):
     """
@@ -566,6 +570,7 @@ def lista_usuarios_view(request):
     return render(request, 'usuarios/lista_usuarios.html', context)
 
 
+@login_required
 @panel_login_required
 def crear_usuario_view(request):
     """
@@ -656,6 +661,7 @@ def crear_usuario_view(request):
     return render(request, 'usuarios/crear_usuario.html', context)
 
 
+@login_required
 @panel_login_required
 def editar_usuario_view(request, user_id):
     """
@@ -857,6 +863,7 @@ def desactivar_usuario_view(request, user_id):
     return render(request, 'usuarios/desactivar_usuario.html', {'usuario': usuario})
 
 
+@login_required
 @panel_login_required
 def visualizar_usuario_view(request, user_id):
     usuario = get_object_or_404(User.objects.select_related('perfil'), id=user_id)
@@ -963,6 +970,7 @@ def convertir_superadmin_view(request, user_id):
     return render(request, 'usuarios/convertir_superadmin.html', {'usuario': usuario})
 
 
+@login_required
 @panel_login_required
 def eliminar_usuario_view(request, user_id):
     """

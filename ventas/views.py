@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import date, datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q, Sum
 from django.http import JsonResponse
@@ -11,6 +12,7 @@ from clientes.models import Cliente
 from flor.models import Flor
 from producto.models import Producto
 from core.notifications import crear_notificacion, crear_notificacion_stock
+from usuarios.decorators import panel_login_required
 
 from .forms import VentaForm
 from .models import DetalleVenta, Venta
@@ -114,6 +116,8 @@ def _devolver_stock(tipo_item, item_pk, cantidad):
     crear_notificacion_stock(item.nombre, item.cantidad, "Reversion de venta")
 
 
+@login_required
+@panel_login_required
 def listar_ventas(request):
     ventas = Venta.objects.select_related("cliente").prefetch_related("detalles__flor", "detalles__producto")
 
@@ -215,6 +219,8 @@ def listar_ventas(request):
     return render(request, "ventas/listar_venta.html", context)
 
 
+@login_required
+@panel_login_required
 def crear_venta(request):
     flores = Flor.objects.all().order_by("nombre")
     productos = Producto.objects.all().order_by("nombre")
@@ -294,6 +300,8 @@ def crear_venta(request):
     )
 
 
+@login_required
+@panel_login_required
 def editar_venta(request, pk):
     venta = get_object_or_404(Venta.objects.prefetch_related("detalles__flor", "detalles__producto"), pk=pk)
     flores = Flor.objects.all().order_by("nombre")
@@ -390,6 +398,8 @@ def editar_venta(request, pk):
     )
 
 
+@login_required
+@panel_login_required
 def detalle_venta(request, pk):
     venta = get_object_or_404(
         Venta.objects.prefetch_related("detalles__flor", "detalles__producto").select_related("cliente"),
@@ -400,6 +410,8 @@ def detalle_venta(request, pk):
     return render(request, "ventas/detalle_venta.html", {"venta": venta})
 
 
+@login_required
+@panel_login_required
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta.objects.prefetch_related("detalles__flor", "detalles__producto"), pk=pk)
 
@@ -434,6 +446,8 @@ def eliminar_venta(request, pk):
     return render(request, "ventas/eliminar_venta.html", {"venta": venta})
 
 
+@login_required
+@panel_login_required
 def buscar_cliente(request):
     q = request.GET.get("q", "").strip()
     clientes = Cliente.objects.filter(nombre__icontains=q)[:10]
@@ -441,6 +455,8 @@ def buscar_cliente(request):
     return JsonResponse({"clientes": data})
 
 
+@login_required
+@panel_login_required
 def buscar_arreglo(request):
     q = request.GET.get("q", "").strip()
 

@@ -40,6 +40,27 @@ document.addEventListener('DOMContentLoaded', function () {
         return parseFloat(str) || 0;
     }
 
+    function mostrarAlertaAdmin(tipo, mensaje) {
+        if (window._dashboard && typeof window._dashboard.showAdminNotification === 'function') {
+            window._dashboard.showAdminNotification(tipo || 'warning', mensaje || 'Ocurrio un problema.');
+            return;
+        }
+
+        if (typeof window.bootstrap !== 'undefined') {
+            const toastId = (tipo === 'error') ? 'errorToast' : 'warningToast';
+            const msgId = (tipo === 'error') ? 'errorToastMessage' : 'warningToastMessage';
+            const toastEl = document.getElementById(toastId);
+            const msgEl = document.getElementById(msgId);
+            if (toastEl && msgEl) {
+                msgEl.textContent = mensaje;
+                window.bootstrap.Toast.getOrCreateInstance(toastEl).show();
+                return;
+            }
+        }
+
+        console.warn('[compra] ' + mensaje);
+    }
+
     function getStockClass(stockRaw) {
         const stock = parseInt(stockRaw, 10) || 0;
         if (stock <= 5) return 'stock-low text-danger';
@@ -243,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     item.remove();
                     calcularTotales();
                 } else {
-                    alert('Debe tener al menos un producto en la compra');
+                    mostrarAlertaAdmin('warning', 'Debe tener al menos un producto en la compra.');
                 }
             });
         }
@@ -323,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (productosValidos === 0) {
                 e.preventDefault();
-                alert('Debe agregar al menos un producto con precio válido');
+                mostrarAlertaAdmin('warning', 'Debe agregar al menos un producto con precio valido.');
                 return false;
             }
         });

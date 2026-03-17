@@ -54,6 +54,7 @@ class CompraStockTests(TestCase):
 			reverse("compras:crear_compra"),
 			{
 				"proveedor": self.proveedor.id,
+				"forma_pago": "EFECTIVO",
 				"fecha_emision": date.today().isoformat(),
 				"descripcion": "Compra test",
 				"item_id[]": [f"F-{self.flor.id}", f"P-{self.producto.id}"],
@@ -80,6 +81,7 @@ class CompraStockTests(TestCase):
 			reverse("compras:editar_compra", args=[compra.id]),
 			{
 				"proveedor": self.proveedor.id,
+				"forma_pago": "EFECTIVO",
 				"fecha_emision": date.today().isoformat(),
 				"descripcion": "Compra test editada",
 				"item_id[]": [f"F-{self.flor.id}", f"P-{self.producto.id}"],
@@ -94,6 +96,35 @@ class CompraStockTests(TestCase):
 		self.producto.refresh_from_db()
 		self.assertEqual(self.flor.cantidad, 7)
 		self.assertEqual(self.producto.cantidad, 1)
+
+	def test_editar_compra_sin_cambios_no_altera_stock(self):
+		self._crear_compra(cant_flor=10, cant_producto=10)
+		compra = Compra.objects.latest("id")
+
+		self.flor.refresh_from_db()
+		self.producto.refresh_from_db()
+		stock_flor_antes = self.flor.cantidad
+		stock_producto_antes = self.producto.cantidad
+
+		response = self.client.post(
+			reverse("compras:editar_compra", args=[compra.id]),
+			{
+				"proveedor": self.proveedor.id,
+				"forma_pago": "EFECTIVO",
+				"fecha_emision": date.today().isoformat(),
+				"descripcion": "Compra sin cambios",
+				"item_id[]": [f"F-{self.flor.id}", f"P-{self.producto.id}"],
+				"precio[]": ["10000", "5000"],
+				"cantidad[]": ["10", "10"],
+			},
+		)
+
+		self.assertEqual(response.status_code, 302)
+
+		self.flor.refresh_from_db()
+		self.producto.refresh_from_db()
+		self.assertEqual(self.flor.cantidad, stock_flor_antes)
+		self.assertEqual(self.producto.cantidad, stock_producto_antes)
 
 	def test_eliminar_compra_revierte_stock(self):
 		self._crear_compra(cant_flor=6, cant_producto=3)

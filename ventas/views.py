@@ -92,6 +92,45 @@ def _parse_detalles_venta(request):
     return detalles
 
 
+def _obtener_items_posteados_venta(request):
+    arreglo_ids = request.POST.getlist("arreglo_id[]")
+    cantidades = request.POST.getlist("cantidad[]")
+    precios = request.POST.getlist("precio[]")
+
+    total_filas = max(len(arreglo_ids), len(cantidades), len(precios))
+    items = []
+
+    for idx in range(total_filas):
+        arreglo_id_raw = (arreglo_ids[idx] if idx < len(arreglo_ids) else "").strip()
+        cantidad_raw = (cantidades[idx] if idx < len(cantidades) else "").strip()
+        precio_raw = (precios[idx] if idx < len(precios) else "").strip()
+
+        if not arreglo_id_raw and not cantidad_raw and not precio_raw:
+            continue
+
+        tipo_item = ""
+        item_pk = ""
+        if "-" in arreglo_id_raw:
+            prefijo, pk_raw = arreglo_id_raw.split("-", 1)
+            if prefijo == "F":
+                tipo_item = "FLOR"
+            elif prefijo == "P":
+                tipo_item = "PRODUCTO"
+            item_pk = pk_raw.strip()
+
+        items.append(
+            {
+                "arreglo_id": arreglo_id_raw,
+                "tipo_item": tipo_item,
+                "item_pk": item_pk,
+                "cantidad": cantidad_raw,
+                "precio": precio_raw,
+            }
+        )
+
+    return items
+
+
 def _lock_item(tipo_item, item_pk):
     if tipo_item == "FLOR":
         return Flor.objects.select_for_update().get(pk=item_pk)
@@ -242,6 +281,7 @@ def crear_venta(request):
                     "flores": flores,
                     "productos": productos,
                     "mostrar_campos_domicilio": mostrar_campos_domicilio,
+                    "posted_items": _obtener_items_posteados_venta(request),
                 },
             )
 
@@ -296,6 +336,7 @@ def crear_venta(request):
             "flores": flores,
             "productos": productos,
             "mostrar_campos_domicilio": mostrar_campos_domicilio,
+            "posted_items": _obtener_items_posteados_venta(request) if request.method == "POST" else [],
         },
     )
 
@@ -326,6 +367,7 @@ def editar_venta(request, pk):
                     "flores": flores,
                     "productos": productos,
                     "mostrar_campos_domicilio": mostrar_campos_domicilio,
+                    "posted_items": _obtener_items_posteados_venta(request),
                 },
             )
 
@@ -394,6 +436,7 @@ def editar_venta(request, pk):
             "flores": flores,
             "productos": productos,
             "mostrar_campos_domicilio": mostrar_campos_domicilio,
+            "posted_items": _obtener_items_posteados_venta(request) if request.method == "POST" else [],
         },
     )
 

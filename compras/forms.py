@@ -21,30 +21,26 @@ class CompraForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['fecha_emision'].input_formats = ['%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y']
         self.fields['fecha_emision'].required = True
+        self.fields['fecha_emision'].disabled = True
         self.fields['forma_pago'].required = True
 
         hoy = date.today()
         self.fields['fecha_emision'].widget.attrs.setdefault('max', hoy.isoformat())
+        self.fields['fecha_emision'].widget.attrs['readonly'] = 'readonly'
         self.fields['forma_pago'].widget.attrs.setdefault('required', 'required')
 
         instance = getattr(self, 'instance', None)
         is_new_instance = not instance or not getattr(instance, 'pk', None)
-        if not self.is_bound and is_new_instance:
-            self.initial.setdefault('fecha_emision', hoy)
+        if is_new_instance:
+            self.initial['fecha_emision'] = hoy
 
     def clean_fecha_emision(self):
-        fecha = self.cleaned_data.get('fecha_emision')
-        if not fecha:
-            raise forms.ValidationError('La fecha de emision es obligatoria.')
+        instance = getattr(self, 'instance', None)
+        if instance and getattr(instance, 'pk', None):
+            return instance.fecha_emision
 
-        hoy = date.today()
-        if fecha > hoy:
-            raise forms.ValidationError('La fecha no puede ser futura.')
-
-        if fecha < date(1900, 1, 1):
-            raise forms.ValidationError('La fecha es demasiado antigua.')
-
-        return fecha
+        # En compras nuevas, la fecha de emisión siempre es la fecha actual.
+        return date.today()
 
     def clean_forma_pago(self):
         forma_pago = (self.cleaned_data.get('forma_pago') or '').strip()

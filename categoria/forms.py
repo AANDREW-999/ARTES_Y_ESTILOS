@@ -1,4 +1,5 @@
 from django import forms
+import unicodedata
 
 from .models import Categoria
 
@@ -35,4 +36,18 @@ class CategoriaForm(forms.ModelForm):
 		nombre = (self.cleaned_data.get('nombre') or '').strip()
 		if not nombre:
 			raise forms.ValidationError('El nombre es obligatorio.')
+
+		if any(char.isdigit() for char in nombre):
+			raise forms.ValidationError('El nombre no puede contener numeros.')
+
+		for char in nombre:
+			if char.isspace():
+				continue
+
+			categoria_unicode = unicodedata.category(char)
+			# Letras (L*) y simbolos tipo emoji (So) permitidos.
+			if categoria_unicode.startswith('L') or categoria_unicode == 'So':
+				continue
+
+			raise forms.ValidationError('Solo se permiten letras y emojis en el nombre.')
 		return nombre

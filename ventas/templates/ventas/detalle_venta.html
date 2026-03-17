@@ -118,21 +118,21 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-tools"></i> Mano de obra</div>
                             <div class="info-value">${{ venta.mano_obra|floatformat:2|intcomma }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    {% comment %} <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-receipt"></i> Subtotal (solo ítems)</div>
                             <div class="info-value">${{ venta.subtotal|floatformat:2|intcomma }}</div>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-currency-dollar"></i> Total</div>
                             <div class="info-value"><strong>${{ venta.total|floatformat:2|intcomma }}</strong></div>

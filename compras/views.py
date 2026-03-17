@@ -88,6 +88,45 @@ def _parse_detalles_compra(request):
     return detalles
 
 
+def _obtener_items_posteados_compra(request):
+    item_ids = request.POST.getlist("item_id[]")
+    precios = request.POST.getlist("precio[]")
+    cantidades = request.POST.getlist("cantidad[]")
+
+    total_filas = max(len(item_ids), len(precios), len(cantidades))
+    items = []
+
+    for idx in range(total_filas):
+        item_id_raw = (item_ids[idx] if idx < len(item_ids) else "").strip()
+        precio_raw = (precios[idx] if idx < len(precios) else "").strip()
+        cantidad_raw = (cantidades[idx] if idx < len(cantidades) else "").strip()
+
+        if not item_id_raw and not precio_raw and not cantidad_raw:
+            continue
+
+        tipo_item = ""
+        item_pk = ""
+        if "-" in item_id_raw:
+            prefijo, pk_raw = item_id_raw.split("-", 1)
+            if prefijo == "F":
+                tipo_item = "FLOR"
+            elif prefijo == "P":
+                tipo_item = "PRODUCTO"
+            item_pk = pk_raw.strip()
+
+        items.append(
+            {
+                "item_id": item_id_raw,
+                "tipo_item": tipo_item,
+                "item_pk": item_pk,
+                "precio": precio_raw,
+                "cantidad": cantidad_raw,
+            }
+        )
+
+    return items
+
+
 def _bloquear_item(tipo_item, item_pk):
     if tipo_item == "FLOR":
         return Flor.objects.select_for_update().get(pk=item_pk)
@@ -284,6 +323,12 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
     def form_invalid(self, form):
         if form.errors:
             messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if self.request.method == "POST":
+            context = self.get_context_data(
+                form=form,
+                posted_items=_obtener_items_posteados_compra(self.request),
+            )
+            return self.render_to_response(context)
         return super().form_invalid(form)
 
 
@@ -368,8 +413,6 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                         detalle.producto = Producto.objects.get(pk=data["item_pk"])
                     detalle.save()
 
-                    _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
-
                 compra.calcular_totales()
 
                 crear_notificacion(
@@ -394,6 +437,12 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
     def form_invalid(self, form):
         if form.errors:
             messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if self.request.method == "POST":
+            context = self.get_context_data(
+                form=form,
+                posted_items=_obtener_items_posteados_compra(self.request),
+            )
+            return self.render_to_response(context)
         return super().form_invalid(form)
 
 

@@ -85,6 +85,71 @@
                     </div>
 
                     <div id="itemsContainer" class="d-flex flex-column gap-3">
+                        {% if posted_items %}
+                        {% for item in posted_items %}
+                        <div class="info-item item-venta">
+                            <div class="row g-3 align-items-start">
+                                <div class="col-12 col-md-5">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Ítem *</label>
+                                        <select name="arreglo_id[]" class="form-select item-select d-none" required>
+                                            <option value="">Seleccione...</option>
+                                            <optgroup label="Flores">
+                                                {% for flor in flores %}
+                                                <option value="F-{{ flor.id }}" data-precio="{{ flor.precio }}" data-stock="{{ flor.cantidad }}" data-tipo="Flor" data-imagen="{% if flor.imagen %}{{ flor.imagen.url }}{% endif %}" {% if item.tipo_item == 'FLOR' and item.item_pk == flor.id|stringformat:'s' %}selected{% endif %}>
+                                                    {{ flor.nombre }} (Stock: {{ flor.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            <optgroup label="Productos">
+                                                {% for producto in productos %}
+                                                <option value="P-{{ producto.id }}" data-precio="{{ producto.precio }}" data-stock="{{ producto.cantidad }}" data-tipo="Producto" data-imagen="{% if producto.imagen %}{{ producto.imagen.url }}{% endif %}" {% if item.tipo_item == 'PRODUCTO' and item.item_pk == producto.id|stringformat:'s' %}selected{% endif %}>
+                                                    {{ producto.nombre }} (Stock: {{ producto.cantidad }})
+                                                </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <div class="item-selected-preview d-none">
+                                            <div class="item-selected-content"></div>
+                                            <button type="button" class="btn btn-outline-secondary item-picker-icon js-open-picker" aria-label="Cambiar ítem" title="Cambiar ítem">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-secondary w-100 js-open-picker item-picker-trigger">
+                                            <i class="bi bi-grid-3x3-gap"></i> Seleccionar ítem
+                                        </button>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Precio *</label>
+                                        <input type="number" class="form-control precio" name="precio[]" min="0" step="0.01" value="{{ item.precio|default:'0' }}" readonly>
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2">
+                                    <div class="field-wrapper">
+                                        <label class="field-label">Cantidad *</label>
+                                        <input type="number" class="form-control cantidad" name="cantidad[]" min="1" value="{{ item.cantidad|default:'1' }}">
+                                        <div class="invalid-feedback"></div>
+                                        <div class="valid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-2 d-flex justify-content-md-end item-actions-cell">
+                                    <button type="button" class="btn-cliente-action btn-cliente-eliminar eliminar item-delete-btn" title="Eliminar ítem" aria-label="Eliminar ítem">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
                         <div class="info-item item-venta">
                             <div class="row g-3 align-items-start">
                                 <div class="col-12 col-md-5">
@@ -146,6 +211,7 @@
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
 
                     <div class="d-flex justify-content-end mt-3">
@@ -297,7 +363,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/validaciones_modules.js' %}"></script>
-<script src="{% static 'ventas/js/venta.js' %}"></script>
+<script src="{% static 'js/validaciones_modules.js' %}?v=20260316-1"></script>
+<script src="{% static 'ventas/js/venta.js' %}?v=20260316-1"></script>
 {% endblock %}
 

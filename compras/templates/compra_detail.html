@@ -65,24 +65,37 @@
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-truck"></i> Proveedor</div>
                             <div class="info-value">{{ compra.proveedor.nombre_proveedor|default:'—' }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-credit-card"></i> Forma de pago</div>
                             <div class="info-value">{{ compra.forma_pago|default:'—'|upper }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-calendar-event"></i> Fecha de compra</div>
                             <div class="info-value">{{ compra.fecha_emision|date:'d/m/Y' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-person-badge"></i> Usuario que registró</div>
+                            <div class="info-value">
+                                {% if compra.usuario %}
+                                    {{ compra.usuario.get_full_name|default:compra.usuario.username }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
 

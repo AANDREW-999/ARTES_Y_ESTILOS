@@ -67,31 +67,44 @@
 
                 <div class="row g-3">
 
-                    <div class="col-12 col-md-3">
-                        <div class="info-item">
-                            <div class="info-label"><i class="bi bi-person"></i> Cliente</div>
-                            <div class="info-value">{{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-tag"></i> Tipo de venta</div>
                             <div class="info-value">{{ venta.get_tipo_venta_display }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-credit-card"></i> Forma de pago</div>
                             <div class="info-value">{{ venta.get_forma_pago_display|upper }}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                         <div class="info-item">
                             <div class="info-label"><i class="bi bi-calendar-event"></i> Fecha de venta</div>
                             <div class="info-value">{{ venta.fecha|date:'d/m/Y' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-person"></i> Cliente</div>
+                            <div class="info-value">{{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="info-item">
+                            <div class="info-label"><i class="bi bi-person-badge"></i> Usuario que registró</div>
+                            <div class="info-value">
+                                {% if venta.usuario %}
+                                    {{ venta.usuario.get_full_name|default:venta.usuario.username }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
 

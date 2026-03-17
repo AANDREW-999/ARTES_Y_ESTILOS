@@ -289,6 +289,7 @@ def crear_venta(request):
             try:
                 with transaction.atomic():
                     venta = form.save(commit=False)
+                    venta.usuario = request.user
                     venta.total = Decimal("0")
                     venta.save()
 
@@ -445,7 +446,7 @@ def editar_venta(request, pk):
 @panel_login_required
 def detalle_venta(request, pk):
     venta = get_object_or_404(
-        Venta.objects.prefetch_related("detalles__flor", "detalles__producto").select_related("cliente"),
+        Venta.objects.prefetch_related("detalles__flor", "detalles__producto").select_related("cliente", "usuario"),
         pk=pk,
     )
     venta.recalcular_totales()

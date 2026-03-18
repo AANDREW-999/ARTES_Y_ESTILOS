@@ -6,5 +6,6 @@ xhtml2pdf==0.2.16
 beautifulsoup4==4.14.3
 requests==2.32.5
 psycopg2-binary==2.9.11
+openpyxl==3.1.2
 
  

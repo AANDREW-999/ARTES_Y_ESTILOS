@@ -10,4 +10,5 @@ urlpatterns = [
     path('crear/', views.CompraCreateView.as_view(), name='crear_compra'),
     path('editar/<int:compra_id>/', views.CompraUpdateView.as_view(), name='editar_compra'),
     path('eliminar/<int:compra_id>/', views.CompraDeleteView.as_view(), name='eliminar_compra'),
+    path('reporte/',         views.reporte, name='reporte'),
 ]

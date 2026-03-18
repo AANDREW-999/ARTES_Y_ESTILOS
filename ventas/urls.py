@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:pk>/eliminar/', views.eliminar_venta, name='eliminar'),
     path('ajax/clientes/',   views.buscar_cliente, name='buscar_cliente'),
     path('ajax/arreglos/',   views.buscar_arreglo, name='buscar_arreglo'),
+    path("reporte/",          views.reporte_venta,  name="reporte"),
 ]

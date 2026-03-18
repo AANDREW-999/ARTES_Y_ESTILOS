@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reporte de Compras — Artes &amp; Estilos</title>
+<title>Reporte de Productos — Artes &amp; Estilos</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -33,14 +33,11 @@ body {
     cursor: pointer; text-decoration: none; border: none;
 }
 .btn-back  { background: #555;    color: #fff; }
-.btn-print { background: #7c3aed; color: #fff; }
-.btn-pdf   { background: #dc2626; color: #fff; }
+.btn-print { background: #0d9488; color: #fff; }
 .btn-excel { background: #1a7a4a; color: #fff; }
 .btn-back:hover  { background: #333; }
-.btn-print:hover { background: #5b21b6; }
-.btn-pdf:hover   { background: #b91c1c; }
+.btn-print:hover { background: #0f766e; }
 .btn-excel:hover { background: #0f5c38; color: #fff; }
-.btn-pdf:disabled { opacity: .6; cursor: not-allowed; }
 .spacer { flex: 1; }
 .periodo-tag {
     font-size: 10px; color: #555; font-weight: bold;
@@ -78,14 +75,14 @@ body {
 .hdr-title-meta { font-size: 7px; color: #555; line-height: 1.6; }
 .hdr-badge {
     display: inline-block;
-    background: #7c3aed; color: #fff;
+    background: #0d9488; color: #fff;
     font-size: 8px; font-weight: bold;
     padding: 2px 10px; border-radius: 10px; margin-top: 4px;
 }
 
 .divider { height: 1px; background: #BBBBBB; margin: 6px 0; }
 
-/* ── Stats ──────────────────────────────────── */
+/* ── Stats 4 columnas ───────────────────────── */
 .stats-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -103,18 +100,8 @@ body {
     font-size: 14px; font-weight: bold; color: #1a1a1a;
     display: block; line-height: 1.2;
 }
-.stat-box .s-val.purple { color: #7c3aed; }
+.stat-box .s-val.teal { color: #0d9488; }
 .stat-box .s-lbl { font-size: 8px; color: #666; margin-top: 2px; }
-
-/* ── Resumen ────────────────────────────────── */
-.resumen-table {
-    width: 100%; border: 1px solid #BBBBBB;
-    margin-bottom: 8px; border-collapse: collapse;
-    font-size: 10px;
-}
-.resumen-table td { padding: 5px 10px; vertical-align: top; }
-.resumen-table .col-left { width: 50%; border-right: 1px solid #BBBBBB; }
-.resumen-table .highlight { color: #7c3aed; font-weight: bold; }
 
 /* ── Sección ────────────────────────────────── */
 .section { margin-bottom: 10px; }
@@ -127,7 +114,7 @@ body {
     border-bottom: none;
 }
 
-/* ── Tabla ──────────────────────────────────── */
+/* ── Tabla principal ────────────────────────── */
 table.data-table {
     width: 100%;
     border-collapse: collapse;
@@ -136,7 +123,7 @@ table.data-table {
 table.data-table td {
     padding: 3px 7px;
     border: 1px solid #BBBBBB;
-    vertical-align: top;
+    vertical-align: middle;
     line-height: 1.4;
 }
 table.data-table thead td {
@@ -145,37 +132,41 @@ table.data-table thead td {
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: .03em;
-    vertical-align: middle;
 }
-table.data-table tr.even td { background: #f5f0ff; }
-table.data-table .td-c   { text-align: center; }
-table.data-table .td-r   { text-align: right; white-space: nowrap; }
-table.data-table .td-num { width: 30px; text-align: center; color: #888; }
-table.data-table .td-fecha { width: 65px; }
-table.data-table .td-prov  { width: 155px; }
-table.data-table .td-pago  { width: 75px; text-align: center; font-size: 9px; }
-table.data-table .td-items { width: 40px; text-align: center; }
-table.data-table .td-total { width: 90px; text-align: right; font-weight: bold; }
+table.data-table tr.even td { background: #f0fdfa; }
+table.data-table .td-c     { text-align: center; }
+table.data-table .td-r     { text-align: right; white-space: nowrap; }
+table.data-table .td-num   { width: 30px; text-align: center; color: #888; }
+table.data-table .td-cat   { width: 110px; }
+table.data-table .td-precio{ width: 80px; text-align: right; }
+table.data-table .td-stock { width: 55px; text-align: center; }
+table.data-table .td-nivel { width: 55px; text-align: center; }
+table.data-table .td-valor { width: 90px; text-align: right; font-weight: bold; }
 
-/* Sub-tabla */
-.sub-table-wrap { padding: 0 !important; border-top: none !important; }
-table.sub-table {
-    width: 100%; font-size: 9px;
-    border-collapse: collapse; background: #fafafa;
+.badge-bajo  { color: #b91c1c; font-weight: bold; }
+.badge-medio { color: #b45309; font-weight: bold; }
+.badge-alto  { color: #15803d; font-weight: bold; }
+
+/* ── Tabla resumen por categoría ────────────── */
+table.tipo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
 }
-table.sub-table td {
-    padding: 2px 8px 2px 20px;
-    border: 1px solid #e0e0e0;
+table.tipo-table td {
+    padding: 3px 8px;
+    border: 1px solid #BBBBBB;
     vertical-align: middle;
 }
-table.sub-table thead td {
-    background: #ebebeb; font-weight: bold;
-    font-size: 8px; text-transform: uppercase;
-    letter-spacing: .02em;
-    padding: 2px 8px 2px 20px;
+table.tipo-table thead td {
+    background: #D9D9D9;
+    font-weight: bold;
+    font-size: 9px;
+    text-transform: uppercase;
 }
-table.sub-table .sub-r { text-align: right; padding-left: 4px; }
-table.sub-table .sub-c { text-align: center; padding-left: 4px; }
+table.tipo-table tr.even td { background: #f0fdfa; }
+table.tipo-table .td-r { text-align: right; }
+table.tipo-table .td-c { text-align: center; }
 
 /* ── Subtotal ───────────────────────────────── */
 .subtotal-row {
@@ -192,19 +183,19 @@ table.sub-table .sub-c { text-align: center; padding-left: 4px; }
     min-width: 90px; text-align: right;
 }
 
-/* ── Total bar ──────────────────────────────── */
+/* ── Barra total ────────────────────────────── */
 .total-bar {
     display: flex; align-items: stretch;
-    background: #7c3aed; color: #fff;
+    background: #0d9488; color: #fff;
     margin-top: 10px;
-    border: 2px solid #5b21b6;
+    border: 2px solid #0f766e;
     border-radius: 3px; overflow: hidden;
 }
 .total-bar .total-lbl {
     flex: 1; text-align: center;
     font-weight: bold; font-size: 13px;
     padding: 7px 12px;
-    border-right: 2px solid #5b21b6;
+    border-right: 2px solid #0f766e;
     display: flex; align-items: center; justify-content: center;
 }
 .total-bar .total-val {
@@ -232,24 +223,28 @@ table.sub-table .sub-c { text-align: center; padding-left: 4px; }
     }
     .total-bar, .section-header,
     table.data-table thead td,
-    table.sub-table thead td,
+    table.tipo-table thead td,
     .subtotal-row, .hdr-badge, .stat-box {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 }
+.btn-pdf { background: #dc2626; color: #fff; }
+.btn-pdf:hover { background: #b91c1c; }
 </style>
 </head>
 <body>
 
 <!-- ── Toolbar ──────────────────────────────── -->
 <div class="toolbar">
-    <a href="{% url 'compras:lista_compra' %}" class="btn-back">&#8592; Volver</a>
-    <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
-    <button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
-    <a href="?mes={{ mes }}&anio={{ anio }}&formato=excel" class="btn-excel">&#128202; Excel</a>
+    <a href="{% url 'producto:lista' %}" class="btn-back">&#8592; Volver</a>
+     <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
+<button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
+    <a href="?tipo={{ tipo_filtro }}&formato=excel" class="btn-excel">&#128202; Excel</a>
     <span class="spacer"></span>
-    <span class="periodo-tag">Período: {{ periodo }}</span>
+    <span class="periodo-tag">
+        {% if tipo_filtro %}Categoría: {{ tipo_nombre }}{% else %}Todos los productos{% endif %}
+    </span>
 </div>
 
 <!-- ── Hoja ─────────────────────────────────── -->
@@ -268,13 +263,15 @@ table.sub-table .sub-c { text-align: center; padding-left: 4px; }
                 </div>
             </td>
             <td class="hdr-title-cell">
-                <div class="hdr-title-main">Reporte de Compras — Artes &amp; Estilos</div>
-                <div class="hdr-title-sub">Comprobante Auxiliar de Gestión Interna</div>
+                <div class="hdr-title-main">Reporte de Inventario de Productos</div>
+                <div class="hdr-title-sub">Artes &amp; Estilos — Gestión de Stock</div>
                 <div class="hdr-title-meta">
                     Generado el {{ fecha_generacion }}
                     {% if usuario %} &nbsp;|&nbsp; Usuario: {{ usuario }}{% endif %}
                 </div>
-                <span class="hdr-badge">Período: {{ periodo }}</span>
+                <span class="hdr-badge">
+                    {% if tipo_filtro %}Categoría: {{ tipo_nombre }}{% else %}Inventario Completo{% endif %}
+                </span>
             </td>
         </tr>
     </table>
@@ -284,139 +281,131 @@ table.sub-table .sub-c { text-align: center; padding-left: 4px; }
     <!-- 2. Stats -->
     <div class="stats-row">
         <div class="stat-box">
-            <span class="s-val">{{ total_registros }}</span>
-            <div class="s-lbl">Total compras</div>
+            <span class="s-val">{{ total_productos }}</span>
+            <div class="s-lbl">Variedades</div>
         </div>
         <div class="stat-box">
-            <span class="s-val purple">${{ monto_total|floatformat:0|intcomma }}</span>
-            <div class="s-lbl">Monto total</div>
+            <span class="s-val">{{ total_stock }}</span>
+            <div class="s-lbl">Unidades en stock</div>
         </div>
         <div class="stat-box">
-            <span class="s-val">${{ promedio_compra|floatformat:0|intcomma }}</span>
-            <div class="s-lbl">Promedio / compra</div>
+            <span class="s-val" style="color:#b91c1c;">{{ bajo_stock }}</span>
+            <div class="s-lbl">Stock bajo (&le;10)</div>
         </div>
         <div class="stat-box">
-            <span class="s-val">{{ total_proveedores }}</span>
-            <div class="s-lbl">Proveedores</div>
+            <span class="s-val teal">${{ valor_inventario|floatformat:0|intcomma }}</span>
+            <div class="s-lbl">Valor inventario</div>
         </div>
     </div>
 
-    <!-- 3. Resumen -->
-    <table class="resumen-table">
-        <tr>
-            <td class="col-left">
-                <b>Empresa:</b> Artes &amp; Estilos<br>
-                <b>Período:</b> {{ periodo }}<br>
-                <b>Total registros:</b> {{ total_registros }} compra{{ total_registros|pluralize }}<br>
-                <b>Proveedores únicos:</b> {{ total_proveedores }}
-            </td>
-            <td>
-                <b>Monto total:</b>
-                <span class="highlight">${{ monto_total|floatformat:2|intcomma }}</span><br>
-                <b>Promedio por compra:</b> ${{ promedio_compra|floatformat:2|intcomma }}<br>
-                <b>Generado:</b> {{ fecha_generacion }}<br>
-                <b>Filtros:</b>
-                {% if hay_filtros %}{{ mes_nombre }} {{ anio }}{% else %}Sin filtros adicionales{% endif %}
-            </td>
-        </tr>
-    </table>
-
-    <!-- 4. Tabla de compras -->
+    <!-- 3. Listado de productos -->
     <div class="section">
-        <div class="section-header">Detalle de Compras del Período</div>
+        <div class="section-header">
+            Listado de Productos{% if tipo_filtro %} — {{ tipo_nombre }}{% endif %}
+        </div>
         <table class="data-table">
             <thead>
                 <tr>
                     <td class="td-num">#</td>
-                    <td class="td-fecha">Fecha</td>
-                    <td class="td-prov">Proveedor</td>
-                    <td>Descripción</td>
-                    <td class="td-pago">Forma Pago</td>
-                    <td class="td-items">Ítems</td>
-                    <td class="td-total">Total</td>
+                    <td>Nombre</td>
+                    <td class="td-cat">Categoría</td>
+                    <td class="td-precio">Precio</td>
+                    <td class="td-stock">Stock</td>
+                    <td class="td-nivel">Nivel</td>
+                    <td class="td-valor">Valor total</td>
                 </tr>
             </thead>
             <tbody>
-            {% for compra in compras %}
+            {% for producto in productos %}
             <tr {% if forloop.counter|divisibleby:2 %}class="even"{% endif %}>
                 <td class="td-num">{{ forloop.counter }}</td>
-                <td class="td-fecha">{{ compra.fecha_emision|date:"d/m/Y" }}</td>
-                <td class="td-prov">
-                    {{ compra.proveedor.nombre_proveedor|default:"N/A" }}
-                    {% if compra.proveedor.numero_documento %}
+                <td>
+                    <strong>{{ producto.nombre }}</strong>
+                    {% if producto.descripcion and producto.descripcion != "Sin descripcion" %}
                         <br><span style="font-size:8px;color:#888;">
-                            {{ compra.proveedor.numero_documento }}
+                            {{ producto.descripcion|truncatechars:45 }}
                         </span>
                     {% endif %}
                 </td>
-                <td>{{ compra.descripcion|default:"Sin descripción"|truncatechars:50 }}</td>
-                <td class="td-pago">{{ compra.forma_pago|default:"—" }}</td>
-                <td class="td-items">{{ compra.detalles.count }}</td>
-                <td class="td-total">${{ compra.total_compra|floatformat:2|intcomma }}</td>
-            </tr>
-
-            {% with detalles=compra.detalles.all %}
-            {% if detalles %}
-            <tr>
-                <td class="sub-table-wrap" colspan="7">
-                    <table class="sub-table">
-                        <thead>
-                            <tr>
-                                <td style="padding-left:20px;">Artículo</td>
-                                <td class="sub-c" style="width:60px;">Tipo</td>
-                                <td class="sub-r" style="width:80px;">Precio unit.</td>
-                                <td class="sub-c" style="width:45px;">Cant.</td>
-                                <td class="sub-r" style="width:80px;">Subtotal</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for det in detalles %}
-                        <tr>
-                            <td style="padding-left:20px;">{{ det.item_nombre|default:"—" }}</td>
-                            <td class="sub-c" style="color:#666;">{{ det.tipo_item }}</td>
-                            <td class="sub-r">${{ det.precio|floatformat:2 }}</td>
-                            <td class="sub-c">{{ det.cantidad }}</td>
-                            <td class="sub-r" style="font-weight:bold;">${{ det.subtotal|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                <td class="td-cat">{{ producto.get_tipo_producto_display }}</td>
+                <td class="td-precio">${{ producto.precio|floatformat:0|intcomma }}</td>
+                <td class="td-stock">{{ producto.cantidad }}</td>
+                <td class="td-nivel">
+                    {% if producto.cantidad <= 10 %}
+                        <span class="badge-bajo">Bajo</span>
+                    {% elif producto.cantidad <= 30 %}
+                        <span class="badge-medio">Medio</span>
+                    {% else %}
+                        <span class="badge-alto">Alto</span>
+                    {% endif %}
                 </td>
+                <td class="td-valor">${{ producto.valor_total|floatformat:0|intcomma }}</td>
             </tr>
-            {% endif %}
-            {% endwith %}
-
             {% empty %}
             <tr>
                 <td colspan="7" style="text-align:center;padding:14px;color:#888;font-style:italic;">
-                    No hay compras registradas para el período seleccionado.
+                    No hay productos registrados{% if tipo_filtro %} para esta categoría{% endif %}.
                 </td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
-
         <div class="subtotal-row">
-            <span class="st-lbl">Promedio por compra</span>
-            <span class="st-val">${{ promedio_compra|floatformat:2|intcomma }}</span>
+            <span class="st-lbl">Subtotal stock</span>
+            <span class="st-val">{{ total_stock }} uds.</span>
         </div>
     </div>
 
+    <!-- 4. Resumen por categoría -->
+    {% if not tipo_filtro %}
+    <div class="section">
+        <div class="section-header">Resumen por Categoría de Producto</div>
+        <table class="tipo-table">
+            <thead>
+                <tr>
+                    <td>Categoría</td>
+                    <td class="td-c" style="width:70px;">Variedades</td>
+                    <td class="td-c" style="width:70px;">Unidades</td>
+                    <td class="td-r" style="width:100px;">Precio prom.</td>
+                    <td class="td-r" style="width:100px;">Valor total</td>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in resumen_tipos %}
+            <tr {% if forloop.counter|divisibleby:2 %}class="even"{% endif %}>
+                <td>{{ t.nombre }}</td>
+                <td class="td-c">{{ t.cantidad_variedades }}</td>
+                <td class="td-c">{{ t.total_stock }}</td>
+                <td class="td-r">${{ t.precio_promedio|floatformat:0|intcomma }}</td>
+                <td class="td-r" style="font-weight:bold;">${{ t.valor_total|floatformat:0|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align:center;padding:10px;color:#888;">Sin datos.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="subtotal-row">
+            <span class="st-lbl">Valor total inventario</span>
+            <span class="st-val">${{ valor_inventario|floatformat:0|intcomma }}</span>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- 5. Total -->
     <div class="total-bar">
-        <div class="total-lbl">TOTAL GENERAL DEL PERÍODO</div>
-        <div class="total-val">${{ monto_total|floatformat:2|intcomma }}</div>
+        <div class="total-lbl">VALOR TOTAL DEL INVENTARIO DE PRODUCTOS</div>
+        <div class="total-val">${{ valor_inventario|floatformat:0|intcomma }}</div>
     </div>
 
     <div class="doc-footer">
         ARTES &amp; ESTILOS — Sistema de Gestión Interno<br>
         Reporte generado el {{ fecha_generacion }}{% if usuario %} por {{ usuario }}{% endif %}<br>
-        Período consultado: {{ periodo }}
+        {% if tipo_filtro %}Filtro aplicado: {{ tipo_nombre }}{% else %}Sin filtros — inventario completo{% endif %}
     </div>
 
-</div><!-- /.page -->
-
-<!-- ✅ Script AL FINAL del body — después de que el DOM existe -->
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

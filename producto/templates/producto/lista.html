@@ -33,20 +33,23 @@
             <h1>
                 <i class="bi bi-box"></i>Gestión de Productos
             </h1>
-            <p>Gestiona los productos disponibles para la floristeria Artes & Estilos.</p>
+            <p>Gestiona los productos disponibles para la floristeria Artes &amp; Estilos.</p>
         </div>
-            <!-- ✅ BOTÓN REPORTE -->
-            <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
+       
+
+
+        <div class="page-header-actions">
+             <button type="button" class="btn-reporte"
+                    data-bs-toggle="modal" data-bs-target="#modalReporte"
+                    title="Generar Reporte">
                 <i class="bi bi-file-earmark-bar-graph-fill"></i>
                 Reporte
             </button>
-
-        <div class="page-header-actions">
             <form action="{% url 'producto:lista' %}" method="GET" class="js-search-form" novalidate>
-                <input type="hidden" name="tipo" value="{{ tipo_filtro|default:'' }}">
+                <input type="hidden" name="tipo"        value="{{ tipo_filtro|default:'' }}">
                 <input type="hidden" name="nivel_stock" value="{{ nivel_stock_filtro|default:'' }}">
-                <input type="hidden" name="precio_min" value="{{ precio_min_filtro|default:'' }}">
-                <input type="hidden" name="precio_max" value="{{ precio_max_filtro|default:'' }}">
+                <input type="hidden" name="precio_min"  value="{{ precio_min_filtro|default:'' }}">
+                <input type="hidden" name="precio_max"  value="{{ precio_max_filtro|default:'' }}">
                 <div class="search-wrapper">
                     <input type="text" id="search-live-producto" name="q" value="{{ busqueda|default:'' }}"
                            class="search-input js-live-search" data-target="#producto-tbody"
@@ -56,12 +59,16 @@
                     </button>
                 </div>
             </form>
+
+            <!-- ✅ Botón Reporte — al lado de Buscar -->
+            
             <a href="{% url 'producto:crear' %}" class="btn-cliente-nuevo">
                 <i class="bi bi-plus-circle"></i> Nuevo Producto
             </a>
         </div>
-    </div>
+    </div><!-- /page-header-clientes -->
 
+    <!-- Stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon stat-icon-primary">
@@ -101,13 +108,15 @@
         </div>
     </div>
 
+    <!-- Filtros -->
     <div class="form-card">
         <div class="form-section-title">
             <i class="bi bi-funnel-fill"></i>
             Filtros del listado
         </div>
 
-        <form method="GET" action="{% url 'producto:lista' %}" class="js-filter-form" id="producto-filter-form" novalidate autocomplete="off">
+        <form method="GET" action="{% url 'producto:lista' %}" class="js-filter-form"
+              id="producto-filter-form" novalidate autocomplete="off">
             <input type="hidden" name="q" value="{{ busqueda|default:'' }}">
 
             <div class="row g-3 align-items-end">
@@ -117,7 +126,9 @@
                         <select name="tipo" id="filtro_tipo_producto" class="form-select">
                             <option value="">Todos</option>
                             {% for valor, etiqueta in tipos_filtro %}
-                            <option value="{{ valor }}" {% if tipo_filtro == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                            <option value="{{ valor }}" {% if tipo_filtro == valor %}selected{% endif %}>
+                                {{ etiqueta }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -127,36 +138,43 @@
                         <label class="field-label" for="filtro_nivel_producto">Nivel de stock</label>
                         <select name="nivel_stock" id="filtro_nivel_producto" class="form-select">
                             <option value="">Todos</option>
-                            <option value="bajo" {% if nivel_stock_filtro == 'bajo' %}selected{% endif %}>Bajo</option>
+                            <option value="bajo"  {% if nivel_stock_filtro == 'bajo'  %}selected{% endif %}>Bajo</option>
                             <option value="medio" {% if nivel_stock_filtro == 'medio' %}selected{% endif %}>Medio</option>
-                            <option value="alto" {% if nivel_stock_filtro == 'alto' %}selected{% endif %}>Alto</option>
+                            <option value="alto"  {% if nivel_stock_filtro == 'alto'  %}selected{% endif %}>Alto</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-12 col-md-3 col-lg-2">
                     <div class="field-wrapper">
                         <label class="field-label" for="precio_min_producto">Precio minimo</label>
-                        <input type="text" class="form-control" id="precio_min_producto" name="precio_min" value="{{ precio_min_filtro|default:'' }}" inputmode="numeric" placeholder="0">
+                        <input type="text" class="form-control" id="precio_min_producto"
+                               name="precio_min" value="{{ precio_min_filtro|default:'' }}"
+                               inputmode="numeric" placeholder="0">
                     </div>
                 </div>
                 <div class="col-12 col-md-3 col-lg-2">
                     <div class="field-wrapper">
                         <label class="field-label" for="precio_max_producto">Precio maximo</label>
-                        <input type="text" class="form-control" id="precio_max_producto" name="precio_max" value="{{ precio_max_filtro|default:'' }}" inputmode="numeric" placeholder="0">
+                        <input type="text" class="form-control" id="precio_max_producto"
+                               name="precio_max" value="{{ precio_max_filtro|default:'' }}"
+                               inputmode="numeric" placeholder="0">
                     </div>
                 </div>
                 <div class="col-12 col-md-3 col-lg-2 d-flex align-items-end gap-2 justify-content-md-start justify-content-lg-end">
-                    <a href="{% url 'producto:lista' %}" class="btn-cancelar" title="Limpiar filtros" aria-label="Limpiar filtros">
+                    <a href="{% url 'producto:lista' %}" class="btn-cancelar"
+                       title="Limpiar filtros" aria-label="Limpiar filtros">
                         <i class="bi bi-arrow-counterclockwise"></i>
                     </a>
-                    <button type="submit" class="btn-guardar" title="Aplicar filtros" aria-label="Aplicar filtros">
+                    <button type="submit" class="btn-guardar"
+                            title="Aplicar filtros" aria-label="Aplicar filtros">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
             </div>
 
             <div class="mt-3 text-muted small">
-                Mostrando <strong>{{ resultados_filtrados }}</strong> resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
+                Mostrando <strong>{{ resultados_filtrados }}</strong>
+                resultado{{ resultados_filtrados|pluralize }}{% if hay_filtros %} con filtros aplicados{% endif %}.
             </div>
         </form>
     </div>
@@ -177,7 +195,8 @@
                 </thead>
                 <tbody id="producto-tbody" class="js-live-table">
                     {% for producto in productos %}
-                    <tr class="slideIn" data-search-row="1" data-search-text="{{ producto.nombre }} {{ producto.get_tipo_producto_display }} {{ producto.descripcion|default:'' }} {{ producto.cantidad }}">
+                    <tr class="slideIn" data-search-row="1"
+                        data-search-text="{{ producto.nombre }} {{ producto.get_tipo_producto_display }} {{ producto.descripcion|default:'' }} {{ producto.cantidad }}">
                         <td>
                             <div class="cliente-avatar-wrapper">
                                 <div class="cliente-avatar-placeholder">
@@ -193,13 +212,9 @@
                                 </div>
                             </div>
                         </td>
-
                         <td>{{ producto.get_tipo_producto_display }}</td>
                         <td>${{ producto.precio|floatformat:0|intcomma }}</td>
-                        <td>
-                            <span class="stock-qty">{{ producto.cantidad }}</span>
-                        </td>
-
+                        <td><span class="stock-qty">{{ producto.cantidad }}</span></td>
                         <td>
                             {% if producto.cantidad <= 10 %}
                                 <span class="badge-stock badge-stock-low">Bajo</span>
@@ -209,31 +224,19 @@
                                 <span class="badge-stock badge-stock-high">Alto</span>
                             {% endif %}
                         </td>
-
                         <td class="text-end">
                             <div class="acciones-cliente-wrapper">
-                                <a
-                                    href="{% url 'producto:detalle' producto.id %}"
-                                    class="btn-cliente-action btn-cliente-ver"
-                                    title="Ver"
-                                    aria-label="Ver producto">
+                                <a href="{% url 'producto:detalle' producto.id %}"
+                                   class="btn-cliente-action btn-cliente-ver" title="Ver">
                                     <i class="bi bi-eye"></i>
                                 </a>
-
-                                <a
-                                    href="{% url 'producto:editar' producto.id %}"
-                                    class="btn-cliente-action btn-cliente-editar"
-                                    title="Editar"
-                                    aria-label="Editar producto">
+                                <a href="{% url 'producto:editar' producto.id %}"
+                                   class="btn-cliente-action btn-cliente-editar" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-
-                                <a
-                                    href="{% url 'producto:eliminar' producto.id %}"
-                                    class="btn-cliente-action btn-cliente-eliminar js-confirm-delete-producto"
-                                    data-producto-nombre="{{ producto.nombre }}"
-                                    title="Eliminar"
-                                    aria-label="Eliminar producto">
+                                <a href="{% url 'producto:eliminar' producto.id %}"
+                                   class="btn-cliente-action btn-cliente-eliminar js-confirm-delete-producto"
+                                   data-producto-nombre="{{ producto.nombre }}" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -252,11 +255,63 @@
         </div>
     </div>
 
+</div><!-- /container-fluid -->
+
+
+<!-- ══════════════════════════════════════════
+     MODAL REPORTE PRODUCTOS
+══════════════════════════════════════════ -->
+<div class="modal fade" id="modalReporte" tabindex="-1"
+     aria-labelledby="modalReporteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content reporte-modal-content">
+            <div class="modal-header reporte-modal-header">
+                <h5 class="modal-title" id="modalReporteLabel">
+                    <i class="bi bi-file-earmark-bar-graph-fill me-2"></i>
+                    Generar Reporte de Productos
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="GET" action="{% url 'producto:reporte' %}">
+                <div class="modal-body reporte-modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="field-label" for="reporte_tipo_prod">Categoría</label>
+                            <select name="tipo" id="reporte_tipo_prod" class="form-control">
+                                <option value="">— Todas las categorías —</option>
+                                {% for valor, etiqueta in tipos_reporte %}
+                                    <option value="{{ valor }}">{{ etiqueta }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="field-label" for="reporte_formato_prod">Formato</label>
+                            <select name="formato" id="reporte_formato_prod" class="form-control">
+                                <option value="html">🖨️ PDF / Impresión</option>
+                                <option value="excel">📊 Excel (.xlsx)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer reporte-modal-footer">
+                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-guardar">
+                        <i class="bi bi-download me-1"></i> Generar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('producto-filter-form');
+    const form      = document.getElementById('producto-filter-form');
     const precioMin = document.getElementById('precio_min_producto');
     const precioMax = document.getElementById('precio_max_producto');
     if (!form || !precioMin || !precioMax) return;

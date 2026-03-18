@@ -35,12 +35,13 @@
             </h1>
             <p>Gestiona las flores disponibles para la floristeria Artes & Estilos.</p>
         </div>
-            <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
+          
+
+        <div class="page-header-actions">
+              <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
                 <i class="bi bi-file-earmark-bar-graph-fill"></i>
                 Reporte
             </button>
-
-        <div class="page-header-actions">
             <form action="{% url 'flor:lista' %}" method="GET" class="js-search-form" novalidate>
                 <input type="hidden" name="tipo" value="{{ tipo_filtro|default:'' }}">
                 <input type="hidden" name="nivel_stock" value="{{ nivel_stock_filtro|default:'' }}">
@@ -251,6 +252,68 @@
     </div>
 
 </div>
+
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="modalReporteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content reporte-modal-content">
+            <div class="modal-header reporte-modal-header">
+                <h5 class="modal-title" id="modalReporteLabel">
+                    <i class="bi bi-file-earmark-bar-graph-fill me-2"></i>
+                    Generar Reporte de flor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+              <form method="GET" action="{% url 'flor:reporte' %}">
+                <div class="modal-body reporte-modal-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="reporte_mes">Mes</label>
+                            <select name="mes" id="reporte_mes" class="form-control">
+                                <option value="">— Todos los meses —</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="reporte_anio">Año</label>
+                            <select name="anio" id="reporte_anio" class="form-control">
+                                {% for anio in anios_disponibles %}
+                                    <option value="{{ anio }}" {% if anio == anio_actual %}selected{% endif %}>{{ anio }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="field-label" for="reporte_formato">Formato de descarga</label>
+                            <select name="formato" id="reporte_formato" class="form-control">
+                                <option value="pdf">📄 PDF</option>
+                                <option value="excel">📊 Excel (.xlsx)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer reporte-modal-footer">
+                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-guardar">
+                        <i class="bi bi-download me-1"></i> Generar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

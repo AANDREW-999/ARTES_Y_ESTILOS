@@ -1,5 +1,6 @@
 from decimal import Decimal, InvalidOperation
 import os
+import base64
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -34,7 +35,6 @@ from usuarios.decorators import panel_login_required
 
 from .forms import CompraForm
 from .models import Compra, DetalleCompra
-import base64
 
 
 # ────────────────────────────────────────────────
@@ -125,6 +125,20 @@ def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
     crear_notificacion_stock(item.nombre, item.cantidad, contexto)
 
 
+def _thin_border():
+    side = Side(style="thin", color="D1D5DB")
+    return Border(left=side, right=side, top=side, bottom=side)
+
+
+def _get_logo_base64():
+    """Carga el logo desde compras/static/img/LogoAE.png como base64."""
+    logo_path = os.path.join(settings.BASE_DIR, "compras", "static", "img", "LogoAE.png")
+    if os.path.exists(logo_path):
+        with open(logo_path, "rb") as f:
+            return base64.b64encode(f.read()).decode("utf-8")
+    return ""
+
+
 # ────────────────────────────────────────────────
 #  LISTA DE COMPRAS
 # ────────────────────────────────────────────────
@@ -164,7 +178,9 @@ def compras_list(request):
         lista_compras = lista_compras.filter(filtros_q)
 
     if proveedor_nombre:
-        lista_compras = lista_compras.filter(proveedor__nombre_proveedor__icontains=proveedor_nombre)
+        lista_compras = lista_compras.filter(
+            proveedor__nombre_proveedor__icontains=proveedor_nombre
+        )
 
     if fecha_desde:
         try:
@@ -191,7 +207,9 @@ def compras_list(request):
 
     hoy         = date.today()
     inicio_mes  = hoy.replace(day=1)
-    compras_mes = lista_compras.filter(fecha_emision__gte=inicio_mes, fecha_emision__lte=hoy).count()
+    compras_mes = lista_compras.filter(
+        fecha_emision__gte=inicio_mes, fecha_emision__lte=hoy
+    ).count()
 
     anio_actual       = timezone.now().year
     anios_raw         = Compra.objects.dates("fecha_emision", "year", order="DESC")
@@ -226,12 +244,18 @@ def compras_list(request):
 @panel_login_required
 def compra_detail(request, id):
     una_compra = get_object_or_404(
-        Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__flor", "detalles__producto"),
+        Compra.objects.select_related("proveedor", "usuario").prefetch_related(
+            "detalles__flor", "detalles__producto"
+        ),
         id=id,
     )
     una_compra.calcular_totales()
     template = loader.get_template("compra_detail.html")
-    return HttpResponse(template.render({"compra": una_compra, "detalles": una_compra.detalles.all()}, request))
+    return HttpResponse(
+        template.render(
+            {"compra": una_compra, "detalles": una_compra.detalles.all()}, request
+        )
+    )
 
 
 # ────────────────────────────────────────────────
@@ -239,8 +263,8 @@ def compra_detail(request, id):
 # ────────────────────────────────────────────────
 
 MESES = {
-    1: "Enero",   2: "Febrero",  3: "Marzo",     4: "Abril",
-    5: "Mayo",    6: "Junio",    7: "Julio",      8: "Agosto",
+    1: "Enero",   2: "Febrero",  3: "Marzo",      4: "Abril",
+    5: "Mayo",    6: "Junio",    7: "Julio",       8: "Agosto",
     9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
 }
 
@@ -281,23 +305,16 @@ def reporte(request):
 
     periodo   = f"{mes_nombre} {anio}".strip() if mes_nombre else str(anio)
     fecha_gen = datetime.now().strftime("%d/%m/%Y %H:%M")
-    usuario   = (request.user.get_full_name() or request.user.username
-                 if request.user.is_authenticated else "")
-
-    logo_url = os.path.join(
-        settings.BASE_DIR, "compras", "static", "img", "LogoAE.png"
-    ).replace("\\", "/")
-    
-    logo_base64 = ""
-    logo_path = os.path.join(settings.BASE_DIR, "compras", "static", "img", "LogoAE.png")
-    if os.path.exists(logo_path):
-     with open(logo_path, "rb") as f:
-        logo_base64 = base64.b64encode(f.read()).decode("utf-8")
+    usuario   = (
+        request.user.get_full_name() or request.user.username
+        if request.user.is_authenticated else ""
+    )
 
     context = {
         "compras":           qs,
         "periodo":           periodo,
         "mes_nombre":        mes_nombre,
+        "mes":               mes or "",
         "anio":              anio,
         "monto_total":       monto_total,
         "promedio_compra":   promedio,
@@ -307,8 +324,7 @@ def reporte(request):
         "usuario":           usuario,
         "hay_filtros":       bool(mes_nombre),
         "proveedor_filtro":  request.GET.get("proveedor_nombre", ""),
-        "logo_url":          logo_url,
-        "logo_base64": logo_base64,
+        "logo_base64":       _get_logo_base64(),
     }
 
     if formato == "excel":
@@ -318,17 +334,14 @@ def reporte(request):
         html_string = render_to_string("reporte.html", context, request=request)
         buffer      = io.BytesIO()
         pisa_status = pisa.CreatePDF(html_string, dest=buffer)
-
         if pisa_status.err:
             return HttpResponse("Error al generar el PDF", status=500)
-
         buffer.seek(0)
         filename = f"reporte_compras_{periodo.replace(' ', '_')}.pdf"
         response = HttpResponse(buffer, content_type="application/pdf")
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
         return response
 
-    # HTML normal
     return render(request, "reporte.html", context)
 
 
@@ -390,25 +403,21 @@ def _reporte_excel(qs, periodo, total_general):
     for col in range(1, 8):
         ws.cell(row=last, column=col).border = _thin_border()
 
-    for col, w in enumerate([6, 12, 28, 18, 45, 14, 7], 1):
-        ws.column_dimensions[ws.cell(1, col).column_letter].width = w
+    # ✅ Anchos de columna usando letras (evita error MergedCell)
+    for col, w in zip(['A', 'B', 'C', 'D', 'E', 'F', 'G'], [6, 12, 28, 18, 45, 14, 7]):
+        ws.column_dimensions[col].width = w
 
     buffer = io.BytesIO()
     wb.save(buffer)
     buffer.seek(0)
 
-    filename = f"reporte{periodo.replace(' ', '_')}.xlsx"
+    filename = f"reporte_compras_{periodo.replace(' ', '_')}.xlsx"
     response = HttpResponse(
         buffer,
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
-
-
-def _thin_border():
-    side = Side(style="thin", color="D1D5DB")
-    return Border(left=side, right=side, top=side, bottom=side)
 
 
 # ────────────────────────────────────────────────
@@ -455,15 +464,16 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
                     detalle.save()
                     _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
                 compra.calcular_totales()
-
                 crear_notificacion(
                     categoria="movimiento",
                     estilo="success",
                     titulo="Compra creada",
                     mensaje=f"Se registro la compra #{compra.id} con {len(detalles)} item(s).",
                 )
-
-            messages.success(self.request, f"Compra registrada exitosamente con {len(detalles)} item(s).")
+            messages.success(
+                self.request,
+                f"Compra registrada exitosamente con {len(detalles)} item(s).",
+            )
             return redirect(self.success_url)
         except (Flor.DoesNotExist, Producto.DoesNotExist):
             messages.error(self.request, "Uno de los items seleccionados ya no existe.")
@@ -552,16 +562,18 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                         detalle.producto = Producto.objects.get(pk=data["item_pk"])
                     detalle.save()
                     _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
-                compra.calcular_totales()
 
+                compra.calcular_totales()
                 crear_notificacion(
                     categoria="movimiento",
                     estilo="info",
                     titulo="Compra actualizada",
                     mensaje=f"Se actualizo la compra #{compra.id} con {len(nuevos_detalles)} item(s).",
                 )
-
-            messages.success(self.request, f"Compra actualizada exitosamente con {len(nuevos_detalles)} item(s).")
+            messages.success(
+                self.request,
+                f"Compra actualizada exitosamente con {len(nuevos_detalles)} item(s).",
+            )
             return redirect(self.success_url)
         except (Flor.DoesNotExist, Producto.DoesNotExist):
             messages.error(self.request, "Uno de los items seleccionados ya no existe.")
@@ -592,18 +604,22 @@ class CompraDeleteView(LoginRequiredMixin, generic.DeleteView):
         try:
             with transaction.atomic():
                 for detalle in list(compra.detalles.select_related("flor", "producto")):
-                    item_pk = detalle.flor_id if detalle.tipo_item == "FLOR" else detalle.producto_id
+                    item_pk = (
+                        detalle.flor_id if detalle.tipo_item == "FLOR"
+                        else detalle.producto_id
+                    )
                     if item_pk:
-                        _restar_stock_item(detalle.tipo_item, item_pk, detalle.cantidad, "la eliminacion de compra")
+                        _restar_stock_item(
+                            detalle.tipo_item, item_pk,
+                            detalle.cantidad, "la eliminacion de compra",
+                        )
                 compra.delete()
-
                 crear_notificacion(
                     categoria="movimiento",
                     estilo="error",
                     titulo="Compra eliminada",
                     mensaje=f"Se elimino la compra #{compra.id}.",
                 )
-
             messages.success(request, f"La compra {compra.id} ha sido eliminada exitosamente.")
         except ValueError as exc:
             messages.error(request, str(exc))

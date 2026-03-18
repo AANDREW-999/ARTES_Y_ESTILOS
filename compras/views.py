@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import Q, Sum
@@ -8,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import generic
 
 from datetime import date, datetime
@@ -15,6 +17,8 @@ from datetime import date, datetime
 from flor.models import Flor
 from producto.models import Producto
 from proveedores.models import Proveedor
+from core.notifications import crear_notificacion, crear_notificacion_stock
+from usuarios.decorators import panel_login_required
 
 from .forms import CompraForm
 from .models import Compra, DetalleCompra
@@ -84,6 +88,45 @@ def _parse_detalles_compra(request):
     return detalles
 
 
+def _obtener_items_posteados_compra(request):
+    item_ids = request.POST.getlist("item_id[]")
+    precios = request.POST.getlist("precio[]")
+    cantidades = request.POST.getlist("cantidad[]")
+
+    total_filas = max(len(item_ids), len(precios), len(cantidades))
+    items = []
+
+    for idx in range(total_filas):
+        item_id_raw = (item_ids[idx] if idx < len(item_ids) else "").strip()
+        precio_raw = (precios[idx] if idx < len(precios) else "").strip()
+        cantidad_raw = (cantidades[idx] if idx < len(cantidades) else "").strip()
+
+        if not item_id_raw and not precio_raw and not cantidad_raw:
+            continue
+
+        tipo_item = ""
+        item_pk = ""
+        if "-" in item_id_raw:
+            prefijo, pk_raw = item_id_raw.split("-", 1)
+            if prefijo == "F":
+                tipo_item = "FLOR"
+            elif prefijo == "P":
+                tipo_item = "PRODUCTO"
+            item_pk = pk_raw.strip()
+
+        items.append(
+            {
+                "item_id": item_id_raw,
+                "tipo_item": tipo_item,
+                "item_pk": item_pk,
+                "precio": precio_raw,
+                "cantidad": cantidad_raw,
+            }
+        )
+
+    return items
+
+
 def _bloquear_item(tipo_item, item_pk):
     if tipo_item == "FLOR":
         return Flor.objects.select_for_update().get(pk=item_pk)
@@ -94,6 +137,7 @@ def _sumar_stock_item(tipo_item, item_pk, cantidad):
     item = _bloquear_item(tipo_item, item_pk)
     item.cantidad += cantidad
     item.save(update_fields=["cantidad"])
+    crear_notificacion_stock(item.nombre, item.cantidad, "Compra")
 
 
 def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
@@ -104,8 +148,11 @@ def _restar_stock_item(tipo_item, item_pk, cantidad, contexto):
         )
     item.cantidad -= cantidad
     item.save(update_fields=["cantidad"])
+    crear_notificacion_stock(item.nombre, item.cantidad, contexto)
 
 
+@login_required
+@panel_login_required
 def compras_list(request):
     lista_compras = Compra.objects.select_related("proveedor", "usuario").prefetch_related(
         "detalles__flor", "detalles__producto"
@@ -190,6 +237,8 @@ def compras_list(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
+@panel_login_required
 def compra_detail(request, id):
     una_compra = get_object_or_404(
         Compra.objects.select_related("proveedor", "usuario").prefetch_related("detalles__flor", "detalles__producto"),
@@ -205,6 +254,7 @@ def compra_detail(request, id):
     return HttpResponse(template.render(context, request))
 
 
+@method_decorator(panel_login_required, name="dispatch")
 class CompraCreateView(LoginRequiredMixin, generic.CreateView):
     model = Compra
     form_class = CompraForm
@@ -251,6 +301,13 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
 
                 compra.calcular_totales()
 
+                crear_notificacion(
+                    categoria="movimiento",
+                    estilo="success",
+                    titulo="Compra creada",
+                    mensaje=f"Se registro la compra #{compra.id} con {len(detalles)} item(s).",
+                )
+
             messages.success(self.request, f"Compra registrada exitosamente con {len(detalles)} item(s).")
             return redirect(self.success_url)
         except (Flor.DoesNotExist, Producto.DoesNotExist):
@@ -264,10 +321,18 @@ class CompraCreateView(LoginRequiredMixin, generic.CreateView):
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if form.errors:
+            messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if self.request.method == "POST":
+            context = self.get_context_data(
+                form=form,
+                posted_items=_obtener_items_posteados_compra(self.request),
+            )
+            return self.render_to_response(context)
         return super().form_invalid(form)
 
 
+@method_decorator(panel_login_required, name="dispatch")
 class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Compra
     form_class = CompraForm
@@ -299,17 +364,39 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
 
                 detalles_actuales = list(compra.detalles.select_related("flor", "producto"))
 
+                # Ajuste de stock por diferencia (delta):
+                # evita fallar al guardar "sin cambios" y no toca stock innecesariamente.
+                stock_actual_por_item = {}
                 for detalle in detalles_actuales:
                     item_pk = detalle.flor_id if detalle.tipo_item == "FLOR" else detalle.producto_id
                     if not item_pk:
                         continue
+                    key = (detalle.tipo_item, item_pk)
+                    stock_actual_por_item[key] = stock_actual_por_item.get(key, 0) + int(detalle.cantidad)
 
-                    _restar_stock_item(
-                        detalle.tipo_item,
-                        item_pk,
-                        detalle.cantidad,
-                        "la edicion de compra",
-                    )
+                stock_nuevo_por_item = {}
+                for data in nuevos_detalles:
+                    key = (data["tipo_item"], data["item_pk"])
+                    stock_nuevo_por_item[key] = stock_nuevo_por_item.get(key, 0) + int(data["cantidad"])
+
+                # Si disminuye cantidad de un item en la compra, se debe restar la diferencia del inventario.
+                for key, cantidad_actual in stock_actual_por_item.items():
+                    cantidad_nueva = stock_nuevo_por_item.get(key, 0)
+                    if cantidad_actual > cantidad_nueva:
+                        tipo_item, item_pk = key
+                        _restar_stock_item(
+                            tipo_item,
+                            item_pk,
+                            cantidad_actual - cantidad_nueva,
+                            "la edicion de compra",
+                        )
+
+                # Si aumenta cantidad de un item en la compra, se suma la diferencia al inventario.
+                for key, cantidad_nueva in stock_nuevo_por_item.items():
+                    cantidad_actual = stock_actual_por_item.get(key, 0)
+                    if cantidad_nueva > cantidad_actual:
+                        tipo_item, item_pk = key
+                        _sumar_stock_item(tipo_item, item_pk, cantidad_nueva - cantidad_actual)
 
                 compra.detalles.all().delete()
 
@@ -326,9 +413,14 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                         detalle.producto = Producto.objects.get(pk=data["item_pk"])
                     detalle.save()
 
-                    _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
-
                 compra.calcular_totales()
+
+                crear_notificacion(
+                    categoria="movimiento",
+                    estilo="info",
+                    titulo="Compra actualizada",
+                    mensaje=f"Se actualizo la compra #{compra.id} con {len(nuevos_detalles)} item(s).",
+                )
 
             messages.success(self.request, f"Compra actualizada exitosamente con {len(nuevos_detalles)} item(s).")
             return redirect(self.success_url)
@@ -343,10 +435,18 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if form.errors:
+            messages.error(self.request, "Por favor, corrija los errores en el formulario.")
+        if self.request.method == "POST":
+            context = self.get_context_data(
+                form=form,
+                posted_items=_obtener_items_posteados_compra(self.request),
+            )
+            return self.render_to_response(context)
         return super().form_invalid(form)
 
 
+@method_decorator(panel_login_required, name="dispatch")
 class CompraDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Compra
     template_name = "eliminar_compra.html"
@@ -371,6 +471,13 @@ class CompraDeleteView(LoginRequiredMixin, generic.DeleteView):
                         "la eliminacion de compra",
                     )
                 compra.delete()
+
+                crear_notificacion(
+                    categoria="movimiento",
+                    estilo="error",
+                    titulo="Compra eliminada",
+                    mensaje=f"Se elimino la compra #{compra.id}.",
+                )
 
             messages.success(request, f"La compra {compra.id} ha sido eliminada exitosamente.")
         except ValueError as exc:

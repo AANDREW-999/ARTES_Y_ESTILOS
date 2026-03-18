@@ -54,6 +54,7 @@
         init() {
             this.initElements();
             this.initThemeToggle();
+            this.initIconAccessibility();
             this.initSidebarCollapsible();
             this.initActiveMenuDetection();
             this.initSubMenus();
@@ -68,6 +69,80 @@
             document.addEventListener('keydown', (e) => {
                 // Si el usuario navega con teclado, habilitamos apertura por focus
                 if (e.key === 'Tab' || e.key.startsWith('Arrow')) this._lastInputWasPointer = false;
+            });
+        }
+
+
+        // ─────────────────────────────────────────
+        // ACCESIBILIDAD (iconos + botones solo-icono)
+        // ─────────────────────────────────────────
+        initIconAccessibility() {
+            const ICON_LABELS = {
+                'bi-search': 'Buscar',
+                'bi-plus-circle': 'Crear',
+                'bi-plus-circle-fill': 'Crear',
+                'bi-pencil': 'Editar',
+                'bi-pencil-fill': 'Editar',
+                'bi-pencil-square': 'Editar',
+                'bi-eye': 'Ver detalle',
+                'bi-eye-fill': 'Ver detalle',
+                'bi-trash': 'Eliminar',
+                'bi-trash-fill': 'Eliminar',
+                'bi-x-lg': 'Cancelar',
+                'bi-arrow-left': 'Volver',
+                'bi-arrow-counterclockwise': 'Limpiar filtros',
+                'bi-funnel-fill': 'Filtros',
+                'bi-moon-stars-fill': 'Cambiar tema',
+                'bi-sun-fill': 'Cambiar tema',
+                'bi-list': 'Menú',
+                'bi-alarm': 'Notificaciones',
+                'bi-box-arrow-right': 'Cerrar sesión',
+                'bi-house-door': 'Inicio',
+                'bi-house-door-fill': 'Inicio',
+            };
+
+            const getFirstBiIconClass = (el) => {
+                const icon = el.querySelector?.('i.bi');
+                if (!icon) return null;
+                const cls = Array.from(icon.classList).find(c => c.startsWith('bi-'));
+                return cls || null;
+            };
+
+            const hasAccessibleName = (el) => {
+                if (el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby')) return true;
+                if (el.tagName === 'INPUT') {
+                    const type = (el.getAttribute('type') || '').toLowerCase();
+                    if (type === 'button' || type === 'submit' || type === 'reset') {
+                        return !!(el.getAttribute('value') || '').trim();
+                    }
+                }
+                const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+                return txt.length > 0;
+            };
+
+            const humanize = (iconClass) => {
+                if (!iconClass) return 'Acción';
+                return iconClass.replace(/^bi-/, '').replace(/-/g, ' ').trim();
+            };
+
+            document.querySelectorAll('a, button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"]').forEach(el => {
+                if (el.getAttribute('aria-hidden') === 'true') return;
+                if (hasAccessibleName(el)) return;
+
+                const title = (el.getAttribute('title') || '').trim();
+                const iconClass = getFirstBiIconClass(el);
+                const mapped = iconClass ? ICON_LABELS[iconClass] : null;
+                const derived = title || mapped || `Acción: ${humanize(iconClass)}`;
+
+                if (derived) {
+                    el.setAttribute('aria-label', derived);
+                    if (!title) el.setAttribute('title', derived);
+                }
+            });
+
+            document.querySelectorAll('i.bi').forEach(icon => {
+                if (icon.hasAttribute('aria-label') || icon.getAttribute('role') === 'img') return;
+                if (!icon.hasAttribute('aria-hidden')) icon.setAttribute('aria-hidden', 'true');
             });
         }
 
@@ -613,10 +688,76 @@
                 // En colapsado, el tooltip reemplaza la falta de texto visible
                 const instance = new bootstrap.Tooltip(link, {
                     placement: 'right',
+                    // Mantener SIEMPRE a la derecha (evita que Popper lo "voltee" a top con zoom/escala)
+                    fallbackPlacements: [],
                     trigger: 'hover focus',
                     container: 'body',
                     customClass: 'sidebar-tooltip',
-                    boundary: 'window',
+                    boundary: 'viewport',
+                    // Con zoom global (0.8), Popper puede desalinear verticalmente.
+                    // Usamos offset dinámico para centrar el tooltip respecto al icono.
+                    popperConfig: (defaultBsPopperConfig) => {
+                        const base = defaultBsPopperConfig || {};
+                        const mods = Array.isArray(base.modifiers) ? [...base.modifiers] : [];
+
+                        const cssScaleRaw = getComputedStyle(document.documentElement)
+                            .getPropertyValue('--ui-scale')
+                            .trim();
+                        const cssScale = Number.parseFloat(cssScaleRaw);
+                        const safeScale = Number.isFinite(cssScale) && cssScale > 0 ? cssScale : 1;
+
+                        const existingOffsetIndex = mods.findIndex(m => m && m.name === 'offset');
+                        const offsetModifier = {
+                            name: 'offset',
+                            options: {
+                                // [skidding, distance]. Para right/left, skidding desplaza en eje Y.
+                                offset: ({ placement, reference, popper }) => {
+                                    const distance = 10 / safeScale;
+                                    if (placement.startsWith('right') || placement.startsWith('left')) {
+                                        const skidding = (reference.height - popper.height) / 2;
+                                        return [skidding, distance];
+                                    }
+                                    return [0, distance];
+                                },
+                            },
+                        };
+
+                        if (existingOffsetIndex >= 0) mods[existingOffsetIndex] = offsetModifier;
+                        else mods.push(offsetModifier);
+
+                        // Evitar que cambie a top/bottom/left por overflow (muy común con zoom 0.8)
+                        const existingFlipIndex = mods.findIndex(m => m && m.name === 'flip');
+                        const flipModifier = { name: 'flip', enabled: false };
+                        if (existingFlipIndex >= 0) mods[existingFlipIndex] = flipModifier;
+                        else mods.push(flipModifier);
+
+                        // Mantener el boundary en viewport (más estable con zoom)
+                        const existingPreventIndex = mods.findIndex(m => m && m.name === 'preventOverflow');
+                        const preventOverflowModifier = {
+                            name: 'preventOverflow',
+                            options: {
+                                boundary: 'viewport',
+                                padding: 8,
+                            },
+                        };
+                        if (existingPreventIndex >= 0) {
+                            mods[existingPreventIndex] = {
+                                ...mods[existingPreventIndex],
+                                options: {
+                                    ...(mods[existingPreventIndex].options || {}),
+                                    ...(preventOverflowModifier.options || {}),
+                                },
+                            };
+                        } else {
+                            mods.push(preventOverflowModifier);
+                        }
+
+                        return {
+                            ...base,
+                            strategy: 'fixed',
+                            modifiers: mods,
+                        };
+                    },
                 });
                 this._tooltips.push(instance);
             });

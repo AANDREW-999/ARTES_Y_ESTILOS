@@ -1,12 +1,16 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from catalogo.models import Producto
 from usuarios.decorators import panel_login_required
 from django.core.mail import EmailMultiAlternatives
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from .forms import ContactoForm
+from .models import Notificacion
 from django.template.loader import render_to_string
 
 from categoria.models import Categoria
@@ -78,10 +82,13 @@ def index(request):
     return render(request, 'core/index.html', context)
 
 
+@login_required
+@panel_login_required
 def PanelAdmin_base(request):
     return render(request, 'panel_admin_base.html')
 
 
+@login_required
 @panel_login_required
 def dashboard_view(request):
     """
@@ -119,6 +126,14 @@ def error_404(request, exception):
     if request.path.startswith("/admin"):
         return render(request, "admin/404_admin.html", status=404)
     return render(request, "core/404_index.html", status=404)
+
+
+@login_required
+@panel_login_required
+@require_POST
+def marcar_notificaciones_leidas(request):
+    actualizadas = Notificacion.objects.filter(leida=False).update(leida=True)
+    return JsonResponse({"ok": True, "actualizadas": actualizadas})
 
 
 

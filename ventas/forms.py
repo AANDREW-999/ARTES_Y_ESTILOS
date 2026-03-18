@@ -67,12 +67,23 @@ class VentaForm(forms.ModelForm):
         # Acepta formatos comunes si el navegador/envio no mantiene YYYY-MM-DD.
         self.fields['fecha'].input_formats = ['%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y']
         self.fields['fecha'].widget.format = '%Y-%m-%d'
+        self.fields['fecha'].widget.attrs['max'] = date.today().isoformat()
+        self.fields['fecha'].disabled = True
+        self.fields['fecha'].widget.attrs['readonly'] = 'readonly'
 
         # En venta nueva, mostrar por defecto la fecha de hoy.
         instance = getattr(self, 'instance', None)
         is_new_instance = not instance or not getattr(instance, 'pk', None)
-        if not self.is_bound and is_new_instance:
-            self.initial.setdefault('fecha', date.today())
+        if is_new_instance:
+            self.initial['fecha'] = date.today()
+
+    def clean_fecha(self):
+        instance = getattr(self, 'instance', None)
+        if instance and getattr(instance, 'pk', None):
+            return instance.fecha
+
+        # En ventas nuevas, la fecha siempre corresponde al día de creación.
+        return date.today()
 
     def clean_mano_obra(self):
         raw = (self.cleaned_data.get('mano_obra') or '').strip()

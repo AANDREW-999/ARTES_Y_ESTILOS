@@ -284,6 +284,89 @@
   }
 
   // -------------------------
+  // Accesibilidad: iconos y botones solo-icono
+  // - Si un botón/enlace no tiene nombre accesible, lo derivamos
+  // - Los iconos Bootstrap suelen ser decorativos: aria-hidden
+  // -------------------------
+  function initIconAccessibility() {
+    const ICON_LABELS = {
+      'bi-search': 'Buscar',
+      'bi-plus-circle': 'Crear',
+      'bi-plus-circle-fill': 'Crear',
+      'bi-pencil': 'Editar',
+      'bi-pencil-fill': 'Editar',
+      'bi-pencil-square': 'Editar',
+      'bi-eye': 'Ver detalle',
+      'bi-eye-fill': 'Ver detalle',
+      'bi-trash': 'Eliminar',
+      'bi-trash-fill': 'Eliminar',
+      'bi-x-lg': 'Cancelar',
+      'bi-arrow-left': 'Volver',
+      'bi-arrow-counterclockwise': 'Limpiar filtros',
+      'bi-funnel-fill': 'Filtros',
+      'bi-moon-stars-fill': 'Cambiar tema',
+      'bi-sun-fill': 'Cambiar tema',
+      'bi-list': 'Menú',
+      'bi-box-arrow-right': 'Cerrar sesión',
+      'bi-house': 'Inicio',
+      'bi-house-door': 'Inicio',
+      'bi-house-door-fill': 'Inicio',
+      'bi-whatsapp': 'WhatsApp',
+      'bi-facebook': 'Facebook',
+      'bi-instagram': 'Instagram',
+    };
+
+    function getFirstBiIconClass(el) {
+      const icon = el.querySelector?.('i.bi');
+      if (!icon) return null;
+      const cls = Array.from(icon.classList).find(c => c.startsWith('bi-'));
+      return cls || null;
+    }
+
+    function hasAccessibleName(el) {
+      if (el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby')) return true;
+      if (el.tagName === 'INPUT') {
+        const type = (el.getAttribute('type') || '').toLowerCase();
+        if (type === 'button' || type === 'submit' || type === 'reset') {
+          return !!(el.getAttribute('value') || '').trim();
+        }
+      }
+      const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+      return txt.length > 0;
+    }
+
+    function humanize(iconClass) {
+      if (!iconClass) return 'Acción';
+      return iconClass
+        .replace(/^bi-/, '')
+        .replace(/-/g, ' ')
+        .trim();
+    }
+
+    // 1) Etiquetar controles interactivos solo-icono sin nombre accesible
+    document.querySelectorAll('a, button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"]').forEach(el => {
+      if (el.getAttribute('aria-hidden') === 'true') return;
+      if (hasAccessibleName(el)) return;
+
+      const title = (el.getAttribute('title') || '').trim();
+      const iconClass = getFirstBiIconClass(el);
+      const mapped = iconClass ? ICON_LABELS[iconClass] : null;
+      const derived = title || mapped || `Acción: ${humanize(iconClass)}`;
+
+      if (derived) {
+        el.setAttribute('aria-label', derived);
+        if (!title) el.setAttribute('title', derived);
+      }
+    });
+
+    // 2) Marcar iconos Bootstrap como decorativos (evita lectura redundante)
+    document.querySelectorAll('i.bi').forEach(icon => {
+      if (icon.hasAttribute('aria-label') || icon.getAttribute('role') === 'img') return;
+      if (!icon.hasAttribute('aria-hidden')) icon.setAttribute('aria-hidden', 'true');
+    });
+  }
+
+  // -------------------------
   // Inicialización
   // -------------------------
   function init() {
@@ -292,6 +375,7 @@
     initSmoothScroll();
     initNavbarScroll();
     initWhatsAppFab();
+    initIconAccessibility();
   }
 
   // Esperar DOMContentLoaded

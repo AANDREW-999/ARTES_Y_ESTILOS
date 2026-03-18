@@ -8,6 +8,7 @@ from django.db.models import Q, Sum
 from django.urls import reverse_lazy
 from django.views import generic
 
+from core.notifications import crear_notificacion
 from .forms import FlorForm
 from .models import Flor
 
@@ -140,6 +141,12 @@ class FlorCreateView(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView
         if imagen:
             form.instance.imagen = imagen
         messages.success(self.request, "Flor creada correctamente.")
+        crear_notificacion(
+            categoria="movimiento",
+            estilo="success",
+            titulo="Flor creada",
+            mensaje=f"Se creo la flor {form.instance.nombre}.",
+        )
         return super().form_valid(form)
 
 
@@ -158,6 +165,12 @@ class FlorUpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView
         if imagen:
             form.instance.imagen = imagen
         messages.success(self.request, "Flor actualizada correctamente.")
+        crear_notificacion(
+            categoria="movimiento",
+            estilo="info",
+            titulo="Flor actualizada",
+            mensaje=f"Se actualizo la flor {form.instance.nombre}.",
+        )
         return super().form_valid(form)
 
 
@@ -181,5 +194,12 @@ class FlorDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView
         return self.request.user.is_staff
 
     def form_valid(self, form):
+        nombre = self.object.nombre
+        crear_notificacion(
+            categoria="movimiento",
+            estilo="error",
+            titulo="Flor eliminada",
+            mensaje=f"Se elimino la flor {nombre}.",
+        )
         messages.success(self.request, "Flor eliminada correctamente.")
         return super().form_valid(form)

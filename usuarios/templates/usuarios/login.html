@@ -124,7 +124,12 @@
                 </div>
               </div>
             </div>
-
+            <!-- reCAPTCHA -->
+            <div class="mb-3 text-center">
+              <div class="d-flex justify-content-center">
+                <div class="g-recaptcha" data-sitekey="6LeRW48sAAAAABfebJ0JxbWtk-BOTFt3xNwpq0xr"></div>
+              </div>
+            </div>
             <!-- Botón de envío -->
             <button type="submit" class="btn-login w-100 py-3 mb-3">
               <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
@@ -163,5 +168,9 @@
 <script>
   window.LOGIN_VALIDATE_URL = "{% url 'usuarios:validar_usuario_documento' %}";
 </script>
+
+<!-- SCRIPT DE RECAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <script src="{% static 'usuarios/js/login.js' %}?v=20260303-2"></script>
 {% endblock %}

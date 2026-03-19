@@ -14,8 +14,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
 
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+import openpyxl # type: ignore
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side # type: ignore
 
 from core.notifications import crear_notificacion
 from .forms import ProductoForm
@@ -228,7 +228,7 @@ def reporte_producto(request):
         "usuario":           usuario,
         "logo_base64":       _get_logo_base64(),
     }
-    return render(request, "producto/reporte_producto.html", context)
+    return render(request, "producto/reporte.html", context)
 
 
 # ────────────────────────────────────────────────

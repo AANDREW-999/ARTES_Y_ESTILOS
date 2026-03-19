@@ -76,6 +76,19 @@ class ClienteForm(forms.ModelForm):
             'ciudad': 'Ciudad',
             'departamento': 'Departamento',
         }
+        
+        # ===== NUEVO: Mensajes personalizados para campos requeridos =====
+        error_messages = {
+            'nombre': {
+                'required': 'El nombre es obligatorio.',
+            },
+            'apellido': {
+                'required': 'El apellido es obligatorio.',
+            },
+            'documento': {
+                'required': 'El documento es obligatorio.',
+            },
+        }
 
     # -------------------------
     # VALIDACIONES PROFESIONALES
@@ -93,6 +106,8 @@ class ClienteForm(forms.ModelForm):
         documento = self.cleaned_data.get("documento")
 
         if not documento:
+            # Este caso ahora será manejado por error_messages['documento']['required']
+            # pero mantenemos la validación por si acaso
             raise forms.ValidationError("El documento es obligatorio.")
 
         if not documento.isdigit():
@@ -118,8 +133,9 @@ class ClienteForm(forms.ModelForm):
     def clean_nombre(self):
         nombre = self.cleaned_data.get("nombre")
 
+        # ===== CAMBIADO: No validar "requerido" aquí, dejar que error_messages lo maneje =====
         if not nombre:
-            raise forms.ValidationError("El nombre es obligatorio.")
+            return nombre  # Django agregará el error de campo requerido automáticamente
 
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", nombre):
             raise forms.ValidationError("El nombre solo puede contener letras.")
@@ -129,8 +145,9 @@ class ClienteForm(forms.ModelForm):
     def clean_apellido(self):
         apellido = self.cleaned_data.get("apellido")
 
+        # ===== CAMBIADO: No validar "requerido" aquí, dejar que error_messages lo maneje =====
         if not apellido:
-            raise forms.ValidationError("El apellido es obligatorio.")
+            return apellido  # Django agregará el error de campo requerido automáticamente
 
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", apellido):
             raise forms.ValidationError("El apellido solo puede contener letras.")

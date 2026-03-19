@@ -688,10 +688,76 @@
                 // En colapsado, el tooltip reemplaza la falta de texto visible
                 const instance = new bootstrap.Tooltip(link, {
                     placement: 'right',
+                    // Mantener SIEMPRE a la derecha (evita que Popper lo "voltee" a top con zoom/escala)
+                    fallbackPlacements: [],
                     trigger: 'hover focus',
                     container: 'body',
                     customClass: 'sidebar-tooltip',
-                    boundary: 'window',
+                    boundary: 'viewport',
+                    // Con zoom global (0.8), Popper puede desalinear verticalmente.
+                    // Usamos offset dinámico para centrar el tooltip respecto al icono.
+                    popperConfig: (defaultBsPopperConfig) => {
+                        const base = defaultBsPopperConfig || {};
+                        const mods = Array.isArray(base.modifiers) ? [...base.modifiers] : [];
+
+                        const cssScaleRaw = getComputedStyle(document.documentElement)
+                            .getPropertyValue('--ui-scale')
+                            .trim();
+                        const cssScale = Number.parseFloat(cssScaleRaw);
+                        const safeScale = Number.isFinite(cssScale) && cssScale > 0 ? cssScale : 1;
+
+                        const existingOffsetIndex = mods.findIndex(m => m && m.name === 'offset');
+                        const offsetModifier = {
+                            name: 'offset',
+                            options: {
+                                // [skidding, distance]. Para right/left, skidding desplaza en eje Y.
+                                offset: ({ placement, reference, popper }) => {
+                                    const distance = 10 / safeScale;
+                                    if (placement.startsWith('right') || placement.startsWith('left')) {
+                                        const skidding = (reference.height - popper.height) / 2;
+                                        return [skidding, distance];
+                                    }
+                                    return [0, distance];
+                                },
+                            },
+                        };
+
+                        if (existingOffsetIndex >= 0) mods[existingOffsetIndex] = offsetModifier;
+                        else mods.push(offsetModifier);
+
+                        // Evitar que cambie a top/bottom/left por overflow (muy común con zoom 0.8)
+                        const existingFlipIndex = mods.findIndex(m => m && m.name === 'flip');
+                        const flipModifier = { name: 'flip', enabled: false };
+                        if (existingFlipIndex >= 0) mods[existingFlipIndex] = flipModifier;
+                        else mods.push(flipModifier);
+
+                        // Mantener el boundary en viewport (más estable con zoom)
+                        const existingPreventIndex = mods.findIndex(m => m && m.name === 'preventOverflow');
+                        const preventOverflowModifier = {
+                            name: 'preventOverflow',
+                            options: {
+                                boundary: 'viewport',
+                                padding: 8,
+                            },
+                        };
+                        if (existingPreventIndex >= 0) {
+                            mods[existingPreventIndex] = {
+                                ...mods[existingPreventIndex],
+                                options: {
+                                    ...(mods[existingPreventIndex].options || {}),
+                                    ...(preventOverflowModifier.options || {}),
+                                },
+                            };
+                        } else {
+                            mods.push(preventOverflowModifier);
+                        }
+
+                        return {
+                            ...base,
+                            strategy: 'fixed',
+                            modifiers: mods,
+                        };
+                    },
                 });
                 this._tooltips.push(instance);
             });

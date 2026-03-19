@@ -35,7 +35,7 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Escala visual global (simula 80% con zoom del navegador al 100%) */
-    --ui-scale: 0.8;
+    --ui-scale: 1;
 }
 
 /*

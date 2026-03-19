@@ -47,6 +47,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { valido: true, mensaje: 'Nombre válido' };
             }
         },
+        categoria_nombre: {
+            selector: ['#id_categoria_nombre'],
+            noNumeros: true,
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El nombre es obligatorio' };
+                }
+
+                if (/\d/.test(valor)) {
+                    return { valido: false, mensaje: 'El nombre no puede contener números' };
+                }
+
+                const texto = valor.trim();
+
+                if (texto.length < 2) {
+                    return { valido: false, mensaje: 'Debe tener al menos 2 caracteres' };
+                }
+
+                return { valido: true, mensaje: 'Nombre válido' };
+            }
+        },
         precio: {
             selector: ['#id_precio'],
             permitirCaracteresEspeciales: true,
@@ -468,6 +490,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // BLOQUEO PARA CAMPOS QUE NO PERMITEN NÚMEROS
+        if (config.noNumeros) {
+            if (/^\d$/.test(event.key)) {
+                event.preventDefault();
+                mostrarNotificacionTemporal(input, 'No se permiten números');
+                return;
+            }
+        }
+
         // BLOQUEO PARA CAMPOS DE SOLO LETRAS
         if (config.soloLetras) {
             if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/.test(event.key)) return;
@@ -525,6 +556,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     // noop
                 }
                 mostrarNotificacionTemporal(input, 'Solo letras permitidas');
+            }
+        }
+
+        if (config.noNumeros) {
+            const valorAnterior = input.value;
+            const sinNumeros = valorAnterior.replace(/\d+/g, '');
+            if (sinNumeros !== valorAnterior) {
+                const start = input.selectionStart;
+                input.value = sinNumeros;
+                try {
+                    const delta = valorAnterior.length - sinNumeros.length;
+                    const newPos = Math.max(0, (start || 0) - delta);
+                    input.setSelectionRange(newPos, newPos);
+                } catch (_) {
+                    // noop
+                }
+                mostrarNotificacionTemporal(input, 'No se permiten números');
             }
         }
     }
@@ -808,7 +856,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!formularioValido) {
                 e.preventDefault();
 
-                if (document.getElementById('formCompra') && window._dashboard && typeof window._dashboard.showAdminNotification === 'function') {
+                const esFormularioPanelConModal = document.getElementById('formCompra') || document.getElementById('formVenta');
+                if (esFormularioPanelConModal && window._dashboard && typeof window._dashboard.showAdminNotification === 'function') {
                     window._dashboard.showAdminNotification('warning', 'Por favor, corrija los errores del formulario.');
                 } else {
                     const alertaAnterior = document.querySelector('.alert-danger-box');

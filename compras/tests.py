@@ -63,6 +63,7 @@ class CompraStockTests(TestCase):
             },
         )
 
+
     def test_crear_compra_aumenta_stock(self):
         response = self._crear_compra(cant_flor=10, cant_producto=4)
 

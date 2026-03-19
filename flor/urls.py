@@ -9,4 +9,5 @@ urlpatterns = [
     path('detalle/<int:pk>/', views.FlorDetailView.as_view(), name='detalle'),
     path('<int:pk>/editar/', views.FlorUpdateView.as_view(), name='editar'),
     path('<int:pk>/eliminar/', views.FlorDeleteView.as_view(), name='eliminar'),
+     path("reporte/",views.reporte_flor,name="reporte"),
 ]

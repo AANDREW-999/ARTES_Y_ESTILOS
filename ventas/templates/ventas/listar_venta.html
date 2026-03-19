@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
 <link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
 <link rel="stylesheet" href="{% static 'usuarios/css/admin_usuarios.css' %}">
+
 {% endblock %}
 
 {% block content %}
@@ -33,15 +34,19 @@
             <h1>
                 <i class="bi bi-cart"></i> Gestión de Ventas
             </h1>
-            <p>Administra y consulta todas las ventas registradas de Artes & Estilos.</p>
-        </div>
+            <p>Administra y consulta todas las ventas registradas de Artes &amp; Estilos.</p>
+            </div>
 
         <div class="page-header-actions">
+                <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte">
+                <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                Reporte
+            </button>
             <form method="GET" action="{% url 'ventas:listar_venta' %}" class="js-search-form" id="search-form-ventas" novalidate>
                 <input type="hidden" id="search-cliente-nombre" name="cliente_nombre" value="{{ cliente_nombre_filtro|default:'' }}">
-                <input type="hidden" id="search-fecha-desde" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
-                <input type="hidden" id="search-precio-min" name="precio_min" value="{{ precio_min_filtro|default:'' }}">
-                <input type="hidden" id="search-precio-max" name="precio_max" value="{{ precio_max_filtro|default:'' }}">
+                <input type="hidden" id="search-fecha-desde"    name="fecha_desde"    value="{{ fecha_desde_filtro|default:'' }}">
+                <input type="hidden" id="search-precio-min"     name="precio_min"     value="{{ precio_min_filtro|default:'' }}">
+                <input type="hidden" id="search-precio-max"     name="precio_max"     value="{{ precio_max_filtro|default:'' }}">
                 <div class="search-wrapper">
                     <input type="text" id="search-live-ventas" name="q" value="{{ query|default:'' }}"
                            class="search-input js-live-search" data-target="#ventas-tbody"
@@ -51,11 +56,13 @@
                     </button>
                 </div>
             </form>
+
+            
             <a href="{% url 'ventas:crear' %}" class="btn-cliente-nuevo">
                 <i class="bi bi-plus-circle"></i> Nueva Venta
             </a>
         </div>
-    </div>
+    </div><!-- /page-header-clientes -->
 
     <!-- Stats -->
     <div class="stats-grid">
@@ -197,10 +204,10 @@
                         <th class="text-end">Total</th>
                         <th class="text-end">Acciones</th>
                     </tr>
-                </thead>
-                <tbody id="ventas-tbody" class="js-live-table">
+                </thead> <tbody id="ventas-tbody" class="js-live-table">
                     {% for venta in ventas %}
-                    <tr class="slideIn" data-search-row="1" data-search-text="#{{ venta.id }} {{ venta.cliente.nombre|default:'' }} {{ venta.cliente.apellido|default:'' }} {{ venta.cliente.documento|default:'' }} {{ venta.descripcion|default:'' }} {{ venta.fecha|date:'d/m/Y' }} {% if venta.con_domicilio %}con domicilio{% else %}sin domicilio{% endif %}">
+                    <tr class="slideIn" data-search-row="1"
+                        data-search-text="#{{ venta.id }} {{ venta.cliente.nombre|default:'' }} {{ venta.cliente.apellido|default:'' }} {{ venta.cliente.documento|default:'' }} {{ venta.descripcion|default:'' }} {{ venta.fecha|date:'d/m/Y' }} {% if venta.con_domicilio %}con domicilio{% else %}sin domicilio{% endif %}">
                         <td>
                             <div class="cliente-avatar-wrapper">
                                 <div class="cliente-avatar-placeholder" aria-hidden="true">V</div>
@@ -210,15 +217,9 @@
                                 </div>
                             </div>
                         </td>
-
                         <td>{{ venta.fecha|date:'d/m/Y' }}</td>
-
                         <td>{{ venta.descripcion|default:"Sin descripción"|truncatewords:8 }}</td>
-
-                        <td>
-                            {{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}
-                        </td>
-
+                        <td>{{ venta.cliente.nombre }} {{ venta.cliente.apellido|default:'' }}</td>
                         <td>
                             {% if venta.con_domicilio %}
                                 <span class="badge-estado badge-activo">
@@ -230,32 +231,19 @@
                                 </span>
                             {% endif %}
                         </td>
-
                         <td class="text-end"><strong>${{ venta.total|floatformat:2|intcomma }}</strong></td>
-
                         <td class="text-end">
                             <div class="acciones-cliente-wrapper">
-                                <a
-                                    href="{% url 'ventas:detalle' venta.id %}"
-                                    class="btn-cliente-action btn-cliente-ver"
-                                    title="Ver"
-                                    aria-label="Ver venta">
+                                <a href="{% url 'ventas:detalle' venta.id %}"
+                                   class="btn-cliente-action btn-cliente-ver" title="Ver">
                                     <i class="bi bi-eye"></i>
                                 </a>
-
-                                <a
-                                    href="{% url 'ventas:editar' venta.id %}"
-                                    class="btn-cliente-action btn-cliente-editar"
-                                    title="Editar"
-                                    aria-label="Editar venta">
+                                <a href="{% url 'ventas:editar' venta.id %}"
+                                   class="btn-cliente-action btn-cliente-editar" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-
-                                <a
-                                    href="{% url 'ventas:eliminar' venta.id %}"
-                                    class="btn-cliente-action btn-cliente-eliminar"
-                                    title="Eliminar"
-                                    aria-label="Eliminar venta">
+                                <a href="{% url 'ventas:eliminar' venta.id %}"
+                                   class="btn-cliente-action btn-cliente-eliminar" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -274,40 +262,113 @@
         </div>
     </div>
 
+</div><!-- /container-fluid -->
+
+
+<!-- ══════════════════════════════════════════
+     MODAL REPORTE VENTAS
+══════════════════════════════════════════ -->
+<div class="modal fade" id="modalReporte" tabindex="-1"
+     aria-labelledby="modalReporteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content reporte-modal-content">
+            <div class="modal-header reporte-modal-header">
+                <h5 class="modal-title" id="modalReporteLabel">
+                    <i class="bi bi-file-earmark-bar-graph-fill me-2"></i>
+                    Generar Reporte de Ventas
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="GET" action="{% url 'ventas:reporte' %}">
+                <div class="modal-body reporte-modal-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="rv_mes">Mes</label>
+                            <select name="mes" id="rv_mes" class="form-control">
+                                <option value="">— Todos los meses —</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="rv_anio">Año</label>
+                            <select name="anio" id="rv_anio" class="form-control">
+                                {% for anio in anios_disponibles %}
+                                    <option value="{{ anio }}"
+                                        {% if anio == anio_actual %}selected{% endif %}>
+                                        {{ anio }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="rv_tipo">Tipo de venta</label>
+                            <select name="tipo_venta" id="rv_tipo" class="form-control">
+                                <option value="">— Todos los tipos —</option>
+                                {% for valor, etiqueta in tipos_venta %}
+                                    <option value="{{ valor }}">{{ etiqueta }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="rv_formato">Formato</label>
+                            <select name="formato" id="rv_formato" class="form-control">
+                                <option value="html">🖨️ PDF / Impresión</option>
+                                <option value="excel">📊 Excel (.xlsx)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer reporte-modal-footer">
+                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-guardar">
+                        <i class="bi bi-download me-1"></i> Generar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const searchForm = document.getElementById('search-form-ventas');
-    const clienteInput = document.getElementById('cliente_nombre');
-    const fechaInput = document.getElementById('fecha_desde');
-    const precioMinInput = document.getElementById('precio_min');
-    const precioMaxInput = document.getElementById('precio_max');
+    const searchForm    = document.getElementById('search-form-ventas');
+    const clienteInput  = document.getElementById('cliente_nombre');
+    const fechaInput    = document.getElementById('fecha_desde');
+    const precioMinInput= document.getElementById('precio_min');
+    const precioMaxInput= document.getElementById('precio_max');
     const hiddenCliente = document.getElementById('search-cliente-nombre');
-    const hiddenFecha = document.getElementById('search-fecha-desde');
+    const hiddenFecha   = document.getElementById('search-fecha-desde');
     const hiddenPrecioMin = document.getElementById('search-precio-min');
     const hiddenPrecioMax = document.getElementById('search-precio-max');
 
     function syncSearchFilters() {
-        if (hiddenCliente && clienteInput) {
-            hiddenCliente.value = clienteInput.value || '';
-        }
-        if (hiddenFecha && fechaInput) {
-            hiddenFecha.value = fechaInput.value || '';
-        }
-        if (hiddenPrecioMin && precioMinInput) {
-            hiddenPrecioMin.value = precioMinInput.value || '';
-        }
-        if (hiddenPrecioMax && precioMaxInput) {
-            hiddenPrecioMax.value = precioMaxInput.value || '';
-        }
+        if (hiddenCliente   && clienteInput)   hiddenCliente.value   = clienteInput.value   || '';
+        if (hiddenFecha     && fechaInput)      hiddenFecha.value     = fechaInput.value     || '';
+        if (hiddenPrecioMin && precioMinInput)  hiddenPrecioMin.value = precioMinInput.value || '';
+        if (hiddenPrecioMax && precioMaxInput)  hiddenPrecioMax.value = precioMaxInput.value || '';
     }
 
-    if (clienteInput) clienteInput.addEventListener('input', syncSearchFilters);
-    if (fechaInput) fechaInput.addEventListener('change', syncSearchFilters);
+    if (clienteInput)   clienteInput.addEventListener('input',  syncSearchFilters);
+    if (fechaInput)     fechaInput.addEventListener('change',    syncSearchFilters);
     if (precioMinInput) precioMinInput.addEventListener('input', syncSearchFilters);
     if (precioMaxInput) precioMaxInput.addEventListener('input', syncSearchFilters);
-    if (searchForm) searchForm.addEventListener('submit', syncSearchFilters);
+    if (searchForm)     searchForm.addEventListener('submit',    syncSearchFilters);
 });
 </script>
 {% endblock %}

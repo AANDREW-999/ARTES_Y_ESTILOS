@@ -7,8 +7,8 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules.css' %}">
 <link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
-{% endblock %}
 
+{% endblock %}
 
 
 {% block content %}
@@ -32,35 +32,42 @@
     </div>
 
     <!-- Header -->
-    <div class="page-header-clientes">
-        <div class="page-header-info">
-            <h1>
-                <i class="bi bi-cart-fill"></i>
-                Gestión de Compras
-            </h1>
-            <p>Administra y consulta compras registradas de Artes & Estilos.</p>
-        </div>
+ <div class="page-header-clientes">
+    <div class="page-header-info">
+        <h1>
+            <i class="bi bi-cart-fill"></i>
+            Gestión de Compras
+        </h1>
+        <p>Administra y consulta compras registradas de Artes &amp; Estilos.</p>
+       </div>
+
         <div class="page-header-actions">
-            <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
-                <input type="hidden" id="search-proveedor-nombre" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
-                <input type="hidden" id="search-fecha-desde" name="fecha_desde" value="{{ fecha_desde_filtro|default:'' }}">
-                <input type="hidden" id="search-precio-min" name="precio_min" value="{{ precio_min_filtro|default:'' }}">
-                <input type="hidden" id="search-precio-max" name="precio_max" value="{{ precio_max_filtro|default:'' }}">
-                <div class="search-wrapper">
-                    <input type="text" id="search-live-compras" name="q" value="{{ query|default:'' }}"
-                           class="search-input js-live-search" data-target="#compras-tbody"
-                           placeholder="Buscar por compra, proveedor o documento..." autocomplete="off">
-                    <button type="submit" class="search-btn">
-                        <i class="bi bi-search"></i> Buscar
-                    </button>
-                </div>
-            </form>
-            <a href="{% url 'compras:crear_compra' %}" class="btn-cliente-nuevo">
-                <i class="bi bi-plus-circle"></i>
-                Nueva compra
-            </a>
-        </div>
+           <button type="button" class="btn-reporte" data-bs-toggle="modal" data-bs-target="#modalReporte" title="Generar Reporte">
+            <i class="bi bi-file-earmark-bar-graph-fill"></i>
+            Reporte
+        </button>
+        <form method="GET" action="{% url 'compras:lista_compra' %}" class="js-search-form" novalidate>
+            <input type="hidden" id="search-proveedor-nombre" name="proveedor_nombre" value="{{ proveedor_nombre_filtro|default:'' }}">
+            <input type="hidden" id="search-fecha-desde"      name="fecha_desde"      value="{{ fecha_desde_filtro|default:'' }}">
+            <input type="hidden" id="search-precio-min"        name="precio_min"       value="{{ precio_min_filtro|default:'' }}">
+            <input type="hidden" id="search-precio-max"        name="precio_max"       value="{{ precio_max_filtro|default:'' }}">
+            <div class="search-wrapper">
+                <input type="text" id="search-live-compras" name="q" value="{{ query|default:'' }}"
+                       class="search-input js-live-search" data-target="#compras-tbody"
+                       placeholder="Buscar por compra, proveedor o documento..." autocomplete="off">
+                <button type="submit" class="search-btn">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+
+     
+        <a href="{% url 'compras:crear_compra' %}" class="btn-cliente-nuevo">
+            <i class="bi bi-plus-circle"></i>
+            Nueva compra
+        </a>
     </div>
+</div>
 
     <!-- Stats -->
     <div class="stats-grid">
@@ -245,33 +252,100 @@
         </div>
     </div>
 
+</div><!-- /container-fluid -->
+
+
+<!-- ============================================================
+     MODAL DE REPORTE
+     ============================================================ -->
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="modalReporteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content reporte-modal-content">
+            <div class="modal-header reporte-modal-header">
+                <h5 class="modal-title" id="modalReporteLabel">
+                    <i class="bi bi-file-earmark-bar-graph-fill me-2"></i>
+                    Generar Reporte de Compras
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="GET" action="{% url 'compras:reporte' %}">
+                <div class="modal-body reporte-modal-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="reporte_mes">Mes</label>
+                            <select name="mes" id="reporte_mes" class="form-control">
+                                <option value="">— Todos los meses —</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="field-label" for="reporte_anio">Año</label>
+                            <select name="anio" id="reporte_anio" class="form-control">
+                                {% for anio in anios_disponibles %}
+                                    <option value="{{ anio }}" {% if anio == anio_actual %}selected{% endif %}>{{ anio }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="field-label" for="reporte_formato">Formato de descarga</label>
+                    <select name="formato" id="reporte_formato" class="form-control">
+    <option value="html">🖨️ Ver / Imprimir (PDF)</option>
+    <option value="excel">📊 Excel (.xlsx)</option>
+                     </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer reporte-modal-footer">
+                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-guardar">
+                        <i class="bi bi-download me-1"></i> Generar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+
 <script src="{% static 'js/busqueda_catalogo.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const searchForm = document.querySelector('.js-search-form');
-    const proveedorInput = document.getElementById('proveedor_nombre');
-    const fechaInput = document.getElementById('fecha_desde');
-    const precioMinInput = document.getElementById('precio_min');
-    const precioMaxInput = document.getElementById('precio_max');
+    const searchForm      = document.querySelector('.js-search-form');
+    const proveedorInput  = document.getElementById('proveedor_nombre');
+    const fechaInput      = document.getElementById('fecha_desde');
+    const precioMinInput  = document.getElementById('precio_min');
+    const precioMaxInput  = document.getElementById('precio_max');
 
     const hiddenProveedor = document.getElementById('search-proveedor-nombre');
-    const hiddenFecha = document.getElementById('search-fecha-desde');
+    const hiddenFecha     = document.getElementById('search-fecha-desde');
     const hiddenPrecioMin = document.getElementById('search-precio-min');
     const hiddenPrecioMax = document.getElementById('search-precio-max');
 
     function syncSearchFilters() {
         if (hiddenProveedor && proveedorInput) hiddenProveedor.value = proveedorInput.value || '';
-        if (hiddenFecha && fechaInput) hiddenFecha.value = fechaInput.value || '';
+        if (hiddenFecha     && fechaInput)     hiddenFecha.value     = fechaInput.value     || '';
         if (hiddenPrecioMin && precioMinInput) hiddenPrecioMin.value = precioMinInput.value || '';
         if (hiddenPrecioMax && precioMaxInput) hiddenPrecioMax.value = precioMaxInput.value || '';
     }
 
-    if (proveedorInput) proveedorInput.addEventListener('input', syncSearchFilters);
-    if (fechaInput) fechaInput.addEventListener('change', syncSearchFilters);
-    if (precioMinInput) precioMinInput.addEventListener('input', syncSearchFilters);
-    if (precioMaxInput) precioMaxInput.addEventListener('input', syncSearchFilters);
-    if (searchForm) searchForm.addEventListener('submit', syncSearchFilters);
+    if (proveedorInput) proveedorInput.addEventListener('input',  syncSearchFilters);
+    if (fechaInput)     fechaInput.addEventListener('change',     syncSearchFilters);
+    if (precioMinInput) precioMinInput.addEventListener('input',  syncSearchFilters);
+    if (precioMaxInput) precioMaxInput.addEventListener('input',  syncSearchFilters);
+    if (searchForm)     searchForm.addEventListener('submit',     syncSearchFilters);
 });
 </script>
 {% endblock %}

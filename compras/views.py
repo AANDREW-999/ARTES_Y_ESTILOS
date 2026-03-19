@@ -442,7 +442,6 @@ def _reporte_excel(qs, periodo, total_general):
     for col in range(1, 8):
         ws.cell(row=last, column=col).border = _thin_border()
 
-    # ✅ Anchos de columna usando letras (evita error MergedCell)
     for col, w in zip(['A', 'B', 'C', 'D', 'E', 'F', 'G'], [6, 12, 28, 18, 45, 14, 7]):
         ws.column_dimensions[col].width = w
 
@@ -566,6 +565,7 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
 
                 detalles_actuales = list(compra.detalles.select_related("flor", "producto"))
 
+                # Stock ANTES de la edición
                 stock_actual_por_item = {}
                 for detalle in detalles_actuales:
                     item_pk = detalle.flor_id if detalle.tipo_item == "FLOR" else detalle.producto_id
@@ -574,11 +574,13 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                     key = (detalle.tipo_item, item_pk)
                     stock_actual_por_item[key] = stock_actual_por_item.get(key, 0) + int(detalle.cantidad)
 
+                # Stock DESPUÉS de la edición
                 stock_nuevo_por_item = {}
                 for data in nuevos_detalles:
                     key = (data["tipo_item"], data["item_pk"])
                     stock_nuevo_por_item[key] = stock_nuevo_por_item.get(key, 0) + int(data["cantidad"])
 
+                # Restar lo que se redujo
                 for key, cantidad_actual in stock_actual_por_item.items():
                     cantidad_nueva = stock_nuevo_por_item.get(key, 0)
                     if cantidad_actual > cantidad_nueva:
@@ -589,12 +591,14 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                             "la edicion de compra",
                         )
 
+                # Sumar lo que se aumentó
                 for key, cantidad_nueva in stock_nuevo_por_item.items():
                     cantidad_actual = stock_actual_por_item.get(key, 0)
                     if cantidad_nueva > cantidad_actual:
                         tipo_item, item_pk = key
                         _sumar_stock_item(tipo_item, item_pk, cantidad_nueva - cantidad_actual)
 
+                # Recrear detalles SIN tocar el stock de nuevo ✅
                 compra.detalles.all().delete()
                 for data in nuevos_detalles:
                     detalle = DetalleCompra(
@@ -606,7 +610,7 @@ class CompraUpdateView(LoginRequiredMixin, generic.UpdateView):
                     else:
                         detalle.producto = Producto.objects.get(pk=data["item_pk"])
                     detalle.save()
-                    _sumar_stock_item(data["tipo_item"], data["item_pk"], data["cantidad"])
+                    # ✅ _sumar_stock_item eliminado aquí — el ajuste ya se hizo arriba
 
                 compra.calcular_totales()
                 crear_notificacion(

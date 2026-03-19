@@ -202,5 +202,5 @@ else:
     DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
     SERVER_EMAIL = 'noreply@arteyestilos.local'
 
-
+RECAPTCHA_SECRET_KEY = "6LeRW48sAAAAABc9t2z8S5I1mu6hd5EilsguzUxi"
 

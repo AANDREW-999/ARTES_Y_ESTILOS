@@ -24,7 +24,8 @@ backup/
 ### Python Testing ###
 test_email_config.py
 
-### Html Testin ###
+### Html Testing ###
+htmlcov/
 demo_tema.html
 demo_indicador_premium.html
 

@@ -1,5 +1,7 @@
 import shutil
 import sqlite3
+import requests
+from django.conf import settings
 from datetime import datetime
 from pathlib import Path
 
@@ -25,6 +27,24 @@ from .decorators import panel_login_required, superadmin_required
 
 User = get_user_model()
 
+def validar_recaptcha(request):
+    recaptcha_response = request.POST.get('g-recaptcha-response')
+
+    if not recaptcha_response:
+        return False
+
+    data = {
+        'secret': settings.RECAPTCHA_SECRET_KEY,
+        'response': recaptcha_response
+    }
+
+    r = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data=data
+    )
+
+    result = r.json()
+    return result.get('success', False)
 
 def _default_db_engine():
     return settings.DATABASES.get('default', {}).get('ENGINE', '')
@@ -193,7 +213,19 @@ def login_view(request):
             return redirect('core:landing')
 
     if request.method == 'POST':
+        
+        # 🔐 VALIDAR RECAPTCHA (AQUÍ LO AGREGAMOS)
+        if not validar_recaptcha(request):
+            messages.error(
+                request,
+                "Por favor verifica que no eres un robot.",
+                extra_tags='level-error field-general'
+            )
+            form = LoginForm(request, data=request.POST)
+            return render(request, 'usuarios/login.html', {'form': form})
+        
         form = LoginForm(request, data=request.POST)
+        
         if form.is_valid():
             user = form.get_user()
             if not user.is_staff:

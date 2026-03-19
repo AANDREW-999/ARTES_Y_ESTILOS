@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from decimal import Decimal
 
 
 TIPO_VENTA_CHOICES = [
@@ -60,6 +61,7 @@ class Venta(models.Model):
 
     def recalcular_totales(self):
 
+
         """Recalcula subtotal y total desde los detalles (sin IVA)."""
 
         from decimal import Decimal
@@ -71,6 +73,7 @@ class Venta(models.Model):
 
         self.subtotal = subtotal
         self.total = subtotal
+
 
     def save(self, *args, **kwargs):
         if self.pk:

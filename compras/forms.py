@@ -7,9 +7,9 @@ class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
         fields = [
-            'proveedor', 'forma_pago', 'medio_pago',
+            'proveedor', 'forma_pago',
             'fecha_emision', 
-            'departamento', 'ciudad', 'descripcion'
+            'descripcion'
         ]
         widgets = {
             'fecha_emision': forms.DateInput(attrs={'type': 'date'}),

@@ -1,17 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('productos-container');
+    const itemPickerPanel = document.getElementById('itemPickerPanel');
+    const itemPickerGrid = document.getElementById('itemPickerGrid');
+    let activePickerItem = null;
 
-    // Fecha automática
     const fechaInput = document.getElementById('fecha_emision') || document.getElementById('id_fecha_emision');
     if (fechaInput && !String(fechaInput.value || '').trim()) {
         const hoy = new Date();
-        const año = hoy.getFullYear();
-        const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-        const dia = String(hoy.getDate()).padStart(2, '0');
-        fechaInput.value = `${año}-${mes}-${dia}`;
+        const year = hoy.getFullYear();
+        const month = String(hoy.getMonth() + 1).padStart(2, '0');
+        const day = String(hoy.getDate()).padStart(2, '0');
+        fechaInput.value = `${year}-${month}-${day}`;
     }
 
-    // Utilidades de formato
     function limpiarNumero(valor) {
         if (!valor) return '';
         return String(valor).replace(/[^\d.]/g, '');
@@ -33,12 +34,49 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!valor) return 0;
         const str = String(valor).trim();
         if (!str) return 0;
-
-        // Soporta formato 10000.50 y formato local 10.000,50
         if (str.includes(',')) {
             return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
         }
         return parseFloat(str) || 0;
+    }
+
+    function getStockClass(stockRaw) {
+        const stock = parseInt(stockRaw, 10) || 0;
+        if (stock <= 5) return 'stock-low text-danger';
+        if (stock <= 15) return 'stock-medium text-warning';
+        return 'stock-high text-success';
+    }
+
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function cardMarkupFromOption(option) {
+        const nombre = (option.textContent || '').replace(/\(Stock:.*\)/i, '').trim() || 'Item';
+        const tipo = option.getAttribute('data-tipo') || 'Item';
+        const stock = option.getAttribute('data-stock') || '0';
+        const imagen = option.getAttribute('data-imagen') || '';
+        const stockClass = getStockClass(stock);
+        const stockTexto = `Stock ${stock}`;
+        const thumb = imagen
+            ? `<img src="${escapeHtml(imagen)}" alt="${escapeHtml(nombre)}" class="item-picker-thumb">`
+            : `<span class="item-picker-thumb-fallback">${escapeHtml(nombre.slice(0, 2).toUpperCase())}</span>`;
+
+        return `
+            <div class="item-picker-card">
+                ${thumb}
+                <div class="item-picker-meta">
+                    <strong>${escapeHtml(nombre)}</strong>
+                    <span class="item-type">${escapeHtml(tipo)}</span>
+                    <span class="stock-indicator ${stockClass}">${escapeHtml(stockTexto)}</span>
+                </div>
+            </div>
+        `;
     }
 
     function autocompletarPrecioItem(item, forzar) {
@@ -57,10 +95,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (forzar && !precioNum) {
             precioInput.value = '';
         }
+
+        actualizarPreview(item);
         calcularTotales();
     }
 
-    // Bloquear flechas en inputs numéricos
     function bloquearFlechas(input) {
         input.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
@@ -72,7 +111,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }, { passive: false });
     }
 
-    // Aplicar formato de miles
     function aplicarFormatoMiles(input) {
         bloquearFlechas(input);
 
@@ -98,38 +136,93 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Calcular totales
+    function renderPickerFor(item) {
+        if (!itemPickerPanel || !itemPickerGrid) return;
+        const select = item.querySelector('.item-select');
+        if (!select) return;
+
+        itemPickerGrid.innerHTML = '';
+        Array.from(select.options).forEach((option) => {
+            if (!option.value) return;
+
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'item-picker-option';
+            card.innerHTML = cardMarkupFromOption(option);
+            card.addEventListener('click', function () {
+                select.value = option.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                itemPickerPanel.classList.add('d-none');
+                activePickerItem = null;
+            });
+            itemPickerGrid.appendChild(card);
+        });
+    }
+
+    function actualizarPreview(item) {
+        const select = item.querySelector('.item-select');
+        const preview = item.querySelector('.item-selected-preview');
+        const previewContent = preview ? preview.querySelector('.item-selected-content') : null;
+        const triggerBtn = item.querySelector('.item-picker-trigger');
+        if (!select || !preview || !previewContent || !triggerBtn) return;
+
+        const selected = select.options[select.selectedIndex];
+        if (!selected || !selected.value) {
+            preview.classList.add('d-none');
+            previewContent.innerHTML = '';
+            triggerBtn.classList.remove('d-none');
+            triggerBtn.innerHTML = '<i class="bi bi-grid-3x3-gap"></i> Seleccionar artículo';
+            return;
+        }
+
+        preview.classList.remove('d-none');
+        previewContent.innerHTML = cardMarkupFromOption(selected);
+        triggerBtn.classList.add('d-none');
+    }
+
     function calcularTotales() {
         let subtotal = 0;
+        let total = 0;
 
         document.querySelectorAll('.producto-item').forEach(item => {
             const precioInput = item.querySelector('.precio-input');
             const cantidadInput = item.querySelector('.cantidad-input');
 
             const precio = parsearNumero(precioInput ? precioInput.value : '0');
-            const cantidad = parseInt(cantidadInput ? cantidadInput.value : '1') || 0;
+            const cantidad = parseInt(cantidadInput ? cantidadInput.value : '1', 10) || 0;
 
-            subtotal += precio * cantidad;
+            subtotal += precio;
+            total += precio * cantidad;
         });
-
-        const total = subtotal;
 
         document.getElementById('subtotal').textContent = '$' + formatearMiles(subtotal.toFixed(2));
         document.getElementById('total').textContent = '$' + formatearMiles(total.toFixed(2));
     }
 
-    // Configurar producto item
     function configurarProductoItem(item) {
+        const select = item.querySelector('.item-select');
         const precioInput = item.querySelector('.precio-input');
         const cantidadInput = item.querySelector('.cantidad-input');
         const btnEliminar = item.querySelector('.btn-eliminar-producto');
+        item.querySelectorAll('.js-open-picker').forEach((pickerTrigger) => {
+            pickerTrigger.addEventListener('click', function () {
+                activePickerItem = item;
+                renderPickerFor(item);
+                itemPickerPanel && itemPickerPanel.classList.remove('d-none');
+            });
+        });
 
         if (precioInput) {
-            // Guardar el tipo original
             precioInput.setAttribute('data-original-type', precioInput.type);
             precioInput.type = 'text';
             precioInput.inputMode = 'decimal';
             aplicarFormatoMiles(precioInput);
+        }
+
+        if (select) {
+            select.addEventListener('change', function () {
+                autocompletarPrecioItem(item, true);
+            });
         }
 
         autocompletarPrecioItem(item, false);
@@ -143,6 +236,10 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEliminar.addEventListener('click', function () {
                 const items = document.querySelectorAll('.producto-item');
                 if (items.length > 1) {
+                    if (activePickerItem === item) {
+                        itemPickerPanel && itemPickerPanel.classList.add('d-none');
+                        activePickerItem = null;
+                    }
                     item.remove();
                     calcularTotales();
                 } else {
@@ -152,22 +249,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Agregar producto
     const btnAgregar = document.getElementById('btnAgregarProducto');
     if (btnAgregar) {
         btnAgregar.addEventListener('click', function () {
             if (!container) return;
             const primerItem = container.querySelector('.producto-item');
+            if (!primerItem) return;
+
             const nuevoItem = primerItem.cloneNode(true);
 
-            // Limpiar todos los inputs
             nuevoItem.querySelectorAll('input').forEach(input => {
                 if (input.classList.contains('cantidad-input')) {
                     input.value = '1';
                 } else {
                     input.value = '';
                 }
-                // Restablecer tipo de input si es precio
                 if (input.classList.contains('precio-input')) {
                     input.type = 'number';
                 }
@@ -177,18 +273,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 select.selectedIndex = 0;
             });
 
+            const preview = nuevoItem.querySelector('.item-selected-preview');
+            const previewContent = preview ? preview.querySelector('.item-selected-content') : null;
+            const triggerBtn = nuevoItem.querySelector('.item-picker-trigger');
+            if (preview) {
+                preview.classList.add('d-none');
+                if (previewContent) previewContent.innerHTML = '';
+            }
+            if (triggerBtn) {
+                triggerBtn.classList.remove('d-none');
+                triggerBtn.innerHTML = '<i class="bi bi-grid-3x3-gap"></i> Seleccionar artículo';
+            }
+
             container.appendChild(nuevoItem);
             configurarProductoItem(nuevoItem);
         });
     }
 
-    // Inicializar productos existentes
     document.querySelectorAll('.producto-item').forEach(item => {
         configurarProductoItem(item);
     });
 
-    // Listener delegado para que cualquier cambio de item actualice su precio,
-    // incluso en filas nuevas clonadas.
     if (container) {
         container.addEventListener('change', function (event) {
             const target = event.target;
@@ -199,58 +304,39 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Limpiar antes de enviar
     const formCompra = document.getElementById('formCompra');
     if (formCompra) {
         formCompra.addEventListener('submit', function (e) {
-            console.log('📤 Enviando formulario de compra...');
-            
-            // Validar que haya al menos un producto con precio y cantidad
             let productosValidos = 0;
-            
-            // Restaurar inputs a tipo number y limpiar valores
-            document.querySelectorAll('.precio-input').forEach((input, idx) => {
-                const valorOriginal = input.value;
+
+            document.querySelectorAll('.precio-input').forEach((input) => {
                 const valorLimpio = parsearNumero(input.value);
-                
-                // Restaurar a tipo number
                 input.type = 'number';
                 input.value = valorLimpio > 0 ? valorLimpio : '';
-                
-                console.log(`   Precio[${idx}]: "${valorOriginal}" → ${input.value}`);
-                
-                if (valorLimpio > 0) {
-                    productosValidos++;
-                }
+                if (valorLimpio > 0) productosValidos++;
             });
-            
-            // Validar y limpiar cantidades - remover cualquier no numérico
-            document.querySelectorAll('.cantidad-input').forEach((input, idx) => {
-                const cantidad = parseInt(input.value) || 0;
+
+            document.querySelectorAll('.cantidad-input').forEach((input) => {
+                const cantidad = parseInt(input.value, 10) || 0;
                 input.value = cantidad > 0 ? cantidad : '';
-                console.log(`   Cantidad[${idx}]: ${cantidad}`);
             });
-            
+
             if (productosValidos === 0) {
                 e.preventDefault();
                 alert('Debe agregar al menos un producto con precio válido');
                 return false;
             }
-            
-            console.log(`✅ Validación OK - ${productosValidos} producto(s) válido(s)`);
         });
     }
 
-    // Toggle sidebar
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
 
     if (sidebarToggle && sidebar && mainContent) {
-        sidebarToggle.addEventListener('click', function() {
+        sidebarToggle.addEventListener('click', function () {
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
         });
     }
-
 });

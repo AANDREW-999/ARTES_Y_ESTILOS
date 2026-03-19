@@ -1,0 +1,261 @@
+.item-picker-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+}
+
+.item-picker-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-bottom: 0.9rem;
+}
+
+.item-picker-header strong {
+    color: var(--text-primary);
+}
+
+.item-picker-header small {
+    color: var(--text-secondary);
+}
+
+.item-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+    max-height: min(420px, 60vh);
+    overflow: auto;
+    padding-right: 0.25rem;
+}
+
+.item-picker-option {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    border-radius: 16px;
+}
+
+.item-picker-option:focus {
+    outline: none;
+}
+
+.item-picker-card {
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    border-radius: 16px;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.item-picker-option:hover .item-picker-card {
+    transform: translateY(-1px);
+    border-color: rgba(191, 84, 134, 0.35);
+    background: var(--bg-hover);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+}
+
+.item-picker-option:focus-visible .item-picker-card {
+    border-color: #BF5486;
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18), var(--shadow-sm);
+    animation: smoothPulse 900ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .item-picker-option:focus-visible .item-picker-card {
+        animation: none;
+    }
+}
+
+.item-picker-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: var(--bg-hover);
+    flex-shrink: 0;
+}
+
+.item-picker-thumb-fallback {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-weight: 700;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.item-picker-meta {
+    min-width: 0;
+}
+
+.item-picker-meta strong {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-picker-meta .item-type {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.stock-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    margin-top: 0.25rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+}
+
+.stock-indicator::before {
+    content: "";
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.85;
+}
+
+.item-selected-preview {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--bg-secondary);
+    padding: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.item-selected-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.item-selected-preview .item-picker-card {
+    border: 0;
+    box-shadow: none;
+    transform: none;
+    padding: 0;
+    cursor: default;
+    background: transparent;
+}
+
+.item-selected-preview .item-picker-thumb,
+.item-selected-preview .item-picker-thumb-fallback {
+    width: 52px;
+    height: 52px;
+}
+
+/* Botón ícono "cambiar" dentro del ítem seleccionado */
+.form-card .item-picker-icon.btn {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.12s ease;
+}
+
+.form-card .item-picker-icon.btn:hover {
+    border-color: #BF5486;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.form-card .item-picker-icon.btn:active {
+    transform: translateY(1px);
+}
+
+.form-card .item-picker-icon.btn:focus,
+.form-card .item-picker-icon.btn:focus-visible {
+    border-color: #BF5486;
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18);
+    outline: none;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    animation: smoothPulse 900ms ease;
+}
+
+/* Alinear columna de acciones (eliminar) con inputs */
+.item-actions-cell {
+    padding-top: 1.55rem;
+}
+
+@media (max-width: 767px) {
+    .item-actions-cell {
+        padding-top: 0;
+    }
+}
+
+/* Botón eliminar un poco más grande (solo en ítems) */
+.form-card .item-delete-btn {
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botón del picker con el mismo lenguaje visual de inputs (modules.css) */
+.form-card .item-picker-trigger.btn {
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.form-card .item-picker-trigger.btn:hover {
+    border-color: #BF5486;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.form-card .item-picker-trigger.btn:focus,
+.form-card .item-picker-trigger.btn:focus-visible {
+    border-color: #BF5486;
+    box-shadow: 0 0 0 3px rgba(191, 84, 134, 0.18);
+    outline: none;
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+/* Espaciado: preview arriba, botón abajo (solo cuando el preview está visible) */
+.item-selected-preview:not(.d-none) + .item-picker-trigger {
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 767px) {
+    .item-picker-grid {
+        grid-template-columns: 1fr;
+        max-height: min(320px, 55vh);
+    }
+}

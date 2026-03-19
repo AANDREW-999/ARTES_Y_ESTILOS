@@ -118,6 +118,8 @@ def listar_ventas(request):
     q = request.GET.get("q", "").strip()
     cliente_nombre = request.GET.get("cliente_nombre", "").strip()
     fecha_desde = request.GET.get("fecha_desde", "").strip()
+    precio_min = request.GET.get("precio_min", "").strip()
+    precio_max = request.GET.get("precio_max", "").strip()
 
     def _parse_fecha(raw_fecha):
         for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
@@ -126,6 +128,17 @@ def listar_ventas(request):
             except ValueError:
                 continue
         return None
+
+    def _parse_decimal(raw_numero):
+        valor = (raw_numero or "").strip()
+        if not valor:
+            return None
+        try:
+            if "," in valor:
+                valor = valor.replace(".", "").replace(",", ".")
+            return Decimal(valor)
+        except (InvalidOperation, ValueError, TypeError):
+            return None
 
     if q:
         filtros_q = (
@@ -159,6 +172,19 @@ def listar_ventas(request):
         else:
             fecha_desde = ""
 
+    precio_min_val = _parse_decimal(precio_min)
+    precio_max_val = _parse_decimal(precio_max)
+
+    if precio_min and precio_min_val is None:
+        precio_min = ""
+    if precio_max and precio_max_val is None:
+        precio_max = ""
+
+    if precio_min_val is not None:
+        ventas = ventas.filter(total__gte=precio_min_val)
+    if precio_max_val is not None:
+        ventas = ventas.filter(total__lte=precio_max_val)
+
     clientes = Cliente.objects.all().order_by("nombre", "apellido")
 
     total_ventas = ventas.count()
@@ -175,12 +201,14 @@ def listar_ventas(request):
         "clientes": clientes,
         "cliente_nombre_filtro": cliente_nombre,
         "fecha_desde_filtro": fecha_desde,
+        "precio_min_filtro": precio_min,
+        "precio_max_filtro": precio_max,
         "total_ventas": total_ventas,
         "monto_total": monto_total,
         "total_clientes": total_clientes,
         "ventas_mes": ventas_mes,
         "resultados_filtrados": ventas.count(),
-        "hay_filtros": any([q, cliente_nombre, fecha_desde]),
+        "hay_filtros": any([q, cliente_nombre, fecha_desde, precio_min, precio_max]),
     }
     return render(request, "ventas/listar_venta.html", context)
 
@@ -389,6 +417,8 @@ def detalle_venta(request, pk):
         Venta.objects.prefetch_related("detalles__flor", "detalles__producto").select_related("cliente"),
         pk=pk,
     )
+    venta.recalcular_totales()
+    venta.save(update_fields=["subtotal", "total"])
     return render(request, "ventas/detalle_venta.html", {"venta": venta})
 
 

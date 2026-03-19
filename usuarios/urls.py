@@ -17,6 +17,8 @@ urlpatterns = [
     # ========================================
     path('panel/perfil/', views.perfil_view, name='perfil'),
     path('panel/perfil/editar/', views.editar_perfil_view, name='editar_perfil'),
+    path('panel/perfil/seguridad/backup/generar/', views.generar_backup_db_view, name='generar_backup_db'),
+    path('panel/perfil/seguridad/backup/restaurar/', views.restaurar_backup_db_view, name='restaurar_backup_db'),
 
     # ========================================
     # 👥 GESTIÓN DE USUARIOS (panel; acciones sensibles restringidas por vista)
@@ -29,6 +31,11 @@ urlpatterns = [
     path('panel/usuarios/<int:user_id>/activar/', views.activar_usuario_view, name='activar_usuario'),
     path('panel/usuarios/<int:user_id>/convertir-superadmin/', views.convertir_superadmin_view, name='convertir_superadmin'),
     path('panel/usuarios/<int:user_id>/eliminar/', views.eliminar_usuario_view, name='eliminar_usuario'),
+
+    # ========================================
+    # 🔒 SEGURIDAD (módulo del panel)
+    # ========================================
+    path('panel/seguridad/', views.seguridad_view, name='seguridad'),
 
     # ========================================
     # 🔧 RECUPERACIÓN DE CONTRASEÑA

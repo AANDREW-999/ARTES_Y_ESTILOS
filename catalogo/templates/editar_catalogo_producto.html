@@ -30,8 +30,8 @@
 
 <div class="page-header-catalogo">
     <div class="page-header-info">
-        <h1><i class="bi bi-pencil-square"></i> Editar Producto</h1>
-        <p>Modifica la información del producto.</p>
+        <h1><i class="bi bi-pencil-square"></i> Editar Catálogo Web</h1>
+        <p>Modifica la información del Catálogo Web.</p>
     </div>
 </div>
 
@@ -61,14 +61,14 @@
 
             <div class="form-card">
                 <h2 class="form-section-title">
-                    <i class="bi bi-info-circle"></i> Datos del Producto
+                    <i class="bi bi-info-circle"></i> Datos del Producto en el Catálogo
                 </h2>
                 <div class="row g-3">
 
                     <!-- Nombre -->
                     <div class="col-md-7">
                         <div class="field-wrapper">
-                            <label class="field-label"><i class="bi bi-type"></i> Nombre del Producto</label>
+                            <label class="field-label"><i class="bi bi-type"></i> Nombre del Producto en el Catálogo</label>
                             <input type="text" name="nombre" class="field-input"
                                    value="{{ producto.nombre }}" required autocomplete="off">
                             <span class="field-error" id="nombre-error" style="display:none;">
@@ -182,12 +182,12 @@
             </div>
 
             <div class="d-flex gap-3 justify-content-end mb-4">
-                <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancelar">
-                    <i class="bi bi-x-lg"></i> Cancelar
-                </a>
                 <button type="submit" class="btn-guardar">
                     <i class="bi bi-check-lg"></i> Guardar Cambios
                 </button>
+                <a href="{% url 'catalogo:gestion_productos' %}" class="btn-cancelar">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
             </div>
         </form>
     </div>

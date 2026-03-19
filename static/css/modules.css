@@ -802,6 +802,29 @@ html[data-theme="dark"] .badge-cliente {
     background-color: var(--bg-card);
 }
 
+/* Dropdown nativo: colores de la lista de opciones por tema */
+.form-select option,
+.form-select optgroup {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .form-select option,
+html[data-theme="dark"] .form-select optgroup,
+html[data-bs-theme="dark"] .form-select option,
+html[data-bs-theme="dark"] .form-select optgroup {
+    background-color: #1a1f3a;
+    color: #ffffff;
+}
+
+html[data-theme="light"] .form-select option,
+html[data-theme="light"] .form-select optgroup,
+html[data-bs-theme="light"] .form-select option,
+html[data-bs-theme="light"] .form-select optgroup {
+    background-color: #ffffff;
+    color: #212529;
+}
+
 /* Asegurar que el ícono de validación en selects no se repita */
 .form-card .form-select.is-valid,
 .form-card .form-select.is-invalid,

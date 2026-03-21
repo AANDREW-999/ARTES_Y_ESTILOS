@@ -22,12 +22,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-xaz3onx_0s*e)32z1ts#3z3u4q+h@wlm33(0$!^(_srtuo#09z'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECURITY WARNING: don't run with debug turned on in production!}
 
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'artesyestilos.com']
 
 
 
@@ -116,7 +115,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 # Incluir la carpeta 'static' del proyecto (para desarrollo)
 STATICFILES_DIRS = [BASE_DIR / 'static']
 # Para producción (cuando uses collectstatic)

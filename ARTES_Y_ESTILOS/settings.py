@@ -131,6 +131,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOGIN/LOGOUT SETTINGS
+LOGIN_MAX_INTENTOS = 5
+LOGIN_TIEMPO_BLOQUEO = 600  # segundos (10 min)
 
 # URLs de redirección después de login/logout
 LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
@@ -152,6 +154,13 @@ AUTH_PASSWORD_VALIDATORS = [
         }
     },
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "login-security",
+    }
+}
 
 # Para ver correos en la terminal
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -20,6 +20,7 @@ from django.db import connections
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import AnonymousUser
 from core.notifications import crear_notificacion
+from django.core.cache import cache
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message, build_form_messages
@@ -45,6 +46,12 @@ def validar_recaptcha(request):
 
     result = r.json()
     return result.get('success', False)
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0]
+    return request.META.get('REMOTE_ADDR')
 
 def _default_db_engine():
     return settings.DATABASES.get('default', {}).get('ENGINE', '')
@@ -195,11 +202,15 @@ def registro(request):
 # 🔐 AUTENTICACIÓN
 # =====================================================
 
+MAX_INTENTOS = settings.LOGIN_MAX_INTENTOS
+TIEMPO_BLOQUEO = settings.LOGIN_TIEMPO_BLOQUEO
+
 def login_view(request):
     """
     Vista de login para el panel administrativo.
     Solo permite acceso a usuarios con is_staff=True.
     """
+
     if request.user.is_authenticated:
         if request.user.is_staff:
             return redirect('core:dashboard')
@@ -213,21 +224,44 @@ def login_view(request):
             return redirect('core:landing')
 
     if request.method == 'POST':
-        
-        # 🔐 VALIDAR RECAPTCHA (AQUÍ LO AGREGAMOS)
-        if not validar_recaptcha(request):
+
+        # 🔐 CONFIGURACIÓN
+        ip = get_client_ip(request)
+        key = f"login_attempts_{ip}"
+        intentos = cache.get(key, 0)
+
+        CAPTCHA_DESDE_INTENTOS = 3  # 🔥 puedes mover esto a settings luego
+
+        # 🔒 BLOQUEO TOTAL
+        if intentos >= MAX_INTENTOS:
+            minutos = TIEMPO_BLOQUEO // 60
+
             messages.error(
                 request,
-                "Por favor verifica que no eres un robot.",
+                f"Demasiados intentos fallidos. Intenta nuevamente en {minutos} minutos.",
                 extra_tags='level-error field-general'
             )
+
             form = LoginForm(request, data=request.POST)
             return render(request, 'usuarios/login.html', {'form': form})
-        
+
+        # 🤖 CAPTCHA SOLO SI ES NECESARIO
+        if intentos >= CAPTCHA_DESDE_INTENTOS:
+            if not validar_recaptcha(request):
+                messages.warning(
+                    request,
+                    "Por seguridad, verifica que no eres un robot.",
+                    extra_tags='level-warning field-general'
+                )
+                form = LoginForm(request, data=request.POST)
+                return render(request, 'usuarios/login.html', {'form': form})
+
         form = LoginForm(request, data=request.POST)
-        
+
+        # ✅ LOGIN CORRECTO
         if form.is_valid():
             user = form.get_user()
+
             if not user.is_staff:
                 messages.error(
                     request,
@@ -235,20 +269,45 @@ def login_view(request):
                     extra_tags='level-error field-general'
                 )
                 return render(request, 'usuarios/login.html', {'form': form})
+
+            # 🔥 RESET INTENTOS
             auth_login(request, user)
+            cache.delete(key)
+
             messages.success(
                 request,
                 f'¡Bienvenid@ de nuevo, {user.first_name}! Has iniciado sesión correctamente.',
                 extra_tags='level-success field-general'
             )
             return redirect('core:dashboard')
+
+        # ❌ LOGIN FALLIDO
         else:
             usuario_o_documento = request.POST.get('username')
             msg = build_login_message(form, usuario_o_documento=usuario_o_documento)
+
+            # ➕ SUMAR INTENTO
+            intentos += 1
+            cache.set(key, intentos, timeout=TIEMPO_BLOQUEO)
+
+            intentos_restantes = MAX_INTENTOS - intentos
+
+            # 🧠 MENSAJE DINÁMICO
+            if intentos_restantes > 0:
+                mensaje_final = f"{msg['text']} Te quedan {intentos_restantes} intento(s) antes de bloquearse."
+            else:
+                mensaje_final = "Has alcanzado el máximo de intentos permitidos."
+
             if 'field-inactive' in msg.get('tags', ''):
                 auth_logout(request)
                 return redirect('usuarios:panel_inactivo')
-            messages.error(request, msg['text'], extra_tags=msg['tags'])
+
+            messages.error(
+                request,
+                mensaje_final,
+                extra_tags=msg['tags']
+            )
+
     else:
         form = LoginForm()
 

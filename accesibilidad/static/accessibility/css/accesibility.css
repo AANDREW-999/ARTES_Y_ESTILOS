@@ -14,10 +14,10 @@
 /* Botón de accesibilidad */
 .minegate-acc-trigger.floral-theme {
     position: fixed !important;
-    bottom: 30px !important;
-    right: 30px !important;
-    width: 70px !important;
-    height: 70px !important;
+    bottom: 20px !important;
+    right: 8px !important;
+    width: 50px !important;
+    height: 50px !important;
     background: linear-gradient(135deg, #eb76db 0%, #cc7be0 100%) !important;
     border-radius: 50% !important;
     display: flex !important;
@@ -91,6 +91,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
+    align-items: start;
 }
 
 .acc-opt.floral-btn {
@@ -219,20 +220,26 @@
 /* Menú desplegable de daltonismo */
 .color-blind-btn-wrapper {
     position: relative;
-     display: contents;
+    display: inline-block;
+    grid-column: 1 / -1;
+}
+
+.color-blind-btn-wrapper .color-blind-btn {
+    width: 100%;
 }
 
 .color-blind-menu {
     display: none;
     position: absolute;
-    top: -10px;
-    left: calc(100% + 10px);
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
     background: white;
     border-radius: 15px;
     padding: 10px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     z-index: 1000000;
-    min-width: 180px;
+    min-width: 200px;
     border: 2px solid var(--floral-mauve);
 }
 
@@ -244,22 +251,23 @@
     border-radius: 10px;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    color: rgb(255, 255, 255) !important;
+    color: #333 !important;
     gap: 10px;
 }
 
 .color-blind-menu-item:hover {
-    background: var(--floral-cream);
+    background: #f0e6f5;
     transform: translateX(5px);
 }
 
 .color-blind-menu-item.active {
     background: var(--floral-pink);
-    color: white;
+    color: white !important;
 }
 
 .color-blind-menu-item i {
     font-size: 1.2rem;
+    color: inherit;
 }
 
 /* Guía de lectura */
@@ -379,12 +387,13 @@
     }
     
     .color-blind-menu {
-        position: fixed;
-        left: 20px;
-        right: 20px;
-        top: auto;
-        bottom: 200px;
-        min-width: auto;
+        position: absolute;
+        left: 0;
+        right: auto;
+        top: 100%;
+        bottom: auto;
+        min-width: 100%;
+        margin-top: 8px;
     }
 }
 

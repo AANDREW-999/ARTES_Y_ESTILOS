@@ -228,7 +228,7 @@ def reporte_producto(request):
         "usuario":           usuario,
         "logo_base64":       _get_logo_base64(),
     }
-    return render(request, "producto/reporte_producto.html", context)
+    return render(request, "producto/reporte.html", context)
 
 
 # ────────────────────────────────────────────────

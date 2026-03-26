@@ -74,6 +74,16 @@ def accesibilidad_widget():
                 <button class="acc-opt floral-btn reset-btn" onclick="resetAll()">
                     <div class="btn-content"><i class="fas fa-sync-alt"></i><span>Restablecer</span></div>
                 </button>
+                
+                <!-- Botón Manual de Usuario -->
+                <a href="/static/pdf/MANUAL%20DE%20USUARIO%20SISTEMA%20DE%20INVENTARIO%20A&E%20GESTI%C3%B3n%20FLORAL.pdf" target="_blank" rel="noopener" class="acc-opt floral-btn manual-btn">
+                    <div class="btn-content">
+                        <div class="logo-space">
+                            <img src="/static/img/icono.webp" alt="Manual" title="Abrir Manual de Usuario">
+                        </div>
+                        <span>Manual de Usuario</span>
+                    </div>
+                </a>
             </div>
             
             <div class="panel-footer">

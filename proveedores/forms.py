@@ -129,3 +129,32 @@ class ProveedorForm(forms.ModelForm):
             raise forms.ValidationError('El nombre del proveedor solo puede contener letras.')
 
         return nombre.title()
+    
+    def clean_telefono(self):
+        """Validar teléfono: entre 7 y 15 dígitos."""
+        telefono = self.cleaned_data.get('telefono')
+        
+        if telefono:
+            # Remover espacios y guiones
+            telefono_limpio = telefono.replace(" ", "").replace("-", "")
+            
+            # Validar formato
+            if not re.match(r"^\+?\d{7,15}$", telefono_limpio):
+                raise forms.ValidationError('El teléfono debe tener entre 7 y 15 dígitos. Ejemplo: +57 3001234567')
+            
+            return telefono_limpio
+        
+        return telefono
+    
+    def clean_direccion(self):
+        """Validar dirección: solo alfanuméricos y símbolos comunes."""
+        direccion = self.cleaned_data.get('direccion')
+        
+        if direccion:
+            # Permitir: letras, números, espacios, guiones, comas, puntos, #, etc.
+            if not re.match(r"^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s\-#,.\(\)]{1,200}$", direccion):
+                raise forms.ValidationError('La dirección contiene caracteres no permitidos.')
+            
+            return direccion.strip()
+        
+        return direccion

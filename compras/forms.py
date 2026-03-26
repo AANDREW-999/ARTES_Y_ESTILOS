@@ -3,6 +3,7 @@ from django import forms
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from .models import Compra, DetalleCompra
+from core.sanitize import validar_y_sanitizar
 
 class CompraForm(forms.ModelForm):
     class Meta:
@@ -14,7 +15,7 @@ class CompraForm(forms.ModelForm):
         ]
         widgets = {
             'fecha_emision': forms.DateInput(attrs={'type': 'date'}),
-            'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'maxlength': '500'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -47,6 +48,13 @@ class CompraForm(forms.ModelForm):
         if not forma_pago:
             raise forms.ValidationError('La forma de pago es obligatoria.')
         return forma_pago
+    
+    def clean_descripcion(self):
+        """Validar y sanitizar descripción por XSS."""
+        descripcion = self.cleaned_data.get('descripcion', '')
+        if descripcion:
+            descripcion = validar_y_sanitizar('Descripción', descripcion)
+        return descripcion
 
 
 class DetalleCompraForm(forms.ModelForm):

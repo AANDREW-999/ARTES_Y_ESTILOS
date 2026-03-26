@@ -3,6 +3,7 @@ import re
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from .models import Venta
+from core.sanitize import validar_y_sanitizar
 
 
 class VentaForm(forms.ModelForm):
@@ -151,3 +152,10 @@ class VentaForm(forms.ModelForm):
             cleaned_data['precio_envio'] = 0
 
         return cleaned_data
+    
+    def clean_descripcion(self):
+        """Validar y sanitizar descripción por XSS."""
+        descripcion = self.cleaned_data.get('descripcion', '')
+        if descripcion:
+            descripcion = validar_y_sanitizar('Descripción', descripcion)
+        return descripcion

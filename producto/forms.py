@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 from django import forms
 from .models import Producto
+from core.sanitize import validar_y_sanitizar
 
 class ProductoForm(forms.ModelForm):
     # Definimos precio como CharField para que acepte comas y puntos 
@@ -69,4 +70,6 @@ class ProductoForm(forms.ModelForm):
 
     def clean_descripcion(self):
         descripcion = (self.cleaned_data.get("descripcion") or "").strip()
+        if descripcion:
+            descripcion = validar_y_sanitizar('Descripción', descripcion)
         return descripcion or "Sin descripcion"

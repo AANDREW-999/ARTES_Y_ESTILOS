@@ -45,7 +45,10 @@ def index(request):
             email = form.cleaned_data['email']
             mensaje = form.cleaned_data['mensaje']
 
-            subject = f"Nuevo mensaje de {nombre}"
+            # Sanitizar el nombre para el subject (máximo 50 caracteres, sin saltos de línea)
+            nombre_sanitizado = nombre.replace('\n', ' ').replace('\r', ' ')[:50].strip()
+            
+            subject = f"Nuevo mensaje de {nombre_sanitizado}"
             from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", None)
             recipient_list = ["arteyestilos.test@gmail.com"]
             context = {

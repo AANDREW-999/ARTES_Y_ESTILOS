@@ -78,9 +78,7 @@ def accesibilidad_widget():
                 <!-- Botón Manual de Usuario -->
                 <a href="/static/pdf/MANUAL%20DE%20USUARIO%20SISTEMA%20DE%20INVENTARIO%20A&E%20GESTI%C3%B3n%20FLORAL.pdf" target="_blank" rel="noopener" class="acc-opt floral-btn manual-btn">
                     <div class="btn-content">
-                        <div class="logo-space">
-                            <img src="/static/img/icono.webp" alt="Manual" title="Abrir Manual de Usuario">
-                        </div>
+                        <i class="bi bi-question-circle" title="Abrir Manual de Usuario"></i>
                         <span>Manual de Usuario</span>
                     </div>
                 </a>

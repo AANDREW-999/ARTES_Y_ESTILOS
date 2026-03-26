@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
-from decouple import config
+from decouple import config, RepositoryEnv
+
+ENV_FILE = os.getenv("ENV_FILE", ".env.dev")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,12 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-xaz3onx_0s*e)32z1ts#3z3u4q+h@wlm33(0$!^(_srtuo#09z'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECURITY WARNING: don't run with debug turned on in production!}
 
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'artesyestilos.com']
 
 
 
@@ -116,7 +117,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 # Incluir la carpeta 'static' del proyecto (para desarrollo)
 STATICFILES_DIRS = [BASE_DIR / 'static']
 # Para producción (cuando uses collectstatic)
@@ -132,6 +133,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOGIN/LOGOUT SETTINGS
+LOGIN_MAX_INTENTOS = 5
+LOGIN_TIEMPO_BLOQUEO = 600  # segundos (10 min)
 
 # URLs de redirección después de login/logout
 LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
@@ -153,6 +156,13 @@ AUTH_PASSWORD_VALIDATORS = [
         }
     },
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "login-security",
+    }
+}
 
 # Para ver correos en la terminal
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -20,6 +20,7 @@ backup/
 *.sql
 *.dump
 *.backup
+*.zip
 
 ### Python Testing ###
 test_email_config.py
@@ -156,6 +157,7 @@ __pycache__/
 .env
 .venv/
 .env
+.env.*
 .venv
 env/
 venv/

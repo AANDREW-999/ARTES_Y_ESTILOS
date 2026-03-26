@@ -235,8 +235,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getStockClass(stock) {
         const s = parseInt(stock, 10) || 0;
-        if (s <= 5) return "stock-low text-danger";
-        if (s <= 15) return "stock-medium text-warning";
+        if (s <= 10) return "stock-low text-danger";
+        if (s <= 30) return "stock-medium text-warning";
         return "stock-high text-success";
     }
 

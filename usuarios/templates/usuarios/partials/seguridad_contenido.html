@@ -1,4 +1,4 @@
-<div class="profile-section">
+<div class="profile-section backup-module">
     <h3 class="section-title">
         <i class="bi bi-shield-lock-fill"></i>
         Configuración de Seguridad
@@ -38,71 +38,221 @@
         </div>
     </div>
 
-    <div class="security-card mt-4">
-        <div class="security-icon">
-            <i class="bi bi-database-lock"></i>
-        </div>
-        <div class="security-content">
-            <h4 class="security-title">Copias de Seguridad de Base de Datos</h4>
-            <p class="security-description">
-                Genera y restaura copias de seguridad para proteger la información del sistema.
-                Este modulo opera sobre la base de datos actual ({{ db_name }}).
-            </p>
+    {% if user.is_superuser %}
+        <div class="security-card mt-4 backup-security-card">
+            <div class="security-icon">
+                <i class="bi bi-database-lock"></i>
+            </div>
 
-            {% if db_is_sqlite %}
-                {% if user.is_superuser %}
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <form method="post" action="{% url 'usuarios:restaurar_backup_db' %}?next={{ request.path|urlencode }}" enctype="multipart/form-data"
-                                  data-admin-confirm
-                                  data-admin-confirm-type="warning"
-                                  data-admin-confirm-message="Esta acción reemplazará la base de datos actual. ¿Deseas continuar?"
-                                  data-admin-progress-message="Restaurando base de datos..."
-                                  data-admin-require-file
-                                  data-admin-allowed-ext=".sqlite3,.sqlite,.db">
-                                {% csrf_token %}
-                                <label for="id_backup_file" class="form-label mb-1 fw-semibold">Restaurar desde archivo</label>
-                                <div class="row g-2 align-items-end">
-                                    <div class="col-12 col-lg-8">
-                                        <input type="file" class="form-control" id="id_backup_file" name="backup_file" accept=".sqlite3,.sqlite,.db" required>
-                                    </div>
-                                    <div class="col-12 col-lg-4">
-                                        <button type="submit" class="btn btn-danger w-100" disabled>
-                                            <i class="bi bi-upload"></i>
-                                            Restaurar
-                                        </button>
-                                    </div>
+            <div class="security-content">
+                <h4 class="security-title">Copias de Seguridad de Base de Datos</h4>
+                <p class="security-description">
+                    Genera y restaura copias de seguridad para proteger la información del sistema.
+                    Este modulo opera sobre la base de datos actual ({{ db_name }}).
+                </p>
+
+                <div class="backup-controls mb-0">
+                    <div>
+                        <form
+                            method="post"
+                            action="{% url 'usuarios:restaurar_backup_db' %}?next={{ request.path|urlencode }}"
+                            enctype="multipart/form-data"
+                            data-admin-confirm
+                            data-admin-confirm-type="warning"
+                            data-admin-confirm-message="Se restaurará la base de datos usando el archivo seleccionado. Esta acción sobrescribe datos existentes. ¿Deseas continuar?"
+                            data-admin-progress-message="Restaurando backup..."
+                            data-admin-require-file
+                            data-admin-allowed-ext=".json,.zip"
+                        >
+                            {% csrf_token %}
+                            <label for="id_backup_file" class="form-label mb-1 fw-semibold">Restaurar desde explorador de archivos (.json / .zip)</label>
+                            <div class="row g-2 align-items-end">
+                                <div class="col-12 col-lg-8">
+                                    <input type="file" class="form-control" id="id_backup_file" name="backup_file" accept=".json,.zip">
                                 </div>
-                            </form>
-                        </div>
+                                <div class="col-12 col-lg-4">
+                                    <button type="submit" class="btn btn-danger w-100" id="btn-restaurar-file">
+                                        <i class="bi bi-upload"></i> Restaurar Archivo
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
-                        <div class="col-12">
-                            <form method="post" action="{% url 'usuarios:generar_backup_db' %}?next={{ request.path|urlencode }}"
-                                  data-admin-confirm
-                                  data-admin-confirm-type="info"
-                                  data-admin-confirm-message="¿Deseas generar y descargar una copia de seguridad de la base de datos?"
-                                  data-admin-progress-message="Generando copia de seguridad..."
-                                  data-admin-ajax-download>
-                                {% csrf_token %}
+                    <div>
+                        <form method="post" action="{% url 'usuarios:generar_backup_db' %}?next={{ request.path|urlencode }}" class="js-loading-form">
+                            {% csrf_token %}
+                            <div class="backup-generate">
+                                <div class="form-check mt-1">
+                                    <input class="form-check-input" type="checkbox" id="id_compress_backup" name="compress_backup" value="1" checked>
+                                    <label class="form-check-label" for="id_compress_backup">
+                                        Comprimir en ZIP (recomendado)
+                                    </label>
+                                </div>
+
                                 <button type="submit" class="btn btn-warning w-100 text-nowrap">
-                                    <i class="bi bi-download"></i>
-                                    Generar y Descargar Backup
+                                    <span class="btn-label"><i class="bi bi-cloud-arrow-down me-1"></i> Generar y Descargar Backup</span>
+                                    <span class="btn-loading d-none"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...</span>
                                 </button>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
                     </div>
-                {% else %}
-                    <div class="alert alert-warning mb-0" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        Solo los superadministradores pueden generar o restaurar copias de seguridad.
-                    </div>
-                {% endif %}
-            {% else %}
-                <div class="alert alert-info mb-0" role="alert">
-                    <i class="bi bi-info-circle-fill"></i>
-                    El modulo automatico de backup/restauracion esta preparado para SQLite. Para {{ db_engine }}, se recomienda configurar respaldos propios del motor.
                 </div>
-            {% endif %}
+            </div>
         </div>
-    </div>
+
+        <div class="security-card mt-3 backup-security-card">
+            <div class="security-icon">
+                <i class="bi bi-folder2-open"></i>
+            </div>
+
+            <div class="security-content">
+                <h4 class="security-title">Backups disponibles</h4>
+                <p class="security-description">
+                    Revisa, descarga, restaura o elimina copias de seguridad de la base de datos previamente generadas.
+                </p>
+
+                <div class="backup-table-container">
+                    <div class="table-responsive">
+                        <table class="backup-table">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">NOMBRE</th>
+                                    <th>TIPO</th>
+                                    <th>FECHA</th>
+                                    <th>TAMAÑO</th>
+                                    <th class="text-end pe-4">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in backups %}
+                                    <tr>
+                                        <td data-label="Nombre" class="ps-4">
+                                            <div class="backup-name">
+                                                <i class="bi {{ b.icon }}" aria-hidden="true"></i>
+                                                <strong class="text-break">{{ b.nombre }}</strong>
+                                            </div>
+                                        </td>
+                                        <td data-label="Tipo"><span class="badge-backup-type">{{ b.tipo }}</span></td>
+                                        <td data-label="Fecha">{{ b.fecha|date:"d/m/Y H:i" }}</td>
+                                        <td data-label="Tamaño">{{ b.size }} KB</td>
+                                        <td data-label="Acciones" class="text-end pe-4">
+                                            <div class="backup-actions-wrapper">
+                                                <a
+                                                    href="{% url 'usuarios:descargar_backup_db' b.nombre %}?next={{ request.path|urlencode }}"
+                                                    class="btn-backup-action btn-backup-download"
+                                                    title="Descargar"
+                                                    aria-label="Descargar backup"
+                                                >
+                                                    <i class="bi bi-download" aria-hidden="true"></i>
+                                                </a>
+
+                                                <form
+                                                    method="post"
+                                                    action="{% url 'usuarios:restaurar_backup_db' %}?next={{ request.path|urlencode }}"
+                                                    class="d-inline"
+                                                    data-admin-confirm
+                                                    data-admin-confirm-type="warning"
+                                                    data-admin-confirm-message="Se restaurará el backup {{ b.nombre }}. Esta acción sobrescribe datos existentes. ¿Deseas continuar?"
+                                                    data-admin-progress-message="Restaurando backup..."
+                                                >
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="backup_selected" value="{{ b.nombre }}">
+                                                    <button type="submit" class="btn-backup-action btn-backup-restore" title="Restaurar" aria-label="Restaurar backup">
+                                                        <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+
+                                                <form
+                                                    method="post"
+                                                    action="{% url 'usuarios:eliminar_backup_db' b.nombre %}?next={{ request.path|urlencode }}"
+                                                    class="d-inline"
+                                                    data-admin-confirm
+                                                    data-admin-confirm-type="warning"
+                                                    data-admin-confirm-message="Se eliminará el backup {{ b.nombre }}. Esta acción no se puede deshacer. ¿Deseas continuar?"
+                                                    data-admin-progress-message="Eliminando backup..."
+                                                >
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn-backup-action btn-backup-delete" title="Eliminar" aria-label="Eliminar backup">
+                                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="backup-empty-state">
+                                            <i class="bi bi-folder-x" aria-hidden="true"></i>
+                                            <p>No hay backups disponibles.</p>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="security-card mt-4 backup-security-card">
+            <div class="security-icon">
+                <i class="bi bi-database-lock"></i>
+            </div>
+
+            <div class="security-content">
+                <h4 class="security-title">Copias de Seguridad de Base de Datos</h4>
+                <p class="security-description">
+                    Genera y restaura copias de seguridad para proteger la información del sistema.
+                    Este modulo opera sobre la base de datos actual ({{ db_name }}).
+                </p>
+
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    Solo los superadministradores pueden generar, restaurar o eliminar backups.
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.js-loading-form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            const submit = form.querySelector('button[type="submit"]');
+            if (!submit) {
+                return;
+            }
+
+            const label = submit.querySelector('.btn-label');
+            const loading = submit.querySelector('.btn-loading');
+
+            submit.disabled = true;
+            if (label) {
+                label.classList.add('d-none');
+            }
+            if (loading) {
+                loading.classList.remove('d-none');
+            }
+        });
+    });
+
+    {% if auto_download_backup %}
+    {% url 'usuarios:descargar_backup_db' auto_download_backup as auto_download_url %}
+    (function () {
+        const url = "{{ auto_download_url|escapejs }}";
+        if (!url) return;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+
+        setTimeout(function () {
+            try { iframe.remove(); } catch (_) {}
+        }, 60000);
+    })();
+    {% endif %}
+});
+</script>

@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from unittest.mock import patch
 
 from .models import Perfil
@@ -10,6 +11,50 @@ from .forms import LoginForm, RegistroForm, EditarPerfilForm
 
 User = get_user_model()
 
+
+class SuperAdminSignalTest(TestCase):
+
+    def test_crea_superadmin_si_no_existe(self):
+        # 🔥 Asegurarnos de que no hay superadmins
+        User.objects.all().delete()
+
+        # Ejecutar migrate (dispara el signal)
+        call_command('migrate')
+
+        # Verificar que se creó un superadmin
+        existe = User.objects.filter(is_superuser=True).exists()
+
+        self.assertTrue(existe)
+
+    def test_no_crea_otro_si_ya_existe(self):
+        # Crear uno manualmente con documento único
+        User.objects.create_superuser(
+            username='admin_test',
+            email='test@test.com',
+            password='123456',
+            documento='12345678'  # 🔥 IMPORTANTE
+        )
+
+        cantidad_antes = User.objects.filter(is_superuser=True).count()
+
+        # Ejecutar migrate (dispara signal)
+        call_command('migrate')
+
+        cantidad_despues = User.objects.filter(is_superuser=True).count()
+
+        # 🔒 No debe crear otro
+        self.assertEqual(cantidad_antes, cantidad_despues)
+
+        cantidad_antes = User.objects.filter(is_superuser=True).count()
+
+        # Ejecutar migrate
+        call_command('migrate')
+
+        cantidad_despues = User.objects.filter(is_superuser=True).count()
+
+        # 🔒 No debe crear otro
+        self.assertEqual(cantidad_antes, cantidad_despues)
+        
 # ==============================================================================
 # 🏗️ CLASE BASE PARA PRUEBAS
 # ==============================================================================
@@ -158,7 +203,7 @@ class BackupModuloTests(UsuarioTestBase):
         if response.status_code == 200:
             self.assertIn('attachment;', response.get('Content-Disposition', ''))
         else:
-            self.assertRedirects(response, reverse('usuarios:perfil'))
+            self.assertRedirects(response, reverse('usuarios:seguridad'))
 
     def test_admin_no_superuser_no_puede_generar_backup(self):
         """Verifica que un usuario staff (pero no superadmin) sea rechazado."""
@@ -168,12 +213,12 @@ class BackupModuloTests(UsuarioTestBase):
         self.assertRedirects(response, reverse('core:dashboard'))
 
     def test_restaurar_backup_rechaza_extension_invalida(self):
-        """Verifica que el sistema rechace archivos que no sean .sqlite3."""
+        """Verifica que el sistema rechace archivos que no sean .json/.zip."""
         self.client.force_login(self.superadmin)
         invalid_file = SimpleUploadedFile('respaldo.txt', b'no-es-sqlite', content_type='text/plain')
         response = self.client.post(reverse('usuarios:restaurar_backup_db'), {'backup_file': invalid_file})
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('usuarios:perfil'))
+        self.assertRedirects(response, reverse('usuarios:seguridad'))
 
 # ==============================================================================
 # 🌐 PRUEBAS DE VISTAS Y ACCIONES

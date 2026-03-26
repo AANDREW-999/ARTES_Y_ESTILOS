@@ -457,15 +457,15 @@ hr {
 }
 .whatsapp-float {
   position: fixed;
-  width: 50px;
-  height: 50px;
+  width: 65px;
+  height: 65px;
   bottom: 100px; /* Distancia del borde inferior */
   right: 8px;  /* Alineado con botón de accesibilidad */
   background: linear-gradient(135deg, #e082d3 0%, #c058b8 100%);
   color: #FFF;
   border-radius: 50px;
   text-align: center;
-  font-size: 30px;
+  font-size: 40px;
   box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
   z-index: 1001; /* Ligeramente mayor que accesibilidad para evitar solapamiento */
   display: flex;
@@ -473,23 +473,27 @@ hr {
   justify-content: center;
   text-decoration: none;
   transition: all 0.3s ease;
-  border: 3px solid #6a1b4d;
+  border: 4px solid #6a1b4d;
 }
 
 /* En móvil: posicionar el WhatsApp debajo del botón de accesibilidad */
 @media (max-width: 768px) {
   .whatsapp-float {
-    bottom: 85px; /* Espacio para que no se superponga con accesibilidad (50px botón + 20px bottom + margen) */
+    width: 60px;
+    height: 60px;
+    font-size: 36px;
+    border-width: 3px;
+    bottom: 95px; /* Espacio para que no se superponga con accesibilidad (60px botón + 20px bottom + margen) */
   }
 }
 
 @media (max-width: 576px) {
   .whatsapp-float {
-    width: 45px;
-    height: 45px;
-    bottom: 80px; /* Aún más arriba en móvil pequeño */
-    font-size: 24px;
-    border-width: 2px;
+    width: 54px;
+    height: 54px;
+    bottom: 85px; /* Aún más arriba en móvil pequeño */
+    font-size: 32px;
+    border-width: 3px;
   }
 }
 

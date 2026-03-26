@@ -178,6 +178,11 @@ def login_view(request):
     """
     Vista de login para el panel administrativo.
     Solo permite acceso a usuarios con is_staff=True.
+
+    🔒 Seguridad:
+    - reCAPTCHA obligatorio en TODOS los intentos (no solo después de N fallos).
+    - Bloqueo total por IP tras MAX_INTENTOS fallidos.
+    - Contador de intentos restantes visible al usuario.
     """
 
     if request.user.is_authenticated:
@@ -194,36 +199,31 @@ def login_view(request):
 
     if request.method == 'POST':
 
-        # 🔐 CONFIGURACIÓN
+        # 🔐 Control de intentos por IP
         ip = get_client_ip(request)
         key = f"login_attempts_{ip}"
         intentos = cache.get(key, 0)
 
-        CAPTCHA_DESDE_INTENTOS = 3  # 🔥 puedes mover esto a settings luego
-
-        # 🔒 BLOQUEO TOTAL
+        # 🔒 BLOQUEO TOTAL — demasiados intentos fallidos
         if intentos >= MAX_INTENTOS:
             minutos = TIEMPO_BLOQUEO // 60
-
             messages.error(
                 request,
                 f"Demasiados intentos fallidos. Intenta nuevamente en {minutos} minutos.",
                 extra_tags='level-error field-general'
             )
-
             form = LoginForm(request, data=request.POST)
             return render(request, 'usuarios/login.html', {'form': form})
 
-        # 🤖 CAPTCHA SOLO SI ES NECESARIO
-        if intentos >= CAPTCHA_DESDE_INTENTOS:
-            if not validar_recaptcha(request):
-                messages.warning(
-                    request,
-                    "Por seguridad, verifica que no eres un robot.",
-                    extra_tags='level-warning field-general'
-                )
-                form = LoginForm(request, data=request.POST)
-                return render(request, 'usuarios/login.html', {'form': form})
+        # 🤖 VERIFICACIÓN reCAPTCHA — obligatoria en TODOS los intentos
+        if not validar_recaptcha(request):
+            messages.warning(
+                request,
+                "Debes verificar que no eres un robot antes de ingresar.",
+                extra_tags='level-warning field-general'
+            )
+            form = LoginForm(request, data=request.POST)
+            return render(request, 'usuarios/login.html', {'form': form})
 
         form = LoginForm(request, data=request.POST)
 
@@ -239,7 +239,7 @@ def login_view(request):
                 )
                 return render(request, 'usuarios/login.html', {'form': form})
 
-            # 🔥 RESET INTENTOS
+            # 🔥 RESET INTENTOS al ingresar correctamente
             auth_login(request, user)
             cache.delete(key)
 
@@ -250,18 +250,18 @@ def login_view(request):
             )
             return redirect('core:dashboard')
 
-        # ❌ LOGIN FALLIDO
+        # ❌ LOGIN FALLIDO — credenciales incorrectas
         else:
             usuario_o_documento = request.POST.get('username')
             msg = build_login_message(form, usuario_o_documento=usuario_o_documento)
 
-            # ➕ SUMAR INTENTO
+            # ➕ SUMAR INTENTO fallido
             intentos += 1
             cache.set(key, intentos, timeout=TIEMPO_BLOQUEO)
 
             intentos_restantes = MAX_INTENTOS - intentos
 
-            # 🧠 MENSAJE DINÁMICO
+            # 🧠 MENSAJE DINÁMICO con intentos restantes
             if intentos_restantes > 0:
                 mensaje_final = f"{msg['text']} Te quedan {intentos_restantes} intento(s) antes de bloquearse."
             else:
@@ -402,9 +402,6 @@ def generar_backup_db_view(request):
         extra_tags='level-success field-general'
     )
 
-    # En lugar de responder con FileResponse (que no recarga la página),
-    # redirigimos para que la lista se actualice y disparamos la descarga
-    # desde la vista de Seguridad (JS) una sola vez.
     request.session['backup_auto_download'] = backup.name
     return _redirect_next_or(request, 'usuarios:seguridad')
 
@@ -763,24 +760,6 @@ def editar_usuario_view(request, user_id):
         documento_original = usuario.documento
         documento_nuevo    = request.POST.get('documento', '')
         estado_anterior_activo = usuario.is_active
-
-        # Nota: Validacion de confirmacion de cambio de documento desactivada a pedido.
-        # if documento_original != documento_nuevo:
-        #     confirmar = request.POST.get('confirmar_cambio_documento', '')
-        #     if confirmar != 'CONFIRMAR':
-        #         messages.error(
-        #             request,
-        #             '⚠️ Para cambiar el documento debes marcar la casilla de confirmación y escribir "CONFIRMAR" en el campo.',
-        #             extra_tags='level-error field-documento'
-        #         )
-        #         form = EditarPerfilForm(request.POST, request.FILES, instance=usuario, editing_user=request.user)
-        #         return render(request, 'usuarios/editar_usuario.html', {
-        #             'form': form, 'usuario': usuario,
-        #             'es_auto_edicion': True,
-        #             'titulo': 'Editar Mi Perfil',
-        #             'boton_texto': 'Guardar Cambios',
-        #             'documento_original': documento_original,
-        #         })
 
         form = EditarPerfilForm(
             request.POST,

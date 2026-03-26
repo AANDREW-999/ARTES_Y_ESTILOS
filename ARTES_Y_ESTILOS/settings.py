@@ -11,29 +11,38 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-from decouple import config, RepositoryEnv
-
-ENV_FILE = os.getenv("ENV_FILE", ".env.dev")
+from decouple import Config, RepositoryEnv, config as decouple_config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+# ============================================================================
+# CARGAR ARCHIVO .env CORRECTO CON python-decouple
+# ============================================================================
+# Por defecto usa .env.dev; en producción pasa ENV_FILE=.env
+ENV_FILE = os.getenv("ENV_FILE", ".env.dev")
+env_path = BASE_DIR / ENV_FILE
 
+if env_path.exists():
+    _config = Config(RepositoryEnv(str(env_path)))
+else:
+    # Fallback: variables del sistema operativo
+    _config = decouple_config
+
+# ============================================================================
+# SEGURIDAD
+# ============================================================================
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-xaz3onx_0s*e)32z1ts#3z3u4q+h@wlm33(0$!^(_srtuo#09z'
+SECRET_KEY = _config('SECRET_KEY', default='django-insecure-xaz3onx_0s*e)32z1ts#3z3u4q+h@wlm33(0$!^(_srtuo#09z')
 
-# SECURITY WARNING: don't run with debug turned on in production!}
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = _config('DEBUG', default=False, cast=bool)
 
-DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = _config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'artesyestilos.com']
-
-
-
-# Application definition
-
+# ============================================================================
+# APLICACIONES INSTALADAS
+# ============================================================================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,7 +59,7 @@ INSTALLED_APPS = [
     'clientes',
     'accesibilidad',
     'compras',
-    'flor',      # ← must be here
+    'flor',
     'ventas',
     'producto',
     'categoria',
@@ -73,7 +82,7 @@ ROOT_URLCONF = 'ARTES_Y_ESTILOS.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], #Agregamos la carpeta templates
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,7 +91,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.panel_notificaciones',
-                
             ],
         },
     },
@@ -90,10 +98,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ARTES_Y_ESTILOS.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+# ============================================================================
+# BASE DE DATOS
+# ============================================================================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -101,53 +108,46 @@ DATABASES = {
     }
 }
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
+# ============================================================================
+# INTERNACIONALIZACIÓN
+# ============================================================================
 LANGUAGE_CODE = 'es-co'
-
 TIME_ZONE = 'America/Bogota'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
+# ============================================================================
+# ARCHIVOS ESTÁTICOS Y MEDIA
+# ============================================================================
 STATIC_URL = '/static/'
-# Incluir la carpeta 'static' del proyecto (para desarrollo)
 STATICFILES_DIRS = [BASE_DIR / 'static']
-# Para producción (cuando uses collectstatic)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media (archivos subidos por usuarios)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# LOGIN/LOGOUT SETTINGS
+# ============================================================================
+# LOGIN / LOGOUT
+# ============================================================================
 LOGIN_MAX_INTENTOS = 5
 LOGIN_TIEMPO_BLOQUEO = 600  # segundos (10 min)
 
-# URLs de redirección después de login/logout
-LOGIN_URL = 'usuarios:login'  # A dónde ir si no está autenticado
-LOGIN_REDIRECT_URL = 'core:dashboard'  # A dónde ir después de login exitoso
-LOGOUT_REDIRECT_URL = 'core:landing'  # A dónde ir después de logout
+LOGIN_URL = 'usuarios:login'
+LOGIN_REDIRECT_URL = 'core:dashboard'
+LOGOUT_REDIRECT_URL = 'core:landing'
 
-# Configuración de sesiones
-SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
-SESSION_SAVE_EVERY_REQUEST = True  # Actualiza la sesión en cada request
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # La sesión persiste al cerrar navegador
+# ============================================================================
+# SESIONES
+# ============================================================================
+SESSION_COOKIE_AGE = 3600
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-# Configuración de seguridad de contraseñas
-# Validadores que coinciden con los requisitos del frontend JavaScript
+# ============================================================================
+# VALIDADORES DE CONTRASEÑA
+# ============================================================================
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
@@ -157,6 +157,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ============================================================================
+# CACHÉ
+# ============================================================================
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -164,53 +167,33 @@ CACHES = {
     }
 }
 
-# Para ver correos en la terminal
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 # ============================================================================
-# CONFIGURACIÓN DE EMAIL PARA RECUPERACIÓN DE CONTRASEÑA
+# EMAIL — CONFIGURACIÓN ÚNICA Y CORRECTA
 # ============================================================================
-
-# Backend de email: console (desarrollo) o smtp (producción)
-EMAIL_BACKEND_TYPE = config('EMAIL_BACKEND', default='console')
+# En .env.dev → EMAIL_BACKEND=smtp   para usar Gmail real
+# En .env.dev → EMAIL_BACKEND=console para imprimir en terminal
+EMAIL_BACKEND_TYPE = _config('EMAIL_BACKEND', default='console')
 
 if EMAIL_BACKEND_TYPE == 'smtp':
-    # MODO PRODUCCIÓN: Gmail SMTP
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-    DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=f'Arte & Estilos <{EMAIL_HOST_USER}>')
+    # MODO SMTP: correos reales via Gmail
+    EMAIL_BACKEND    = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST       = _config('EMAIL_HOST',     default='smtp.gmail.com')
+    EMAIL_PORT       = _config('EMAIL_PORT',     default=587, cast=int)
+    EMAIL_USE_TLS    = _config('EMAIL_USE_TLS',  default=True, cast=bool)
+    EMAIL_HOST_USER  = _config('EMAIL_HOST_USER',     default='')
+    EMAIL_HOST_PASSWORD = _config('EMAIL_HOST_PASSWORD', default='')
+    DEFAULT_FROM_EMAIL  = _config(
+        'DEFAULT_FROM_EMAIL',
+        default=f'Arte & Estilos <{EMAIL_HOST_USER}>'
+    )
     SERVER_EMAIL = EMAIL_HOST_USER
 else:
-    # MODO DESARROLLO: Emails se muestran en la consola
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    # MODO CONSOLA: solo imprime en terminal, no envía nada
+    EMAIL_BACKEND      = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
-    SERVER_EMAIL = 'noreply@arteyestilos.local'
+    SERVER_EMAIL       = 'noreply@arteyestilos.local'
+
 # ============================================================================
-# CONFIGURACIÓN DE EMAIL PARA RECUPERACIÓN DE CONTRASEÑA
+# RECAPTCHA
 # ============================================================================
-
-# Backend de email: console (desarrollo) o smtp (producción)
-EMAIL_BACKEND_TYPE = config('EMAIL_BACKEND', default='console')
-
-if EMAIL_BACKEND_TYPE == 'smtp':
-    # MODO PRODUCCIÓN: Gmail SMTP
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-    DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=f'Arte & Estilos <{EMAIL_HOST_USER}>')
-    SERVER_EMAIL = EMAIL_HOST_USER
-else:
-    # MODO DESARROLLO: Emails se muestran en la consola
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    DEFAULT_FROM_EMAIL = 'noreply@arteyestilos.local'
-    SERVER_EMAIL = 'noreply@arteyestilos.local'
-
-RECAPTCHA_SECRET_KEY = "6LeRW48sAAAAABc9t2z8S5I1mu6hd5EilsguzUxi"
-
+RECAPTCHA_SECRET_KEY = _config('RECAPTCHA_SECRET_KEY', default='')

@@ -9,7 +9,6 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-
 body {
     font-family: Arial, sans-serif;
     font-size: 10px;
@@ -217,14 +216,46 @@ table.data-table .td-total { width: 80px; text-align: right; font-weight: bold; 
     }
 }
 
-function descargarPDF() {
-    const titulo = document.title;
-    document.title = 'reporte_ventas_{{ periodo }}';
-    window.print();
-    document.title = titulo;
-}
 .btn-pdf { background: #dc2626; color: #fff; }
 .btn-pdf:hover { background: #b91c1c; }
+
+/* ── PDF export overrides ───────────────────── */
+body.pdf-mode {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+body.pdf-mode .page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+body.pdf-mode table,
+body.pdf-mode .stats-row,
+body.pdf-mode .total-bar,
+body.pdf-mode .subtotal-row {
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    word-break: break-word !important;
+}
+body.pdf-mode .stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+}
+body.pdf-mode .total-bar,
+body.pdf-mode .section-header,
+body.pdf-mode table.data-table thead td,
+body.pdf-mode .subtotal-row,
+body.pdf-mode .hdr-badge,
+body.pdf-mode .stat-box,
+body.pdf-mode table.data-table tr.even td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
 </style>
 </head>
 <body>
@@ -233,7 +264,7 @@ function descargarPDF() {
 <div class="toolbar">
     <a href="{% url 'ventas:listar_venta' %}" class="btn-back">&#8592; Volver</a>
     <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
-<button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
+    <button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
     <a href="?mes={{ mes }}&anio={{ anio }}&tipo_venta={{ tipo_venta }}&formato=excel"
        class="btn-excel">&#128202; Excel</a>
     <span class="spacer"></span>
@@ -388,6 +419,7 @@ function descargarPDF() {
     </div>
 
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -402,27 +434,29 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.textContent = 'Generando...';
 
         if (toolbar) toolbar.style.display = 'none';
-        document.body.style.background = '#fff';
-        document.body.style.padding    = '0';
+        document.body.classList.add('pdf-mode');
 
-        // ✅ Después
-var opciones = {
-    margin:      [8, 8, 8, 8],
-    filename:    'reporte_compras_{{ periodo }}.pdf',
-    image:       { type: 'jpeg', quality: 1 },
-    html2canvas: {
-        scale:           1.5,
-        useCORS:         true,
-        logging:         false,
-        backgroundColor: '#ffffff',
-        windowWidth:     900,
-    },
-    jsPDF: {
-        unit:        'mm',
-        format:      'a4',
-        orientation: 'landscape',
-    },
-};
+        var pageWidth = elemento.scrollWidth;
+
+        var opciones = {
+            margin:      [6, 6, 6, 6],
+            filename:    'Reporte de Ventas A&E Gestión Floral{{ periodo }}.pdf',
+            image:       { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale:           2,
+                useCORS:         true,
+                logging:         false,
+                backgroundColor: '#ffffff',
+                windowWidth:     pageWidth,
+                scrollX:         0,
+                scrollY:         0,
+            },
+            jsPDF: {
+                unit:        'mm',
+                format:      'a4',
+                orientation: 'portrait',
+            },
+        };
 
         html2pdf()
             .set(opciones)
@@ -430,8 +464,7 @@ var opciones = {
             .save()
             .finally(function () {
                 if (toolbar) toolbar.style.display = '';
-                document.body.style.background = '';
-                document.body.style.padding    = '';
+                document.body.classList.remove('pdf-mode');
                 btn.disabled    = false;
                 btn.textContent = '📂 Descargar PDF';
             });

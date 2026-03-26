@@ -21,7 +21,10 @@ from datetime import date, datetime
 import io
 
 # ── Excel ──
-import openpyxl
+try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 # ── PDF ──

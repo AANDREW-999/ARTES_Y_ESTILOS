@@ -181,6 +181,69 @@ python manage.py test
 
 ---
 
+## ☁️ Despliegue en AWS + RDS PostgreSQL
+
+El proyecto ya soporta PostgreSQL por variables de entorno en `settings.py`.
+
+### 1. Crear archivo de entorno
+
+Usa `.env.example` como base:
+
+```bash
+cp .env.example .env
+```
+
+En Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Edita `.env` con tus credenciales reales de RDS.
+
+### 2. Variables mínimas para RDS
+
+```env
+DEBUG=False
+SECRET_KEY=<clave-larga-y-segura>
+ALLOWED_HOSTS=artesyestilos.com,www.artesyestilos.com
+CSRF_TRUSTED_ORIGINS=https://artesyestilos.com,https://www.artesyestilos.com
+
+DB_ENGINE=postgresql
+DB_NAME=postgres
+DB_USER=masteruser
+DB_PASSWORD=<tu-password>
+DB_HOST=db-artes-y-estilos.cl2qa4ic0p2v.us-east-2.rds.amazonaws.com
+DB_PORT=5432
+
+DB_SSL_MODE=verify-full
+DB_SSL_ROOT_CERT=/opt/certs/global-bundle.pem
+```
+
+### 3. Certificado SSL de Amazon RDS
+
+Descarga el bundle oficial de AWS:
+
+```bash
+curl -o global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
+```
+
+Ubícalo en la ruta que declaraste en `DB_SSL_ROOT_CERT`.
+
+### 4. Comandos previos al arranque
+
+```bash
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py check --deploy
+```
+
+### 5. Nota sobre seguridad
+
+Si `check --deploy` muestra warning del `SECRET_KEY`, debes rotarlo por una clave larga y aleatoria.
+
+---
+
 ## 🗂️ Estructura del proyecto (alto nivel)
 
 ```

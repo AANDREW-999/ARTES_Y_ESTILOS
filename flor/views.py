@@ -14,8 +14,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
 
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+import openpyxl # type: ignore
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side # type: ignore
 
 from core.notifications import crear_notificacion
 from compras.models import Compra

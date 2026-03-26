@@ -20,11 +20,13 @@ backup/
 *.sql
 *.dump
 *.backup
+*.zip
 
 ### Python Testing ###
 test_email_config.py
 
-### Html Testin ###
+### Html Testing ###
+htmlcov/
 demo_tema.html
 demo_indicador_premium.html
 
@@ -155,6 +157,7 @@ __pycache__/
 .env
 .venv/
 .env
+.env.*
 .venv
 env/
 venv/

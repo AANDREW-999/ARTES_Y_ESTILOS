@@ -54,22 +54,15 @@
         init() {
             this.initElements();
             this.initThemeToggle();
-            this.initIconAccessibility();
+            this.initAdminSearch();
             this.initSidebarCollapsible();
+            this.initLogoutModal();
             this.initActiveMenuDetection();
             this.initSubMenus();
             this.initResponsive();
             this.initResponsiveTables();
-            this.initLogoutModal();
-            this.initAdminSearch();
+            this.initIconAccessibility();
             this.convertDjangoMessages(); // siempre al final
-
-            // Señales globales de interacción
-            document.addEventListener('pointerdown', () => { this._lastInputWasPointer = true; }, { passive: true });
-            document.addEventListener('keydown', (e) => {
-                // Si el usuario navega con teclado, habilitamos apertura por focus
-                if (e.key === 'Tab' || e.key.startsWith('Arrow')) this._lastInputWasPointer = false;
-            });
         }
 
 
@@ -484,7 +477,7 @@
         }
 
         _clampSidebarWidth(width) {
-            // Rango “SaaS” razonable: evita romper topbar/main
+            // Rango "SaaS" razonable: evita romper topbar/main
             const min = 220;
             const max = 360;
             return Math.max(min, Math.min(max, width));
@@ -605,7 +598,7 @@
             const isOpen = this._flyout.classList.contains('show');
             const isSameToggle = this._flyoutToggle === toggle;
 
-            // Si estaba abierto por hover y el usuario hace click: “fijar” (no cerrar).
+            // Si estaba abierto por hover y el usuario hace click: "fijar" (no cerrar).
             if (isOpen && isSameToggle && !this._flyoutPinned) {
                 this._flyoutPinned = true;
                 return;
@@ -1032,6 +1025,23 @@
         _hideLogoutModal() {
             if (!this.logoutModal) return;
             this.logoutModal.style.display = 'none';
+        }
+
+        // ─────────────────────────────────────────
+        // Mover alertas debajo del breadcrumb
+        // ─────────────────────────────────────────
+        movePageMessagesBelowBreadcrumb() {
+            const messages = document.getElementById('adminPageMessages');
+            if (!messages) return;
+
+            // Si no hay nada dentro, evitar espacio extra.
+            if (!messages.querySelector('.alert')) return;
+
+            const breadcrumb = document.querySelector('.page-breadcrumb') || document.querySelector('.breadcrumb-nav');
+            if (!breadcrumb) return;
+
+            // Insertar justo después del breadcrumb.
+            breadcrumb.insertAdjacentElement('afterend', messages);
         }
 
         // ─────────────────────────────────────────

@@ -229,8 +229,53 @@ table.tipo-table .td-c { text-align: center; }
         print-color-adjust: exact;
     }
 }
+
 .btn-pdf { background: #dc2626; color: #fff; }
 .btn-pdf:hover { background: #b91c1c; }
+
+/* ── PDF export overrides ───────────────────── */
+/* Se aplican cuando body tiene la clase pdf-mode */
+body.pdf-mode {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+body.pdf-mode .page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    /* Forzar que nada se salga del contenedor */
+    overflow: hidden !important;
+}
+/* Evitar que tablas o elementos rompan el ancho */
+body.pdf-mode table,
+body.pdf-mode .stats-row,
+body.pdf-mode .total-bar,
+body.pdf-mode .subtotal-row {
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    word-break: break-word !important;
+}
+body.pdf-mode .stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+}
+/* Preservar colores de fondo en el PDF */
+body.pdf-mode .total-bar,
+body.pdf-mode .section-header,
+body.pdf-mode table.data-table thead td,
+body.pdf-mode table.tipo-table thead td,
+body.pdf-mode .subtotal-row,
+body.pdf-mode .hdr-badge,
+body.pdf-mode .stat-box,
+body.pdf-mode table.data-table tr.even td,
+body.pdf-mode table.tipo-table tr.even td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
 </style>
 </head>
 <body>
@@ -238,8 +283,8 @@ table.tipo-table .td-c { text-align: center; }
 <!-- ── Toolbar ──────────────────────────────── -->
 <div class="toolbar">
     <a href="{% url 'producto:lista' %}" class="btn-back">&#8592; Volver</a>
-     <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
-<button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
+    <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
+    <button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
     <a href="?tipo={{ tipo_filtro }}&formato=excel" class="btn-excel">&#128202; Excel</a>
     <span class="spacer"></span>
     <span class="periodo-tag">
@@ -406,6 +451,7 @@ table.tipo-table .td-c { text-align: center; }
     </div>
 
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -419,37 +465,41 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.disabled    = true;
         btn.textContent = 'Generando...';
 
+        // Ocultar toolbar y activar modo PDF
         if (toolbar) toolbar.style.display = 'none';
-        document.body.style.background = '#fff';
-        document.body.style.padding    = '0';
+        document.body.classList.add('pdf-mode');
 
-        // ✅ Después
-var opciones = {
-    margin:      [8, 8, 8, 8],
-    filename:    'reporte_compras_{{ periodo }}.pdf',
-    image:       { type: 'jpeg', quality: 1 },
-    html2canvas: {
-        scale:           1.5,
-        useCORS:         true,
-        logging:         false,
-        backgroundColor: '#ffffff',
-        windowWidth:     900,
-    },
-    jsPDF: {
-        unit:        'mm',
-        format:      'a4',
-        orientation: 'landscape',
-    },
-};
+        // Calcular el ancho real del .page para usarlo como windowWidth
+        var pageWidth = elemento.scrollWidth;
+
+        var opciones = {
+            margin:      [6, 6, 6, 6],          // márgenes pequeños en mm
+            filename:    'Reporte Productos A&E Gestión Floral{{ periodo }}.pdf',
+            image:       { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale:           2,              // mayor nitidez sin desbordarse
+                useCORS:         true,
+                logging:         false,
+                backgroundColor: '#ffffff',
+                windowWidth:     pageWidth,      // usar el ancho exacto del contenido
+                scrollX:         0,
+                scrollY:         0,
+            },
+            jsPDF: {
+                unit:        'mm',
+                format:      'a4',
+                orientation: 'portrait',         // portrait encaja mejor el ancho 750px
+            },
+        };
 
         html2pdf()
             .set(opciones)
             .from(elemento)
             .save()
             .finally(function () {
+                // Restaurar estado original
                 if (toolbar) toolbar.style.display = '';
-                document.body.style.background = '';
-                document.body.style.padding    = '';
+                document.body.classList.remove('pdf-mode');
                 btn.disabled    = false;
                 btn.textContent = '📂 Descargar PDF';
             });

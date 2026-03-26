@@ -127,9 +127,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getStockClass(stockRaw) {
         const stock = parseInt(stockRaw, 10) || 0;
-        if (stock <= 5) return 'stock-low text-danger';
-        if (stock <= 15) return 'stock-medium text-warning';
-        return 'stock-high text-success';
+        if (stock <= 10) return "stock-low text-danger";
+        if (stock <= 30) return "stock-medium text-warning";
+        return "stock-high text-success";
     }
 
     function escapeHtml(str) {

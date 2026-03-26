@@ -123,8 +123,6 @@ def dashboard_view(request):
 
 
 def error_404(request, exception):
-    if request.path.startswith("/admin"):
-        return render(request, "admin/404_admin.html", status=404)
     return render(request, "core/404_index.html", status=404)
 
 

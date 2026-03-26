@@ -107,7 +107,8 @@
     if (!isFileExtensionAllowed(filename, allowedExts)) {
       fileInput.value = '';
       if (notifyOnError) {
-        showNotification('error', 'Formato de archivo no permitido. Selecciona un archivo SQLite válido (.sqlite3, .sqlite, .db).');
+        const allowedLabel = allowedExts && allowedExts.length ? ` (${allowedExts.join(', ')})` : '';
+        showNotification('error', `Formato de archivo no permitido. Selecciona un archivo válido${allowedLabel}.`);
       }
       return false;
     }

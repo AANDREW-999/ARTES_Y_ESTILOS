@@ -1,8 +1,6 @@
-import shutil
-import sqlite3
 import requests
+import tempfile
 from django.conf import settings
-from datetime import datetime
 from pathlib import Path
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,21 +8,27 @@ from django.http import JsonResponse, FileResponse
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
 from django.template.loader import render_to_string
-from django.db import connections
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.contrib.auth.models import AnonymousUser
 from core.notifications import crear_notificacion
 from django.core.cache import cache
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message, build_form_messages
 from .decorators import panel_login_required, superadmin_required
+from .services.backup_service import (
+    BackupError,
+    create_backup,
+    delete_backup,
+    list_backups,
+    resolve_backup_path,
+    restore_backup,
+    validate_backup_file,
+)
 
 User = get_user_model()
 
@@ -57,44 +61,9 @@ def _default_db_engine():
     return settings.DATABASES.get('default', {}).get('ENGINE', '')
 
 
-def _is_sqlite_default_db():
-    return _default_db_engine().endswith('sqlite3')
-
-
 def _default_db_path():
     db_name = settings.DATABASES.get('default', {}).get('NAME')
     return Path(str(db_name)).resolve()
-
-
-def _backup_directory():
-    backup_dir = Path(settings.BASE_DIR) / 'backups'
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    return backup_dir
-
-
-def _sqlite_backup_to_file(source_path: Path, destination_path: Path):
-    source_conn = sqlite3.connect(str(source_path))
-    try:
-        destination_conn = sqlite3.connect(str(destination_path))
-        try:
-            source_conn.backup(destination_conn)
-        finally:
-            destination_conn.close()
-    finally:
-        source_conn.close()
-
-
-def _validate_sqlite_file(file_path: Path):
-    with open(file_path, 'rb') as uploaded_file:
-        header = uploaded_file.read(16)
-    if header != b'SQLite format 3\x00':
-        raise ValueError('El archivo no tiene un encabezado valido de SQLite.')
-
-    conn = sqlite3.connect(str(file_path))
-    try:
-        conn.execute('PRAGMA schema_version;').fetchone()
-    finally:
-        conn.close()
 
 
 def _safe_next_url(request):
@@ -377,7 +346,7 @@ def perfil_view(request):
     db_path = _default_db_path()
     context = {
         'db_engine': _default_db_engine(),
-        'db_is_sqlite': _is_sqlite_default_db(),
+        'db_is_sqlite': _default_db_engine().endswith('sqlite3'),
         'db_name': db_path.name,
     }
     return render(request, 'usuarios/perfil.html', context)
@@ -386,153 +355,174 @@ def perfil_view(request):
 @login_required
 @panel_login_required
 def seguridad_view(request):
-    """Módulo de Seguridad dentro de Usuarios (mismo contenido que en Perfil > Seguridad)."""
     db_path = _default_db_path()
+    backups = [
+        {
+            'nombre': item.name,
+            'fecha': item.modified_at,
+            'size': item.size_kb,
+            'tipo': 'ZIP' if item.extension == '.zip' else 'JSON',
+            'icon': 'bi-file-earmark-zip' if item.extension == '.zip' else 'bi-filetype-json',
+        }
+        for item in list_backups()
+    ]
+
     context = {
         'db_engine': _default_db_engine(),
-        'db_is_sqlite': _is_sqlite_default_db(),
+        'db_is_sqlite': _default_db_engine().endswith('sqlite3'),
         'db_name': db_path.name,
+        'backups': backups,
+        'auto_download_backup': request.session.pop('backup_auto_download', ''),
     }
+
     return render(request, 'usuarios/seguridad.html', context)
 
 
 @superadmin_required
 def generar_backup_db_view(request):
     if request.method != 'POST':
-        return _redirect_next_or(request, 'usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:seguridad')
 
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-
-    if not _is_sqlite_default_db():
-        message = '⛔ El modulo de respaldo automatico solo esta habilitado para SQLite en este momento.'
-        if is_ajax:
-            return JsonResponse({'message': message}, status=400)
-        messages.error(request, message, extra_tags='level-error field-general')
-        return _redirect_next_or(request, 'usuarios:perfil')
-
-    db_path = _default_db_path()
-    if not db_path.exists():
-        message = '⛔ No se encontro el archivo de base de datos para generar la copia de seguridad.'
-        if is_ajax:
-            return JsonResponse({'message': message}, status=400)
-        messages.error(request, message, extra_tags='level-error field-general')
-        return _redirect_next_or(request, 'usuarios:perfil')
-
-    backup_dir = _backup_directory()
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    backup_filename = f'backup_{timestamp}.sqlite3'
-    backup_path = backup_dir / backup_filename
+    compress = request.POST.get('compress_backup') == '1'
 
     try:
-        _sqlite_backup_to_file(db_path, backup_path)
-    except Exception as exc:
-        message = f'❌ No fue posible generar el backup: {exc}'
-        if is_ajax:
-            return JsonResponse({'message': message}, status=500)
-        messages.error(request, message, extra_tags='level-error field-general')
-        return _redirect_next_or(request, 'usuarios:perfil')
+        backup = create_backup(compress=compress)
 
-    response = FileResponse(open(backup_path, 'rb'), as_attachment=True, filename=backup_filename)
-    response['Content-Type'] = 'application/x-sqlite3'
-    return response
+    except BackupError as exc:
+        messages.error(
+            request,
+            f'No fue posible generar el backup: {exc}',
+            extra_tags='level-error field-general'
+        )
+        return _redirect_next_or(request, 'usuarios:seguridad')
+
+    messages.success(
+        request,
+        f'Backup generado correctamente: {backup.name}.',
+        extra_tags='level-success field-general'
+    )
+
+    # En lugar de responder con FileResponse (que no recarga la página),
+    # redirigimos para que la lista se actualice y disparamos la descarga
+    # desde la vista de Seguridad (JS) una sola vez.
+    request.session['backup_auto_download'] = backup.name
+    return _redirect_next_or(request, 'usuarios:seguridad')
+
+
+@superadmin_required
+def descargar_backup_db_view(request, backup_name):
+    try:
+        backup_path = resolve_backup_path(backup_name)
+    except BackupError as exc:
+        messages.error(
+            request,
+            f'No se pudo descargar el backup: {exc}',
+            extra_tags='level-error field-general'
+        )
+        return _redirect_next_or(request, 'usuarios:seguridad')
+
+    content_type = 'application/zip' if backup_path.suffix.lower() == '.zip' else 'application/json'
+
+    return FileResponse(
+        open(backup_path, 'rb'),
+        as_attachment=True,
+        filename=backup_path.name,
+        content_type=content_type,
+    )
+
+
+@superadmin_required
+def eliminar_backup_db_view(request, backup_name):
+    if request.method != 'POST':
+        return _redirect_next_or(request, 'usuarios:seguridad')
+
+    try:
+        delete_backup(backup_name)
+        messages.success(
+            request,
+            f'Backup eliminado: {backup_name}.',
+            extra_tags='level-success field-general'
+        )
+    except BackupError as exc:
+        messages.error(
+            request,
+            f'No se pudo eliminar el backup: {exc}',
+            extra_tags='level-error field-general'
+        )
+
+    return _redirect_next_or(request, 'usuarios:seguridad')
 
 
 @superadmin_required
 def restaurar_backup_db_view(request):
     if request.method != 'POST':
-        return _redirect_next_or(request, 'usuarios:perfil')
-
-    if not _is_sqlite_default_db():
-        messages.error(
-            request,
-            '⛔ La restauracion automatica solo esta habilitada para SQLite en este momento.',
-            extra_tags='level-error field-general'
-        )
-        return _redirect_next_or(request, 'usuarios:perfil')
-
+        return _redirect_next_or(request, 'usuarios:seguridad')
+    selected_backup = request.POST.get('backup_selected')
     uploaded_file = request.FILES.get('backup_file')
-    if not uploaded_file:
-        messages.warning(
-            request,
-            '⚠️ Debes seleccionar un archivo .sqlite3 para restaurar la base de datos.',
-            extra_tags='level-warning field-general'
-        )
-        return _redirect_next_or(request, 'usuarios:perfil')
 
-    allowed_extensions = {'.sqlite3', '.sqlite', '.db'}
-    suffix = Path(uploaded_file.name).suffix.lower()
-    if suffix not in allowed_extensions:
-        messages.error(
-            request,
-            '⛔ Archivo invalido. Solo se permiten extensiones .sqlite3, .sqlite o .db.',
-            extra_tags='level-error field-general'
-        )
-        return _redirect_next_or(request, 'usuarios:perfil')
-
-    backup_dir = _backup_directory()
-    tmp_path = backup_dir / f'_tmp_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}{suffix}'
+    tmp_path = None
+    is_temp_upload = False
 
     try:
-        with open(tmp_path, 'wb+') as destination:
+        if selected_backup:
+            tmp_path = resolve_backup_path(selected_backup)
+
+        elif uploaded_file:
+            extension = Path(uploaded_file.name).suffix.lower()
+            if extension not in {'.json', '.zip'}:
+                messages.error(
+                    request,
+                    'Archivo inválido. Solo se permiten backups .json o .zip.',
+                    extra_tags='level-error field-general'
+                )
+                return _redirect_next_or(request, 'usuarios:seguridad')
+
+            max_upload_mb = int(getattr(settings, 'BACKUP_MAX_UPLOAD_MB', 30))
+            if uploaded_file.size > max_upload_mb * 1024 * 1024:
+                messages.error(
+                    request,
+                    f'El archivo supera el límite de {max_upload_mb} MB.',
+                    extra_tags='level-error field-general'
+                )
+                return _redirect_next_or(request, 'usuarios:seguridad')
+
+            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
             for chunk in uploaded_file.chunks():
-                destination.write(chunk)
+                tmp_file.write(chunk)
+            tmp_file.close()
+            tmp_path = Path(tmp_file.name)
+            is_temp_upload = True
 
-        _validate_sqlite_file(tmp_path)
-
-        db_path = _default_db_path()
-        if not db_path.exists():
-            raise FileNotFoundError('No existe la base de datos actual para restaurar.')
-
-        emergency_filename = f'pre_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}.sqlite3'
-        emergency_path = backup_dir / emergency_filename
-
-        _sqlite_backup_to_file(db_path, emergency_path)
-
-        # Guardamos datos del usuario actual para restaurar autenticación
-        # sobre la base ya reemplazada.
-        current_user_id = request.user.id
-        auth_backend = request.session.get('_auth_user_backend')
-        if not auth_backend:
-            auth_backend = settings.AUTHENTICATION_BACKENDS[0]
-
-        connections.close_all()
-        shutil.copy2(tmp_path, db_path)
-        connections.close_all()
-
-        # El reemplazo de SQLite puede eliminar la fila de sesión activa.
-        # Forzamos nueva sesión para que SessionMiddleware no intente
-        # actualizar una sesión que ya no existe.
-        request.session.flush()
-        request.user = AnonymousUser()
-
-        refreshed_user = User.objects.filter(id=current_user_id, is_active=True).first()
-        if not refreshed_user:
+        else:
             messages.warning(
                 request,
-                '⚠️ La base fue restaurada, pero tu usuario no existe o esta inactivo en el respaldo cargado. Debes iniciar sesion nuevamente.',
+                'Debes seleccionar un backup o subir un archivo.',
                 extra_tags='level-warning field-general'
             )
-            return redirect('usuarios:login')
+            return _redirect_next_or(request, 'usuarios:seguridad')
 
-        # Reautenticamos al usuario sobre la base restaurada.
-        auth_login(request, refreshed_user, backend=auth_backend)
+        validate_backup_file(tmp_path)
+        restore_backup(tmp_path)
+
         messages.success(
             request,
-            f'✅ Base de datos restaurada correctamente. Se guardo una copia de seguridad previa: {emergency_filename}.',
+            'Backup restaurado correctamente.',
             extra_tags='level-success field-general'
         )
-        return _redirect_next_or(request, 'usuarios:perfil')
-    except Exception as exc:
+
+    except BackupError as exc:
         messages.error(
             request,
-            f'❌ No fue posible restaurar la base de datos: {exc}',
+            f'Error al restaurar el backup: {exc}',
             extra_tags='level-error field-general'
         )
+
     finally:
-        if tmp_path.exists():
+        # Solo borrar si es archivo temporal
+        if is_temp_upload and tmp_path and tmp_path.exists():
             tmp_path.unlink()
 
-    return _redirect_next_or(request, 'usuarios:perfil')
+    return _redirect_next_or(request, 'usuarios:seguridad')
 
 
 @login_required

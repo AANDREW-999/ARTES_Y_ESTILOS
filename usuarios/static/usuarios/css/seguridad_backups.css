@@ -1,0 +1,240 @@
+
+/* ========================================
+   BACKUPS - CONTROLES
+   (Alineación: restaurar → generar → lista)
+   ======================================== */
+
+.backup-module .backup-security-card {
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .backup-module .backup-security-card {
+        padding: 1.25rem;
+    }
+}
+
+.backup-module .backup-controls {
+    display: grid;
+    gap: 1rem;
+}
+
+.backup-module .backup-generate {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========================================
+   BACKUPS - TABLA (simetría con módulos)
+   ======================================== */
+
+.backup-module .backup-table-container {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 0;
+    margin-bottom: 0;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease backwards;
+}
+
+.backup-module .backup-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.backup-module .backup-table thead {
+    background: linear-gradient(135deg, #BF5486 0%, #D9A7C2 100%);
+}
+
+.backup-module .backup-table thead th {
+    color: #fff;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    white-space: nowrap;
+}
+
+.backup-module .backup-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.backup-module .backup-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.backup-module .backup-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.backup-module .backup-table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.backup-module .backup-name {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.backup-module .backup-name i {
+    color: var(--text-primary);
+}
+
+.backup-module .badge-backup-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(108, 117, 125, 0.05));
+    color: var(--text-secondary);
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+html[data-theme="dark"] .backup-module .badge-backup-type {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    color: #adb5bd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Acciones (icon-only, simétrico) */
+.backup-module .backup-actions-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.backup-module .btn-backup-action {
+    padding: 0.5rem 0.875rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.backup-module .btn-backup-download {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: #fff;
+}
+
+.backup-module .btn-backup-download:hover {
+    background: linear-gradient(135deg, #138496, #117a8b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+    color: #fff;
+}
+
+.backup-module .btn-backup-restore {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    color: #000;
+}
+
+.backup-module .btn-backup-restore:hover {
+    background: linear-gradient(135deg, #e0a800, #d39e00);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    color: #000;
+}
+
+.backup-module .btn-backup-delete {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: #fff;
+}
+
+.backup-module .btn-backup-delete:hover {
+    background: linear-gradient(135deg, #c82333, #bd2130);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    color: #fff;
+}
+
+.backup-module .backup-empty-state {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.backup-module .backup-empty-state i {
+    display: block;
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.backup-module .backup-empty-state p {
+    margin: 0;
+}
+
+.backup-module .modal-content {
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+    .backup-module .backup-table thead {
+        display: none;
+    }
+
+    .backup-module .backup-table,
+    .backup-module .backup-table tbody,
+    .backup-module .backup-table tr,
+    .backup-module .backup-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .backup-module .backup-table tr {
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        background: var(--bg-card);
+    }
+
+    .backup-module .backup-table td {
+        border: none;
+        padding: 0.25rem 0;
+    }
+
+    .backup-module .backup-table td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        margin-bottom: 0.15rem;
+    }
+
+    .backup-module .backup-table td:last-child {
+        padding-top: 0.65rem;
+    }
+
+    .backup-module .backup-actions-wrapper {
+        justify-content: flex-start;
+    }
+}

@@ -26,7 +26,7 @@ handler404 = 'core.views.error_404'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
-    path('', include('usuarios.urls')),
+    path('panel/', include('usuarios.urls')),
     path('panel/catalogo/', include('catalogo.urls')),
     path('panel/proveedores/', include('proveedores.urls')), # Solo una vez
     path('panel/compras/', include('compras.urls')),        # Solo una vez

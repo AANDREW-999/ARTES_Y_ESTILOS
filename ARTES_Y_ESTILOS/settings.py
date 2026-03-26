@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
-from decouple import config
+from decouple import config, RepositoryEnv
+
+ENV_FILE = os.getenv("ENV_FILE", ".env.dev")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +26,7 @@ SECRET_KEY = 'django-insecure-xaz3onx_0s*e)32z1ts#3z3u4q+h@wlm33(0$!^(_srtuo#09z
 
 # SECURITY WARNING: don't run with debug turned on in production!}
 
-DEBUG = False
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'artesyestilos.com']
 

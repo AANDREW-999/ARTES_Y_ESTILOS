@@ -240,8 +240,6 @@ def eliminar_producto(request, id):
 
 
 # 5. DETALLE
-@login_required
-@panel_login_required
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     return render(request, 'detalle_catalogo_producto.html', {'producto': producto})

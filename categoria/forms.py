@@ -1,5 +1,6 @@
 from django import forms
 import unicodedata
+from core.sanitize import validar_y_sanitizar
 
 from .models import Categoria
 
@@ -51,3 +52,10 @@ class CategoriaForm(forms.ModelForm):
 
 			raise forms.ValidationError('Solo se permiten letras y emojis en el nombre.')
 		return nombre
+	
+	def clean_descripcion(self):
+		"""Validar y sanitizar descripción por XSS."""
+		descripcion = self.cleaned_data.get('descripcion', '')
+		if descripcion:
+			descripcion = validar_y_sanitizar('Descripción', descripcion)
+		return descripcion

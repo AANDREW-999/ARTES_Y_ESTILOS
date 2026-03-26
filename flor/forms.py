@@ -5,6 +5,7 @@ from django import forms
 from .models import Flor
 
 import re
+from core.sanitize import validar_y_sanitizar
 
 class FlorForm(forms.ModelForm):
     precio = forms.CharField(
@@ -65,4 +66,6 @@ class FlorForm(forms.ModelForm):
 
     def clean_descripcion(self):
         descripcion = (self.cleaned_data.get("descripcion") or "").strip()
+        if descripcion:
+            descripcion = validar_y_sanitizar('Descripción', descripcion)
         return descripcion or "Sin descripcion"

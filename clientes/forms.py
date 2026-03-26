@@ -158,15 +158,29 @@ class ClienteForm(forms.ModelForm):
         telefono = self.cleaned_data.get("telefono")
 
         if telefono:
-            telefono = telefono.replace(" ", "")
+            # Remover espacios
+            telefono_limpio = telefono.replace(" ", "").replace("-", "")
+            
+            # Validar que sia solo dígitos (y opcionalmente + al inicio)
+            if not re.match(r"^\+?\d{7,15}$", telefono_limpio):
+                raise forms.ValidationError("El teléfono debe contener entre 7 y 15 dígitos. Formato: +57 3001234567")
 
-            if not telefono.isdigit():
-                raise forms.ValidationError("El teléfono solo puede contener números.")
-
-            if len(telefono) < 7:
-                raise forms.ValidationError("Número de teléfono inválido.")
+            return telefono_limpio
 
         return telefono
+    
+    def clean_direccion(self):
+        """Validar dirección: solo alfanuméricos, espacios y símbolos comunes."""
+        direccion = self.cleaned_data.get("direccion")
+        
+        if direccion:
+            # Permitir: letras, números, espacios, guiones, comas, puntos, #, etc.
+            if not re.match(r"^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s\-#,.\(\)]{1,200}$", direccion):
+                raise forms.ValidationError("La dirección contiene caracteres no permitidos.")
+            
+            return direccion.strip()
+        
+        return direccion
 
     def clean_correo_electronico(self):
         correo = self.cleaned_data.get("correo_electronico")

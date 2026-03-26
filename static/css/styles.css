@@ -397,11 +397,11 @@ hr {
 /* WhatsApp FAB */
 .whatsapp-fab {
   position: fixed;
-  right: 1rem;
+  right: 600px;
   bottom: 1.25rem;
   z-index: 1050;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -457,23 +457,40 @@ hr {
 }
 .whatsapp-float {
   position: fixed;
-  width: 60px;
-  height: 61px;
-  bottom: 120px; /* Distancia del borde inferior */
-  right: 35px;  /* Distancia del borde derecho */
-  background: linear-gradient(135deg, #e082d3 0%, #c058b8 100%); /* Degradado similar a tu imagen */
+  width: 50px;
+  height: 50px;
+  bottom: 100px; /* Distancia del borde inferior */
+  right: 8px;  /* Alineado con botón de accesibilidad */
+  background: linear-gradient(135deg, #e082d3 0%, #c058b8 100%);
   color: #FFF;
   border-radius: 50px;
   text-align: center;
   font-size: 30px;
   box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
-  z-index: 1000; /* Para que siempre esté por encima de todo */
+  z-index: 1001; /* Ligeramente mayor que accesibilidad para evitar solapamiento */
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   transition: all 0.3s ease;
-  border: 3px solid #6a1b4d; /* El borde oscuro que se ve en tu imagen */
+  border: 3px solid #6a1b4d;
+}
+
+/* En móvil: posicionar el WhatsApp debajo del botón de accesibilidad */
+@media (max-width: 768px) {
+  .whatsapp-float {
+    bottom: 85px; /* Espacio para que no se superponga con accesibilidad (50px botón + 20px bottom + margen) */
+  }
+}
+
+@media (max-width: 576px) {
+  .whatsapp-float {
+    width: 45px;
+    height: 45px;
+    bottom: 80px; /* Aún más arriba en móvil pequeño */
+    font-size: 24px;
+    border-width: 2px;
+  }
 }
 
 /* Efecto al pasar el mouse */

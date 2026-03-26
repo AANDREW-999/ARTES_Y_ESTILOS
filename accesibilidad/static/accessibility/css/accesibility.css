@@ -362,15 +362,17 @@
         max-width: 90vw !important;
     }
 
+    /* Botón más pequeño en tablets */
     .minegate-acc-trigger.floral-theme {
-        width: 60px !important;
-        height: 60px !important;
+        width: 48px !important;
+        height: 48px !important;
         bottom: 20px !important;
-        right: 20px !important;
+        right: 8px !important;
+        border-width: 2px !important;
     }
 
     .minegate-acc-trigger.floral-theme i {
-        font-size: 1.5rem !important;
+        font-size: 1.6rem !important;
     }
 
     .acc-btn-group.floral-grid {
@@ -409,6 +411,17 @@
 
     .panel-icon {
         font-size: 1.2rem;
+    }
+
+    /* Botón aún más pequeño en móvil */
+    .minegate-acc-trigger.floral-theme {
+        width: 44px !important;
+        height: 44px !important;
+        border-width: 2px !important;
+    }
+
+    .minegate-acc-trigger.floral-theme i {
+        font-size: 1.3rem !important;
     }
 
     .btn-content i {

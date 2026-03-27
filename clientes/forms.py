@@ -3,6 +3,7 @@
 from django import forms
 from .models import Cliente
 import re
+from core.sanitize import validar_y_sanitizar
 
 
 class ClienteForm(forms.ModelForm):
@@ -140,6 +141,8 @@ class ClienteForm(forms.ModelForm):
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", nombre):
             raise forms.ValidationError("El nombre solo puede contener letras.")
 
+        # Sanitizar contra XSS
+        nombre = validar_y_sanitizar('Nombre', nombre)
         return nombre.strip().title()
 
     def clean_apellido(self):
@@ -152,6 +155,8 @@ class ClienteForm(forms.ModelForm):
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", apellido):
             raise forms.ValidationError("El apellido solo puede contener letras.")
 
+        # Sanitizar contra XSS
+        apellido = validar_y_sanitizar('Apellido', apellido)
         return apellido.strip().title()
 
     def clean_telefono(self):
@@ -178,6 +183,8 @@ class ClienteForm(forms.ModelForm):
             if not re.match(r"^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s\-#,.\(\)]{1,200}$", direccion):
                 raise forms.ValidationError("La dirección contiene caracteres no permitidos.")
             
+            # Sanitizar contra XSS
+            direccion = validar_y_sanitizar('Dirección', direccion)
             return direccion.strip()
         
         return direccion

@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 import re
 
 from .models import Proveedor
+from core.sanitize import validar_y_sanitizar
 
 class ProveedorForm(forms.ModelForm):
     # Se renderiza como <select> pero se guarda como texto (CharField).
@@ -128,6 +129,8 @@ class ProveedorForm(forms.ModelForm):
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", nombre):
             raise forms.ValidationError('El nombre del proveedor solo puede contener letras.')
 
+        # Sanitizar contra XSS
+        nombre = validar_y_sanitizar('Nombre del proveedor', nombre)
         return nombre.title()
     
     def clean_telefono(self):
@@ -155,6 +158,8 @@ class ProveedorForm(forms.ModelForm):
             if not re.match(r"^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s\-#,.\(\)]{1,200}$", direccion):
                 raise forms.ValidationError('La dirección contiene caracteres no permitidos.')
             
+            # Sanitizar contra XSS
+            direccion = validar_y_sanitizar('Dirección', direccion)
             return direccion.strip()
         
         return direccion

@@ -111,24 +111,15 @@
                         <i class="bi bi-box" aria-hidden="true"></i><span>Productos</span>
                     </a>
                 </li>
-
-                <li class="nav-header"><span>GESTIÓN DE VENTAS</span></li>
-
-                <li class="nav-item">
-                    <a href="{% url 'ventas:listar_venta' %}"
-                       class="nav-link {% if request.resolver_match.app_name == 'ventas' %}active{% endif %}">
-                        <i class="bi bi-cart3" aria-hidden="true"></i><span>Ventas</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{% url 'clientes:lista_clientes' %}"
-                       class="nav-link {% if request.resolver_match.app_name == 'clientes' and request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
-                        <i class="bi bi-people" aria-hidden="true"></i><span>Clientes</span>
-                    </a>
-                </li>
-
+                
                 <li class="nav-header"><span>GESTIÓN DE COMPRAS</span></li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'proveedores:listar' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'proveedores' %}active{% endif %}">
+                        <i class="bi bi-truck" aria-hidden="true"></i><span>Proveedores</span>
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     <a href="{% url 'compras:lista_compra' %}"
@@ -137,12 +128,24 @@
                     </a>
                 </li>
 
+
+                <li class="nav-header"><span>GESTIÓN DE VENTAS</span></li>
+                
                 <li class="nav-item">
-                    <a href="{% url 'proveedores:listar' %}"
-                       class="nav-link {% if request.resolver_match.app_name == 'proveedores' %}active{% endif %}">
-                        <i class="bi bi-truck" aria-hidden="true"></i><span>Proveedores</span>
+                    <a href="{% url 'clientes:lista_clientes' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'clientes' and request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                        <i class="bi bi-people" aria-hidden="true"></i><span>Clientes</span>
                     </a>
                 </li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'ventas:listar_venta' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'ventas' %}active{% endif %}">
+                        <i class="bi bi-cart3" aria-hidden="true"></i><span>Ventas</span>
+                    </a>
+                </li>
+
+
 
                 <li class="nav-header"><span>CONFIGURACIÓN</span></li>
 

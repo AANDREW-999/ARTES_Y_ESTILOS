@@ -153,6 +153,20 @@ class VentaForm(forms.ModelForm):
 
         return cleaned_data
     
+    def clean_direccion(self):
+        """Validar y sanitizar dirección por XSS."""
+        direccion = self.cleaned_data.get('direccion', '')
+        if direccion:
+            direccion = validar_y_sanitizar('Dirección', direccion)
+        return direccion
+
+    def clean_nombre_domiciliario(self):
+        """Validar y sanitizar nombre del domiciliario por XSS."""
+        nombre = self.cleaned_data.get('nombre_domiciliario', '')
+        if nombre:
+            nombre = validar_y_sanitizar('Nombre del domiciliario', nombre)
+        return nombre
+    
     def clean_descripcion(self):
         """Validar y sanitizar descripción por XSS."""
         descripcion = self.cleaned_data.get('descripcion', '')

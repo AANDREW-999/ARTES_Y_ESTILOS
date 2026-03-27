@@ -81,7 +81,14 @@
                 {% block sidebar_extra_items %}{% endblock %}
 
                 <li class="nav-header"><span>CATÁLOGO WEB</span></li>
-
+                
+                <li class="nav-item">
+                    <a href="{% url 'categoria:lista' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'categoria' %}active{% endif %}">
+                        <i class="bi bi-tag" aria-hidden="true"></i><span>Categorías</span>
+                    </a>
+                </li>
+                
                 <li class="nav-item">
                     <a href="{% url 'catalogo:gestion_productos' %}"
                        class="nav-link {% if request.resolver_match.app_name == 'catalogo' %}active{% endif %}">
@@ -89,12 +96,6 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="{% url 'categoria:lista' %}"
-                       class="nav-link {% if request.resolver_match.app_name == 'categoria' %}active{% endif %}">
-                        <i class="bi bi-tag" aria-hidden="true"></i><span>Categorías</span>
-                    </a>
-                </li>
 
                 <li class="nav-header"><span>INVENTARIO</span></li>
 
@@ -137,7 +138,7 @@
                         <i class="bi bi-people" aria-hidden="true"></i><span>Clientes</span>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a href="{% url 'ventas:listar_venta' %}"
                        class="nav-link {% if request.resolver_match.app_name == 'ventas' %}active{% endif %}">

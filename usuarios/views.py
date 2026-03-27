@@ -33,9 +33,33 @@ from .services.backup_service import (
 User = get_user_model()
 
 def validar_recaptcha(request):
-    recaptcha_response = request.POST.get('g-recaptcha-response')
+    """
+    Valida el token de reCAPTCHA enviado desde el cliente.
+    
+    En desarrollo (DEBUG=True): Aceptar cualquier respuesta
+    En producción: Validar con Google
+    
+    Returns:
+        bool: True si el reCAPTCHA es válido, False en caso contrario
+    """
+    recaptcha_response = request.POST.get('g-recaptcha-response', '').strip()
+
+    # EN DESARROLLO: Aceptar cualquier respuesta de reCAPTCHA
+    if settings.DEBUG:
+        if recaptcha_response:
+            print("✅ MODO DESARROLLO: reCAPTCHA aceptado (sin validar con Google)")
+            return True
+        else:
+            print("⚠️  MODO DESARROLLO: Usuario no marcó el reCAPTCHA")
+            return False
+
+    # EN PRODUCCIÓN: Validar con Google
+    if not settings.RECAPTCHA_SECRET_KEY or settings.RECAPTCHA_SECRET_KEY == '':
+        print("❌ ERROR: RECAPTCHA_SECRET_KEY no está configurada en producción")
+        return False
 
     if not recaptcha_response:
+        print("⚠️  reCAPTCHA: No se recibió respuesta del cliente")
         return False
 
     data = {
@@ -43,13 +67,34 @@ def validar_recaptcha(request):
         'response': recaptcha_response
     }
 
-    r = requests.post(
-        'https://www.google.com/recaptcha/api/siteverify',
-        data=data
-    )
-
-    result = r.json()
-    return result.get('success', False)
+    try:
+        r = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data=data,
+            timeout=5
+        )
+        r.raise_for_status()
+        
+        result = r.json()
+        success = result.get('success', False)
+        
+        if success:
+            score = result.get('score', 0)
+            print(f"✅ reCAPTCHA validado correctamente (score: {score})")
+            return True
+        
+        print(f"❌ reCAPTCHA falló: {result}")
+        return False
+    
+    except requests.exceptions.Timeout:
+        print("❌ ERROR: Timeout al validar reCAPTCHA (5s)")
+        return False
+    except requests.exceptions.RequestException as e:
+        print(f"❌ ERROR: Error de conexión al validar reCAPTCHA: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ ERROR: Error inesperado al validar reCAPTCHA: {e}")
+        return False
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -213,7 +258,10 @@ def login_view(request):
                 extra_tags='level-error field-general'
             )
             form = LoginForm(request, data=request.POST)
-            return render(request, 'usuarios/login.html', {'form': form})
+            return render(request, 'usuarios/login.html', {
+                'form': form,
+                'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+            })
 
         # 🤖 VERIFICACIÓN reCAPTCHA — obligatoria en TODOS los intentos
         if not validar_recaptcha(request):
@@ -223,7 +271,10 @@ def login_view(request):
                 extra_tags='level-warning field-general'
             )
             form = LoginForm(request, data=request.POST)
-            return render(request, 'usuarios/login.html', {'form': form})
+            return render(request, 'usuarios/login.html', {
+                'form': form,
+                'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+            })
 
         form = LoginForm(request, data=request.POST)
 
@@ -237,7 +288,10 @@ def login_view(request):
                     '⛔ Acceso denegado. No tienes permisos para acceder al panel administrativo.',
                     extra_tags='level-error field-general'
                 )
-                return render(request, 'usuarios/login.html', {'form': form})
+                return render(request, 'usuarios/login.html', {
+                    'form': form,
+                    'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+                })
 
             # 🔥 RESET INTENTOS al ingresar correctamente
             auth_login(request, user)
@@ -280,7 +334,10 @@ def login_view(request):
     else:
         form = LoginForm()
 
-    return render(request, 'usuarios/login.html', {'form': form})
+    return render(request, 'usuarios/login.html', {
+        'form': form,
+        'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+    })
 
 
 def panel_inactivo_view(request):

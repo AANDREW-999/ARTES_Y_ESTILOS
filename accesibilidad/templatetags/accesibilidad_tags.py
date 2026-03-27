@@ -10,6 +10,7 @@ def accesibilidad_widget():
     # Agrega una versión al final de la URL (puedes cambiar v1 por v2, v3, etc.)
     css_url = static('accessibility/css/accesibility.css') + '?v=1.1'
     js_url = static('accessibility/js/accessibility.js') + '?v=1.1'
+    pdf_url = static('pdf/MANUAL DE USUARIO SISTEMA DE INVENTARIO A&E GESTIÓN FLORAL.pdf')
     return mark_safe(f'''
         <link rel="stylesheet" href="{fa_css}">
         <link rel="stylesheet" href="{css_url}">
@@ -76,7 +77,7 @@ def accesibilidad_widget():
                 </button>
                 
                 <!-- Botón Manual de Usuario -->
-                <a href="/static/pdf/MANUAL%20DE%20USUARIO%20SISTEMA%20DE%20INVENTARIO%20A&E%20GESTI%C3%B3n%20FLORAL.pdf" target="_blank" rel="noopener" class="acc-opt floral-btn manual-btn">
+                <a href="{pdf_url}" target="_blank" rel="noopener" class="acc-opt floral-btn manual-btn">
                     <div class="btn-content">
                         <i class="bi bi-question-circle" title="Abrir Manual de Usuario"></i>
                         <span>Manual de Usuario</span>

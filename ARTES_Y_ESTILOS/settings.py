@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'core.middleware.CSPMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -196,4 +197,5 @@ else:
 # ============================================================================
 # RECAPTCHA
 # ============================================================================
+RECAPTCHA_PUBLIC_KEY = _config('RECAPTCHA_PUBLIC_KEY', default='6LeRW48sAAAAABfebJ0JxbWtk-BOTFt3xNwpq0xr')
 RECAPTCHA_SECRET_KEY = _config('RECAPTCHA_SECRET_KEY', default='')

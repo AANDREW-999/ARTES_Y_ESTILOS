@@ -3,10 +3,15 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from PIL import Image
+import os
 
 from .models import Perfil
 
 User = get_user_model()
+
+# Extensiones permitidas para imágenes
+EXTENSIONES_VALIDAS_IMAGEN = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'}
 
 
 # =====================================================
@@ -130,6 +135,47 @@ class RegistroForm(UserCreationForm):
         if User.objects.filter(documento=documento).exists():
             raise ValidationError("Este documento ya está registrado.")
         return documento
+
+    def clean_foto_perfil(self):
+        """Validar que el archivo sea una imagen real y no un ejecutable."""
+        foto = self.cleaned_data.get('foto_perfil')
+        
+        if not foto:
+            return foto
+        
+        # Validar nombre de archivo
+        nombre_archivo = foto.name.lower()
+        extensiones_peligrosas = {'.exe', '.bat', '.cmd', '.com', '.scr', '.vbs', '.js', '.zip', '.rar'}
+        
+        for ext_peligrosa in extensiones_peligrosas:
+            if nombre_archivo.endswith(ext_peligrosa):
+                raise ValidationError(f'No se permiten archivos con extensión {ext_peligrosa}.')
+        
+        # Validar extensión de archivo
+        _, ext = os.path.splitext(nombre_archivo)
+        if ext.lower() not in EXTENSIONES_VALIDAS_IMAGEN:
+            raise ValidationError(
+                f'Tipo de archivo no permitido. Solo se aceptan: {", ".join(EXTENSIONES_VALIDAS_IMAGEN)}'
+            )
+        
+        # Validar que sea una imagen real usando PIL
+        try:
+            foto.seek(0)
+            img = Image.open(foto)
+            img.verify()
+        except Exception as e:
+            raise ValidationError(
+                f'El archivo no es una imagen válida. Error: {str(e)}'
+            )
+        
+        # Validar tamaño máximo (5MB)
+        tamaño_maximo = 5 * 1024 * 1024  # 5MB
+        if foto.size > tamaño_maximo:
+            raise ValidationError(
+                f'El archivo es demasiado grande. Máximo 5MB, tu archivo tiene {foto.size / 1024 / 1024:.2f}MB.'
+            )
+        
+        return foto
 
 
 # =====================================================
@@ -281,6 +327,47 @@ class EditarPerfilForm(forms.ModelForm):
         if qs.exists():
             raise ValidationError("Este documento ya está registrado.")
         return documento
+
+    def clean_foto_perfil(self):
+        """Validar que el archivo sea una imagen real y no un ejecutable."""
+        foto = self.cleaned_data.get('foto_perfil')
+        
+        if not foto:
+            return foto
+        
+        # Validar nombre de archivo
+        nombre_archivo = foto.name.lower()
+        extensiones_peligrosas = {'.exe', '.bat', '.cmd', '.com', '.scr', '.vbs', '.js', '.zip', '.rar'}
+        
+        for ext_peligrosa in extensiones_peligrosas:
+            if nombre_archivo.endswith(ext_peligrosa):
+                raise ValidationError(f'No se permiten archivos con extensión {ext_peligrosa}.')
+        
+        # Validar extensión de archivo
+        _, ext = os.path.splitext(nombre_archivo)
+        if ext.lower() not in EXTENSIONES_VALIDAS_IMAGEN:
+            raise ValidationError(
+                f'Tipo de archivo no permitido. Solo se aceptan: {", ".join(EXTENSIONES_VALIDAS_IMAGEN)}'
+            )
+        
+        # Validar que sea una imagen real usando PIL
+        try:
+            foto.seek(0)
+            img = Image.open(foto)
+            img.verify()
+        except Exception as e:
+            raise ValidationError(
+                f'El archivo no es una imagen válida. Error: {str(e)}'
+            )
+        
+        # Validar tamaño máximo (5MB)
+        tamaño_maximo = 5 * 1024 * 1024  # 5MB
+        if foto.size > tamaño_maximo:
+            raise ValidationError(
+                f'El archivo es demasiado grande. Máximo 5MB, tu archivo tiene {foto.size / 1024 / 1024:.2f}MB.'
+            )
+        
+        return foto
 
     # ── Guardado atómico: User + Perfil ──────────────────────────────────
 

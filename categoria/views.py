@@ -71,7 +71,7 @@ def lista_categoria(request):
 @panel_login_required
 def agregar_categoria(request):
 	if request.method == 'POST':
-		form = CategoriaForm(request.POST)
+		form = CategoriaForm(request.POST, request.FILES)
 		if form.is_valid():
 			categoria = form.save(commit=False)
 			imagen = _procesar_imagen(request, categoria.nombre)
@@ -102,7 +102,7 @@ def editar_categoria(request, pk: int):
 	categoria = get_object_or_404(Categoria, pk=pk)
 
 	if request.method == 'POST':
-		form = CategoriaForm(request.POST, instance=categoria)
+		form = CategoriaForm(request.POST, request.FILES, instance=categoria)
 		if form.is_valid():
 			categoria = form.save(commit=False)
 			imagen = _procesar_imagen(request, categoria.nombre)

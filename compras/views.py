@@ -173,11 +173,24 @@ def _thin_border():
 
 
 def _get_logo_base64():
-    """Carga el logo desde compras/static/img/LogoAE.png como base64."""
-    logo_path = os.path.join(settings.BASE_DIR, "compras", "static", "img", "LogoAE.png")
-    if os.path.exists(logo_path):
-        with open(logo_path, "rb") as f:
-            return base64.b64encode(f.read()).decode("utf-8")
+    """Carga el logo desde static/img como base64 para evitar duplicados en collectstatic."""
+    candidatos = []
+    for static_dir in getattr(settings, "STATICFILES_DIRS", []):
+        candidatos.append(os.path.join(static_dir, "img", "LogoAE.png"))
+        candidatos.append(os.path.join(static_dir, "img", "logo.png"))
+        candidatos.append(os.path.join(static_dir, "img", "logo.jpg"))
+
+    static_root = getattr(settings, "STATIC_ROOT", None)
+    if static_root:
+        candidatos.append(os.path.join(static_root, "img", "LogoAE.png"))
+        candidatos.append(os.path.join(static_root, "img", "logo.png"))
+        candidatos.append(os.path.join(static_root, "img", "logo.jpg"))
+
+    for path in candidatos:
+        if os.path.exists(path):
+            with open(path, "rb") as f:
+                return base64.b64encode(f.read()).decode("utf-8")
+
     return ""
 
 

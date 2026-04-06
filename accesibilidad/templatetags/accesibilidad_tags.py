@@ -7,11 +7,11 @@ register = template.Library()
 @register.simple_tag
 def accesibilidad_widget():
     fa_css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
-    # Agrega una versión al final de la URL (puedes cambiar v1 por v2, v3, etc.)
-    css_url = static('accessibility/css/accesibility.css') + '?v=1.1'
-    js_url = static('accessibility/js/accessibility.js') + '?v=1.1'
+    css_url = static('accessibility/css/accesibility.css') + '?v=1.2'
+    js_url = static('accessibility/js/accessibility.js') + '?v=1.2'
     pdf_url = static('pdf/MANUAL DE USUARIO SISTEMA DE INVENTARIO A&E GESTIÓN FLORAL.pdf')
-    return mark_safe(f'''
+    
+    html_content = f'''
         <link rel="stylesheet" href="{fa_css}">
         <link rel="stylesheet" href="{css_url}">
         
@@ -93,4 +93,6 @@ def accesibilidad_widget():
         <div id="reading-guide"></div>
 
         <script src="{js_url}"></script>
-    ''')
+    '''
+    
+    return mark_safe(html_content)

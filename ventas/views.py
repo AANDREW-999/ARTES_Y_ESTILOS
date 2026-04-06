@@ -91,19 +91,25 @@ def _parse_detalles_venta(request):
             except InvalidOperation:
                 raise ValueError(f"Item {idx}: Formato invalido en precio.")
 
+        try:
+            if tipo_item == "FLOR":
+                precio_base = Flor.objects.get(pk=item_pk).precio
+            else:
+                precio_base = Producto.objects.get(pk=item_pk).precio
+        except (Flor.DoesNotExist, Producto.DoesNotExist):
+            raise ValueError(f"Item {idx}: El item seleccionado ya no existe.")
+
         if not precio or precio <= 0:
-            try:
-                if tipo_item == "FLOR":
-                    precio = Flor.objects.get(pk=item_pk).precio
-                else:
-                    precio = Producto.objects.get(pk=item_pk).precio
-            except (Flor.DoesNotExist, Producto.DoesNotExist):
-                raise ValueError(f"Item {idx}: El item seleccionado ya no existe.")
+            precio = precio_base
 
         if cantidad <= 0:
             raise ValueError(f"Item {idx}: La cantidad debe ser mayor a 0.")
         if precio <= 0:
             raise ValueError(f"Item {idx}: El precio debe ser mayor a 0.")
+        if precio < precio_base:
+            raise ValueError(
+                f"Item {idx}: No puedes asignar un precio menor al precio base (${precio_base:.2f})."
+            )
 
         detalles.append({
             "tipo_item": tipo_item,

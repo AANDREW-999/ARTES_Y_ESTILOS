@@ -233,6 +233,50 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function formatearMonedaVisual(numero) {
+        return Number(numero || 0).toLocaleString("es-CO", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    }
+
+    function obtenerHintPrecio(precioInput) {
+        if (!precioInput) return null;
+        const wrapper = precioInput.closest(".field-wrapper");
+        if (!wrapper) return null;
+
+        let hint = wrapper.querySelector(".precio-base-hint");
+        if (!hint) {
+            hint = document.createElement("small");
+            hint.className = "precio-base-hint form-text d-block mt-1 text-muted";
+            precioInput.insertAdjacentElement("afterend", hint);
+        }
+
+        return hint;
+    }
+
+    function actualizarHintPrecio(precioInput) {
+        const hint = obtenerHintPrecio(precioInput);
+        if (!hint || !precioInput) return;
+
+        const precioBase = parseFloat(precioInput.dataset.precioBase || "0") || 0;
+        if (precioBase <= 0) {
+            hint.textContent = "";
+            hint.className = "precio-base-hint form-text d-block mt-1 text-muted";
+            return;
+        }
+
+        const precioActual = parseFloat(precioInput.value || "0") || 0;
+        if (precioActual > 0 && precioActual < precioBase) {
+            hint.textContent = `Precio base: $${formatearMonedaVisual(precioBase)}. No puedes disminuirlo.`;
+            hint.className = "precio-base-hint form-text d-block mt-1 text-danger";
+            return;
+        }
+
+        hint.textContent = `Precio base: $${formatearMonedaVisual(precioBase)}. Puedes aumentarlo para esta venta, pero no disminuirlo.`;
+        hint.className = "precio-base-hint form-text d-block mt-1 text-muted";
+    }
+
     function getStockClass(stock) {
         const s = parseInt(stock, 10) || 0;
         if (s <= 10) return "stock-low text-danger";
@@ -330,7 +374,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const triggerBtn = nuevoItem.querySelector(".item-picker-trigger");
 
         if (select) select.selectedIndex = 0;
-        if (precioInput) precioInput.value = "0";
+        if (precioInput) {
+            precioInput.value = "0";
+            precioInput.readOnly = false;
+            precioInput.min = "0";
+            delete precioInput.dataset.precioBase;
+            actualizarHintPrecio(precioInput);
+        }
         if (cantidadInput) cantidadInput.value = "1";
         if (subtotal) subtotal.innerText = "$0.00";
         if (preview) {
@@ -345,6 +395,29 @@ document.addEventListener("DOMContentLoaded", function () {
         itemsContainer.appendChild(nuevoItem);
         configurarItem(nuevoItem);
         calcularTotal();
+
+        mostrarAlertaAdmin(
+            "info",
+            "Puedes aumentar el precio del item para esta venta, pero no disminuirlo por debajo del precio base."
+        );
+        mostrarMensajeAgregarItem();
+    }
+
+    function mostrarMensajeAgregarItem() {
+        const mensaje = "Puedes aumentar el precio del item para esta venta, pero no disminuirlo por debajo del precio base.";
+        const parent = addItemBtn?.parentElement;
+        if (!parent) return;
+
+        let infoEl = document.getElementById("itemAddPriceNotice");
+        if (!infoEl) {
+            infoEl = document.createElement("div");
+            infoEl.id = "itemAddPriceNotice";
+            infoEl.className = "alert alert-info py-2 px-3 mt-2 mb-0";
+            infoEl.setAttribute("role", "status");
+            parent.insertAdjacentElement("afterend", infoEl);
+        }
+
+        infoEl.textContent = mensaje;
     }
 
     function configurarItem(itemEl) {
@@ -352,6 +425,33 @@ document.addEventListener("DOMContentLoaded", function () {
         const precioInput = itemEl.querySelector(".precio");
         const cantidadInput = itemEl.querySelector(".cantidad");
         const removeBtn = itemEl.querySelector(".eliminar");
+
+        const validarPrecioContraBase = () => {
+            if (!precioInput) return true;
+
+            const precio = parseFloat(precioInput.value) || 0;
+            const precioBase = parseFloat(precioInput.dataset.precioBase || "0") || 0;
+
+            if (precio <= 0) {
+                setFieldValidation(precioInput, false, "El precio debe ser mayor que 0.");
+                actualizarHintPrecio(precioInput);
+                return false;
+            }
+
+            if (precioBase > 0 && precio < precioBase) {
+                setFieldValidation(
+                    precioInput,
+                    false,
+                    `No puedes asignar un precio menor al base ($${formatearMonedaVisual(precioBase)}).`
+                );
+                actualizarHintPrecio(precioInput);
+                return false;
+            }
+
+            setFieldValidation(precioInput, true, "");
+            actualizarHintPrecio(precioInput);
+            return true;
+        };
 
         const validarCantidadContraStock = () => {
             if (!cantidadInput || !select) return true;
@@ -382,11 +482,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (select && precioInput) {
+            precioInput.readOnly = false;
+
             const autocompletarPrecio = (forzar) => {
                 const selectedOption = select.options[select.selectedIndex];
                 const precio = selectedOption ? selectedOption.getAttribute("data-precio") : null;
                 const precioActual = parseFloat(precioInput.value) || 0;
                 const precioNum = parsearPrecioData(precio);
+
+                precioInput.dataset.precioBase = precioNum > 0 ? precioNum.toFixed(2) : "";
+                precioInput.min = precioNum > 0 ? precioNum.toFixed(2) : "0";
 
                 if (precioNum > 0 && (forzar || !precioActual || precioActual <= 0)) {
                     precioInput.value = precioNum.toFixed(2);
@@ -398,8 +503,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const itemOk = String(select.value || "").trim() !== "";
                 setFieldValidation(select, itemOk, itemOk ? "" : "Debes seleccionar un ítem.");
 
-                const precioVal = parseFloat(precioInput.value) || 0;
-                setFieldValidation(precioInput, precioVal > 0, precioVal > 0 ? "" : "El precio debe ser mayor que 0.");
+                validarPrecioContraBase();
                 validarCantidadContraStock();
                 calcularTotal();
             };
@@ -408,7 +512,10 @@ document.addEventListener("DOMContentLoaded", function () {
             autocompletarPrecio(false);
         }
 
-        precioInput && precioInput.addEventListener("input", calcularTotal);
+        precioInput && precioInput.addEventListener("input", () => {
+            validarPrecioContraBase();
+            calcularTotal();
+        });
         cantidadInput && cantidadInput.addEventListener("input", calcularTotal);
 
         if (cantidadInput) {
@@ -561,8 +668,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 const precio = parseFloat(precioInput?.value) || 0;
-                const precioOk = precio > 0;
-                setFieldValidation(precioInput, precioOk, precioOk ? "" : "El precio debe ser mayor que 0.");
+                const precioBase = parseFloat(precioInput?.dataset?.precioBase || "0") || 0;
+                const precioOk = precio > 0 && (precioBase <= 0 || precio >= precioBase);
+                const mensajePrecio = !precio || precio <= 0
+                    ? "El precio debe ser mayor que 0."
+                    : `No puedes asignar un precio menor al base ($${formatearMonedaVisual(precioBase)}).`;
+                setFieldValidation(precioInput, precioOk, precioOk ? "" : mensajePrecio);
+                actualizarHintPrecio(precioInput);
                 if (!precioOk) {
                     formOk = false;
                     if (!firstInvalid) firstInvalid = precioInput;

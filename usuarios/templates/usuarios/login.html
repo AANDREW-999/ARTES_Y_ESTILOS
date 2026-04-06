@@ -79,7 +79,7 @@
           <!-- ================================================================ -->
           <!-- CABECERA DEL FORMULARIO -->
           <!-- ================================================================ -->
-          <header class="login-header text-center mb-4">
+          <header class="login-header text-center mb-2">
             <i class="bi bi-box-arrow-in-right d-block mb-3" style="font-size:48px;color:var(--rosa-intenso);" aria-hidden="true"></i>
             <h1 class="login-title h2 mb-2">Iniciar Sesión</h1>
             <p class="text-muted mb-0">Accede al Panel Administrativo</p>
@@ -124,7 +124,14 @@
                 </div>
               </div>
             </div>
-
+            <!-- reCAPTCHA -->
+<div class="mb-3">
+  <div class="fake-input-recaptcha">
+    <div class="d-flex justify-content-center">
+      <div class="g-recaptcha" data-sitekey="{{ recaptcha_public_key }}"></div>
+    </div>
+  </div>
+</div>
             <!-- Botón de envío -->
             <button type="submit" class="btn-login w-100 py-3 mb-3">
               <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
@@ -142,14 +149,14 @@
                 ¿Olvidaste tu contraseña?
               </a>
             </p>
-            <hr class="my-3 opacity-50">
+            {% comment %} <hr class="my-3 opacity-50">
             <p class="register-link mb-0">
               ¿No tienes cuenta?
               <a class="link-floral fw-semibold" href="{% url 'usuarios:registro' %}">
                 <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>
                 Regístrate aquí
               </a>
-            </p>
+            </p> {% endcomment %}
           </div>
 
         </div>
@@ -163,5 +170,9 @@
 <script>
   window.LOGIN_VALIDATE_URL = "{% url 'usuarios:validar_usuario_documento' %}";
 </script>
+
+<!-- SCRIPT DE RECAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <script src="{% static 'usuarios/js/login.js' %}?v=20260303-2"></script>
 {% endblock %}

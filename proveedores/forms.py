@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 import re
 
 from .models import Proveedor
+from core.sanitize import validar_y_sanitizar
 
 class ProveedorForm(forms.ModelForm):
     # Se renderiza como <select> pero se guarda como texto (CharField).
@@ -128,4 +129,37 @@ class ProveedorForm(forms.ModelForm):
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", nombre):
             raise forms.ValidationError('El nombre del proveedor solo puede contener letras.')
 
+        # Sanitizar contra XSS
+        nombre = validar_y_sanitizar('Nombre del proveedor', nombre)
         return nombre.title()
+    
+    def clean_telefono(self):
+        """Validar teléfono: entre 7 y 15 dígitos."""
+        telefono = self.cleaned_data.get('telefono')
+        
+        if telefono:
+            # Remover espacios y guiones
+            telefono_limpio = telefono.replace(" ", "").replace("-", "")
+            
+            # Validar formato
+            if not re.match(r"^\+?\d{7,15}$", telefono_limpio):
+                raise forms.ValidationError('El teléfono debe tener entre 7 y 15 dígitos. Ejemplo: +57 3001234567')
+            
+            return telefono_limpio
+        
+        return telefono
+    
+    def clean_direccion(self):
+        """Validar dirección: solo alfanuméricos y símbolos comunes."""
+        direccion = self.cleaned_data.get('direccion')
+        
+        if direccion:
+            # Permitir: letras, números, espacios, guiones, comas, puntos, #, etc.
+            if not re.match(r"^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s\-#,.\(\)]{1,200}$", direccion):
+                raise forms.ValidationError('La dirección contiene caracteres no permitidos.')
+            
+            # Sanitizar contra XSS
+            direccion = validar_y_sanitizar('Dirección', direccion)
+            return direccion.strip()
+        
+        return direccion

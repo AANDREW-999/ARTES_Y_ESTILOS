@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+{% load static %}
+{% load humanize %}
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Compras — Artes &amp; Estilos</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    color: #1a1a1a;
+    background: #e8e8e8;
+    padding: 30px;
+}
+
+/* ── Toolbar ────────────────────────────────── */
+.toolbar {
+    width: 850px;
+    margin: 0 auto 14px auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.toolbar a, .toolbar button {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+    cursor: pointer; text-decoration: none; border: none;
+}
+.btn-back  { background: #555;    color: #fff; }
+.btn-print { background: #16a34a; color: #fff; }
+.btn-pdf   { background: #dc2626; color: #fff; }
+.btn-excel { background: #1a7a4a; color: #fff; }
+.btn-back:hover  { background: #333; }
+.btn-print:hover { background: #15803d; }
+.btn-pdf:hover   { background: #b91c1c; }
+.btn-excel:hover { background: #0f5c38; color: #fff; }
+.btn-pdf:disabled { opacity: .6; cursor: not-allowed; }
+.spacer { flex: 1; }
+.periodo-tag {
+    font-size: 10px; color: #555; font-weight: bold;
+    background: #fff; border: 1px solid #bbb;
+    border-radius: 10px; padding: 3px 10px;
+}
+
+/* ── Hoja ───────────────────────────────────── */
+.page {
+    width: 850px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 40px 50px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.18);
+}
+
+/* ── Cabecera ───────────────────────────────── */
+.hdr-table {
+    width: 100%; border-bottom: 2px solid #BBBBBB;
+    margin-bottom: 8px; border-collapse: collapse;
+}
+.hdr-table td { padding-bottom: 6px; vertical-align: middle; }
+.hdr-logo-cell { width: 130px; }
+.hdr-logo-area {
+    width: 110px; height: 55px;
+    border: 1.5px dashed #aaa; background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; color: #888; font-size: 9px;
+    font-weight: bold; text-transform: uppercase; letter-spacing: .05em;
+}
+.hdr-logo-area img { width: 110px; height: 55px; object-fit: contain; }
+.hdr-title-cell { text-align: center; padding: 0 10px; }
+.hdr-title-main { font-size: 13px; font-weight: bold; }
+.hdr-title-sub  { font-size: 11px; font-weight: bold; margin: 2px 0 4px; }
+.hdr-title-meta { font-size: 7px; color: #555; line-height: 1.6; }
+.hdr-badge {
+    display: inline-block;
+    background: #16a34a; color: #fff;
+    font-size: 8px; font-weight: bold;
+    padding: 2px 10px; border-radius: 10px; margin-top: 4px;
+}
+
+.divider { height: 1px; background: #BBBBBB; margin: 6px 0; }
+
+/* ── Stats ──────────────────────────────────── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.stat-box {
+    border: 1px solid #BBBBBB;
+    background: #fafafa;
+    padding: 6px 8px;
+    text-align: center;
+    border-radius: 3px;
+}
+.stat-box .s-val {
+    font-size: 14px; font-weight: bold; color: #1a1a1a;
+    display: block; line-height: 1.2;
+}
+.stat-box .s-val.purple { color: #16a34a; }
+.stat-box .s-lbl { font-size: 8px; color: #666; margin-top: 2px; }
+
+/* ── Resumen ────────────────────────────────── */
+.resumen-table {
+    width: 100%; border: 1px solid #BBBBBB;
+    margin-bottom: 8px; border-collapse: collapse;
+    font-size: 10px;
+}
+.resumen-table td { padding: 5px 10px; vertical-align: top; }
+.resumen-table .col-left { width: 50%; border-right: 1px solid #BBBBBB; }
+.resumen-table .highlight { color: #7c3aed; font-weight: bold; }
+
+/* ── Sección ────────────────────────────────── */
+.section { margin-bottom: 10px; }
+.section-header {
+    background: #D9D9D9;
+    text-align: center;
+    font-weight: bold; font-size: 10px;
+    padding: 4px 8px;
+    border: 1px solid #BBBBBB;
+    border-bottom: none;
+}
+
+/*
+  ── TABLA PRINCIPAL ─────────────────────────────
+  7 columnas con anchos fijos via colgroup:
+    #     : 30px
+    Fecha : 65px
+    Prov  : 145px
+    Desc  : auto
+    Pago  : 90px
+    Ítems : 40px
+    Total : 90px
+*/
+table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    table-layout: fixed;
+}
+table.data-table td {
+    padding: 3px 6px;
+    border: 1px solid #BBBBBB;
+    vertical-align: middle;
+    line-height: 1.4;
+    overflow: hidden;
+    word-break: break-word;
+}
+table.data-table thead td {
+    background: #D9D9D9;
+    font-weight: bold;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+table.data-table tr.even td { background: #f0fdf4; }
+table.data-table .td-c { text-align: center; }
+table.data-table .td-r { text-align: right; }
+
+/*
+  ── SUB-TABLA ───────────────────────────────────
+  5 columnas que se alinean visualmente con las de la tabla padre.
+  La celda wrapper (colspan=7) ocupa el 100% del ancho.
+  Dentro, la sub-tabla usa table-layout:fixed con colgroup:
+    Artículo : auto  (ocupa: 30+65+145+auto de la tabla padre)
+    Tipo     : 90px  (= col Pago)
+    P.Unit.  : 90px  (= col Pago — usamos mismo ancho)
+    Cant.    : 40px  (= col Ítems)
+    Subtotal : 90px  (= col Total)
+  Total fijo derecha = 90+40+90 = 220px → igual que Pago+Ítems+Total
+*/
+.sub-table-wrap {
+    padding: 0 !important;
+    border-top: none !important;
+}
+table.sub-table {
+    width: 100%;
+    font-size: 9px;
+    border-collapse: collapse;
+    background: #fafafa;
+    table-layout: fixed;
+}
+table.sub-table td {
+    padding: 2px 6px;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+    overflow: hidden;
+    word-break: break-word;
+}
+table.sub-table thead td {
+    background: #ececec;
+    font-weight: bold;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+/* Indentación del artículo */
+table.sub-table td:first-child,
+table.sub-table thead td:first-child { padding-left: 16px; }
+
+table.sub-table .sub-r { text-align: right; }
+table.sub-table .sub-c { text-align: center; }
+
+/* ── Subtotal ───────────────────────────────── */
+.subtotal-row {
+    display: flex; justify-content: flex-end;
+    border: 1px solid #BBBBBB; border-top: none;
+    background: #EEEEEE;
+}
+.subtotal-row .st-lbl {
+    padding: 3px 10px; font-weight: bold; font-size: 10px;
+    border-right: 1px solid #BBBBBB;
+}
+.subtotal-row .st-val {
+    padding: 3px 8px; font-weight: bold; font-size: 10px;
+    min-width: 90px; text-align: right;
+}
+
+/* ── Total bar ──────────────────────────────── */
+.total-bar {
+    display: flex; align-items: stretch;
+    background: #16a34a; color: #fff;
+    margin-top: 10px;
+    border: 2px solid #15803d;
+    border-radius: 3px; overflow: hidden;
+}
+.total-bar .total-lbl {
+    flex: 1; text-align: center;
+    font-weight: bold; font-size: 13px;
+    padding: 7px 12px;
+    border-right: 2px solid #15803d;
+    display: flex; align-items: center; justify-content: center;
+}
+.total-bar .total-val {
+    padding: 7px 14px;
+    font-weight: bold; font-size: 13px;
+    min-width: 110px; text-align: center;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.doc-footer {
+    margin-top: 12px; text-align: center;
+    font-size: 7px; color: #888;
+    border-top: 1px solid #ddd;
+    padding-top: 5px; line-height: 1.7;
+}
+
+/* ── Print ──────────────────────────────────── */
+@media print {
+    body     { background: none; padding: 0; }
+    .toolbar { display: none !important; }
+    .page {
+        box-shadow: none; width: 100%;
+        max-width: 100%; padding: 15mm 25mm; margin: 0;
+    }
+    .total-bar, .section-header,
+    table.data-table thead td,
+    table.sub-table thead td,
+    .subtotal-row, .hdr-badge, .stat-box {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+/* ── PDF export overrides ───────────────────── */
+body.pdf-mode {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+body.pdf-mode .page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+body.pdf-mode table,
+body.pdf-mode .stats-row,
+body.pdf-mode .total-bar,
+body.pdf-mode .subtotal-row {
+    max-width: 100% !important;
+    word-break: break-word !important;
+}
+body.pdf-mode .stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+}
+body.pdf-mode .total-bar,
+body.pdf-mode .section-header,
+body.pdf-mode table.data-table thead td,
+body.pdf-mode table.sub-table thead td,
+body.pdf-mode .subtotal-row,
+body.pdf-mode .hdr-badge,
+body.pdf-mode .stat-box,
+body.pdf-mode table.data-table tr.even td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Toolbar ──────────────────────────────── -->
+<div class="toolbar">
+    <a href="{% url 'compras:lista_compra' %}" class="btn-back">&#8592; Volver</a>
+    <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
+    <button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
+    <a href="?mes={{ mes }}&anio={{ anio }}&formato=excel" class="btn-excel">&#128202; Excel</a>
+    <span class="spacer"></span>
+    <span class="periodo-tag">Período: {{ periodo }}</span>
+</div>
+
+<!-- ── Hoja ─────────────────────────────────── -->
+<div class="page">
+
+    <!-- 1. Cabecera -->
+    <table class="hdr-table">
+        <tr>
+            <td class="hdr-logo-cell">
+                <div class="hdr-logo-area">
+                    {% if logo_base64 %}
+                        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo">
+                    {% else %}
+                        LOGO
+                    {% endif %}
+                </div>
+            </td>
+            <td class="hdr-title-cell">
+                <div class="hdr-title-main">Reporte de Compras — Artes &amp; Estilos</div>
+                <div class="hdr-title-sub">Comprobante Auxiliar de Gestión Interna</div>
+                <div class="hdr-title-meta">
+                    Generado el {{ fecha_generacion }}
+                    {% if usuario %} &nbsp;|&nbsp; Usuario: {{ usuario }}{% endif %}
+                </div>
+                <span class="hdr-badge">Período: {{ periodo }}</span>
+            </td>
+        </tr>
+    </table>
+
+    <div class="divider"></div>
+
+    <!-- 2. Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <span class="s-val">{{ total_registros }}</span>
+            <div class="s-lbl">Total compras</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val purple">${{ monto_total|floatformat:0|intcomma }}</span>
+            <div class="s-lbl">Monto total</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val">${{ promedio_compra|floatformat:0|intcomma }}</span>
+            <div class="s-lbl">Promedio / compra</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val">{{ total_proveedores }}</span>
+            <div class="s-lbl">Proveedores</div>
+        </div>
+    </div>
+
+    <!-- 3. Resumen -->
+    <table class="resumen-table">
+        <tr>
+            <td class="col-left">
+                <b>Empresa:</b> Artes &amp; Estilos<br>
+                <b>Período:</b> {{ periodo }}<br>
+                <b>Total registros:</b> {{ total_registros }} compra{{ total_registros|pluralize }}<br>
+                <b>Proveedores únicos:</b> {{ total_proveedores }}
+            </td>
+            <td>
+                <b>Monto total:</b>
+                <span class="highlight">${{ monto_total|floatformat:2|intcomma }}</span><br>
+                <b>Promedio por compra:</b> ${{ promedio_compra|floatformat:2|intcomma }}<br>
+                <b>Generado:</b> {{ fecha_generacion }}<br>
+                <b>Filtros:</b>
+                {% if hay_filtros %}{{ mes_nombre }} {{ anio }}{% else %}Sin filtros adicionales{% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- 4. Tabla de compras -->
+    <div class="section">
+        <div class="section-header">Detalle de Compras del Período</div>
+
+        <table class="data-table">
+            <colgroup>
+                <col style="width:30px">    <!-- # -->
+                <col style="width:65px">    <!-- Fecha -->
+                <col style="width:145px">   <!-- Proveedor -->
+                <col>                       <!-- Descripción (auto) -->
+                <col style="width:90px">    <!-- Forma Pago -->
+                <col style="width:40px">    <!-- Ítems -->
+                <col style="width:90px">    <!-- Total -->
+            </colgroup>
+            <thead>
+                <tr>
+                    <td class="td-c">#</td>
+                    <td>Fecha</td>
+                    <td>Proveedor</td>
+                    <td>Descripción</td>
+                    <td class="td-c">Forma Pago</td>
+                    <td class="td-c">Ítems</td>
+                    <td class="td-r">Total</td>
+                </tr>
+            </thead>
+            <tbody>
+            {% for compra in compras %}
+            <tr {% if forloop.counter|divisibleby:2 %}class="even"{% endif %}>
+                <td class="td-c" style="color:#888;">{{ forloop.counter }}</td>
+                <td>{{ compra.fecha_emision|date:"d/m/Y" }}</td>
+                <td>
+                    {{ compra.proveedor.nombre_proveedor|default:"N/A" }}
+                    {% if compra.proveedor.numero_documento %}
+                        <br><span style="font-size:8px;color:#888;">{{ compra.proveedor.numero_documento }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ compra.descripcion|default:"Sin descripción"|truncatechars:50 }}</td>
+                <td class="td-c">{{ compra.forma_pago|default:"—" }}</td>
+                <td class="td-c">{{ compra.detalles.count }}</td>
+                <td class="td-r" style="font-weight:bold;">${{ compra.total_compra|floatformat:2|intcomma }}</td>
+            </tr>
+
+            {% with detalles=compra.detalles.all %}
+            {% if detalles %}
+            <tr>
+                <td class="sub-table-wrap" colspan="7">
+                    <!--
+                      Sub-tabla: 5 columnas alineadas con las últimas 5 de la tabla padre.
+                      Los primeros 3 cols (30+65+145 = 240px) quedan dentro de "Artículo".
+                      Las últimas 3 cols (90+40+90 = 220px) se replican exactamente.
+                    -->
+                    <table class="sub-table">
+                        <colgroup>
+                            <col>                    <!-- Artículo: auto -->
+                            <col style="width:90px"> <!-- Tipo = Pago -->
+                            <col style="width:90px"> <!-- Precio unit. = Pago -->
+                            <col style="width:40px"> <!-- Cant. = Ítems -->
+                            <col style="width:90px"> <!-- Subtotal = Total -->
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <td>Artículo</td>
+                                <td class="sub-c">Tipo</td>
+                                <td class="sub-r">Precio unit.</td>
+                                <td class="sub-c">Cant.</td>
+                                <td class="sub-r">Subtotal</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for det in detalles %}
+                        <tr>
+                            <td>{{ det.item_nombre|default:"—" }}</td>
+                            <td class="sub-c" style="color:#555;">{{ det.tipo_item }}</td>
+                            <td class="sub-r">${{ det.precio|floatformat:2 }}</td>
+                            <td class="sub-c">{{ det.cantidad }}</td>
+                            <td class="sub-r" style="font-weight:bold;">${{ det.subtotal|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            {% endif %}
+            {% endwith %}
+
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align:center;padding:14px;color:#888;font-style:italic;">
+                    No hay compras registradas para el período seleccionado.
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="subtotal-row">
+            <span class="st-lbl">Promedio por compra</span>
+            <span class="st-val">${{ promedio_compra|floatformat:2|intcomma }}</span>
+        </div>
+    </div>
+
+    <!-- 5. Total -->
+    <div class="total-bar">
+        <div class="total-lbl">TOTAL GENERAL DEL PERÍODO</div>
+        <div class="total-val">${{ monto_total|floatformat:2|intcomma }}</div>
+    </div>
+
+    <div class="doc-footer">
+        ARTES &amp; ESTILOS — Sistema de Gestión Interno<br>
+        Reporte generado el {{ fecha_generacion }}{% if usuario %} por {{ usuario }}{% endif %}<br>
+        Período consultado: {{ periodo }}
+    </div>
+
+</div><!-- /.page -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('btn-descargar-pdf');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        var elemento = document.querySelector('.page');
+        var toolbar  = document.querySelector('.toolbar');
+
+        btn.disabled    = true;
+        btn.textContent = 'Generando...';
+
+        if (toolbar) toolbar.style.display = 'none';
+        document.body.classList.add('pdf-mode');
+
+        var pageWidth = elemento.scrollWidth;
+
+        var opciones = {
+            margin:      [6, 6, 6, 6],
+            filename:    'Reporte de Compras A&E Gestión Floral{{ periodo }}.pdf',
+            image:       { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale:           2,
+                useCORS:         true,
+                logging:         false,
+                backgroundColor: '#ffffff',
+                windowWidth:     pageWidth,
+                scrollX:         0,
+                scrollY:         0,
+            },
+            jsPDF: {
+                unit:        'mm',
+                format:      'a4',
+                orientation: 'portrait',
+            },
+        };
+
+        html2pdf()
+            .set(opciones)
+            .from(elemento)
+            .save()
+            .finally(function () {
+                if (toolbar) toolbar.style.display = '';
+                document.body.classList.remove('pdf-mode');
+                btn.disabled    = false;
+                btn.textContent = '📂 Descargar PDF';
+            });
+    });
+});
+</script>
+
+</body>
+</html>

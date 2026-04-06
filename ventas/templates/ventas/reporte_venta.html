@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+{% load static %}
+{% load humanize %}
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Ventas — Artes &amp; Estilos</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    color: #1a1a1a;
+    background: #e8e8e8;
+    padding: 30px;
+}
+
+/* ── Toolbar ────────────────────────────────── */
+.toolbar {
+    width: 850px;
+    margin: 0 auto 14px auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.toolbar a, .toolbar button {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+    cursor: pointer; text-decoration: none; border: none;
+}
+.btn-back  { background: #555;    color: #fff; }
+.btn-print { background: #16a34a; color: #fff; }
+.btn-excel { background: #1a7a4a; color: #fff; }
+.btn-back:hover  { background: #333; }
+.btn-print:hover { background: #15803d; }
+.btn-excel:hover { background: #0f5c38; color: #fff; }
+.spacer { flex: 1; }
+.periodo-tag {
+    font-size: 10px; color: #555; font-weight: bold;
+    background: #fff; border: 1px solid #bbb;
+    border-radius: 10px; padding: 3px 10px;
+}
+
+/* ── Hoja ───────────────────────────────────── */
+.page {
+    width: 850px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 40px 50px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.18);
+}
+
+/* ── Cabecera ───────────────────────────────── */
+.hdr-table {
+    width: 100%; border-bottom: 2px solid #BBBBBB;
+    margin-bottom: 8px; border-collapse: collapse;
+}
+.hdr-table td { padding-bottom: 6px; vertical-align: middle; }
+.hdr-logo-cell { width: 130px; }
+.hdr-logo-area {
+    width: 110px; height: 55px;
+    border: 1.5px dashed #aaa; background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; color: #888; font-size: 9px;
+    font-weight: bold; text-transform: uppercase; letter-spacing: .05em;
+}
+.hdr-logo-area img { width: 110px; height: 55px; object-fit: contain; }
+.hdr-title-cell { text-align: center; padding: 0 10px; }
+.hdr-title-main { font-size: 13px; font-weight: bold; }
+.hdr-title-sub  { font-size: 11px; font-weight: bold; margin: 2px 0 4px; }
+.hdr-title-meta { font-size: 7px; color: #555; line-height: 1.6; }
+.hdr-badge {
+    display: inline-block;
+    background: #16a34a; color: #fff;
+    font-size: 8px; font-weight: bold;
+    padding: 2px 10px; border-radius: 10px; margin-top: 4px;
+}
+
+.divider { height: 1px; background: #BBBBBB; margin: 6px 0; }
+
+/* ── Stats ──────────────────────────────────── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.stat-box {
+    border: 1px solid #BBBBBB;
+    background: #fafafa;
+    padding: 6px 8px;
+    text-align: center;
+    border-radius: 3px;
+}
+.stat-box .s-val {
+    font-size: 14px; font-weight: bold; color: #1a1a1a;
+    display: block; line-height: 1.2;
+}
+.stat-box .s-val.green { color: #16a34a; }
+.stat-box .s-lbl { font-size: 8px; color: #666; margin-top: 2px; }
+
+/* ── Resumen 2 columnas ─────────────────────── */
+.resumen-table {
+    width: 100%; border: 1px solid #BBBBBB;
+    margin-bottom: 8px; border-collapse: collapse;
+    font-size: 10px;
+}
+.resumen-table td { padding: 5px 10px; vertical-align: top; }
+.resumen-table .col-left { width: 50%; border-right: 1px solid #BBBBBB; }
+.resumen-table .highlight { color: #16a34a; font-weight: bold; }
+
+/* ── Sección ────────────────────────────────── */
+.section { margin-bottom: 10px; }
+.section-header {
+    background: #D9D9D9;
+    text-align: center;
+    font-weight: bold; font-size: 10px;
+    padding: 4px 8px;
+    border: 1px solid #BBBBBB;
+    border-bottom: none;
+}
+
+/* ── Tabla ──────────────────────────────────── */
+table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+table.data-table td {
+    padding: 3px 7px;
+    border: 1px solid #BBBBBB;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+table.data-table thead td {
+    background: #D9D9D9;
+    font-weight: bold;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+table.data-table tr.even td { background: #f0fdf4; }
+table.data-table .td-c   { text-align: center; }
+table.data-table .td-r   { text-align: right; white-space: nowrap; }
+table.data-table .td-num { width: 28px; text-align: center; color: #888; }
+table.data-table .td-fecha { width: 65px; }
+table.data-table .td-cliente { width: 150px; }
+table.data-table .td-tipo { width: 80px; text-align: center; }
+table.data-table .td-pago { width: 80px; text-align: center; font-size: 9px; }
+table.data-table .td-items { width: 38px; text-align: center; }
+table.data-table .td-dom { width: 38px; text-align: center; }
+table.data-table .td-total { width: 80px; text-align: right; font-weight: bold; }
+
+/* ── Subtotal ───────────────────────────────── */
+.subtotal-row {
+    display: flex; justify-content: flex-end;
+    border: 1px solid #BBBBBB; border-top: none;
+    background: #EEEEEE;
+}
+.subtotal-row .st-lbl {
+    padding: 3px 10px; font-weight: bold; font-size: 10px;
+    border-right: 1px solid #BBBBBB;
+}
+.subtotal-row .st-val {
+    padding: 3px 8px; font-weight: bold; font-size: 10px;
+    min-width: 90px; text-align: right;
+}
+
+/* ── Barra total ────────────────────────────── */
+.total-bar {
+    display: flex; align-items: stretch;
+    background: #16a34a; color: #fff;
+    margin-top: 10px;
+    border: 2px solid #15803d;
+    border-radius: 3px; overflow: hidden;
+}
+.total-bar .total-lbl {
+    flex: 1; text-align: center;
+    font-weight: bold; font-size: 13px;
+    padding: 7px 12px;
+    border-right: 2px solid #15803d;
+    display: flex; align-items: center; justify-content: center;
+}
+.total-bar .total-val {
+    padding: 7px 14px;
+    font-weight: bold; font-size: 13px;
+    min-width: 110px; text-align: center;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.doc-footer {
+    margin-top: 12px; text-align: center;
+    font-size: 7px; color: #888;
+    border-top: 1px solid #ddd;
+    padding-top: 5px; line-height: 1.7;
+}
+
+/* ── Print ──────────────────────────────────── */
+@media print {
+    body     { background: none; padding: 0; }
+    .toolbar { display: none !important; }
+    .page {
+        box-shadow: none; width: 100%;
+        max-width: 100%; padding: 15mm 25mm; margin: 0;
+    }
+    .total-bar, .section-header,
+    table.data-table thead td,
+    .subtotal-row, .hdr-badge, .stat-box {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+.btn-pdf { background: #dc2626; color: #fff; }
+.btn-pdf:hover { background: #b91c1c; }
+
+/* ── PDF export overrides ───────────────────── */
+body.pdf-mode {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+body.pdf-mode .page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+body.pdf-mode table,
+body.pdf-mode .stats-row,
+body.pdf-mode .total-bar,
+body.pdf-mode .subtotal-row {
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    word-break: break-word !important;
+}
+body.pdf-mode .stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+}
+body.pdf-mode .total-bar,
+body.pdf-mode .section-header,
+body.pdf-mode table.data-table thead td,
+body.pdf-mode .subtotal-row,
+body.pdf-mode .hdr-badge,
+body.pdf-mode .stat-box,
+body.pdf-mode table.data-table tr.even td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Toolbar ──────────────────────────────── -->
+<div class="toolbar">
+    <a href="{% url 'ventas:listar_venta' %}" class="btn-back">&#8592; Volver</a>
+    <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
+    <button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
+    <a href="?mes={{ mes }}&anio={{ anio }}&tipo_venta={{ tipo_venta }}&formato=excel"
+       class="btn-excel">&#128202; Excel</a>
+    <span class="spacer"></span>
+    <span class="periodo-tag">Período: {{ periodo }}{% if tipo_nombre %} · {{ tipo_nombre }}{% endif %}</span>
+</div>
+
+<!-- ── Hoja ─────────────────────────────────── -->
+<div class="page">
+
+    <!-- 1. Cabecera -->
+    <table class="hdr-table">
+        <tr>
+            <td class="hdr-logo-cell">
+                <div class="hdr-logo-area">
+                    {% if logo_base64 %}
+                        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo">
+                    {% else %}
+                        LOGO
+                    {% endif %}
+                </div>
+            </td>
+            <td class="hdr-title-cell">
+                <div class="hdr-title-main">Reporte de Ventas — Artes &amp; Estilos</div>
+                <div class="hdr-title-sub">Comprobante Auxiliar de Gestión Interna</div>
+                <div class="hdr-title-meta">
+                    Generado el {{ fecha_generacion }}
+                    {% if usuario %} &nbsp;|&nbsp; Usuario: {{ usuario }}{% endif %}
+                </div>
+                <span class="hdr-badge">
+                    Período: {{ periodo }}{% if tipo_nombre %} · {{ tipo_nombre }}{% endif %}
+                </span>
+            </td>
+        </tr>
+    </table>
+
+    <div class="divider"></div>
+
+    <!-- 2. Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <span class="s-val">{{ total_registros }}</span>
+            <div class="s-lbl">Total ventas</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val green">${{ monto_total|floatformat:0|intcomma }}</span>
+            <div class="s-lbl">Monto total</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val">${{ promedio_venta|floatformat:0|intcomma }}</span>
+            <div class="s-lbl">Promedio / venta</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val">{{ total_clientes }}</span>
+            <div class="s-lbl">Clientes únicos</div>
+        </div>
+    </div>
+
+    <!-- 3. Resumen -->
+    <table class="resumen-table">
+        <tr>
+            <td class="col-left">
+                <b>Empresa:</b> Artes &amp; Estilos<br>
+                <b>Período:</b> {{ periodo }}<br>
+                <b>Total registros:</b> {{ total_registros }} venta{{ total_registros|pluralize }}<br>
+                <b>Clientes únicos:</b> {{ total_clientes }}
+            </td>
+            <td>
+                <b>Monto total:</b>
+                <span class="highlight">${{ monto_total|floatformat:2|intcomma }}</span><br>
+                <b>Promedio por venta:</b> ${{ promedio_venta|floatformat:2|intcomma }}<br>
+                <b>Con domicilio:</b> {{ con_domicilio }}
+                &nbsp;|&nbsp;
+                <b>Sin domicilio:</b> {{ sin_domicilio }}<br>
+                <b>Total envíos:</b> ${{ total_envios|floatformat:2|intcomma }}
+            </td>
+        </tr>
+    </table>
+
+    <!-- 4. Tabla de ventas -->
+    <div class="section">
+        <div class="section-header">
+            Detalle de Ventas del Período{% if tipo_nombre %} — {{ tipo_nombre }}{% endif %}
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <td class="td-num">#</td>
+                    <td class="td-fecha">Fecha</td>
+                    <td class="td-cliente">Cliente</td>
+                    <td class="td-tipo">Tipo</td>
+                    <td class="td-pago">Forma Pago</td>
+                    <td class="td-items">Ítems</td>
+                    <td class="td-dom">Dom.</td>
+                    <td class="td-total">Total</td>
+                </tr>
+            </thead>
+            <tbody>
+            {% for venta in ventas %}
+            <tr {% if forloop.counter|divisibleby:2 %}class="even"{% endif %}>
+                <td class="td-num">{{ forloop.counter }}</td>
+                <td class="td-fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
+                <td class="td-cliente">
+                    {% if venta.cliente %}
+                        {{ venta.cliente.nombre }} {{ venta.cliente.apellido }}
+                        {% if venta.cliente.documento %}
+                            <br><span style="font-size:8px;color:#888;">
+                                {{ venta.cliente.documento }}
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td class="td-tipo">{{ venta.get_tipo_venta_display }}</td>
+                <td class="td-pago">{{ venta.get_forma_pago_display }}</td>
+                <td class="td-items">{{ venta.detalles.count }}</td>
+                <td class="td-dom">
+                    {% if venta.con_domicilio %}
+                        <span style="color:#16a34a;font-weight:bold;">Sí</span>
+                    {% else %}
+                        <span style="color:#888;">No</span>
+                    {% endif %}
+                </td>
+                <td class="td-total">${{ venta.total|floatformat:2|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align:center;padding:14px;color:#888;font-style:italic;">
+                    No hay ventas registradas para el período seleccionado.
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="subtotal-row">
+            <span class="st-lbl">Promedio por venta</span>
+            <span class="st-val">${{ promedio_venta|floatformat:2|intcomma }}</span>
+        </div>
+    </div>
+
+    <!-- 5. Total -->
+    <div class="total-bar">
+        <div class="total-lbl">TOTAL GENERAL DEL PERÍODO</div>
+        <div class="total-val">${{ monto_total|floatformat:2|intcomma }}</div>
+    </div>
+
+    <div class="doc-footer">
+        ARTES &amp; ESTILOS — Sistema de Gestión Interno<br>
+        Reporte generado el {{ fecha_generacion }}{% if usuario %} por {{ usuario }}{% endif %}<br>
+        Período: {{ periodo }}{% if tipo_nombre %} · Filtro tipo: {{ tipo_nombre }}{% endif %}
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('btn-descargar-pdf');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        var elemento = document.querySelector('.page');
+        var toolbar  = document.querySelector('.toolbar');
+
+        btn.disabled    = true;
+        btn.textContent = 'Generando...';
+
+        if (toolbar) toolbar.style.display = 'none';
+        document.body.classList.add('pdf-mode');
+
+        var pageWidth = elemento.scrollWidth;
+
+        var opciones = {
+            margin:      [6, 6, 6, 6],
+            filename:    'Reporte de Ventas A&E Gestión Floral{{ periodo }}.pdf',
+            image:       { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale:           2,
+                useCORS:         true,
+                logging:         false,
+                backgroundColor: '#ffffff',
+                windowWidth:     pageWidth,
+                scrollX:         0,
+                scrollY:         0,
+            },
+            jsPDF: {
+                unit:        'mm',
+                format:      'a4',
+                orientation: 'portrait',
+            },
+        };
+
+        html2pdf()
+            .set(opciones)
+            .from(elemento)
+            .save()
+            .finally(function () {
+                if (toolbar) toolbar.style.display = '';
+                document.body.classList.remove('pdf-mode');
+                btn.disabled    = false;
+                btn.textContent = '📂 Descargar PDF';
+            });
+    });
+});
+</script>
+
+</body>
+</html>

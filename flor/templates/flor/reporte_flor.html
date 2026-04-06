@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+{% load static %}
+{% load humanize %}
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Flores — Artes &amp; Estilos</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    color: #1a1a1a;
+    background: #e8e8e8;
+    padding: 30px;
+}
+
+/* ── Toolbar ────────────────────────────────── */
+.toolbar {
+    width: 850px;
+    margin: 0 auto 14px auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.toolbar a, .toolbar button {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+    cursor: pointer; text-decoration: none; border: none;
+}
+.btn-back  { background: #555;     color: #fff; }
+.btn-print { background: #16a34a;  color: #fff; }
+.btn-excel { background: #1a7a4a;  color: #fff; }
+.btn-back:hover  { background: #333; }
+.btn-print:hover { background: #15803d; }
+.btn-excel:hover { background: #0f5c38; color:#fff; }
+.spacer { flex: 1; }
+.periodo-tag {
+    font-size: 10px; color: #555; font-weight: bold;
+    background: #fff; border: 1px solid #bbb;
+    border-radius: 10px; padding: 3px 10px;
+}
+
+/* ── Hoja ───────────────────────────────────── */
+.page {
+    width: 850px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 40px 50px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.18);
+}
+
+/* ── Cabecera ───────────────────────────────── */
+.hdr-table {
+    width: 100%; border-bottom: 2px solid #BBBBBB;
+    margin-bottom: 8px; border-collapse: collapse;
+}
+.hdr-table td { padding-bottom: 6px; vertical-align: middle; }
+.hdr-logo-cell { width: 130px; }
+.hdr-logo-area {
+    width: 110px; height: 55px;
+    border: 1.5px dashed #aaa; background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; color: #888; font-size: 9px;
+    font-weight: bold; text-transform: uppercase; letter-spacing: .05em;
+}
+.hdr-logo-area img { width: 110px; height: 55px; object-fit: contain; }
+.hdr-title-cell { text-align: center; padding: 0 10px; }
+.hdr-title-main { font-size: 13px; font-weight: bold; }
+.hdr-title-sub  { font-size: 11px; font-weight: bold; margin: 2px 0 4px; }
+.hdr-title-meta { font-size: 7px; color: #555; line-height: 1.6; }
+.hdr-badge {
+    display: inline-block;
+    background: #16a34a; color: #fff;
+    font-size: 8px; font-weight: bold;
+    padding: 2px 10px; border-radius: 10px; margin-top: 4px;
+}
+
+.divider { height: 1px; background: #BBBBBB; margin: 6px 0; }
+
+/* ── Resumen 4 stats ────────────────────────── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.stat-box {
+    border: 1px solid #BBBBBB;
+    background: #fafafa;
+    padding: 6px 8px;
+    text-align: center;
+    border-radius: 3px;
+}
+.stat-box .s-val {
+    font-size: 14px; font-weight: bold; color: #1a1a1a;
+    display: block; line-height: 1.2;
+}
+.stat-box .s-val.pink { color: #16a34a; }
+.stat-box .s-lbl { font-size: 8px; color: #666; margin-top: 2px; }
+
+/* ── Sección ────────────────────────────────── */
+.section { margin-bottom: 10px; }
+.section-header {
+    background: #D9D9D9;
+    text-align: center;
+    font-weight: bold; font-size: 10px;
+    padding: 4px 8px;
+    border: 1px solid #BBBBBB;
+    border-bottom: none;
+}
+
+/* ── Tabla principal ────────────────────────── */
+table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+table.data-table td {
+    padding: 3px 7px;
+    border: 1px solid #BBBBBB;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+table.data-table thead td {
+    background: #D9D9D9;
+    font-weight: bold;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+table.data-table tr.even td { background: #f0fdf4; }
+table.data-table .td-c  { text-align: center; }
+table.data-table .td-r  { text-align: right; white-space: nowrap; }
+table.data-table .td-num { width: 30px; text-align: center; color: #888; }
+table.data-table .td-tipo { width: 100px; }
+table.data-table .td-precio { width: 80px; text-align: right; }
+table.data-table .td-stock  { width: 55px; text-align: center; }
+table.data-table .td-nivel  { width: 55px; text-align: center; }
+table.data-table .td-valor  { width: 90px; text-align: right; font-weight: bold; }
+
+.badge-bajo   { color: #b91c1c; font-weight: bold; }
+.badge-medio  { color: #b45309; font-weight: bold; }
+.badge-alto   { color: #15803d; font-weight: bold; }
+
+/* ── Tabla resumen por tipo ─────────────────── */
+table.tipo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+table.tipo-table td {
+    padding: 3px 8px;
+    border: 1px solid #BBBBBB;
+    vertical-align: middle;
+}
+table.tipo-table thead td {
+    background: #D9D9D9;
+    font-weight: bold;
+    font-size: 9px;
+    text-transform: uppercase;
+}
+table.tipo-table tr.even td { background: #f0fdf4; }
+table.tipo-table .td-r { text-align: right; }
+table.tipo-table .td-c { text-align: center; }
+
+/* ── Subtotal ───────────────────────────────── */
+.subtotal-row {
+    display: flex; justify-content: flex-end;
+    border: 1px solid #BBBBBB; border-top: none;
+    background: #EEEEEE;
+}
+.subtotal-row .st-lbl {
+    padding: 3px 10px; font-weight: bold; font-size: 10px;
+    border-right: 1px solid #BBBBBB;
+}
+.subtotal-row .st-val {
+    padding: 3px 8px; font-weight: bold; font-size: 10px;
+    min-width: 90px; text-align: right;
+}
+
+/* ── Barra total ────────────────────────────── */
+.total-bar {
+    display: flex; align-items: stretch;
+    background: #16a34a; color: #fff;
+    margin-top: 10px;
+    border: 2px solid #15803d;
+    border-radius: 3px; overflow: hidden;
+}
+.total-bar .total-lbl {
+    flex: 1; text-align: center;
+    font-weight: bold; font-size: 13px;
+    padding: 7px 12px;
+    border-right: 2px solid #15803d;
+    display: flex; align-items: center; justify-content: center;
+}
+.total-bar .total-val {
+    padding: 7px 14px;
+    font-weight: bold; font-size: 13px;
+    min-width: 110px; text-align: center;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Footer ─────────────────────────────────── */
+.doc-footer {
+    margin-top: 12px; text-align: center;
+    font-size: 7px; color: #888;
+    border-top: 1px solid #ddd;
+    padding-top: 5px; line-height: 1.7;
+}
+
+/* ── Print ──────────────────────────────────── */
+@media print {
+    body      { background: none; padding: 0; }
+    .toolbar  { display: none !important; }
+    .page {
+        box-shadow: none; width: 100%;
+        max-width: 100%; padding: 15mm 25mm; margin: 0;
+    }
+    .total-bar, .section-header,
+    table.data-table thead td,
+    table.tipo-table thead td,
+    .subtotal-row, .hdr-badge, .stat-box {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+.btn-pdf { background: #dc2626; color: #fff; }
+.btn-pdf:hover { background: #b91c1c; }
+
+/* ── PDF export overrides ───────────────────── */
+body.pdf-mode {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+body.pdf-mode .page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+body.pdf-mode table,
+body.pdf-mode .stats-row,
+body.pdf-mode .total-bar,
+body.pdf-mode .subtotal-row {
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    word-break: break-word !important;
+}
+body.pdf-mode .stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+}
+body.pdf-mode .total-bar,
+body.pdf-mode .section-header,
+body.pdf-mode table.data-table thead td,
+body.pdf-mode table.tipo-table thead td,
+body.pdf-mode .subtotal-row,
+body.pdf-mode .hdr-badge,
+body.pdf-mode .stat-box,
+body.pdf-mode table.data-table tr.even td,
+body.pdf-mode table.tipo-table tr.even td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Toolbar ──────────────────────────────── -->
+<div class="toolbar">
+    <a href="{% url 'flor:lista' %}" class="btn-back">&#8592; Volver</a>
+    <button class="btn-print" onclick="window.print()">&#128438; Imprimir</button>
+    <button class="btn-pdf" id="btn-descargar-pdf">&#128462; Descargar PDF</button>
+    <a href="?tipo={{ tipo_filtro }}&formato=excel" class="btn-excel">&#128202; Excel</a>
+    <span class="spacer"></span>
+    <span class="periodo-tag">
+        {% if tipo_filtro %}Tipo: {{ tipo_nombre }}{% else %}Todas las flores{% endif %}
+    </span>
+</div>
+
+<!-- ── Hoja ─────────────────────────────────── -->
+<div class="page">
+
+    <!-- 1. Cabecera -->
+    <table class="hdr-table">
+        <tr>
+            <td class="hdr-logo-cell">
+                <div class="hdr-logo-area">
+                    {% if logo_base64 %}
+                        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo">
+                    {% else %}
+                        LOGO
+                    {% endif %}
+                </div>
+            </td>
+            <td class="hdr-title-cell">
+                <div class="hdr-title-main">Reporte de Inventario de Flores</div>
+                <div class="hdr-title-sub">Artes &amp; Estilos — Gestión de Stock</div>
+                <div class="hdr-title-meta">
+                    Generado el {{ fecha_generacion }}
+                    {% if usuario %} &nbsp;|&nbsp; Usuario: {{ usuario }}{% endif %}
+                </div>
+                <span class="hdr-badge">
+                    {% if tipo_filtro %}Filtro: {{ tipo_nombre }}{% else %}Inventario Completo{% endif %}
+                </span>
+            </td>
+        </tr>
+    </table>
+
+    <div class="divider"></div>
+
+    <!-- 2. Stats resumen -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <span class="s-val">{{ total_flores }}</span>
+            <div class="s-lbl">Variedades</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val">{{ total_stock }}</span>
+            <div class="s-lbl">Unidades en stock</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val" style="color:#b91c1c;">{{ bajo_stock }}</span>
+            <div class="s-lbl">Stock bajo (&le;10)</div>
+        </div>
+        <div class="stat-box">
+            <span class="s-val pink">${{ valor_inventario|floatformat:0|intcomma }}</span>
+            <div class="s-lbl">Valor inventario</div>
+        </div>
+    </div>
+
+    <!-- 3. Listado completo de flores -->
+    <div class="section">
+        <div class="section-header">
+            Listado de Flores{% if tipo_filtro %} — {{ tipo_nombre }}{% endif %}
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <td class="td-num">#</td>
+                    <td>Nombre</td>
+                    <td class="td-tipo">Tipo</td>
+                    <td class="td-precio">Precio</td>
+                    <td class="td-stock">Stock</td>
+                    <td class="td-nivel">Nivel</td>
+                    <td class="td-valor">Valor total</td>
+                </tr>
+            </thead>
+            <tbody>
+            {% for flor in flores %}
+            <tr {% if forloop.counter|divisibleby:2 %}class="even"{% endif %}>
+                <td class="td-num">{{ forloop.counter }}</td>
+                <td>
+                    <strong>{{ flor.nombre }}</strong>
+                    {% if flor.descripcion and flor.descripcion != "Sin descripcion" %}
+                        <br><span style="font-size:8px;color:#888;">
+                            {{ flor.descripcion|truncatechars:45 }}
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="td-tipo">{{ flor.get_tipo_flor_display }}</td>
+                <td class="td-precio">${{ flor.precio|floatformat:0|intcomma }}</td>
+                <td class="td-stock">{{ flor.cantidad }}</td>
+                <td class="td-nivel">
+                    {% if flor.cantidad <= 10 %}
+                        <span class="badge-bajo">Bajo</span>
+                    {% elif flor.cantidad <= 30 %}
+                        <span class="badge-medio">Medio</span>
+                    {% else %}
+                        <span class="badge-alto">Alto</span>
+                    {% endif %}
+                </td>
+                <td class="td-valor">${{ flor.valor_total|floatformat:0|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align:center;padding:14px;color:#888;font-style:italic;">
+                    No hay flores registradas{% if tipo_filtro %} para este tipo{% endif %}.
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="subtotal-row">
+            <span class="st-lbl">Subtotal stock</span>
+            <span class="st-val">{{ total_stock }} uds.</span>
+        </div>
+    </div>
+
+    <!-- 4. Resumen por tipo -->
+    {% if not tipo_filtro %}
+    <div class="section">
+        <div class="section-header">Resumen por Tipo de Flor</div>
+        <table class="tipo-table">
+            <thead>
+                <tr>
+                    <td>Tipo</td>
+                    <td class="td-c" style="width:70px;">Variedades</td>
+                    <td class="td-c" style="width:70px;">Unidades</td>
+                    <td class="td-r" style="width:100px;">Precio prom.</td>
+                    <td class="td-r" style="width:100px;">Valor total</td>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in resumen_tipos %}
+            <tr {% if forloop.counter|divisibleby:2 %}class="even"{% endif %}>
+                <td>{{ t.nombre }}</td>
+                <td class="td-c">{{ t.cantidad_variedades }}</td>
+                <td class="td-c">{{ t.total_stock }}</td>
+                <td class="td-r">${{ t.precio_promedio|floatformat:0|intcomma }}</td>
+                <td class="td-r" style="font-weight:bold;">${{ t.valor_total|floatformat:0|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center;padding:10px;color:#888;">Sin datos.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="subtotal-row">
+            <span class="st-lbl">Valor total inventario</span>
+            <span class="st-val">${{ valor_inventario|floatformat:0|intcomma }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 5. Total -->
+    <div class="total-bar">
+        <div class="total-lbl">VALOR TOTAL DEL INVENTARIO DE FLORES</div>
+        <div class="total-val">${{ valor_inventario|floatformat:0|intcomma }}</div>
+    </div>
+
+    <div class="doc-footer">
+        ARTES &amp; ESTILOS — Sistema de Gestión Interno<br>
+        Reporte generado el {{ fecha_generacion }}{% if usuario %} por {{ usuario }}{% endif %}<br>
+        {% if tipo_filtro %}Filtro aplicado: {{ tipo_nombre }}{% else %}Sin filtros — inventario completo{% endif %}
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('btn-descargar-pdf');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        var elemento = document.querySelector('.page');
+        var toolbar  = document.querySelector('.toolbar');
+
+        btn.disabled    = true;
+        btn.textContent = 'Generando...';
+
+        if (toolbar) toolbar.style.display = 'none';
+        document.body.classList.add('pdf-mode');
+
+        var pageWidth = elemento.scrollWidth;
+
+        var opciones = {
+            margin:      [6, 6, 6, 6],
+            filename:    'Reporte de Flores A&E Gestión Floral{{ periodo }}.pdf',
+            image:       { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale:           2,
+                useCORS:         true,
+                logging:         false,
+                backgroundColor: '#ffffff',
+                windowWidth:     pageWidth,
+                scrollX:         0,
+                scrollY:         0,
+            },
+            jsPDF: {
+                unit:        'mm',
+                format:      'a4',
+                orientation: 'portrait',
+            },
+        };
+
+        html2pdf()
+            .set(opciones)
+            .from(elemento)
+            .save()
+            .finally(function () {
+                if (toolbar) toolbar.style.display = '';
+                document.body.classList.remove('pdf-mode');
+                btn.disabled    = false;
+                btn.textContent = '📂 Descargar PDF';
+            });
+    });
+});
+</script>
+
+</body>
+</html>

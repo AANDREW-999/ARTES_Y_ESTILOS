@@ -209,9 +209,9 @@ function resetAll() {
     if (guideElement) guideElement.style.display = 'none';
     
     // Cerrar menús
-    const menu = document.getElementById('colorBlindMenu');
-    if (menu) {
-        menu.style.display = 'none';
+    const colorBlindMenu = document.getElementById('colorBlindMenu');
+    if (colorBlindMenu) {
+        colorBlindMenu.style.display = 'none';
         colorBlindMenuOpen = false;
     }
     
@@ -301,4 +301,18 @@ function updateColorBlindMenuStates() {
             item.classList.toggle('active', match[1] === colorBlindType);
         }
     });
+}
+
+// FUNCIONES DE IDIOMA - ELIMINADAS
+// Las funciones de idiomas han sido removidas
+
+
+function applyLanguagePreference() {
+    if (currentLanguage !== 'es' && window.google && window.google.translate) {
+        const comboBox = document.querySelector('.goog-te-combo');
+        if (comboBox) {
+            comboBox.value = currentLanguage;
+            comboBox.dispatchEvent(new Event('change'));
+        }
+    }
 }

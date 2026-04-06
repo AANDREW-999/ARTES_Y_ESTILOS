@@ -7,10 +7,11 @@ register = template.Library()
 @register.simple_tag
 def accesibilidad_widget():
     fa_css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
-    # Agrega una versión al final de la URL (puedes cambiar v1 por v2, v3, etc.)
-    css_url = static('accessibility/css/accesibility.css') + '?v=1.1'
-    js_url = static('accessibility/js/accessibility.js') + '?v=1.1'
-    return mark_safe(f'''
+    css_url = static('accessibility/css/accesibility.css') + '?v=1.2'
+    js_url = static('accessibility/js/accessibility.js') + '?v=1.2'
+    pdf_url = static('pdf/MANUAL DE USUARIO SISTEMA DE INVENTARIO A&E GESTIÓN FLORAL.pdf')
+    
+    html_content = f'''
         <link rel="stylesheet" href="{fa_css}">
         <link rel="stylesheet" href="{css_url}">
         
@@ -74,6 +75,14 @@ def accesibilidad_widget():
                 <button class="acc-opt floral-btn reset-btn" onclick="resetAll()">
                     <div class="btn-content"><i class="fas fa-sync-alt"></i><span>Restablecer</span></div>
                 </button>
+                
+                <!-- Botón Manual de Usuario -->
+                <a href="{pdf_url}" target="_blank" rel="noopener" class="acc-opt floral-btn manual-btn">
+                    <div class="btn-content">
+                        <i class="bi bi-question-circle" title="Abrir Manual de Usuario"></i>
+                        <span>Manual de Usuario</span>
+                    </div>
+                </a>
             </div>
             
             <div class="panel-footer">
@@ -84,4 +93,6 @@ def accesibilidad_widget():
         <div id="reading-guide"></div>
 
         <script src="{js_url}"></script>
-    ''')
+    '''
+    
+    return mark_safe(html_content)

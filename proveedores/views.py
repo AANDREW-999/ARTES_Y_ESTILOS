@@ -9,9 +9,12 @@ from .models import Proveedor
 from .forms import ProveedorForm
 from django.utils import timezone
 from .utils import render_to_pdf
+from core.notifications import crear_notificacion
+from usuarios.decorators import panel_login_required
 
 
 @login_required
+@panel_login_required
 def listar_proveedores(request):
     q = request.GET.get('q', '').strip()
     tipo_documento = request.GET.get('tipo_documento', '').strip()
@@ -63,11 +66,18 @@ def listar_proveedores(request):
 
 
 @login_required
+@panel_login_required
 def agregar_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
         if form.is_valid():
-            form.save()
+            proveedor = form.save()
+            crear_notificacion(
+                categoria='movimiento',
+                estilo='success',
+                titulo='Proveedor creado',
+                mensaje=f'Se creo el proveedor {proveedor.nombre_proveedor}.',
+            )
             messages.success(request, 'Proveedor creado correctamente.')
             return redirect('proveedores:listar')
         messages.error(request, 'Por favor, revisa los campos del formulario.')
@@ -81,13 +91,20 @@ def agregar_proveedor(request):
 
 
 @login_required
+@panel_login_required
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
     if request.method == 'POST':
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
-            form.save()
+            proveedor = form.save()
+            crear_notificacion(
+                categoria='movimiento',
+                estilo='info',
+                titulo='Proveedor actualizado',
+                mensaje=f'Se actualizo el proveedor {proveedor.nombre_proveedor}.',
+            )
             messages.success(request, 'Proveedor actualizado correctamente.')
             return redirect('proveedores:listar')
         messages.error(request, 'Por favor, revisa los campos del formulario.')
@@ -102,11 +119,18 @@ def editar_proveedor(request, pk):
 
 
 @login_required
+@panel_login_required
 def eliminar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
     if request.method == 'POST':
         nombre = proveedor.nombre_proveedor
+        crear_notificacion(
+            categoria='movimiento',
+            estilo='error',
+            titulo='Proveedor eliminado',
+            mensaje=f'Se elimino el proveedor {nombre}.',
+        )
         proveedor.delete()
         messages.success(request, f'Proveedor "{nombre}" eliminado correctamente.')
         return redirect('proveedores:listar')
@@ -118,6 +142,7 @@ def eliminar_proveedor(request, pk):
 
 
 @login_required
+@panel_login_required
 def detalle_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
@@ -130,6 +155,7 @@ def detalle_proveedor(request, pk):
 
 # ✅ Corregido: clase duplicada eliminada, se conserva solo la más completa
 @method_decorator(login_required, name='dispatch')
+@method_decorator(panel_login_required, name='dispatch')
 class ReporteProveedoresPDF(View):
     def get(self, request, *args, **kwargs):
         fecha_inicio = request.GET.get('inicio')
@@ -152,6 +178,7 @@ class ReporteProveedoresPDF(View):
         return render_to_pdf('proveedores/reporte.html', data)
 
 @login_required
+@panel_login_required
 def verificar_documento(request):
     """Vista AJAX para verificar si un documento de proveedor ya existe."""
     documento = request.GET.get('documento', '')

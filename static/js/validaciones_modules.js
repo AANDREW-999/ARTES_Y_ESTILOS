@@ -47,6 +47,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { valido: true, mensaje: 'Nombre válido' };
             }
         },
+        categoria_nombre: {
+            selector: ['#id_categoria_nombre'],
+            noNumeros: true,
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'El nombre es obligatorio' };
+                }
+
+                if (/\d/.test(valor)) {
+                    return { valido: false, mensaje: 'El nombre no puede contener números' };
+                }
+
+                const texto = valor.trim();
+
+                if (texto.length < 2) {
+                    return { valido: false, mensaje: 'Debe tener al menos 2 caracteres' };
+                }
+
+                return { valido: true, mensaje: 'Nombre válido' };
+            }
+        },
         precio: {
             selector: ['#id_precio'],
             permitirCaracteresEspeciales: true,
@@ -209,6 +231,72 @@ document.addEventListener('DOMContentLoaded', function() {
                     return { valido: false, mensaje: 'La fecha es demasiado antigua' };
                 }
                 return { valido: true, mensaje: 'Fecha válida' };
+            }
+        },
+        fecha_operacion: {
+            selector: ['#id_fecha', '#fecha_emision', '#id_fecha_emision'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor, input) {
+                const esCompra = !!document.getElementById('formCompra');
+                if (!valor || valor.trim() === '') {
+                    if (input && input.required) {
+                        return {
+                            valido: false,
+                            mensaje: esCompra ? 'La fecha de emision es obligatoria.' : 'La fecha es obligatoria.'
+                        };
+                    }
+                    return { valido: true, mensaje: 'Opcional' };
+                }
+
+                const fecha = new Date(valor);
+                if (Number.isNaN(fecha.getTime())) {
+                    return { valido: false, mensaje: 'Fecha invalida.' };
+                }
+
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                fecha.setHours(0, 0, 0, 0);
+
+                if (fecha > hoy) {
+                    return { valido: false, mensaje: 'La fecha no puede ser futura.' };
+                }
+
+                const limite = new Date('1900-01-01');
+                limite.setHours(0, 0, 0, 0);
+                if (fecha < limite) {
+                    return { valido: false, mensaje: 'La fecha es demasiado antigua.' };
+                }
+
+                return { valido: true, mensaje: 'Fecha válida' };
+            }
+        },
+        forma_pago_compra: {
+            selector: ['#id_forma_pago'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                // Solo aplicar esta regla estricta en formularios de compra.
+                if (!document.getElementById('formCompra')) {
+                    return { valido: true, mensaje: 'OK' };
+                }
+
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'La forma de pago es obligatoria.' };
+                }
+                return { valido: true, mensaje: 'Forma de pago válida' };
+            }
+        },
+        proveedor_compra: {
+            selector: ['#id_proveedor'],
+            permitirCaracteresEspeciales: true,
+            validar: function(valor) {
+                if (!document.getElementById('formCompra')) {
+                    return { valido: true, mensaje: 'OK' };
+                }
+
+                if (!valor || valor.trim() === '') {
+                    return { valido: false, mensaje: 'Debe seleccionar un proveedor.' };
+                }
+                return { valido: true, mensaje: 'Proveedor válido' };
             }
         },
         // ========================================
@@ -402,6 +490,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // BLOQUEO PARA CAMPOS QUE NO PERMITEN NÚMEROS
+        if (config.noNumeros) {
+            if (/^\d$/.test(event.key)) {
+                event.preventDefault();
+                mostrarNotificacionTemporal(input, 'No se permiten números');
+                return;
+            }
+        }
+
         // BLOQUEO PARA CAMPOS DE SOLO LETRAS
         if (config.soloLetras) {
             if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/.test(event.key)) return;
@@ -459,6 +556,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     // noop
                 }
                 mostrarNotificacionTemporal(input, 'Solo letras permitidas');
+            }
+        }
+
+        if (config.noNumeros) {
+            const valorAnterior = input.value;
+            const sinNumeros = valorAnterior.replace(/\d+/g, '');
+            if (sinNumeros !== valorAnterior) {
+                const start = input.selectionStart;
+                input.value = sinNumeros;
+                try {
+                    const delta = valorAnterior.length - sinNumeros.length;
+                    const newPos = Math.max(0, (start || 0) - delta);
+                    input.setSelectionRange(newPos, newPos);
+                } catch (_) {
+                    // noop
+                }
+                mostrarNotificacionTemporal(input, 'No se permiten números');
             }
         }
     }
@@ -742,17 +856,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!formularioValido) {
                 e.preventDefault();
 
-                const alertaAnterior = document.querySelector('.alert-danger-box');
-                if (alertaAnterior) alertaAnterior.remove();
+                const esFormularioPanelConModal = document.getElementById('formCompra') || document.getElementById('formVenta');
+                if (esFormularioPanelConModal && window._dashboard && typeof window._dashboard.showAdminNotification === 'function') {
+                    window._dashboard.showAdminNotification('warning', 'Por favor, corrija los errores del formulario.');
+                } else {
+                    const alertaAnterior = document.querySelector('.alert-danger-box');
+                    if (alertaAnterior) alertaAnterior.remove();
 
-                const alerta = document.createElement('div');
-                alerta.className = 'alert-danger-box mb-4';
-                alerta.innerHTML = `
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <div>Por favor, corrija los errores en el formulario antes de guardar.</div>
-                `;
+                    const alerta = document.createElement('div');
+                    alerta.className = 'alert-danger-box mb-4';
+                    alerta.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>Por favor, corrija los errores en el formulario antes de guardar.</div>
+                    `;
 
-                formulario.insertBefore(alerta, formulario.firstChild);
+                    formulario.insertBefore(alerta, formulario.firstChild);
+                }
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });

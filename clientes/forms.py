@@ -3,6 +3,7 @@
 from django import forms
 from .models import Cliente
 import re
+from core.sanitize import validar_y_sanitizar
 
 
 class ClienteForm(forms.ModelForm):
@@ -76,6 +77,19 @@ class ClienteForm(forms.ModelForm):
             'ciudad': 'Ciudad',
             'departamento': 'Departamento',
         }
+        
+        # ===== NUEVO: Mensajes personalizados para campos requeridos =====
+        error_messages = {
+            'nombre': {
+                'required': 'El nombre es obligatorio.',
+            },
+            'apellido': {
+                'required': 'El apellido es obligatorio.',
+            },
+            'documento': {
+                'required': 'El documento es obligatorio.',
+            },
+        }
 
     # -------------------------
     # VALIDACIONES PROFESIONALES
@@ -93,6 +107,8 @@ class ClienteForm(forms.ModelForm):
         documento = self.cleaned_data.get("documento")
 
         if not documento:
+            # Este caso ahora será manejado por error_messages['documento']['required']
+            # pero mantenemos la validación por si acaso
             raise forms.ValidationError("El documento es obligatorio.")
 
         if not documento.isdigit():
@@ -118,38 +134,60 @@ class ClienteForm(forms.ModelForm):
     def clean_nombre(self):
         nombre = self.cleaned_data.get("nombre")
 
+        # ===== CAMBIADO: No validar "requerido" aquí, dejar que error_messages lo maneje =====
         if not nombre:
-            raise forms.ValidationError("El nombre es obligatorio.")
+            return nombre  # Django agregará el error de campo requerido automáticamente
 
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", nombre):
             raise forms.ValidationError("El nombre solo puede contener letras.")
 
+        # Sanitizar contra XSS
+        nombre = validar_y_sanitizar('Nombre', nombre)
         return nombre.strip().title()
 
     def clean_apellido(self):
         apellido = self.cleaned_data.get("apellido")
 
+        # ===== CAMBIADO: No validar "requerido" aquí, dejar que error_messages lo maneje =====
         if not apellido:
-            raise forms.ValidationError("El apellido es obligatorio.")
+            return apellido  # Django agregará el error de campo requerido automáticamente
 
         if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$", apellido):
             raise forms.ValidationError("El apellido solo puede contener letras.")
 
+        # Sanitizar contra XSS
+        apellido = validar_y_sanitizar('Apellido', apellido)
         return apellido.strip().title()
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get("telefono")
 
         if telefono:
-            telefono = telefono.replace(" ", "")
+            # Remover espacios
+            telefono_limpio = telefono.replace(" ", "").replace("-", "")
+            
+            # Validar que sia solo dígitos (y opcionalmente + al inicio)
+            if not re.match(r"^\+?\d{7,15}$", telefono_limpio):
+                raise forms.ValidationError("El teléfono debe contener entre 7 y 15 dígitos. Formato: +57 3001234567")
 
-            if not telefono.isdigit():
-                raise forms.ValidationError("El teléfono solo puede contener números.")
-
-            if len(telefono) < 7:
-                raise forms.ValidationError("Número de teléfono inválido.")
+            return telefono_limpio
 
         return telefono
+    
+    def clean_direccion(self):
+        """Validar dirección: solo alfanuméricos, espacios y símbolos comunes."""
+        direccion = self.cleaned_data.get("direccion")
+        
+        if direccion:
+            # Permitir: letras, números, espacios, guiones, comas, puntos, #, etc.
+            if not re.match(r"^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s\-#,.\(\)]{1,200}$", direccion):
+                raise forms.ValidationError("La dirección contiene caracteres no permitidos.")
+            
+            # Sanitizar contra XSS
+            direccion = validar_y_sanitizar('Dirección', direccion)
+            return direccion.strip()
+        
+        return direccion
 
     def clean_correo_electronico(self):
         correo = self.cleaned_data.get("correo_electronico")

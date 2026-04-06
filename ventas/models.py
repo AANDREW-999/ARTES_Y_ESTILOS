@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from django.conf import settings
 from decimal import Decimal
 
 
@@ -23,6 +24,13 @@ class Venta(models.Model):
         'clientes.Cliente',
         on_delete=models.PROTECT,
         related_name='ventas'
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ventas_creadas'
     )
 
     tipo_venta = models.CharField(max_length=20, choices=TIPO_VENTA_CHOICES)

@@ -95,7 +95,7 @@
 
                         <div class="col-12">
                             <div class="field-wrapper mb-1">
-                                <label class="field-label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                                <label class="field-label" for="{{ form.descripcion.id_for_label }}">Descripción (Opcional)</label>
                                 {{ form.descripcion }}
                                 <div class="invalid-feedback"></div>
                                 <div class="valid-feedback"></div>
@@ -107,7 +107,7 @@
 
                         <div class="col-12">
                             <div class="field-wrapper mb-1">
-                                <label class="field-label" for="{{ form.imagen.id_for_label }}">Imagen</label>
+                                <label class="field-label" for="{{ form.imagen.id_for_label }}">Imagen (Opcional)</label>
                                 {% if object and object.imagen %}
                                     <div class="current-image-block">
                                         <div class="current-image-label">Imagen actual</div>

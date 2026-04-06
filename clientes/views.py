@@ -7,6 +7,7 @@ from django.views import generic
 from .forms import ClienteForm
 from .models import Cliente
 from django.http import JsonResponse
+from core.notifications import crear_notificacion
 
 
 # -------------------------
@@ -116,6 +117,12 @@ class ClienteCreateView(DBSafeMixin, generic.CreateView):
     success_url = reverse_lazy('clientes:lista_clientes')
 
     def form_valid(self, form):
+        crear_notificacion(
+            categoria='movimiento',
+            estilo='success',
+            titulo='Cliente creado',
+            mensaje=f'Se creo el cliente {form.instance.nombre} {form.instance.apellido}.',
+        )
         messages.success(self.request, 'Cliente creado correctamente.')
         return super().form_valid(form)
 
@@ -133,6 +140,12 @@ class ClienteUpdateView(DBSafeMixin, generic.UpdateView):
     success_url = reverse_lazy('clientes:lista_clientes')
 
     def form_valid(self, form):
+        crear_notificacion(
+            categoria='movimiento',
+            estilo='info',
+            titulo='Cliente actualizado',
+            mensaje=f'Se actualizo el cliente {form.instance.nombre} {form.instance.apellido}.',
+        )
         messages.success(self.request, 'Cliente actualizado correctamente.')
         return super().form_valid(form)
 
@@ -143,6 +156,13 @@ class ClienteDeleteView(DBSafeMixin, generic.DeleteView):
     success_url = reverse_lazy('clientes:lista_clientes')
 
     def form_valid(self, form):
+        nombre = f'{self.object.nombre} {self.object.apellido}'.strip()
+        crear_notificacion(
+            categoria='movimiento',
+            estilo='error',
+            titulo='Cliente eliminado',
+            mensaje=f'Se elimino el cliente {nombre}.',
+        )
         messages.success(self.request, 'Cliente eliminado correctamente.')
         return super().form_valid(form)
 

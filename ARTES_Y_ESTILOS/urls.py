@@ -15,9 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from django.views.generic.base import RedirectView
 
 handler404 = 'core.views.error_404'
@@ -25,17 +26,16 @@ handler404 = 'core.views.error_404'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
-    path('', include('usuarios.urls')),
+    path('panel/', include('usuarios.urls')),
     path('panel/catalogo/', include('catalogo.urls')),
-    path('panel/proveedores/', include('proveedores.urls')),
-    path('panel/compras/', include('compras.urls')),
+    path('panel/proveedores/', include('proveedores.urls')), # Solo una vez
+    path('panel/compras/', include('compras.urls')),        # Solo una vez
     path('panel/clientes/', include('clientes.urls')),
     path('panel/ventas/', include('ventas.urls')),
     path('panel/flor/', include('flor.urls')),
     path('panel/producto/', include('producto.urls')),
     path('panel/categoria/', include('categoria.urls')),
-
-    # Ruta específica para el favicon
+    
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'img/FaviconAE.png', permanent=True)),
 ]
 
@@ -44,3 +44,11 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     # Servir archivos media (uploads de usuarios)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if not settings.DEBUG:
+    # Modo DEBUG=False (simulación de producción) + runserver:
+    # Django NO sirve estáticos automáticamente, así que los montamos explícitamente.
+    urlpatterns += [
+        re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
+        re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
+    ]

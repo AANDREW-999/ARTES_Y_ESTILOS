@@ -3,6 +3,7 @@ import re
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from .models import Venta
+from core.sanitize import validar_y_sanitizar
 
 
 class VentaForm(forms.ModelForm):
@@ -67,12 +68,23 @@ class VentaForm(forms.ModelForm):
         # Acepta formatos comunes si el navegador/envio no mantiene YYYY-MM-DD.
         self.fields['fecha'].input_formats = ['%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y']
         self.fields['fecha'].widget.format = '%Y-%m-%d'
+        self.fields['fecha'].widget.attrs['max'] = date.today().isoformat()
+        self.fields['fecha'].disabled = True
+        self.fields['fecha'].widget.attrs['readonly'] = 'readonly'
 
         # En venta nueva, mostrar por defecto la fecha de hoy.
         instance = getattr(self, 'instance', None)
         is_new_instance = not instance or not getattr(instance, 'pk', None)
-        if not self.is_bound and is_new_instance:
-            self.initial.setdefault('fecha', date.today())
+        if is_new_instance:
+            self.initial['fecha'] = date.today()
+
+    def clean_fecha(self):
+        instance = getattr(self, 'instance', None)
+        if instance and getattr(instance, 'pk', None):
+            return instance.fecha
+
+        # En ventas nuevas, la fecha siempre corresponde al día de creación.
+        return date.today()
 
     def clean_mano_obra(self):
         raw = (self.cleaned_data.get('mano_obra') or '').strip()
@@ -140,3 +152,24 @@ class VentaForm(forms.ModelForm):
             cleaned_data['precio_envio'] = 0
 
         return cleaned_data
+    
+    def clean_direccion(self):
+        """Validar y sanitizar dirección por XSS."""
+        direccion = self.cleaned_data.get('direccion', '')
+        if direccion:
+            direccion = validar_y_sanitizar('Dirección', direccion)
+        return direccion
+
+    def clean_nombre_domiciliario(self):
+        """Validar y sanitizar nombre del domiciliario por XSS."""
+        nombre = self.cleaned_data.get('nombre_domiciliario', '')
+        if nombre:
+            nombre = validar_y_sanitizar('Nombre del domiciliario', nombre)
+        return nombre
+    
+    def clean_descripcion(self):
+        """Validar y sanitizar descripción por XSS."""
+        descripcion = self.cleaned_data.get('descripcion', '')
+        if descripcion:
+            descripcion = validar_y_sanitizar('Descripción', descripcion)
+        return descripcion

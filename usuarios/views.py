@@ -1,6 +1,6 @@
-import shutil
-import sqlite3
-from datetime import datetime
+import requests
+import tempfile
+from django.conf import settings
 from pathlib import Path
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,27 +8,102 @@ from django.http import JsonResponse, FileResponse
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
 from django.template.loader import render_to_string
-from django.db import connections
+from django.utils.http import url_has_allowed_host_and_scheme
+from core.notifications import crear_notificacion
+from django.core.cache import cache
 
 from .forms import RegistroForm, LoginForm, EditarPerfilForm
 from .utils import build_login_message, build_form_messages
 from .decorators import panel_login_required, superadmin_required
+from .services.backup_service import (
+    BackupError,
+    create_backup,
+    delete_backup,
+    list_backups,
+    resolve_backup_path,
+    restore_backup,
+    validate_backup_file,
+)
 
 User = get_user_model()
 
+def validar_recaptcha(request):
+    """
+    Valida el token de reCAPTCHA enviado desde el cliente.
+    
+    En desarrollo (DEBUG=True): Aceptar cualquier respuesta
+    En producción: Validar con Google
+    
+    Returns:
+        bool: True si el reCAPTCHA es válido, False en caso contrario
+    """
+    recaptcha_response = request.POST.get('g-recaptcha-response', '').strip()
+
+    # EN DESARROLLO: Aceptar cualquier respuesta de reCAPTCHA
+    if settings.DEBUG:
+        if recaptcha_response:
+            print("✅ MODO DESARROLLO: reCAPTCHA aceptado (sin validar con Google)")
+            return True
+        else:
+            print("⚠️  MODO DESARROLLO: Usuario no marcó el reCAPTCHA")
+            return False
+
+    # EN PRODUCCIÓN: Validar con Google
+    if not settings.RECAPTCHA_SECRET_KEY or settings.RECAPTCHA_SECRET_KEY == '':
+        print("❌ ERROR: RECAPTCHA_SECRET_KEY no está configurada en producción")
+        return False
+
+    if not recaptcha_response:
+        print("⚠️  reCAPTCHA: No se recibió respuesta del cliente")
+        return False
+
+    data = {
+        'secret': settings.RECAPTCHA_SECRET_KEY,
+        'response': recaptcha_response
+    }
+
+    try:
+        r = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data=data,
+            timeout=5
+        )
+        r.raise_for_status()
+        
+        result = r.json()
+        success = result.get('success', False)
+        
+        if success:
+            score = result.get('score', 0)
+            print(f"✅ reCAPTCHA validado correctamente (score: {score})")
+            return True
+        
+        print(f"❌ reCAPTCHA falló: {result}")
+        return False
+    
+    except requests.exceptions.Timeout:
+        print("❌ ERROR: Timeout al validar reCAPTCHA (5s)")
+        return False
+    except requests.exceptions.RequestException as e:
+        print(f"❌ ERROR: Error de conexión al validar reCAPTCHA: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ ERROR: Error inesperado al validar reCAPTCHA: {e}")
+        return False
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0]
+    return request.META.get('REMOTE_ADDR')
 
 def _default_db_engine():
     return settings.DATABASES.get('default', {}).get('ENGINE', '')
-
-
-def _is_sqlite_default_db():
-    return _default_db_engine().endswith('sqlite3')
 
 
 def _default_db_path():
@@ -36,35 +111,26 @@ def _default_db_path():
     return Path(str(db_name)).resolve()
 
 
-def _backup_directory():
-    backup_dir = Path(settings.BASE_DIR) / 'backups'
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    return backup_dir
+def _safe_next_url(request):
+    next_url = (request.GET.get('next') or request.POST.get('next') or '').strip()
+    if not next_url:
+        return ''
+
+    if url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+
+    return ''
 
 
-def _sqlite_backup_to_file(source_path: Path, destination_path: Path):
-    source_conn = sqlite3.connect(str(source_path))
-    try:
-        destination_conn = sqlite3.connect(str(destination_path))
-        try:
-            source_conn.backup(destination_conn)
-        finally:
-            destination_conn.close()
-    finally:
-        source_conn.close()
-
-
-def _validate_sqlite_file(file_path: Path):
-    with open(file_path, 'rb') as uploaded_file:
-        header = uploaded_file.read(16)
-    if header != b'SQLite format 3\x00':
-        raise ValueError('El archivo no tiene un encabezado valido de SQLite.')
-
-    conn = sqlite3.connect(str(file_path))
-    try:
-        conn.execute('PRAGMA schema_version;').fetchone()
-    finally:
-        conn.close()
+def _redirect_next_or(request, default_view_name: str):
+    next_url = _safe_next_url(request)
+    if next_url:
+        return redirect(next_url)
+    return redirect(default_view_name)
 
 
 # =====================================================
@@ -150,11 +216,20 @@ def registro(request):
 # 🔐 AUTENTICACIÓN
 # =====================================================
 
+MAX_INTENTOS = settings.LOGIN_MAX_INTENTOS
+TIEMPO_BLOQUEO = settings.LOGIN_TIEMPO_BLOQUEO
+
 def login_view(request):
     """
     Vista de login para el panel administrativo.
     Solo permite acceso a usuarios con is_staff=True.
+
+    🔒 Seguridad:
+    - reCAPTCHA obligatorio en TODOS los intentos (no solo después de N fallos).
+    - Bloqueo total por IP tras MAX_INTENTOS fallidos.
+    - Contador de intentos restantes visible al usuario.
     """
+
     if request.user.is_authenticated:
         if request.user.is_staff:
             return redirect('core:dashboard')
@@ -168,34 +243,101 @@ def login_view(request):
             return redirect('core:landing')
 
     if request.method == 'POST':
+
+        # 🔐 Control de intentos por IP
+        ip = get_client_ip(request)
+        key = f"login_attempts_{ip}"
+        intentos = cache.get(key, 0)
+
+        # 🔒 BLOQUEO TOTAL — demasiados intentos fallidos
+        if intentos >= MAX_INTENTOS:
+            minutos = TIEMPO_BLOQUEO // 60
+            messages.error(
+                request,
+                f"Demasiados intentos fallidos. Intenta nuevamente en {minutos} minutos.",
+                extra_tags='level-error field-general'
+            )
+            form = LoginForm(request, data=request.POST)
+            return render(request, 'usuarios/login.html', {
+                'form': form,
+                'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+            })
+
+        # 🤖 VERIFICACIÓN reCAPTCHA — obligatoria en TODOS los intentos
+        if not validar_recaptcha(request):
+            messages.warning(
+                request,
+                "Debes verificar que no eres un robot antes de ingresar.",
+                extra_tags='level-warning field-general'
+            )
+            form = LoginForm(request, data=request.POST)
+            return render(request, 'usuarios/login.html', {
+                'form': form,
+                'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+            })
+
         form = LoginForm(request, data=request.POST)
+
+        # ✅ LOGIN CORRECTO
         if form.is_valid():
             user = form.get_user()
+
             if not user.is_staff:
                 messages.error(
                     request,
                     '⛔ Acceso denegado. No tienes permisos para acceder al panel administrativo.',
                     extra_tags='level-error field-general'
                 )
-                return render(request, 'usuarios/login.html', {'form': form})
+                return render(request, 'usuarios/login.html', {
+                    'form': form,
+                    'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+                })
+
+            # 🔥 RESET INTENTOS al ingresar correctamente
             auth_login(request, user)
+            cache.delete(key)
+
             messages.success(
                 request,
                 f'¡Bienvenid@ de nuevo, {user.first_name}! Has iniciado sesión correctamente.',
                 extra_tags='level-success field-general'
             )
             return redirect('core:dashboard')
+
+        # ❌ LOGIN FALLIDO — credenciales incorrectas
         else:
             usuario_o_documento = request.POST.get('username')
             msg = build_login_message(form, usuario_o_documento=usuario_o_documento)
+
+            # ➕ SUMAR INTENTO fallido
+            intentos += 1
+            cache.set(key, intentos, timeout=TIEMPO_BLOQUEO)
+
+            intentos_restantes = MAX_INTENTOS - intentos
+
+            # 🧠 MENSAJE DINÁMICO con intentos restantes
+            if intentos_restantes > 0:
+                mensaje_final = f"{msg['text']} Te quedan {intentos_restantes} intento(s) antes de bloquearse."
+            else:
+                mensaje_final = "Has alcanzado el máximo de intentos permitidos."
+
             if 'field-inactive' in msg.get('tags', ''):
                 auth_logout(request)
                 return redirect('usuarios:panel_inactivo')
-            messages.error(request, msg['text'], extra_tags=msg['tags'])
+
+            messages.error(
+                request,
+                mensaje_final,
+                extra_tags=msg['tags']
+            )
+
     else:
         form = LoginForm()
 
-    return render(request, 'usuarios/login.html', {'form': form})
+    return render(request, 'usuarios/login.html', {
+        'form': form,
+        'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY
+    })
 
 
 def panel_inactivo_view(request):
@@ -255,130 +397,189 @@ def logout_view(request):
 # 👤 GESTIÓN DE PERFIL PERSONAL
 # =====================================================
 
+@login_required
 @panel_login_required
 def perfil_view(request):
     db_path = _default_db_path()
     context = {
         'db_engine': _default_db_engine(),
-        'db_is_sqlite': _is_sqlite_default_db(),
+        'db_is_sqlite': _default_db_engine().endswith('sqlite3'),
         'db_name': db_path.name,
     }
     return render(request, 'usuarios/perfil.html', context)
 
 
+@login_required
+@panel_login_required
+def seguridad_view(request):
+    db_path = _default_db_path()
+    backups = [
+        {
+            'nombre': item.name,
+            'fecha': item.modified_at,
+            'size': item.size_kb,
+            'tipo': 'ZIP' if item.extension == '.zip' else 'JSON',
+            'icon': 'bi-file-earmark-zip' if item.extension == '.zip' else 'bi-filetype-json',
+        }
+        for item in list_backups()
+    ]
+
+    context = {
+        'db_engine': _default_db_engine(),
+        'db_is_sqlite': _default_db_engine().endswith('sqlite3'),
+        'db_name': db_path.name,
+        'backups': backups,
+        'auto_download_backup': request.session.pop('backup_auto_download', ''),
+    }
+
+    return render(request, 'usuarios/seguridad.html', context)
+
+
 @superadmin_required
 def generar_backup_db_view(request):
     if request.method != 'POST':
-        return redirect('usuarios:perfil')
+        return _redirect_next_or(request, 'usuarios:seguridad')
 
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-
-    if not _is_sqlite_default_db():
-        message = '⛔ El modulo de respaldo automatico solo esta habilitado para SQLite en este momento.'
-        if is_ajax:
-            return JsonResponse({'message': message}, status=400)
-        messages.error(request, message, extra_tags='level-error field-general')
-        return redirect('usuarios:perfil')
-
-    db_path = _default_db_path()
-    if not db_path.exists():
-        message = '⛔ No se encontro el archivo de base de datos para generar la copia de seguridad.'
-        if is_ajax:
-            return JsonResponse({'message': message}, status=400)
-        messages.error(request, message, extra_tags='level-error field-general')
-        return redirect('usuarios:perfil')
-
-    backup_dir = _backup_directory()
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    backup_filename = f'backup_{timestamp}.sqlite3'
-    backup_path = backup_dir / backup_filename
+    compress = request.POST.get('compress_backup') == '1'
 
     try:
-        _sqlite_backup_to_file(db_path, backup_path)
-    except Exception as exc:
-        message = f'❌ No fue posible generar el backup: {exc}'
-        if is_ajax:
-            return JsonResponse({'message': message}, status=500)
-        messages.error(request, message, extra_tags='level-error field-general')
-        return redirect('usuarios:perfil')
+        backup = create_backup(compress=compress)
 
-    response = FileResponse(open(backup_path, 'rb'), as_attachment=True, filename=backup_filename)
-    response['Content-Type'] = 'application/x-sqlite3'
-    return response
+    except BackupError as exc:
+        messages.error(
+            request,
+            f'No fue posible generar el backup: {exc}',
+            extra_tags='level-error field-general'
+        )
+        return _redirect_next_or(request, 'usuarios:seguridad')
+
+    messages.success(
+        request,
+        f'Backup generado correctamente: {backup.name}.',
+        extra_tags='level-success field-general'
+    )
+
+    request.session['backup_auto_download'] = backup.name
+    return _redirect_next_or(request, 'usuarios:seguridad')
+
+
+@superadmin_required
+def descargar_backup_db_view(request, backup_name):
+    try:
+        backup_path = resolve_backup_path(backup_name)
+    except BackupError as exc:
+        messages.error(
+            request,
+            f'No se pudo descargar el backup: {exc}',
+            extra_tags='level-error field-general'
+        )
+        return _redirect_next_or(request, 'usuarios:seguridad')
+
+    content_type = 'application/zip' if backup_path.suffix.lower() == '.zip' else 'application/json'
+
+    return FileResponse(
+        open(backup_path, 'rb'),
+        as_attachment=True,
+        filename=backup_path.name,
+        content_type=content_type,
+    )
+
+
+@superadmin_required
+def eliminar_backup_db_view(request, backup_name):
+    if request.method != 'POST':
+        return _redirect_next_or(request, 'usuarios:seguridad')
+
+    try:
+        delete_backup(backup_name)
+        messages.success(
+            request,
+            f'Backup eliminado: {backup_name}.',
+            extra_tags='level-success field-general'
+        )
+    except BackupError as exc:
+        messages.error(
+            request,
+            f'No se pudo eliminar el backup: {exc}',
+            extra_tags='level-error field-general'
+        )
+
+    return _redirect_next_or(request, 'usuarios:seguridad')
 
 
 @superadmin_required
 def restaurar_backup_db_view(request):
     if request.method != 'POST':
-        return redirect('usuarios:perfil')
-
-    if not _is_sqlite_default_db():
-        messages.error(
-            request,
-            '⛔ La restauracion automatica solo esta habilitada para SQLite en este momento.',
-            extra_tags='level-error field-general'
-        )
-        return redirect('usuarios:perfil')
-
+        return _redirect_next_or(request, 'usuarios:seguridad')
+    selected_backup = request.POST.get('backup_selected')
     uploaded_file = request.FILES.get('backup_file')
-    if not uploaded_file:
-        messages.warning(
-            request,
-            '⚠️ Debes seleccionar un archivo .sqlite3 para restaurar la base de datos.',
-            extra_tags='level-warning field-general'
-        )
-        return redirect('usuarios:perfil')
 
-    allowed_extensions = {'.sqlite3', '.sqlite', '.db'}
-    suffix = Path(uploaded_file.name).suffix.lower()
-    if suffix not in allowed_extensions:
-        messages.error(
-            request,
-            '⛔ Archivo invalido. Solo se permiten extensiones .sqlite3, .sqlite o .db.',
-            extra_tags='level-error field-general'
-        )
-        return redirect('usuarios:perfil')
-
-    backup_dir = _backup_directory()
-    tmp_path = backup_dir / f'_tmp_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}{suffix}'
+    tmp_path = None
+    is_temp_upload = False
 
     try:
-        with open(tmp_path, 'wb+') as destination:
+        if selected_backup:
+            tmp_path = resolve_backup_path(selected_backup)
+
+        elif uploaded_file:
+            extension = Path(uploaded_file.name).suffix.lower()
+            if extension not in {'.json', '.zip'}:
+                messages.error(
+                    request,
+                    'Archivo inválido. Solo se permiten backups .json o .zip.',
+                    extra_tags='level-error field-general'
+                )
+                return _redirect_next_or(request, 'usuarios:seguridad')
+
+            max_upload_mb = int(getattr(settings, 'BACKUP_MAX_UPLOAD_MB', 30))
+            if uploaded_file.size > max_upload_mb * 1024 * 1024:
+                messages.error(
+                    request,
+                    f'El archivo supera el límite de {max_upload_mb} MB.',
+                    extra_tags='level-error field-general'
+                )
+                return _redirect_next_or(request, 'usuarios:seguridad')
+
+            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
             for chunk in uploaded_file.chunks():
-                destination.write(chunk)
+                tmp_file.write(chunk)
+            tmp_file.close()
+            tmp_path = Path(tmp_file.name)
+            is_temp_upload = True
 
-        _validate_sqlite_file(tmp_path)
+        else:
+            messages.warning(
+                request,
+                'Debes seleccionar un backup o subir un archivo.',
+                extra_tags='level-warning field-general'
+            )
+            return _redirect_next_or(request, 'usuarios:seguridad')
 
-        db_path = _default_db_path()
-        if not db_path.exists():
-            raise FileNotFoundError('No existe la base de datos actual para restaurar.')
-
-        emergency_filename = f'pre_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}.sqlite3'
-        emergency_path = backup_dir / emergency_filename
-
-        _sqlite_backup_to_file(db_path, emergency_path)
-
-        connections.close_all()
-        shutil.copy2(tmp_path, db_path)
+        validate_backup_file(tmp_path)
+        restore_backup(tmp_path)
 
         messages.success(
             request,
-            f'✅ Base de datos restaurada correctamente. Se guardo una copia de seguridad previa: {emergency_filename}.',
+            'Backup restaurado correctamente.',
             extra_tags='level-success field-general'
         )
-    except Exception as exc:
+
+    except BackupError as exc:
         messages.error(
             request,
-            f'❌ No fue posible restaurar la base de datos: {exc}',
+            f'Error al restaurar el backup: {exc}',
             extra_tags='level-error field-general'
         )
+
     finally:
-        if tmp_path.exists():
+        # Solo borrar si es archivo temporal
+        if is_temp_upload and tmp_path and tmp_path.exists():
             tmp_path.unlink()
 
-    return redirect('usuarios:perfil')
+    return _redirect_next_or(request, 'usuarios:seguridad')
 
 
+@login_required
 @panel_login_required
 def editar_perfil_view(request):
     """
@@ -481,6 +682,7 @@ class RestablecerPasswordCompletoView(PasswordResetCompleteView):
 # 👥 GESTIÓN DE USUARIOS
 # =====================================================
 
+@login_required
 @panel_login_required
 def lista_usuarios_view(request):
     """
@@ -503,6 +705,7 @@ def lista_usuarios_view(request):
     return render(request, 'usuarios/lista_usuarios.html', context)
 
 
+@login_required
 @panel_login_required
 def crear_usuario_view(request):
     """
@@ -550,6 +753,12 @@ def crear_usuario_view(request):
                     f'✅ Usuario {usuario.username} creado correctamente.',
                     extra_tags='level-success field-general'
                 )
+                crear_notificacion(
+                    categoria='movimiento',
+                    estilo='success',
+                    titulo='Usuario creado',
+                    mensaje=f'Se creo el usuario {usuario.username}.',
+                )
                 return redirect('usuarios:lista_usuarios')
 
             except Exception as e:
@@ -587,6 +796,7 @@ def crear_usuario_view(request):
     return render(request, 'usuarios/crear_usuario.html', context)
 
 
+@login_required
 @panel_login_required
 def editar_usuario_view(request, user_id):
     """
@@ -607,24 +817,6 @@ def editar_usuario_view(request, user_id):
         documento_original = usuario.documento
         documento_nuevo    = request.POST.get('documento', '')
         estado_anterior_activo = usuario.is_active
-
-        # Nota: Validacion de confirmacion de cambio de documento desactivada a pedido.
-        # if documento_original != documento_nuevo:
-        #     confirmar = request.POST.get('confirmar_cambio_documento', '')
-        #     if confirmar != 'CONFIRMAR':
-        #         messages.error(
-        #             request,
-        #             '⚠️ Para cambiar el documento debes marcar la casilla de confirmación y escribir "CONFIRMAR" en el campo.',
-        #             extra_tags='level-error field-documento'
-        #         )
-        #         form = EditarPerfilForm(request.POST, request.FILES, instance=usuario, editing_user=request.user)
-        #         return render(request, 'usuarios/editar_usuario.html', {
-        #             'form': form, 'usuario': usuario,
-        #             'es_auto_edicion': True,
-        #             'titulo': 'Editar Mi Perfil',
-        #             'boton_texto': 'Guardar Cambios',
-        #             'documento_original': documento_original,
-        #         })
 
         form = EditarPerfilForm(
             request.POST,
@@ -675,6 +867,21 @@ def editar_usuario_view(request, user_id):
                     '✅ Tu perfil ha sido actualizado correctamente.',
                     extra_tags='level-success field-general'
                 )
+
+                crear_notificacion(
+                    categoria='movimiento',
+                    estilo='info',
+                    titulo='Perfil actualizado',
+                    mensaje=f'Se actualizo el perfil de {usuario_actualizado.username}.',
+                )
+
+                if estado_anterior_activo != usuario_actualizado.is_active:
+                    crear_notificacion(
+                        categoria='cuenta',
+                        estilo='success' if usuario_actualizado.is_active else 'error',
+                        titulo='Cuenta activada' if usuario_actualizado.is_active else 'Cuenta desactivada',
+                        mensaje=f'La cuenta de {usuario_actualizado.username} fue {"activada" if usuario_actualizado.is_active else "desactivada"}.',
+                    )
 
                 # Si se desactiva su propia cuenta, se cierra sesion de inmediato.
                 if not usuario_actualizado.is_active:
@@ -742,6 +949,13 @@ def desactivar_usuario_view(request, user_id):
         usuario.is_active = False
         usuario.save()
 
+        crear_notificacion(
+            categoria='cuenta',
+            estilo='error',
+            titulo='Cuenta desactivada',
+            mensaje=f'La cuenta de {usuario.username} fue desactivada.',
+        )
+
         if usuario.email:
             subject = 'Cuenta desactivada - Panel Administrativo Artes y Estilos'
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
@@ -766,6 +980,7 @@ def desactivar_usuario_view(request, user_id):
     return render(request, 'usuarios/desactivar_usuario.html', {'usuario': usuario})
 
 
+@login_required
 @panel_login_required
 def visualizar_usuario_view(request, user_id):
     usuario = get_object_or_404(User.objects.select_related('perfil'), id=user_id)
@@ -789,6 +1004,13 @@ def activar_usuario_view(request, user_id):
     if request.method == 'POST':
         usuario.is_active = True
         usuario.save()
+
+        crear_notificacion(
+            categoria='cuenta',
+            estilo='success',
+            titulo='Cuenta activada',
+            mensaje=f'La cuenta de {usuario.username} fue activada.',
+        )
 
         if usuario.email:
             subject = 'Cuenta activada - Panel Administrativo Artes y Estilos'
@@ -865,6 +1087,7 @@ def convertir_superadmin_view(request, user_id):
     return render(request, 'usuarios/convertir_superadmin.html', {'usuario': usuario})
 
 
+@login_required
 @panel_login_required
 def eliminar_usuario_view(request, user_id):
     """
